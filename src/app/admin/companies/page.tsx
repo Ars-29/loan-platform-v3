@@ -5,9 +5,10 @@ import { RouteGuard } from '@/components/auth/RouteGuard';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
-import { DataTable, TableColumn } from '@/components/ui/DataTable';
-import { StatusBadge } from '@/components/ui/StatusBadge';
-import { ActionButton } from '@/components/ui/ActionButton';
+import { CompanyTable } from '@/components/ui/DataTable';
+import { CreateButton } from '@/components/ui/Button';
+import { FormModal, FormField } from '@/components/ui/Modal';
+import { useNotification } from '@/components/ui/Notification';
 
 interface Company {
   id: string;
@@ -32,16 +33,17 @@ interface CreateCompanyForm {
 }
 
 export default function CompaniesPage() {
+  const { showNotification } = useNotification();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [formData, setFormData] = useState<CreateCompanyForm>({
     name: '',
     email: '',
     website: '',
   });
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
 
@@ -93,10 +95,23 @@ export default function CompaniesPage() {
     }
   };
 
-  const handleCreateCompany = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
+  const handleCreateCompany = async () => {
+    setIsCreating(true);
+    setValidationErrors({});
+
+    // Basic validation
+    const errors: Record<string, string> = {};
+    if (!formData.name.trim()) errors.name = 'Company name is required';
+    if (!formData.email.trim()) errors.email = 'Email is required';
+    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      setIsCreating(false);
+      return;
+    }
 
     try {
       // Send invite using new invite system
@@ -118,63 +133,92 @@ export default function CompaniesPage() {
         throw new Error(result.message);
       }
 
-      setSuccess(`🎉 Company "${formData.name}" created successfully!
+      showNotification({
+        type: 'success',
+        title: 'Company Created Successfully!',
+        message: `🎉 Company "${formData.name}" created successfully!\n\n📧 Invite sent to: ${formData.email}\n\n⏳ Next Steps:\n1. The admin will receive an invite email\n2. They need to click the invite link in their email\n3. Create their password on the setup page\n4. They'll be redirected to their company dashboard\n5. They can then create loan officers\n\n⚠️ Note: Invites expire in 24 hours. You can resend or delete from the table below.`,
+        persistent: true,
+      });
 
-📧 Invite sent to: ${formData.email}
-
-⏳ Next Steps:
-1. The admin will receive an invite email
-2. They need to click the invite link in their email
-3. Create their password on the setup page
-4. They'll be redirected to their company dashboard
-5. They can then create loan officers
-
-⚠️ Note: Invites expire in 24 hours. You can resend or delete from the table below.`);
       setFormData({ name: '', email: '', website: '' });
-      setShowCreateForm(false);
+      setShowCreateModal(false);
       fetchCompanies();
     } catch (error: unknown) {
       console.error('Error creating company:', error);
       if (error instanceof Error) {
         if (error.message.includes('already exists')) {
-          setError('A user with this email already exists. Please use a different email or contact support.');
+          showNotification({
+            type: 'error',
+            title: 'Email Already Exists',
+            message: 'A user with this email already exists. Please use a different email or contact support.',
+          });
         } else if (error.message.includes('Invalid email')) {
-          setError('Please enter a valid email address.');
+          showNotification({
+            type: 'error',
+            title: 'Invalid Email',
+            message: 'Please enter a valid email address.',
+          });
         } else if (error.message.includes('network') || error.message.includes('fetch')) {
-          setError('Network error. Please check your connection and try again.');
+          showNotification({
+            type: 'error',
+            title: 'Network Error',
+            message: 'Network error. Please check your connection and try again.',
+          });
         } else {
-          setError(error.message);
+          showNotification({
+            type: 'error',
+            title: 'Error Creating Company',
+            message: error.message,
+          });
         }
       } else {
-        setError('An unexpected error occurred. Please try again.');
+        showNotification({
+          type: 'error',
+          title: 'Unexpected Error',
+          message: 'An unexpected error occurred. Please try again.',
+        });
       }
+    } finally {
+      setIsCreating(false);
     }
   };
 
-  const handleResendInvite = async (companyId: string) => {
+  const handleResendInvite = async (company: Company) => {
     try {
       const response = await fetch('/api/resend-invite', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ companyId }),
+        body: JSON.stringify({ companyId: company.id }),
       });
 
       const result = await response.json();
 
       if (result.success) {
-        setSuccess(result.message);
+        showNotification({
+          type: 'success',
+          title: 'Invite Resent',
+          message: result.message,
+        });
         fetchCompanies(); // Refresh the list
       } else {
-        setError(result.message);
+        showNotification({
+          type: 'error',
+          title: 'Failed to Resend Invite',
+          message: result.message,
+        });
       }
     } catch (error) {
-      setError('Failed to resend invite. Please try again.');
+      showNotification({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to resend invite. Please try again.',
+      });
     }
   };
 
-  const handleDeactivateCompany = async (companyId: string) => {
+  const handleDeactivateCompany = async (company: Company) => {
     if (!confirm('Are you sure you want to deactivate this company? The company admin will not be able to sign in.')) {
       return;
     }
@@ -185,23 +229,35 @@ export default function CompaniesPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ companyId }),
+        body: JSON.stringify({ companyId: company.id }),
       });
 
       const result = await response.json();
 
       if (result.success) {
-        setSuccess(result.message);
+        showNotification({
+          type: 'success',
+          title: 'Company Deactivated',
+          message: result.message,
+        });
         fetchCompanies(); // Refresh the list
       } else {
-        setError(result.message);
+        showNotification({
+          type: 'error',
+          title: 'Failed to Deactivate Company',
+          message: result.message,
+        });
       }
     } catch (error) {
-      setError('Failed to deactivate company. Please try again.');
+      showNotification({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to deactivate company. Please try again.',
+      });
     }
   };
 
-  const handleDeleteCompany = async (companyId: string) => {
+  const handleDeleteCompany = async (company: Company) => {
     if (!confirm('Are you sure you want to delete this company? This action cannot be undone.')) {
       return;
     }
@@ -212,19 +268,31 @@ export default function CompaniesPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ companyId }),
+        body: JSON.stringify({ companyId: company.id }),
       });
 
       const result = await response.json();
 
       if (result.success) {
-        setSuccess(result.message);
+        showNotification({
+          type: 'success',
+          title: 'Company Deleted',
+          message: result.message,
+        });
         fetchCompanies(); // Refresh the list
       } else {
-        setError(result.message);
+        showNotification({
+          type: 'error',
+          title: 'Failed to Delete Company',
+          message: result.message,
+        });
       }
     } catch (error) {
-      setError('Failed to delete company. Please try again.');
+      showNotification({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to delete company. Please try again.',
+      });
     }
   };
 
@@ -258,199 +326,81 @@ export default function CompaniesPage() {
     );
   }
 
+  // Form fields configuration
+  const formFields: FormField[] = [
+    {
+      name: 'name',
+      label: 'Company Name',
+      type: 'text',
+      required: true,
+      placeholder: 'Enter company name',
+    },
+    {
+      name: 'email',
+      label: 'Admin Email',
+      type: 'email',
+      required: true,
+      placeholder: 'admin@company.com',
+    },
+    {
+      name: 'website',
+      label: 'Website (Optional)',
+      type: 'url',
+      placeholder: 'https://example.com',
+      description: 'Company website URL',
+    },
+  ];
+
   return (
     <RouteGuard allowedRoles={['super_admin']}>
       <DashboardLayout 
         title="Company Management" 
         subtitle="Manage companies and their administrators"
       >
-
-          <div className="bg-white shadow rounded-lg">
+        <div className="space-y-6">
+          {/* Header with Create Button */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
             <div className="px-6 py-4 border-b border-gray-200">
-              <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold text-gray-900">Companies</h2>
-                <button
-                  onClick={() => setShowCreateForm(!showCreateForm)}
-                  className="bg-pink-600 text-white px-4 py-2 rounded-md hover:bg-pink-700"
-                >
-                  {showCreateForm ? 'Cancel' : 'Create Company'}
-                </button>
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900">Companies</h2>
+                <CreateButton
+                  role="super_admin"
+                  onClick={() => setShowCreateModal(true)}
+                />
               </div>
             </div>
 
-            {showCreateForm && (
-              <div className="px-6 py-4 border-b border-gray-200">
-                <form onSubmit={handleCreateCompany} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Company Name</label>
-                      <input
-                        type="text"
-                        required
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-pink-500 focus:border-pink-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Admin Email</label>
-                      <input
-                        type="email"
-                        required
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-pink-500 focus:border-pink-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Website (Optional)</label>
-                      <input
-                        type="url"
-                        value={formData.website}
-                        onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-pink-500 focus:border-pink-500"
-                        placeholder="https://example.com"
-                      />
-                    </div>
-                  </div>
-
-                  {error && (
-                    <div className="text-red-600 text-sm">{error}</div>
-                  )}
-
-                  {success && (
-                    <div className="text-green-600 text-sm whitespace-pre-line">{success}</div>
-                  )}
-
-                  <div className="text-xs text-gray-500 mb-4">
-                    💡 <strong>Tip:</strong> The admin will receive an invite email with a link to set up their account. Invites expire in 24 hours.
-                  </div>
-
-                  <div className="flex justify-end">
-                    <button
-                      type="submit"
-                      className="bg-pink-600 text-white px-4 py-2 rounded-md hover:bg-pink-700"
-                    >
-                      Send Invite
-                    </button>
-                  </div>
-                </form>
-              </div>
-            )}
-
+            {/* Data Table */}
             <div className="px-6 py-4">
-              {loading ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600 mx-auto"></div>
-                </div>
-              ) : companies.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  No companies found. Create your first company above.
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Company
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Email
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Created
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {companies.map((company) => (
-                        <tr key={company.id}>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">{company.name}</div>
-                            <div className="text-sm text-gray-500">{company.slug}</div>
-                            {company.isActive && (
-                              <div className="text-xs text-green-600 font-medium">🟢 Active Company</div>
-                            )}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {company.admin_email || company.email}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              company.invite_status === 'accepted' ? 'bg-green-100 text-green-800' :
-                              company.invite_status === 'sent' ? 'bg-blue-100 text-blue-800' :
-                              company.invite_status === 'expired' ? 'bg-red-100 text-red-800' :
-                              'bg-yellow-100 text-yellow-800'
-                            }`}>
-                              {company.invite_status === 'accepted' ? '✅ Active' :
-                               company.invite_status === 'sent' ? '📧 Invite Sent' :
-                               company.invite_status === 'expired' ? '⏰ Expired' :
-                               '⏳ Pending'}
-                            </span>
-                            {company.invite_status === 'sent' && company.invite_expires_at && (
-                              <div className="text-xs text-gray-500 mt-1">
-                                Expires: {new Date(company.invite_expires_at).toLocaleString()}
-                              </div>
-                            )}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {company.created_at ? new Date(company.created_at).toLocaleDateString() : 
-                             company.createdAt ? new Date(company.createdAt).toLocaleDateString() : 'N/A'}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div className="flex space-x-2">
-                              {company.invite_status === 'sent' && (
-                                <button
-                                  onClick={() => handleResendInvite(company.id)}
-                                  className="text-blue-600 hover:text-blue-900 text-xs"
-                                >
-                                  Resend
-                                </button>
-                              )}
-                              {company.invite_status === 'expired' && (
-                                <>
-                                  <button
-                                    onClick={() => handleResendInvite(company.id)}
-                                    className="text-blue-600 hover:text-blue-900 text-xs"
-                                  >
-                                    Resend
-                                  </button>
-                                  <span className="text-gray-300">|</span>
-                                </>
-                              )}
-                              {company.invite_status === 'accepted' && (
-                                <button
-                                  onClick={() => handleDeactivateCompany(company.id)}
-                                  className="text-red-600 hover:text-red-900 text-xs"
-                                >
-                                  Deactivate
-                                </button>
-                              )}
-                              {(company.invite_status === 'pending' || company.invite_status === 'expired') && (
-                                <button
-                                  onClick={() => handleDeleteCompany(company.id)}
-                                  className="text-red-600 hover:text-red-900 text-xs"
-                                >
-                                  Delete
-                                </button>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+              <CompanyTable
+                data={companies}
+                loading={loading}
+                onResend={handleResendInvite}
+                onDeactivate={handleDeactivateCompany}
+                onDelete={handleDeleteCompany}
+              />
             </div>
           </div>
+        </div>
+
+        {/* Create Company Modal */}
+        <FormModal
+          isOpen={showCreateModal}
+          onClose={() => {
+            setShowCreateModal(false);
+            setFormData({ name: '', email: '', website: '' });
+            setValidationErrors({});
+          }}
+          title="Create New Company"
+          role="super_admin"
+          action="create"
+          formData={formData}
+          onFormDataChange={(data) => setFormData(data as CreateCompanyForm)}
+          fields={formFields}
+          validationErrors={validationErrors}
+          onSubmit={handleCreateCompany}
+          loading={isCreating}
+        />
       </DashboardLayout>
     </RouteGuard>
   );

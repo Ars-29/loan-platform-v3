@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { verifyCompanyAdmin, checkVerificationStatus } from '@/lib/email-verification';
 
-export default function VerifyCompanyAdminPage() {
+function VerifyCompanyAdminPageContent() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -182,5 +182,17 @@ export default function VerifyCompanyAdminPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VerifyCompanyAdminPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-pink-600"></div>
+      </div>
+    }>
+      <VerifyCompanyAdminPageContent />
+    </Suspense>
   );
 }

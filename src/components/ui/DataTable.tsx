@@ -1,33 +1,132 @@
-'use client';
-
 import React from 'react';
+import { theme, RoleType } from '@/theme/theme';
+import { Button, ResendButton, DeactivateButton, DeleteButton } from './Button';
 
-export interface TableColumn {
+export interface TableColumn<T = any> {
   key: string;
   title: string;
-  dataIndex: string;
-  render?: (value: any, record: any) => React.ReactNode;
+  dataIndex?: string;
+  render?: (value: any, record: T, index: number) => React.ReactNode;
+  width?: string | number;
+  align?: 'left' | 'center' | 'right';
+  sortable?: boolean;
 }
 
-export interface DataTableProps {
-  columns: TableColumn[];
-  data: any[];
+export interface DataTableProps<T = any> {
+  data: T[];
+  columns: TableColumn<T>[];
   loading?: boolean;
   emptyMessage?: string;
+  role?: RoleType;
+  onResend?: (record: T) => void;
+  onDeactivate?: (record: T) => void;
+  onDelete?: (record: T) => void;
+  className?: string;
 }
 
-export function DataTable({ columns, data, loading = false, emptyMessage = 'No data available' }: DataTableProps) {
+/**
+ * Centralized DataTable Component
+ * 
+ * Features:
+ * - Reusable for both companies and loan officers
+ * - Role-based action buttons
+ * - Consistent styling and layout
+ * - Loading states and empty states
+ * - Customizable columns and actions
+ */
+export const DataTable = <T extends Record<string, any>>({
+  data,
+  columns,
+  loading = false,
+  emptyMessage,
+  role,
+  onResend,
+  onDeactivate,
+  onDelete,
+  className = '',
+}: DataTableProps<T>) => {
+  // Get role-based empty message
+  const getEmptyMessage = () => {
+    if (emptyMessage) return emptyMessage;
+    if (role) return theme.roleTexts[role].emptyStateMessage;
+    return 'No data found.';
+  };
+
+  // Render action buttons based on record status and role
+  const renderActions = (record: T) => {
+    const actions: React.ReactNode[] = [];
+
+    // Determine record status based on common fields
+    const inviteStatus = record?.invite_status || record?.status;
+    const isActive = record?.isActive !== undefined ? record?.isActive : inviteStatus === 'accepted';
+
+    // Resend button for pending/sent/expired invites
+    if (onResend && (inviteStatus === 'sent' || inviteStatus === 'expired' || !isActive)) {
+      actions.push(
+        <ResendButton
+          key="resend"
+          role={role}
+          onClick={() => onResend(record)}
+          className="text-blue-600 hover:text-blue-900 text-xs"
+        />
+      );
+    }
+
+    // Separator if we have more actions
+    if (actions.length > 0 && (onDeactivate || onDelete)) {
+      actions.push(<span key="separator" className="text-gray-300">|</span>);
+    }
+
+    // Deactivate button for active records
+    if (onDeactivate && isActive) {
+      actions.push(
+        <DeactivateButton
+          key="deactivate"
+          role={role}
+          onClick={() => onDeactivate(record)}
+          className="text-red-600 hover:text-red-900 text-xs"
+        />
+      );
+    }
+
+    // Delete button for inactive/pending/expired records
+    if (onDelete && (!isActive || inviteStatus === 'pending' || inviteStatus === 'expired')) {
+      actions.push(
+        <DeleteButton
+          key="delete"
+          role={role}
+          onClick={() => onDelete(record)}
+          className="text-red-600 hover:text-red-900 text-xs"
+        />
+      );
+    }
+
+    return actions.length > 0 ? (
+      <div className="flex space-x-2">
+        {actions}
+      </div>
+    ) : null;
+  };
+
+  // Add actions column if any action handlers are provided
+  const finalColumns: TableColumn<T>[] = [
+    ...columns,
+    ...(onResend || onDeactivate || onDelete ? [{
+      key: 'actions',
+      title: 'Actions',
+      render: renderActions,
+      width: '120px',
+      align: 'left' as const,
+    } as TableColumn<T>] : []),
+  ];
+
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="p-6">
-          <div className="animate-pulse">
-            <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
-            <div className="space-y-3">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="h-4 bg-gray-200 rounded"></div>
-              ))}
-            </div>
+      <div className={`bg-white shadow rounded-lg ${className}`}>
+        <div className="px-6 py-4">
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600 mx-auto"></div>
+            <p className="mt-2 text-sm text-gray-500">Loading...</p>
           </div>
         </div>
       </div>
@@ -36,30 +135,31 @@ export function DataTable({ columns, data, loading = false, emptyMessage = 'No d
 
   if (data.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="p-8 text-center">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-            </svg>
+      <div className={`bg-white shadow rounded-lg ${className}`}>
+        <div className="px-6 py-4">
+          <div className="text-center py-8 text-gray-500">
+            {getEmptyMessage()}
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No Data</h3>
-          <p className="text-gray-500">{emptyMessage}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div className={`bg-white shadow rounded-lg ${className}`}>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              {columns.map((column) => (
+              {finalColumns.map((column) => (
                 <th
                   key={column.key}
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className={`
+                    px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider
+                    ${column.align === 'center' ? 'text-center' : ''}
+                    ${column.align === 'right' ? 'text-right' : ''}
+                  `}
+                  style={{ width: column.width }}
                 >
                   {column.title}
                 </th>
@@ -69,14 +169,22 @@ export function DataTable({ columns, data, loading = false, emptyMessage = 'No d
           <tbody className="bg-white divide-y divide-gray-200">
             {data.map((record, index) => (
               <tr key={record.id || index} className="hover:bg-gray-50">
-                {columns.map((column) => (
-                  <td key={column.key} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {column.render 
-                      ? column.render(record[column.dataIndex], record)
-                      : record[column.dataIndex]
-                    }
-                  </td>
-                ))}
+                {finalColumns.map((column) => {
+                  const value = column.dataIndex ? record[column.dataIndex] : record[column.key];
+                  
+                  return (
+                    <td
+                      key={column.key}
+                      className={`
+                        px-6 py-4 whitespace-nowrap text-sm
+                        ${column.align === 'center' ? 'text-center' : ''}
+                        ${column.align === 'right' ? 'text-right' : ''}
+                      `}
+                    >
+                      {column.render ? column.render(value, record, index) : value}
+                    </td>
+                  );
+                })}
               </tr>
             ))}
           </tbody>
@@ -84,4 +192,135 @@ export function DataTable({ columns, data, loading = false, emptyMessage = 'No d
       </div>
     </div>
   );
-}
+};
+
+// Specialized components for common use cases
+export const CompanyTable: React.FC<Omit<DataTableProps, 'role' | 'columns'>> = (props) => {
+  const companyColumns: TableColumn[] = [
+    {
+      key: 'company',
+      title: 'Company',
+      render: (_, record) => (
+        <div>
+          <div className="text-sm font-medium text-gray-900">{record.name}</div>
+          <div className="text-sm text-gray-500">{record.slug}</div>
+          {record.isActive && (
+            <div className="text-xs text-green-600 font-medium">🟢 Active Company</div>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'email',
+      title: 'Email',
+      dataIndex: 'admin_email',
+      render: (value, record) => value || record.email,
+    },
+    {
+      key: 'status',
+      title: 'Status',
+      dataIndex: 'invite_status',
+      render: (value, record) => {
+        const status = value || 'pending';
+        const expiresAt = record.invite_expires_at;
+        
+        return (
+          <div>
+            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+              status === 'accepted' ? 'bg-green-100 text-green-800' :
+              status === 'sent' ? 'bg-blue-100 text-blue-800' :
+              status === 'expired' ? 'bg-red-100 text-red-800' :
+              'bg-yellow-100 text-yellow-800'
+            }`}>
+              {status === 'accepted' ? '✅ Active' :
+               status === 'sent' ? '📧 Invite Sent' :
+               status === 'expired' ? '⏰ Expired' :
+               '⏳ Pending'}
+            </span>
+            {status === 'sent' && expiresAt && (
+              <div className="text-xs text-gray-500 mt-1">
+                Expires: {new Date(expiresAt).toLocaleString()}
+              </div>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      key: 'created',
+      title: 'Created',
+      dataIndex: 'created_at',
+      render: (value, record) => {
+        const date = value || record.createdAt;
+        return date ? new Date(date).toLocaleDateString() : 'N/A';
+      },
+    },
+  ];
+
+  return (
+    <DataTable
+      {...props}
+      role="super_admin"
+      columns={companyColumns}
+    />
+  );
+};
+
+export const OfficerTable: React.FC<Omit<DataTableProps, 'role' | 'columns'>> = (props) => {
+  const officerColumns: TableColumn[] = [
+    {
+      key: 'officer',
+      title: 'Officer',
+      render: (_, record) => (
+        <div className="flex items-center">
+          <div className="h-10 w-10 flex-shrink-0">
+            <div className="h-10 w-10 rounded-full bg-pink-100 flex items-center justify-center">
+              <span className="text-sm font-medium text-pink-600">
+                {record.firstName?.charAt(0)}{record.lastName?.charAt(0)}
+              </span>
+            </div>
+          </div>
+          <div className="ml-4">
+            <div className="text-sm font-medium text-gray-900">
+              {record.firstName} {record.lastName}
+            </div>
+            {record.isActive && (
+              <div className="text-xs text-green-600 font-medium">🟢 Active Officer</div>
+            )}
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'email',
+      title: 'Email',
+      dataIndex: 'email',
+    },
+    {
+      key: 'status',
+      title: 'Status',
+      dataIndex: 'isActive',
+      render: (value) => (
+        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+          value ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+        }`}>
+          {value ? '✅ Active' : '⏳ Inactive'}
+        </span>
+      ),
+    },
+    {
+      key: 'joined',
+      title: 'Joined',
+      dataIndex: 'createdAt',
+      render: (value) => new Date(value).toLocaleDateString(),
+    },
+  ];
+
+  return (
+    <DataTable
+      {...props}
+      role="company_admin"
+      columns={officerColumns}
+    />
+  );
+};
