@@ -8,7 +8,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
   role?: RoleType;
-  action?: 'create' | 'edit' | 'delete' | 'resend' | 'deactivate' | 'cancel' | 'submit';
+  action?: 'create' | 'edit' | 'delete' | 'resend' | 'deactivate' | 'reactivate' | 'cancel' | 'submit';
   children?: React.ReactNode;
 }
 
@@ -45,11 +45,13 @@ export const Button: React.FC<ButtonProps> = ({
       case 'edit':
         return `Edit ${roleTexts.entityName}`;
       case 'delete':
-        return `Delete ${roleTexts.entityName}`;
+        return roleTexts.actions.delete;
       case 'resend':
-        return 'Resend';
+        return roleTexts.actions.resend;
       case 'deactivate':
-        return 'Deactivate';
+        return roleTexts.actions.deactivate;
+      case 'reactivate':
+        return roleTexts.actions.reactivate;
       case 'cancel':
         return 'Cancel';
       case 'submit':
@@ -153,6 +155,10 @@ export const ResendButton: React.FC<Omit<ButtonProps, 'action'>> = ({ role, ...p
 
 export const DeactivateButton: React.FC<Omit<ButtonProps, 'action'>> = ({ role, ...props }) => (
   <Button role={role} action="deactivate" variant="danger" size="sm" {...props} />
+);
+
+export const ReactivateButton: React.FC<Omit<ButtonProps, 'action'>> = ({ role, ...props }) => (
+  <Button role={role} action="reactivate" variant="primary" size="sm" {...props} />
 );
 
 export const CancelButton: React.FC<Omit<ButtonProps, 'action'>> = ({ role, ...props }) => (

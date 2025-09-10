@@ -22,26 +22,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Officer not found' }, { status: 404 });
     }
 
-    if (officer[0].deactivated) {
-      return NextResponse.json({ error: 'Officer is already deactivated' }, { status: 400 });
+    if (!officer[0].deactivated) {
+      return NextResponse.json({ error: 'Officer is not deactivated' }, { status: 400 });
     }
 
-    // Deactivate the officer
+    // Reactivate the officer
     await db
       .update(users)
       .set({ 
-        deactivated: true,
+        deactivated: false,
         updatedAt: new Date()
       })
       .where(eq(users.id, officerId));
 
     return NextResponse.json({ 
       success: true, 
-      message: 'Officer deactivated successfully' 
+      message: 'Officer reactivated successfully' 
     });
 
   } catch (error) {
-    console.error('Error deactivating officer:', error);
+    console.error('Error reactivating officer:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

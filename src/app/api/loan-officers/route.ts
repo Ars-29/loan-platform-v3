@@ -29,7 +29,11 @@ export async function GET(request: NextRequest) {
           email,
           first_name,
           last_name,
-          is_active
+          is_active,
+          deactivated,
+          invite_status,
+          invite_sent_at,
+          invite_expires_at
         )
       `)
       .eq('company_id', companyId)
@@ -50,6 +54,10 @@ export async function GET(request: NextRequest) {
       firstName: item.users.first_name,
       lastName: item.users.last_name,
       isActive: item.is_active,
+      deactivated: item.users.deactivated,
+      inviteStatus: item.users.invite_status,
+      inviteSentAt: item.users.invite_sent_at,
+      inviteExpiresAt: item.users.invite_expires_at,
       createdAt: item.joined_at,
     })) || [];
 

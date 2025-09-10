@@ -10,6 +10,11 @@ export const users = pgTable('users', {
   avatar: text('avatar'),
   role: text('role').notNull().default('employee'), // super_admin, company_admin, employee
   isActive: boolean('is_active').default(true),
+  deactivated: boolean('deactivated').default(false), // For deactivation control
+  inviteStatus: text('invite_status').default('pending'), // pending, sent, accepted, expired
+  inviteSentAt: timestamp('invite_sent_at'), // When invite was sent
+  inviteExpiresAt: timestamp('invite_expires_at'), // When invite expires (24 hours)
+  inviteToken: text('invite_token'), // Supabase invite token
   lastLoginAt: timestamp('last_login_at'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
@@ -36,6 +41,7 @@ export const companies = pgTable('companies', {
   subscription: text('subscription').default('basic'), // basic, pro, enterprise
   subscriptionExpiresAt: timestamp('subscription_expires_at'),
   isActive: boolean('is_active').default(true),
+  deactivated: boolean('deactivated').default(false), // For deactivation control
   settings: jsonb('settings').default('{}'), // Company-wide settings
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),

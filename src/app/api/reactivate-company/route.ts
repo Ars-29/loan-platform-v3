@@ -22,26 +22,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Company not found' }, { status: 404 });
     }
 
-    if (company[0].deactivated) {
-      return NextResponse.json({ error: 'Company is already deactivated' }, { status: 400 });
+    if (!company[0].deactivated) {
+      return NextResponse.json({ error: 'Company is not deactivated' }, { status: 400 });
     }
 
-    // Deactivate the company
+    // Reactivate the company
     await db
       .update(companies)
       .set({ 
-        deactivated: true,
+        deactivated: false,
         updatedAt: new Date()
       })
       .where(eq(companies.id, companyId));
 
     return NextResponse.json({ 
       success: true, 
-      message: 'Company deactivated successfully' 
+      message: 'Company reactivated successfully' 
     });
 
   } catch (error) {
-    console.error('Error deactivating company:', error);
+    console.error('Error reactivating company:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -55,6 +55,14 @@ export function useAuth() {
     // For free Supabase plan, we rely only on onAuthStateChange
     // No initial session check to avoid getSession() calls
 
+    // macOS-specific: Add small delay to ensure auth state is ready
+    const initTimeout = setTimeout(() => {
+      if (loading) {
+        console.log('🔐 useAuth: macOS timeout - forcing loading to false');
+        setLoading(false);
+      }
+    }, 10000);
+
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: string, session: any) => {
@@ -85,36 +93,53 @@ export function useAuth() {
           // Don't clear cache on token refresh - same user
         }
         setLoading(false);
+        clearTimeout(initTimeout);
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(initTimeout);
+    };
   }, []);
 
   const fetchUserRole = async (userId: string) => {
     try {
       console.log('🔍 useAuth: Fetching user role for:', userId);
       
-      // Get user data first (this should work with RLS)
-      const { data: userData, error: userError } = await supabase
+      // First check if user exists and is not deactivated
+      const { data: userData } = await supabase
         .from('users')
-        .select('role')
+        .select('role, deactivated')
         .eq('id', userId)
         .single();
 
-      if (userError) {
-        console.error('🔍 useAuth: Error fetching user data:', userError);
+      if (!userData) {
+        console.log('🔍 useAuth: User not found');
+        setUser(null);
+        setUserRole(null);
+        setCompanyId(null);
         return;
       }
 
-      console.log('🔍 useAuth: User role from database:', userData.role);
+      // Check if user is deactivated
+      if (userData.deactivated) {
+        console.log('🔍 useAuth: User is deactivated, signing out');
+        await supabase.auth.signOut();
+        setUser(null);
+        setUserRole(null);
+        setCompanyId(null);
+        return;
+      }
 
+      // Check if user is super admin
       if (userData.role === 'super_admin') {
         console.log('🔍 useAuth: User is super admin');
         setUserRole({ role: 'super_admin' });
         return;
       }
 
+      // Check if user is company admin
       if (userData.role === 'company_admin') {
         console.log('🔍 useAuth: User is company admin');
         // Get company ID for company admin
@@ -127,6 +152,23 @@ export function useAuth() {
 
         if (userCompany) {
           console.log('🔍 useAuth: Found company ID:', userCompany.company_id);
+          
+          // Check if the company is deactivated
+          const { data: companyData } = await supabase
+            .from('companies')
+            .select('deactivated')
+            .eq('id', userCompany.company_id)
+            .single();
+
+          if (companyData && companyData.deactivated) {
+            console.log('🔍 useAuth: Company is deactivated, signing out company admin');
+            await supabase.auth.signOut();
+            setUser(null);
+            setUserRole(null);
+            setCompanyId(null);
+            return;
+          }
+
           setUserRole({ role: 'company_admin', companyId: userCompany.company_id });
           setCompanyId(userCompany.company_id);
         } else {
@@ -147,6 +189,23 @@ export function useAuth() {
         // Use the first active company relationship
         const userCompany = userCompanies[0];
         console.log('🔍 useAuth: User is employee with company:', userCompany.company_id);
+        
+        // Check if the company is deactivated
+        const { data: companyData } = await supabase
+          .from('companies')
+          .select('deactivated')
+          .eq('id', userCompany.company_id)
+          .single();
+
+        if (companyData && companyData.deactivated) {
+          console.log('🔍 useAuth: Company is deactivated, signing out employee');
+          await supabase.auth.signOut();
+          setUser(null);
+          setUserRole(null);
+          setCompanyId(null);
+          return;
+        }
+
         setUserRole({ role: 'employee', companyId: userCompany.company_id });
         setCompanyId(userCompany.company_id);
       } else {

@@ -401,6 +401,12 @@ export const roleTexts = {
     entityNamePlural: 'Companies',
     createFormTitle: 'Create New Company',
     emptyStateMessage: 'No companies found. Create your first company above.',
+    actions: {
+      resend: 'Resend Invite',
+      deactivate: 'Deactivate Company',
+      reactivate: 'Reactivate Company',
+      delete: 'Delete Company',
+    },
   },
   company_admin: {
     createButton: 'Add Officer',
@@ -408,6 +414,12 @@ export const roleTexts = {
     entityNamePlural: 'Loan Officers',
     createFormTitle: 'Add New Loan Officer',
     emptyStateMessage: 'No loan officers found. Create your first officer above.',
+    actions: {
+      resend: 'Resend Invite',
+      deactivate: 'Deactivate Officer',
+      reactivate: 'Reactivate Officer',
+      delete: 'Delete Officer',
+    },
   },
   employee: {
     createButton: 'Add Lead',
@@ -415,6 +427,12 @@ export const roleTexts = {
     entityNamePlural: 'Leads',
     createFormTitle: 'Add New Lead',
     emptyStateMessage: 'No leads found. Create your first lead above.',
+    actions: {
+      resend: 'Resend Invite',
+      deactivate: 'Deactivate Lead',
+      reactivate: 'Reactivate Lead',
+      delete: 'Delete Lead',
+    },
   },
 } as const;
 
