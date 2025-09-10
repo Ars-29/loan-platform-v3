@@ -56,3 +56,24 @@ export async function getLoanOfficersByCompany(companyId: string): Promise<LoanO
     throw error;
   }
 }
+
+export async function resendLoanOfficerInvite(officerId: string): Promise<LoanOfficerInviteResult> {
+  try {
+    const response = await fetch('/api/resend-loan-officer-invite', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ officerId }),
+    });
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error('Error in resendLoanOfficerInvite:', error);
+    return {
+      success: false,
+      message: 'An unexpected error occurred. Please try again.'
+    };
+  }
+}

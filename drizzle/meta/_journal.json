@@ -8,6 +8,20 @@
       "when": 1756986764492,
       "tag": "0000_careful_leopardon",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1757327365495,
+      "tag": "0001_slow_leopardon",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1757490239544,
+      "tag": "0002_supreme_puppet_master",
+      "breakpoints": true
     }
   ]
 }

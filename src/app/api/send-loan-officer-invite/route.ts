@@ -40,15 +40,32 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Check if user already exists
-    const { data: existingUsers } = await supabase.auth.admin.listUsers();
-    const existingUser = existingUsers?.users?.find(user => user.email === email);
+    // Check if user already exists in our database
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('id, is_active, deactivated')
+      .eq('email', email)
+      .single();
 
     if (existingUser) {
-      return NextResponse.json({
-        success: false,
-        message: 'A user with this email already exists. Please use a different email address.'
-      }, { status: 400 });
+      // If user exists and is active, show error
+      if (existingUser.is_active && !existingUser.deactivated) {
+        return NextResponse.json({
+          success: false,
+          message: 'A user with this email already exists and is active. Please use a different email address.'
+        }, { status: 400 });
+      }
+      // If user exists but is inactive/pending/deactivated, allow resending invite
+      // We'll update the existing record instead of creating a new one
+    }
+
+    // Check if user exists in Supabase Auth and delete if needed
+    const { data: existingUsers } = await supabase.auth.admin.listUsers();
+    const existingAuthUser = existingUsers?.users?.find(user => user.email === email);
+    
+    if (existingAuthUser) {
+      // Delete existing user from Supabase Auth to allow fresh invite
+      await supabase.auth.admin.deleteUser(existingAuthUser.id);
     }
 
     // Create the loan officer user via invite
@@ -74,25 +91,59 @@ export async function POST(request: NextRequest) {
     }
 
     if (inviteResult?.user) {
-      // Create user record in database
-      const { error: userError } = await supabase
-        .from('users')
-        .insert({
-          id: inviteResult.user.id,
-          email: email,
-          first_name: firstName,
-          last_name: lastName,
-          role: 'employee',
-          is_active: false, // Will be activated when they accept the invite
-        });
+      let userError;
+      
+      if (existingUser) {
+        // Update existing user record
+        const { error } = await supabase
+          .from('users')
+          .update({
+            id: inviteResult.user.id,
+            email: email,
+            first_name: firstName,
+            last_name: lastName,
+            role: 'employee',
+            is_active: false, // Will be activated when they accept the invite
+            deactivated: false, // Reset deactivation status
+            invite_status: 'sent',
+            invite_sent_at: new Date().toISOString(),
+            invite_expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
+          })
+          .eq('id', existingUser.id);
+        
+        userError = error;
+      } else {
+        // Create new user record in database
+        const { error } = await supabase
+          .from('users')
+          .insert({
+            id: inviteResult.user.id,
+            email: email,
+            first_name: firstName,
+            last_name: lastName,
+            role: 'employee',
+            is_active: false, // Will be activated when they accept the invite
+            invite_status: 'sent',
+            invite_sent_at: new Date().toISOString(),
+            invite_expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
+          });
+        
+        userError = error;
+      }
 
       if (userError) {
-        console.error('Error creating user record:', userError);
+        console.error('Error creating/updating user record:', userError);
         return NextResponse.json({
           success: false,
           message: 'Failed to create user record. Please try again.'
         }, { status: 500 });
       }
+
+      // Delete existing user-company relationships and create new one
+      await supabase
+        .from('user_companies')
+        .delete()
+        .eq('user_id', inviteResult.user.id);
 
       // Create user-company relationship
       const { error: companyError } = await supabase

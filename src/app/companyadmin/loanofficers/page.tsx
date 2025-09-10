@@ -16,6 +16,10 @@ interface LoanOfficer {
   firstName: string;
   lastName: string;
   isActive: boolean;
+  deactivated?: boolean;
+  inviteStatus?: string;
+  inviteSentAt?: string;
+  inviteExpiresAt?: string;
   createdAt: string;
 }
 
@@ -137,12 +141,36 @@ export default function LoanOfficersPage() {
   };
 
   const handleResendInvite = async (officer: LoanOfficer) => {
-    // TODO: Implement resend invite functionality
-    showNotification({
-      type: 'success',
-      title: 'Invite Resent',
-      message: 'The invite has been resent to the loan officer.',
-    });
+    try {
+      const response = await fetch('/api/resend-loan-officer-invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ officerId: officer.id })
+      });
+      
+      const result = await response.json();
+      if (result.success) {
+        showNotification({
+          type: 'success',
+          title: 'Invite Resent',
+          message: result.message || 'The invite has been resent to the loan officer.',
+        });
+        fetchOfficers(); // Refresh the data
+        window.location.reload(); // Force reload for accurate data
+      } else {
+        showNotification({
+          type: 'error',
+          title: 'Error',
+          message: result.message || 'Failed to resend invite. Please try again.',
+        });
+      }
+    } catch (error) {
+      showNotification({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to resend invite. Please try again.',
+      });
+    }
   };
 
   const handleDeactivateOfficer = async (officer: LoanOfficer) => {
@@ -164,7 +192,45 @@ export default function LoanOfficersPage() {
           title: 'Officer Deactivated',
           message: 'The loan officer has been deactivated successfully.',
         });
+        fetchOfficers(); // Refresh the data
+        window.location.reload(); // Force reload for accurate data
+      } else {
+        showNotification({
+          type: 'error',
+          title: 'Error',
+          message: result.error || result.message || 'Failed to deactivate officer',
+        });
+      }
+    } catch (error) {
+      showNotification({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to deactivate officer. Please try again.',
+      });
+    }
+  };
+
+  const handleReactivateOfficer = async (officer: LoanOfficer) => {
+    if (!confirm('Are you sure you want to reactivate this loan officer? They will be able to sign in again.')) {
+      return;
+    }
+    
+    try {
+      const response = await fetch('/api/reactivate-officer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ officerId: officer.id })
+      });
+      
+      const result = await response.json();
+      if (result.success) {
+        showNotification({
+          type: 'success',
+          title: 'Officer Reactivated',
+          message: 'The loan officer has been reactivated successfully.',
+        });
         fetchOfficers();
+        window.location.reload(); // Force reload for accurate data
       } else {
         showNotification({
           type: 'error',
@@ -176,7 +242,7 @@ export default function LoanOfficersPage() {
       showNotification({
         type: 'error',
         title: 'Error',
-        message: 'Failed to deactivate officer. Please try again.',
+        message: 'Failed to reactivate officer. Please try again.',
       });
     }
   };
@@ -201,6 +267,7 @@ export default function LoanOfficersPage() {
           message: 'The loan officer has been deleted successfully.',
         });
         fetchOfficers();
+        window.location.reload(); // Force reload for accurate data
       } else {
         showNotification({
           type: 'error',
@@ -268,6 +335,7 @@ export default function LoanOfficersPage() {
                 loading={loading}
                 onResend={handleResendInvite}
                 onDeactivate={handleDeactivateOfficer}
+                onReactivate={handleReactivateOfficer}
                 onDelete={handleDeleteOfficer}
               />
             </div>

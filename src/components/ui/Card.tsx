@@ -128,3 +128,4 @@ export const HoverCard: React.FC<Omit<CardProps, 'hover'>> = (props) => (
 export const FlatCard: React.FC<Omit<CardProps, 'shadow' | 'border'>> = (props) => (
   <Card shadow="none" border={false} {...props} />
 );
+

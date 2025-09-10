@@ -1,6 +1,6 @@
 import React from 'react';
 import { theme, RoleType } from '@/theme/theme';
-import { Button, ResendButton, DeactivateButton, DeleteButton } from './Button';
+import { Button, ResendButton, DeactivateButton, DeleteButton, ReactivateButton } from './Button';
 
 export interface TableColumn<T = any> {
   key: string;
@@ -20,6 +20,7 @@ export interface DataTableProps<T = any> {
   role?: RoleType;
   onResend?: (record: T) => void;
   onDeactivate?: (record: T) => void;
+  onReactivate?: (record: T) => void;
   onDelete?: (record: T) => void;
   className?: string;
 }
@@ -42,6 +43,7 @@ export const DataTable = <T extends Record<string, any>>({
   role,
   onResend,
   onDeactivate,
+  onReactivate,
   onDelete,
   className = '',
 }: DataTableProps<T>) => {
@@ -58,10 +60,27 @@ export const DataTable = <T extends Record<string, any>>({
 
     // Determine record status based on common fields
     const inviteStatus = record?.invite_status || record?.status;
-    const isActive = record?.isActive !== undefined ? record?.isActive : inviteStatus === 'accepted';
+    
+    // For companies: active when invite_status is 'accepted' (same logic as status display)
+    // For officers: active when isActive is true
+    const isActive = inviteStatus === 'accepted' || record?.isActive === true;
+    const isDeactivated = record?.deactivated === true;
+    
 
-    // Resend button for pending/sent/expired invites
-    if (onResend && (inviteStatus === 'sent' || inviteStatus === 'expired' || !isActive)) {
+    // Reactivate button for deactivated records
+    if (onReactivate && isDeactivated) {
+      actions.push(
+        <ReactivateButton
+          key="reactivate"
+          role={role}
+          onClick={() => onReactivate(record)}
+          className="text-green-600 hover:text-green-900 text-xs"
+        />
+      );
+    }
+
+    // Resend button for pending/sent/expired invites (only if not deactivated)
+    if (onResend && !isDeactivated && (inviteStatus === 'sent' || inviteStatus === 'expired' || !isActive)) {
       actions.push(
         <ResendButton
           key="resend"
@@ -77,8 +96,8 @@ export const DataTable = <T extends Record<string, any>>({
       actions.push(<span key="separator" className="text-gray-300">|</span>);
     }
 
-    // Deactivate button for active records
-    if (onDeactivate && isActive) {
+    // Deactivate button for active records (only if not already deactivated)
+    if (onDeactivate && isActive && !isDeactivated) {
       actions.push(
         <DeactivateButton
           key="deactivate"
@@ -89,8 +108,17 @@ export const DataTable = <T extends Record<string, any>>({
       );
     }
 
-    // Delete button for inactive/pending/expired records
-    if (onDelete && (!isActive || inviteStatus === 'pending' || inviteStatus === 'expired')) {
+    // Delete button for inactive/pending/expired records (only if not deactivated)
+    // Only show delete for: pending, sent, expired, or inactive records
+    const shouldShowDelete = !isDeactivated && (
+      inviteStatus === 'pending' || 
+      inviteStatus === 'sent' || 
+      inviteStatus === 'expired' || 
+      !isActive
+    );
+    
+    
+    if (onDelete && shouldShowDelete) {
       actions.push(
         <DeleteButton
           key="delete"
@@ -111,10 +139,10 @@ export const DataTable = <T extends Record<string, any>>({
   // Add actions column if any action handlers are provided
   const finalColumns: TableColumn<T>[] = [
     ...columns,
-    ...(onResend || onDeactivate || onDelete ? [{
+    ...(onResend || onDeactivate || onReactivate || onDelete ? [{
       key: 'actions',
       title: 'Actions',
-      render: renderActions,
+      render: (value, record, index) => renderActions(record),
       width: '120px',
       align: 'left' as const,
     } as TableColumn<T>] : []),
@@ -223,6 +251,18 @@ export const CompanyTable: React.FC<Omit<DataTableProps, 'role' | 'columns'>> = 
       render: (value, record) => {
         const status = value || 'pending';
         const expiresAt = record.invite_expires_at;
+        const isDeactivated = record.deactivated === true;
+        
+        // If deactivated, show deactivated status regardless of invite status
+        if (isDeactivated) {
+          return (
+            <div>
+              <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                🚫 Deactivated
+              </span>
+            </div>
+          );
+        }
         
         return (
           <div>
@@ -300,13 +340,26 @@ export const OfficerTable: React.FC<Omit<DataTableProps, 'role' | 'columns'>> = 
       key: 'status',
       title: 'Status',
       dataIndex: 'isActive',
-      render: (value) => (
-        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-          value ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-        }`}>
-          {value ? '✅ Active' : '⏳ Inactive'}
-        </span>
-      ),
+      render: (value, record) => {
+        const isDeactivated = record.deactivated === true;
+        
+        // If deactivated, show deactivated status
+        if (isDeactivated) {
+          return (
+            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+              🚫 Deactivated
+            </span>
+          );
+        }
+        
+        return (
+          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+            value ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+          }`}>
+            {value ? '✅ Active' : '⏳ Inactive'}
+          </span>
+        );
+      },
     },
     {
       key: 'joined',

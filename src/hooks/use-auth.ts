@@ -58,29 +58,40 @@ export function useAuth() {
     try {
       console.log('🔍 useAuth: Fetching user role for:', userId);
       
-      // First check if user is super admin
-      const { data: superAdmin } = await supabase
+      // First check if user exists and is not deactivated
+      const { data: userData } = await supabase
         .from('users')
-        .select('role')
+        .select('role, deactivated')
         .eq('id', userId)
-        .eq('role', 'super_admin')
         .single();
 
-      if (superAdmin) {
+      if (!userData) {
+        console.log('🔍 useAuth: User not found');
+        setUser(null);
+        setUserRole(null);
+        setCompanyId(null);
+        return;
+      }
+
+      // Check if user is deactivated
+      if (userData.deactivated) {
+        console.log('🔍 useAuth: User is deactivated, signing out');
+        await supabase.auth.signOut();
+        setUser(null);
+        setUserRole(null);
+        setCompanyId(null);
+        return;
+      }
+
+      // Check if user is super admin
+      if (userData.role === 'super_admin') {
         console.log('🔍 useAuth: User is super admin');
         setUserRole({ role: 'super_admin' });
         return;
       }
 
       // Check if user is company admin
-      const { data: companyAdmin } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', userId)
-        .eq('role', 'company_admin')
-        .single();
-
-      if (companyAdmin) {
+      if (userData.role === 'company_admin') {
         console.log('🔍 useAuth: User is company admin');
         // Get company ID for company admin
         const { data: userCompany } = await supabase
@@ -92,6 +103,23 @@ export function useAuth() {
 
         if (userCompany) {
           console.log('🔍 useAuth: Found company ID:', userCompany.company_id);
+          
+          // Check if the company is deactivated
+          const { data: companyData } = await supabase
+            .from('companies')
+            .select('deactivated')
+            .eq('id', userCompany.company_id)
+            .single();
+
+          if (companyData && companyData.deactivated) {
+            console.log('🔍 useAuth: Company is deactivated, signing out company admin');
+            await supabase.auth.signOut();
+            setUser(null);
+            setUserRole(null);
+            setCompanyId(null);
+            return;
+          }
+
           setUserRole({ role: 'company_admin', companyId: userCompany.company_id });
           setCompanyId(userCompany.company_id);
         } else {
@@ -112,6 +140,23 @@ export function useAuth() {
         // Use the first active company relationship
         const userCompany = userCompanies[0];
         console.log('🔍 useAuth: User is employee with company:', userCompany.company_id);
+        
+        // Check if the company is deactivated
+        const { data: companyData } = await supabase
+          .from('companies')
+          .select('deactivated')
+          .eq('id', userCompany.company_id)
+          .single();
+
+        if (companyData && companyData.deactivated) {
+          console.log('🔍 useAuth: Company is deactivated, signing out employee');
+          await supabase.auth.signOut();
+          setUser(null);
+          setUserRole(null);
+          setCompanyId(null);
+          return;
+        }
+
         setUserRole({ role: 'employee', companyId: userCompany.company_id });
         setCompanyId(userCompany.company_id);
       } else {

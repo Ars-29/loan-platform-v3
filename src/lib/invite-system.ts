@@ -42,37 +42,85 @@ export async function sendCompanyAdminInvite(
       };
     }
 
-    // Check if user already exists in Supabase Auth
+    // Check if company with this email already exists in our database
+    const { data: existingCompany } = await supabase
+      .from('companies')
+      .select('id, invite_status, deactivated')
+      .eq('admin_email', adminEmail)
+      .single();
+
+    if (existingCompany) {
+      // If company exists and is active, show error
+      if (existingCompany.invite_status === 'accepted' && !existingCompany.deactivated) {
+        return {
+          success: false,
+          message: 'A company with this email already exists and is active. Please use a different email.'
+        };
+      }
+      // If company exists but is pending/expired/deactivated, allow resending invite
+      // We'll update the existing record instead of creating a new one
+    }
+
+    let companyData;
+    let companyError;
+
+    if (existingCompany) {
+      // Update existing company record
+      const { data, error } = await supabase
+        .from('companies')
+        .update({
+          name: companyName,
+          slug: companyName.toLowerCase().replace(/\s+/g, '-'),
+          email: adminEmail,
+          website: website || '',
+          admin_email: adminEmail,
+          admin_email_verified: false,
+          invite_status: 'pending',
+          invite_sent_at: new Date().toISOString(),
+          invite_expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
+          is_active: false,
+          deactivated: false, // Reset deactivation status
+        })
+        .eq('id', existingCompany.id)
+        .select()
+        .single();
+      
+      companyData = data;
+      companyError = error;
+    } else {
+      // Create new company with pending status
+      const { data, error } = await supabase
+        .from('companies')
+        .insert({
+          name: companyName,
+          slug: companyName.toLowerCase().replace(/\s+/g, '-'),
+          email: adminEmail,
+          website: website || '',
+          admin_email: adminEmail,
+          admin_email_verified: false,
+          invite_status: 'pending',
+          invite_sent_at: new Date().toISOString(),
+          invite_expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
+          is_active: false, // Company is inactive until invite is accepted
+        })
+        .select()
+        .single();
+      
+      companyData = data;
+      companyError = error;
+    }
+
+    if (companyError) {
+      throw companyError;
+    }
+
+    // Check if user exists in Supabase Auth and delete if needed
     const { data: existingUsers } = await supabase.auth.admin.listUsers();
     const existingUser = existingUsers.users.find(user => user.email === adminEmail);
     
     if (existingUser) {
-      return {
-        success: false,
-        message: 'A user with this email already exists. Please use a different email.'
-      };
-    }
-
-    // Create company with pending status
-    const { data: companyData, error: companyError } = await supabase
-      .from('companies')
-      .insert({
-        name: companyName,
-        slug: companyName.toLowerCase().replace(/\s+/g, '-'),
-        email: adminEmail,
-        website: website || '',
-        admin_email: adminEmail,
-        admin_email_verified: false,
-        invite_status: 'pending',
-        invite_sent_at: new Date().toISOString(),
-        invite_expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
-        is_active: false, // Company is inactive until invite is accepted
-      })
-      .select()
-      .single();
-
-    if (companyError) {
-      throw companyError;
+      // Delete existing user from Supabase Auth to allow fresh invite
+      await supabase.auth.admin.deleteUser(existingUser.id);
     }
 
     // Send Supabase invite
@@ -89,8 +137,10 @@ export async function sendCompanyAdminInvite(
     );
 
     if (inviteError) {
-      // If invite fails, delete the company
-      await supabase.from('companies').delete().eq('id', companyData.id);
+      // If invite fails, delete the company (only if it was newly created)
+      if (!existingCompany) {
+        await supabase.from('companies').delete().eq('id', companyData.id);
+      }
       throw inviteError;
     }
 

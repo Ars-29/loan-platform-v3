@@ -241,11 +241,12 @@ export default function CompaniesPage() {
           message: result.message,
         });
         fetchCompanies(); // Refresh the list
+        window.location.reload(); // Force reload for accurate data
       } else {
         showNotification({
           type: 'error',
           title: 'Failed to Deactivate Company',
-          message: result.message,
+          message: result.error || result.message || 'Failed to deactivate company',
         });
       }
     } catch (error) {
@@ -253,6 +254,45 @@ export default function CompaniesPage() {
         type: 'error',
         title: 'Error',
         message: 'Failed to deactivate company. Please try again.',
+      });
+    }
+  };
+
+  const handleReactivateCompany = async (company: Company) => {
+    if (!confirm('Are you sure you want to reactivate this company? The company admin will be able to sign in again.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/reactivate-company', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ companyId: company.id }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        showNotification({
+          type: 'success',
+          title: 'Company Reactivated',
+          message: result.message,
+        });
+        fetchCompanies(); // Refresh the list
+      } else {
+        showNotification({
+          type: 'error',
+          title: 'Failed to Reactivate Company',
+          message: result.message,
+        });
+      }
+    } catch (error) {
+      showNotification({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to reactivate company. Please try again.',
       });
     }
   };
@@ -377,6 +417,7 @@ export default function CompaniesPage() {
                 loading={loading}
                 onResend={handleResendInvite}
                 onDeactivate={handleDeactivateCompany}
+                onReactivate={handleReactivateCompany}
                 onDelete={handleDeleteCompany}
               />
             </div>
