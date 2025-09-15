@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useContext } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { supabase } from '@/lib/supabase/client';
+import { TemplateContext } from '@/contexts/TemplateContext';
 
 interface EfficientTemplateData {
   template: any;
@@ -22,6 +23,7 @@ interface EfficientTemplateData {
 
 export function useEfficientTemplates() {
   const { user, loading: authLoading } = useAuth();
+  const templateContext = useContext(TemplateContext);
   const [templateData, setTemplateData] = useState<Record<string, EfficientTemplateData>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -116,8 +118,29 @@ export function useEfficientTemplates() {
 
   // Get template data synchronously (from cache only)
   const getTemplateSync = useCallback((templateSlug: string) => {
+    // If we're in customizer mode with custom template, use it
+    if (templateContext && templateContext.isCustomizerMode && templateContext.customTemplate) {
+      console.log('🎨 EfficientTemplates: Using customizer template from context:', templateSlug);
+      return {
+        template: templateContext.customTemplate,
+        userInfo: {
+          userId: user?.id || '',
+          companyId: '',
+          companyName: '',
+          userRole: '',
+          hasCustomSettings: true
+        },
+        metadata: {
+          templateSlug,
+          isCustomized: true,
+          isPublished: false
+        }
+      };
+    }
+    
+    // Otherwise, use cached template data
     return templateData[templateSlug] || null;
-  }, [templateData]);
+  }, [templateData, templateContext, user]);
 
   // Refresh a specific template
   const refreshTemplate = useCallback(async (templateSlug: string) => {

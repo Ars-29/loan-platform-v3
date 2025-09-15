@@ -5,6 +5,8 @@ import { RouteGuard } from '@/components/auth/RouteGuard';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useAuth } from '@/hooks/use-auth';
 import { useEfficientTemplates } from '@/hooks/use-efficient-templates';
+import { useProfileCache } from '@/hooks/use-profile-cache';
+import { TemplateProvider } from '@/contexts/TemplateContext';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import Icon from '@/components/ui/Icon';
@@ -48,8 +50,8 @@ interface CustomizerState {
 
 export default function CustomizerPage() {
   const { user, userRole, loading: authLoading } = useAuth();
+  const { profile, loading: profileLoading, getProfile } = useProfileCache();
   const { getTemplate, getTemplateSync, isLoading: templatesLoading, error: templatesError, saveTemplateSettings } = useEfficientTemplates();
-  // Remove old page settings hook - now using efficient templates hook
   
   const [customizerState, setCustomizerState] = useState<CustomizerState>({
     selectedTemplate: 'template1',
@@ -60,6 +62,39 @@ export default function CustomizerPage() {
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+
+  // Get officer information from profile cache
+  const officerInfo = React.useMemo(() => {
+    if (profile) {
+      return {
+        officerName: `${profile.firstName} ${profile.lastName}`,
+        phone: profile.phone || undefined,
+        email: profile.email || 'user@example.com',
+      };
+    }
+    
+    // Fallback to user data if profile not loaded
+    if (user) {
+      return {
+        officerName: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+        phone: undefined,
+        email: user.email || 'user@example.com',
+      };
+    }
+    
+    // Final fallback
+    return {
+      officerName: 'John Smith',
+      phone: '(555) 123-4567',
+      email: 'john@example.com',
+    };
+  }, [profile, user]);
+
+  // Trigger profile fetching when user/auth state changes
+  React.useEffect(() => {
+    console.log('🔄 Customizer: Triggering profile fetch', { user: user?.email, authLoading, profileLoading });
+    getProfile(user, authLoading);
+  }, [user, authLoading, getProfile]);
 
   // Get current template data
   const templateData = getTemplateSync(customizerState.selectedTemplate);
@@ -238,7 +273,7 @@ export default function CustomizerPage() {
   }, []);
 
   // Loading state
-  if (authLoading || templatesLoading) {
+  if (authLoading || templatesLoading || profileLoading) {
     return (
       <RouteGuard allowedRoles={['employee']}>
         <DashboardLayout 
@@ -410,37 +445,44 @@ export default function CustomizerPage() {
               <div className="p-6">
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 min-h-[600px]">
                   {mergedTemplate && (
-                    <React.Suspense fallback={
-                      <div className="flex items-center justify-center h-96">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600"></div>
-                      </div>
-                    }>
-                      {/* Live Preview Components */}
-                      <UnifiedHeroSection
-                        officerName="John Smith"
-                        phone="(555) 123-4567"
-                        email="john@example.com"
-                        template={customizerState.selectedTemplate as 'template1' | 'template2'}
-                      />
-                      
-                      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-                        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 lg:gap-8">
-                          <div className="xl:col-span-3">
-                            <LandingPageTabs
-                              activeTab="todays-rates"
-                              onTabChange={() => {}}
-                              selectedTemplate={customizerState.selectedTemplate as 'template1' | 'template2'}
-                              className="w-full"
-                            />
-                          </div>
-                          <div className="xl:col-span-1">
-                            <div className="sticky top-6 lg:top-8">
-                              <UnifiedRightSidebar template={customizerState.selectedTemplate as 'template1' | 'template2'} />
+                    <TemplateProvider
+                      templateData={mergedTemplate}
+                      isCustomizerMode={true}
+                      customTemplate={mergedTemplate}
+                      officerInfo={officerInfo}
+                    >
+                      <React.Suspense fallback={
+                        <div className="flex items-center justify-center h-96">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600"></div>
+                        </div>
+                      }>
+                        {/* Live Preview Components with Real Officer Data and Merged Template */}
+                        <UnifiedHeroSection
+                          officerName={officerInfo.officerName}
+                          phone={officerInfo.phone || undefined}
+                          email={officerInfo.email}
+                          template={customizerState.selectedTemplate as 'template1' | 'template2'}
+                        />
+                        
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+                          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 lg:gap-8">
+                            <div className="xl:col-span-3">
+                              <LandingPageTabs
+                                activeTab="todays-rates"
+                                onTabChange={() => {}}
+                                selectedTemplate={customizerState.selectedTemplate as 'template1' | 'template2'}
+                                className="w-full"
+                              />
+                            </div>
+                            <div className="xl:col-span-1">
+                              <div className="sticky top-6 lg:top-8">
+                                <UnifiedRightSidebar template={customizerState.selectedTemplate as 'template1' | 'template2'} />
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    </React.Suspense>
+                      </React.Suspense>
+                    </TemplateProvider>
                   )}
                 </div>
               </div>
