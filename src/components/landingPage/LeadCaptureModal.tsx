@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { useEfficientTemplates } from '@/hooks/use-efficient-templates';
+import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
 import { icons } from '@/components/ui/Icon';
 
 interface LeadCaptureModalProps {

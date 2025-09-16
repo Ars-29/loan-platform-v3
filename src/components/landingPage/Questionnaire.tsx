@@ -3,7 +3,7 @@
 import { useState, useCallback, useMemo, memo } from 'react';
 import Link from 'next/link';
 import { spacing, borderRadius, shadows, typography } from '@/theme/theme';
-import { useEfficientTemplates } from '@/hooks/use-efficient-templates';
+import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
 import { icons } from '@/components/ui/Icon';
 
 // Memoized step map to prevent recreation on every render

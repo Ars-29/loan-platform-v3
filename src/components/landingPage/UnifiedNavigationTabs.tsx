@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { typography } from '@/theme/theme';
-import { useEfficientTemplates } from '@/hooks/use-efficient-templates';
+import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
 import { icons } from '@/components/ui/Icon';
 
 interface Tab {

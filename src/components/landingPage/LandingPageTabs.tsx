@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, lazy, Suspense, useEffect } from 'react';
-import { useEfficientTemplates } from '@/hooks/use-efficient-templates';
+import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
 import { useAuth } from '@/hooks/use-auth';
 import { icons } from '@/components/ui/Icon';
 
@@ -115,7 +115,7 @@ export default function LandingPageTabs({
   templateCustomization
 }: LandingPageTabsProps) {
   const { user } = useAuth();
-  const { getTemplateSync, fetchTemplate } = useEfficientTemplates();
+  const { getTemplateSync } = useEfficientTemplates();
   const templateData = getTemplateSync(selectedTemplate);
 
   // Get enabled tabs from customization or use all tabs
@@ -135,27 +135,6 @@ export default function LandingPageTabs({
     });
   }, [templateCustomization, enabledTabs, effectiveActiveTab]);
 
-  // Force refresh template data when templateCustomization changes (indicates database update)
-  React.useEffect(() => {
-    if (templateCustomization && user && selectedTemplate) {
-      console.log('🔄 LandingPageTabs: Template customization changed, refreshing template data');
-      fetchTemplate(selectedTemplate, true).catch(error => {
-        console.error('❌ LandingPageTabs: Error refreshing template after customization change:', error);
-      });
-    }
-  }, [templateCustomization, user, selectedTemplate, fetchTemplate]);
-
-  // Fetch template data when component mounts (same as TemplateSelector)
-  useEffect(() => {
-    if (user && selectedTemplate) {
-      console.log('🔄 LandingPageTabs: Fetching template data for:', selectedTemplate);
-      fetchTemplate(selectedTemplate).then(() => {
-        console.log('✅ LandingPageTabs: Template data fetched successfully for:', selectedTemplate);
-      }).catch(error => {
-        console.error('❌ LandingPageTabs: Error fetching template:', error);
-      });
-    }
-  }, [user, selectedTemplate, fetchTemplate]);
   
   // Comprehensive template data usage
   const colors = templateData?.template?.colors || {

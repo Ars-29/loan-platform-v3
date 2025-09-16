@@ -819,7 +819,7 @@ import {
 // Import icons from '@/components/ui/Icon' where needed.
 
 // Import efficient templates hook
-import { useEfficientTemplates } from '@/hooks/use-efficient-templates';
+import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
 
 // Fallback templates for when database is unavailable
 const fallbackTemplates = {

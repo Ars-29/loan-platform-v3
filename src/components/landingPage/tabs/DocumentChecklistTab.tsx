@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { typography } from '@/theme/theme';
-import { useEfficientTemplates } from '@/hooks/use-efficient-templates';
+import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
 import { useAuth } from '@/hooks/use-auth';
 import Icon from '@/components/ui/Icon';
 
@@ -47,20 +47,9 @@ export default function DocumentChecklistTab({
   className = ''
 }: DocumentChecklistTabProps) {
   const { user } = useAuth();
-  const { getTemplateSync, fetchTemplate } = useEfficientTemplates();
+  const { getTemplateSync } = useEfficientTemplates();
   const templateData = getTemplateSync(selectedTemplate);
 
-  // Fetch template data when component mounts (same as TemplateSelector)
-  useEffect(() => {
-    if (user && selectedTemplate) {
-      console.log('🔄 DocumentChecklistTab: Fetching template data for:', selectedTemplate);
-      fetchTemplate(selectedTemplate).then(() => {
-        console.log('✅ DocumentChecklistTab: Template data fetched successfully for:', selectedTemplate);
-      }).catch(error => {
-        console.error('❌ DocumentChecklistTab: Error fetching template:', error);
-      });
-    }
-  }, [user, selectedTemplate, fetchTemplate]);
   
   // Comprehensive template data usage
   const colors = templateData?.template?.colors || {

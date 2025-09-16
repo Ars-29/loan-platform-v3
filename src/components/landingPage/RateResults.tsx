@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, memo } from 'react';
 import { spacing, borderRadius, shadows, typography } from '@/theme/theme';
-import { useEfficientTemplates } from '@/hooks/use-efficient-templates';
+import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
 import Icon from '@/components/ui/Icon';
 import LeadCaptureModal, { type LeadData } from './LeadCaptureModal';
 

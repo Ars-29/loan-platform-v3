@@ -6,7 +6,7 @@ import Link from 'next/link';
 import MortgageSearchForm from '@/components/landingPage/MortgageSearchForm';
 import RateResults from '@/components/landingPage/RateResults';
 import { Button } from '@/components/ui/Button';
-import { useEfficientTemplates } from '@/hooks/use-efficient-templates';
+import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
 import { icons } from '@/components/ui/Icon';
 
 interface SearchFormData {

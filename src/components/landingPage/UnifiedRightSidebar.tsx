@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import Image from 'next/image';
-import { useEfficientTemplates } from '@/hooks/use-efficient-templates';
+import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
 import { useAuth } from '@/hooks/use-auth';
 import { icons } from '@/components/ui/Icon';
 
@@ -31,7 +31,7 @@ export default function UnifiedRightSidebar({
   templateCustomization
 }: UnifiedRightSidebarProps) {
   const { user } = useAuth();
-  const { getTemplateSync, fetchTemplate } = useEfficientTemplates();
+  const { getTemplateSync } = useEfficientTemplates();
   const templateData = getTemplateSync(template);
 
   // Debug when templateCustomization changes
@@ -133,17 +133,6 @@ export default function UnifiedRightSidebar({
     return links;
   }, [templateCustomization?.rightSidebarModifications]);
 
-  // Fetch template data when component mounts (same as TemplateSelector)
-  useEffect(() => {
-    if (user && template) {
-      console.log('🔄 UnifiedRightSidebar: Fetching template data for:', template);
-      fetchTemplate(template).then(() => {
-        console.log('✅ UnifiedRightSidebar: Template data fetched successfully for:', template);
-      }).catch(error => {
-        console.error('❌ UnifiedRightSidebar: Error fetching template:', error);
-      });
-    }
-  }, [user, template, fetchTemplate]);
   
   // Comprehensive template data usage
   const colors = templateData?.template?.colors || {

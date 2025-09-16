@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useEfficientTemplates } from '@/hooks/use-efficient-templates';
+import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
 import { useAuth } from '@/hooks/use-auth';
 import Icon from '@/components/ui/Icon';
 
@@ -241,7 +241,7 @@ export default function TemplateSelector({
                 )}
               </div>
               <p className="text-sm text-gray-600 truncate">
-                {template1Data?.template?.description || 'Modern red and blue theme'}
+                {template1Data?.template?.name || 'Template 1'}
               </p>
             </div>
           </div>
@@ -280,7 +280,7 @@ export default function TemplateSelector({
                 )}
               </div>
               <p className="text-sm text-gray-600 truncate">
-                {template2Data?.template?.description || 'Elegant purple theme'}
+                {template2Data?.template?.name || 'Template 2'}
               </p>
             </div>
           </div>

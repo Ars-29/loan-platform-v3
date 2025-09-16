@@ -1,58 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { redisCache } from '@/lib/redis';
 
 // Initialize Supabase client for server-side operations
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-// Enhanced in-memory cache for template data
-const templateCache = new Map<string, { data: any; timestamp: number }>();
-const CACHE_TTL = 10 * 60 * 1000; // 10 minutes - longer cache for better performance
-const MAX_CACHE_SIZE = 1000; // Prevent memory leaks
-
 // Helper function to get cache key
 function getCacheKey(slug: string, userId: string): string {
   return `${slug}:${userId}`;
 }
 
-// Helper function to get cached data
-function getCachedTemplate(cacheKey: string) {
-  const cached = templateCache.get(cacheKey);
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    console.log('✅ User Template API: Using cached data for:', cacheKey);
-    return cached.data;
-  }
-  if (cached) {
-    templateCache.delete(cacheKey);
+// Helper function to get cached data from Redis
+async function getCachedTemplate(cacheKey: string) {
+  try {
+    const cached = await redisCache.get(cacheKey);
+    if (cached) {
+      console.log('✅ User Template API: Using Redis cached data for:', cacheKey);
+      return cached;
+    }
+  } catch (error) {
+    console.error('❌ User Template API: Error getting Redis cache:', error);
   }
   return null;
 }
 
-// Helper function to set cached data with size management
-function setCachedTemplate(cacheKey: string, data: any) {
-  // Clean up expired entries first
-  const now = Date.now();
-  for (const [key, value] of templateCache.entries()) {
-    if (now - value.timestamp > CACHE_TTL) {
-      templateCache.delete(key);
-    }
+// Helper function to set cached data in Redis
+async function setCachedTemplate(cacheKey: string, data: any) {
+  try {
+    await redisCache.set(cacheKey, data, 600); // 10 minutes TTL
+    console.log('💾 User Template API: Cached data in Redis for:', cacheKey);
+  } catch (error) {
+    console.error('❌ User Template API: Error setting Redis cache:', error);
   }
-  
-  // Prevent cache from growing too large
-  if (templateCache.size >= MAX_CACHE_SIZE) {
-    // Remove oldest entries (simple LRU approximation)
-    const entries = Array.from(templateCache.entries());
-    entries.sort((a, b) => a[1].timestamp - b[1].timestamp);
-    const toRemove = entries.slice(0, Math.floor(MAX_CACHE_SIZE * 0.2)); // Remove 20%
-    toRemove.forEach(([key]) => templateCache.delete(key));
-  }
-  
-  templateCache.set(cacheKey, {
-    data,
-    timestamp: Date.now()
-  });
-  console.log('💾 User Template API: Cached data for:', cacheKey, `(cache size: ${templateCache.size})`);
 }
 
 // GET /api/templates/user/[slug] - Get specific user template (customized or default)
@@ -103,9 +84,9 @@ export async function GET(
       slug
     });
 
-    // Check cache first
+    // Check Redis cache first
     const cacheKey = getCacheKey(slug, targetUserId);
-    const cachedData = getCachedTemplate(cacheKey);
+    const cachedData = await getCachedTemplate(cacheKey);
     if (cachedData) {
       return NextResponse.json(cachedData);
     }
@@ -249,8 +230,8 @@ export async function GET(
       templateId: finalTemplate.id
     });
 
-    // Cache the response
-    setCachedTemplate(cacheKey, response);
+    // Cache the response in Redis
+    await setCachedTemplate(cacheKey, response);
 
     return NextResponse.json(response);
 

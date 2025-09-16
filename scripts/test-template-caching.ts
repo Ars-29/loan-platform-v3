@@ -109,3 +109,4 @@ async function testTemplateCaching() {
 // Run the test
 testTemplateCaching();
 
+

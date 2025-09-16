@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
-import { useEfficientTemplates } from '@/hooks/use-efficient-templates';
+import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
 import { icons } from '@/components/ui/Icon';
 import { useAuth } from '@/hooks/use-auth';
 import { useProfileCache, type LoanOfficerProfile } from '@/hooks/use-profile-cache';
@@ -116,7 +116,7 @@ export default function UnifiedHeroSection({
     user: user?.email
   });
 
-  const { getTemplateSync, fetchTemplate } = useEfficientTemplates();
+  const { getTemplateSync } = useEfficientTemplates();
   const templateData = getTemplateSync(template);
 
   // Debug logging for template data
@@ -126,17 +126,6 @@ export default function UnifiedHeroSection({
     templateCustomization
   });
 
-  // Fetch template data when component mounts (same as TemplateSelector)
-  useEffect(() => {
-    if (user && template) {
-      console.log('🔄 UnifiedHeroSection: Fetching template data for:', template);
-      fetchTemplate(template).then(() => {
-        console.log('✅ UnifiedHeroSection: Template data fetched successfully for:', template);
-      }).catch(error => {
-        console.error('❌ UnifiedHeroSection: Error fetching template:', error);
-      });
-    }
-  }, [user, template, fetchTemplate]);
   
   // Comprehensive template data usage
   const colors = templateData?.template?.colors || {

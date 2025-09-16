@@ -5,8 +5,7 @@ import { RouteGuard } from '@/components/auth/RouteGuard';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useAuth } from '@/hooks/use-auth';
 import { useProfileCache } from '@/hooks/use-profile-cache';
-import { useTemplateSelection } from '@/contexts/TemplateSelectionContext';
-import { useTemplate, useGlobalTemplates } from '@/contexts/GlobalTemplateContext';
+import { useTemplateSelection, useTemplate, useGlobalTemplates } from '@/contexts/UnifiedTemplateContext';
 
 // Lazy load unified components
 const UnifiedHeroSection = lazy(() => import('@/components/landingPage/UnifiedHeroSection'));

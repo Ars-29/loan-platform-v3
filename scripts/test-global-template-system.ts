@@ -72,7 +72,7 @@ async function testGlobalTemplateSystem() {
         success: true,
         data: {
           template: {
-            id: testTemplate.id || 'test-id',
+            id: 'test-id',
             slug: testTemplate.slug,
             name: testTemplate.name,
             colors: testTemplate.colors,
@@ -118,4 +118,5 @@ async function testGlobalTemplateSystem() {
 
 // Run the test
 testGlobalTemplateSystem();
+
 

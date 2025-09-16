@@ -5,13 +5,12 @@ import { RouteGuard } from '@/components/auth/RouteGuard';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useAuth } from '@/hooks/use-auth';
 import { useProfileCache } from '@/hooks/use-profile-cache';
-import { TemplateProvider } from '@/contexts/TemplateContext';
-import { useTemplateSelection } from '@/contexts/TemplateSelectionContext';
-import { useTemplate, useGlobalTemplates } from '@/contexts/GlobalTemplateContext';
+import { useTemplateSelection, useTemplate, useGlobalTemplates, TemplateProvider } from '@/contexts/UnifiedTemplateContext';
 import { supabase } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import Icon from '@/components/ui/Icon';
+import Image from 'next/image';
 
 // Define Template type for customizer
 interface Template {
@@ -815,6 +814,193 @@ function GeneralSettings({ template, onChange }: SettingsProps) {
   );
 }
 
+// Avatar Upload Component
+function AvatarUploadComponent({ currentAvatar, onChange }: { currentAvatar: string; onChange: (url: string) => void }) {
+  const [uploadMode, setUploadMode] = useState<'url' | 'upload'>('url');
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      setUploadError('Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed.');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      setUploadError('File too large. Maximum size is 5MB.');
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadError(null);
+
+    try {
+      // Create preview URL
+      const preview = URL.createObjectURL(file);
+      setPreviewUrl(preview);
+
+      // Get auth token
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error('No authentication token found');
+      }
+
+      // Upload file
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      const response = await fetch('/api/upload/avatar', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Upload failed');
+      }
+
+      // Update the avatar URL
+      onChange(result.data.url);
+      console.log('✅ Avatar uploaded successfully:', result.data.url);
+
+    } catch (error) {
+      console.error('❌ Avatar upload error:', error);
+      setUploadError(error instanceof Error ? error.message : 'Upload failed');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const url = event.target.value;
+    onChange(url);
+    setPreviewUrl(url || null);
+  };
+
+  const clearAvatar = () => {
+    onChange('');
+    setPreviewUrl(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Mode Toggle */}
+      <div className="flex space-x-2">
+        <button
+          type="button"
+          onClick={() => setUploadMode('url')}
+          className={`px-3 py-1 text-sm rounded-md transition-colors ${
+            uploadMode === 'url'
+              ? 'bg-pink-100 text-pink-700 border border-pink-300'
+              : 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200'
+          }`}
+        >
+          URL
+        </button>
+        <button
+          type="button"
+          onClick={() => setUploadMode('upload')}
+          className={`px-3 py-1 text-sm rounded-md transition-colors ${
+            uploadMode === 'upload'
+              ? 'bg-pink-100 text-pink-700 border border-pink-300'
+              : 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200'
+          }`}
+        >
+          Upload
+        </button>
+      </div>
+
+      {/* URL Input Mode */}
+      {uploadMode === 'url' && (
+        <div>
+          <input
+            type="url"
+            value={currentAvatar}
+            onChange={handleUrlChange}
+            placeholder="https://example.com/profile.jpg"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+          />
+        </div>
+      )}
+
+      {/* File Upload Mode */}
+      {uploadMode === 'upload' && (
+        <div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+            onChange={handleFileUpload}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+            disabled={isUploading}
+          />
+          {isUploading && (
+            <div className="mt-2 flex items-center space-x-2 text-sm text-gray-600">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-pink-600"></div>
+              <span>Uploading...</span>
+            </div>
+          )}
+          {uploadError && (
+            <div className="mt-2 text-sm text-red-600">
+              {uploadError}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Image Preview */}
+      {(previewUrl || currentAvatar) && (
+        <div className="mt-4">
+          <div className="flex items-center space-x-4">
+            <div className="relative">
+              <Image
+                src={previewUrl || currentAvatar}
+                alt="Profile preview"
+                width={64}
+                height={64}
+                className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                }}
+              />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm text-gray-600">Preview</p>
+              <p className="text-xs text-gray-500 truncate">
+                {previewUrl || currentAvatar}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={clearAvatar}
+              className="px-3 py-1 text-sm text-red-600 hover:text-red-800 border border-red-300 rounded-md hover:bg-red-50 transition-colors"
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // Header Modifications Component
 function HeaderModifications({ template, officerInfo, onChange }: HeaderModificationsProps) {
   if (!template) return null;
@@ -857,13 +1043,10 @@ function HeaderModifications({ template, officerInfo, onChange }: HeaderModifica
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Profile Image URL</label>
-            <input
-              type="url"
-              value={headerMods.avatar || ''}
-              onChange={(e) => onChange('avatar', e.target.value)}
-              placeholder="https://example.com/profile.jpg"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+            <label className="block text-sm font-medium text-gray-700 mb-2">Profile Image</label>
+            <AvatarUploadComponent 
+              currentAvatar={headerMods.avatar || ''}
+              onChange={(url) => onChange('avatar', url)}
             />
           </div>
         </div>

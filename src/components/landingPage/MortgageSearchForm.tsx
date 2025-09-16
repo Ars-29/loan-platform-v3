@@ -2,7 +2,7 @@
 
 import { useState, useCallback, memo } from 'react';
 import { spacing, borderRadius, shadows, typography, colors } from '@/theme/theme';
-import { useEfficientTemplates } from '@/hooks/use-efficient-templates';
+import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
 import Icon from '@/components/ui/Icon';
 
 interface SearchFormData {

@@ -241,3 +241,4 @@ async function updateTemplateClasses() {
 // Run the script
 updateTemplateClasses();
 
+

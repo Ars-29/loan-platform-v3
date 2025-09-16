@@ -3,7 +3,7 @@
 import React from 'react';
 import { typography } from '@/theme/theme';
 import { icons } from '@/components/ui/Icon';
-import { useEfficientTemplates } from '@/hooks/use-efficient-templates';
+import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
 
 interface UnifiedHeaderProps {
   websiteName?: string;
