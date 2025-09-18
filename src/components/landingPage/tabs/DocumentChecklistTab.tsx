@@ -86,7 +86,7 @@ export default function DocumentChecklistTab({
     padding: { small: 8, medium: 16, large: 24, xlarge: 32 }
   };
   
-  const classes = templateData?.template?.classes || {
+  const defaultClasses = {
     button: {
       primary: selectedTemplate === 'template2' 
         ? 'px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white'
@@ -132,6 +132,17 @@ export default function DocumentChecklistTab({
       base: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white',
       error: 'w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white'
     }
+  };
+  const templateClasses = templateData?.template?.classes || {};
+  const classes = {
+    ...defaultClasses,
+    ...templateClasses,
+    button: { ...defaultClasses.button, ...(templateClasses.button || {}) },
+    card: { ...defaultClasses.card, ...(templateClasses.card || {}) },
+    heading: { ...defaultClasses.heading, ...(templateClasses.heading || {}) },
+    body: { ...defaultClasses.body, ...(templateClasses.body || {}) },
+    icon: { ...defaultClasses.icon, ...(templateClasses.icon || {}) },
+    select: { ...defaultClasses.select, ...(templateClasses.select || {}) }
   };
   const [currentSlide, setCurrentSlide] = useState(0);
   const [formData, setFormData] = useState<FormData>({

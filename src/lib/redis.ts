@@ -2,14 +2,24 @@ import { Redis } from '@upstash/redis';
 
 // Lazy Redis client initialization
 let redis: Redis | null = null;
+let envWarned = false;
+
+const isClient = typeof window !== 'undefined';
 
 const getRedisClient = (): Redis | null => {
+  // Avoid initializing Redis in the browser – server-only
+  if (isClient) {
+    return null;
+  }
   if (!redis) {
     const url = process.env.UPSTASH_REDIS_REST_URL;
     const token = process.env.UPSTASH_REDIS_REST_TOKEN;
     
     if (!url || !token) {
-      console.warn('⚠️ Redis: Environment variables not set, Redis caching disabled');
+      if (!envWarned) {
+        console.warn('⚠️ Redis: Environment variables not set, Redis caching disabled');
+        envWarned = true;
+      }
       return null;
     }
     
@@ -34,6 +44,7 @@ export const CACHE_CONFIG = {
   TEMPLATE_PREFIX: 'template:',
   SELECTION_PREFIX: 'selection:',
   USER_PREFIX: 'user:',
+  PROFILE_PREFIX: 'profile:',
 } as const;
 
 // Helper functions for cache operations
@@ -57,11 +68,16 @@ export class RedisCache {
     return this.getKey(CACHE_CONFIG.SELECTION_PREFIX, CACHE_CONFIG.USER_PREFIX + userId);
   }
 
+  // Get profile cache key
+  getProfileKey(userId: string): string {
+    return this.getKey(CACHE_CONFIG.PROFILE_PREFIX, CACHE_CONFIG.USER_PREFIX + userId);
+  }
+
   // Get cached data
   async get<T>(key: string): Promise<T | null> {
     const redisClient = this.getRedis();
     if (!redisClient) {
-      console.log('⚠️ Redis: Client not available, skipping cache get');
+      if (!isClient) console.log('⚠️ Redis: Client not available, skipping cache get');
       return null;
     }
     
@@ -81,7 +97,7 @@ export class RedisCache {
   async set<T>(key: string, data: T, ttl: number = CACHE_CONFIG.TTL): Promise<void> {
     const redisClient = this.getRedis();
     if (!redisClient) {
-      console.log('⚠️ Redis: Client not available, skipping cache set');
+      if (!isClient) console.log('⚠️ Redis: Client not available, skipping cache set');
       return;
     }
     
@@ -97,7 +113,7 @@ export class RedisCache {
   async delete(key: string): Promise<void> {
     const redisClient = this.getRedis();
     if (!redisClient) {
-      console.log('⚠️ Redis: Client not available, skipping cache delete');
+      if (!isClient) console.log('⚠️ Redis: Client not available, skipping cache delete');
       return;
     }
     
@@ -113,7 +129,7 @@ export class RedisCache {
   async deleteMultiple(keys: string[]): Promise<void> {
     const redisClient = this.getRedis();
     if (!redisClient) {
-      console.log('⚠️ Redis: Client not available, skipping cache delete multiple');
+      if (!isClient) console.log('⚠️ Redis: Client not available, skipping cache delete multiple');
       return;
     }
     
@@ -131,7 +147,7 @@ export class RedisCache {
   async exists(key: string): Promise<boolean> {
     const redisClient = this.getRedis();
     if (!redisClient) {
-      console.log('⚠️ Redis: Client not available, skipping cache exists check');
+      if (!isClient) console.log('⚠️ Redis: Client not available, skipping cache exists check');
       return false;
     }
     
@@ -166,6 +182,18 @@ export class RedisCache {
   async setSelection(userId: string, template: string): Promise<void> {
     const key = this.getSelectionKey(userId);
     return this.set(key, template, 24 * 60 * 60); // 24 hours for selection
+  }
+
+  // Get profile data
+  async getProfile<T = any>(userId: string): Promise<T | null> {
+    const key = this.getProfileKey(userId);
+    return this.get<T>(key);
+  }
+
+  // Set profile data
+  async setProfile<T = any>(userId: string, data: T): Promise<void> {
+    const key = this.getProfileKey(userId);
+    return this.set<T>(key, data, CACHE_CONFIG.TTL);
   }
 
   // Clear all user cache

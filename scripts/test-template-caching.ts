@@ -110,3 +110,11 @@ async function testTemplateCaching() {
 testTemplateCaching();
 
 
+
+
+
+
+
+
+
+

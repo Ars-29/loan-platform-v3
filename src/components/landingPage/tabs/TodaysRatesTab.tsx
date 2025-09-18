@@ -116,12 +116,12 @@ export default function TodaysRatesTab({
     padding: { small: 8, medium: 16, large: 24, xlarge: 32 }
   };
   
-  const classes = templateData?.template?.classes || {
+  const defaultClasses = {
     button: {
       primary: selectedTemplate === 'template2' 
         ? 'px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white'
         : 'px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white',
-      secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium transition-all duration-200 border border-gray-300',
+      secondary: `px-6 py-3 rounded-lg font-medium transition-all duration-200 border`,
       outline: selectedTemplate === 'template2'
         ? 'border-2 px-6 py-3 rounded-lg font-medium transition-all duration-200'
         : 'border-2 px-6 py-3 rounded-lg font-medium transition-all duration-200',
@@ -130,36 +130,32 @@ export default function TodaysRatesTab({
         : 'px-4 py-2 rounded-lg font-medium transition-all duration-200'
     },
     card: {
-      container: 'bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200',
-      header: 'px-6 py-4 border-b border-gray-200',
+      container: `rounded-lg border shadow-sm hover:shadow-md transition-all duration-200`,
+      header: 'px-6 py-4 border-b',
       body: 'px-6 py-4',
-      footer: 'px-6 py-4 border-t border-gray-200 bg-gray-50'
+      footer: 'px-6 py-4 border-t'
     },
     heading: {
-      h1: 'text-3xl font-bold text-gray-900 mb-4',
-      h2: 'text-2xl font-bold text-gray-900 mb-3',
-      h3: 'text-xl font-semibold text-gray-900 mb-2',
-      h4: 'text-lg font-semibold text-gray-900 mb-2',
-      h5: 'text-base font-semibold text-gray-900 mb-2',
-      h6: 'text-sm font-semibold text-gray-900 mb-1'
+      h1: 'text-3xl font-bold mb-4',
+      h2: 'text-2xl font-bold mb-3',
+      h3: 'text-xl font-semibold mb-2',
+      h4: 'text-lg font-semibold mb-2',
+      h5: 'text-base font-semibold mb-2',
+      h6: 'text-sm font-semibold mb-1'
     },
     body: {
-      large: 'text-lg text-gray-700 leading-relaxed',
-      base: 'text-base text-gray-700 leading-relaxed',
-      small: 'text-sm text-gray-600 leading-relaxed',
-      xs: 'text-xs text-gray-500 leading-normal'
+      large: 'text-lg leading-relaxed',
+      base: 'text-base leading-relaxed',
+      small: 'text-sm leading-relaxed',
+      xs: 'text-xs leading-normal'
     },
     icon: {
-      primary: selectedTemplate === 'template2' 
-        ? 'w-12 h-12 rounded-lg flex items-center justify-center mb-4'
-        : 'w-12 h-12 rounded-lg flex items-center justify-center mb-4',
-      secondary: 'w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mb-3',
-      small: selectedTemplate === 'template2'
-        ? 'w-8 h-8 rounded-lg flex items-center justify-center'
-        : 'w-8 h-8 rounded-lg flex items-center justify-center'
+      primary: 'w-12 h-12 rounded-lg flex items-center justify-center mb-4',
+      secondary: 'w-10 h-10 rounded-lg flex items-center justify-center mb-3',
+      small: 'w-8 h-8 rounded-lg flex items-center justify-center'
     },
     select: {
-      base: 'px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
+      base: 'px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
       error: 'px-3 py-2 border border-red-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500'
     },
     status: {
@@ -168,6 +164,18 @@ export default function TodaysRatesTab({
       error: 'text-red-600 bg-red-50 px-2 py-1 rounded text-sm',
       info: 'text-blue-600 bg-blue-50 px-2 py-1 rounded text-sm'
     }
+  };
+  const templateClasses = templateData?.template?.classes || {};
+  const classes = {
+    ...defaultClasses,
+    ...templateClasses,
+    button: { ...defaultClasses.button, ...(templateClasses.button || {}) },
+    card: { ...defaultClasses.card, ...(templateClasses.card || {}) },
+    heading: { ...defaultClasses.heading, ...(templateClasses.heading || {}) },
+    body: { ...defaultClasses.body, ...(templateClasses.body || {}) },
+    icon: { ...defaultClasses.icon, ...(templateClasses.icon || {}) },
+    select: { ...defaultClasses.select, ...(templateClasses.select || {}) },
+    status: { ...defaultClasses.status, ...(templateClasses.status || {}) }
   };
   const [rates, setRates] = useState<Rate[]>([]);
   const [filter, setFilter] = useState<string>('all');
@@ -452,13 +460,20 @@ export default function TodaysRatesTab({
 
   return (
     <div 
-      className={`w-full ${className}`}
-      style={{ fontFamily: typography.fontFamily }}
+      className={`w-full space-y-6 ${className}`}
+      style={{ 
+        fontFamily: typography.fontFamily,
+        padding: `${layout.padding.medium}px 0`
+      }}
     >
       {/* Header */}
       <div 
-        className={`${classes.card.header}`}
-        style={{ borderBottomColor: colors.border }}
+        className="bg-white rounded-xl border shadow-sm p-6"
+        style={{ 
+          borderColor: colors.border,
+          backgroundColor: colors.background,
+          borderRadius: `${layout.borderRadius}px`
+        }}
       >
         <div 
           className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6"
@@ -492,8 +507,12 @@ export default function TodaysRatesTab({
           
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
             <div className="flex items-center gap-2">
-              {React.createElement(icons.refresh, { size: 20, className: "text-gray-500" })}
-              <span className="text-sm text-gray-600">
+              {React.createElement(icons.refresh, { 
+                size: 20, 
+                color: colors.textSecondary 
+              })}
+              <span className="text-sm"
+                    style={{ color: colors.textSecondary }}>
                 {lastUpdated ? `Updated ${lastUpdated}` : 'Loading...'}
               </span>
             </div>
@@ -595,7 +614,7 @@ export default function TodaysRatesTab({
 
       {/* Rates Table */}
       <div 
-        className={`${classes.card.container} overflow-hidden`}
+        className="bg-white rounded-xl border shadow-sm overflow-hidden"
         style={{ 
           backgroundColor: colors.background,
           borderColor: colors.border,
@@ -681,34 +700,44 @@ export default function TodaysRatesTab({
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y"
+                     style={{ borderColor: colors.border }}>
                 {filteredRates.map((rate, index) => (
-                  <tr key={`${rate.id}-${index}-${rate.loanType}-${rate.rate}`} className="hover:bg-gray-50 transition-colors">
+                  <tr key={`${rate.id}-${index}-${rate.loanType}-${rate.rate}`} 
+                      className="transition-colors hover:opacity-90">
                     <td className="px-4 py-4">
                       <div className="flex items-center space-x-2">
-                        {React.createElement(icons.document, { size: 16, className: "text-gray-500" })}
-                        <span className="text-sm font-medium text-gray-900">
+                        {React.createElement(icons.document, { 
+                          size: 16, 
+                          color: colors.textSecondary 
+                        })}
+                        <span className="text-sm font-medium"
+                              style={{ color: colors.text }}>
                           {rate.loanType}
                         </span>
                       </div>
                     </td>
                     <td className="px-4 py-4">
-                      <span className="text-sm font-semibold text-gray-900">
+                      <span className="text-sm font-semibold"
+                            style={{ color: colors.text }}>
                         {formatRate(rate.rate)}
                       </span>
                     </td>
                     <td className="px-4 py-4">
-                      <span className="text-sm text-gray-700">
+                      <span className="text-sm"
+                            style={{ color: colors.textSecondary }}>
                         {formatRate(rate.apr)}
                       </span>
                     </td>
                     <td className="px-4 py-4">
-                      <span className="text-sm text-gray-700">
+                      <span className="text-sm"
+                            style={{ color: colors.textSecondary }}>
                         {rate.points}
                       </span>
                     </td>
                     <td className="px-4 py-4">
-                      <span className="text-sm font-semibold text-gray-900">
+                      <span className="text-sm font-semibold"
+                            style={{ color: colors.text }}>
                         {formatCurrency(rate.monthlyPayment)}
                       </span>
                     </td>
@@ -733,17 +762,22 @@ export default function TodaysRatesTab({
         )}
 
         {/* Footer Note */}
-        <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
-          <p className="text-xs text-gray-600">
+        <div className="px-6 py-4 border-t"
+             style={{ 
+               backgroundColor: `${colors.primary}05`,
+               borderTopColor: colors.border 
+             }}>
+          <p className="text-xs"
+             style={{ color: colors.textSecondary }}>
             * Monthly payment based on $400,000 loan amount. Rates are subject to change without notice. 
             Actual rates may vary based on credit score, loan amount, and other factors.
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div 
-          className={`${classes.card.container}`}
+          className="bg-white rounded-xl border shadow-sm p-6"
           style={{ 
             backgroundColor: colors.background,
             borderColor: colors.border,
@@ -777,7 +811,8 @@ export default function TodaysRatesTab({
               <span className="text-sm font-semibold text-green-600">
                 +0.125%
               </span>
-              <span className="text-xs text-gray-600">
+              <span className="text-xs"
+                    style={{ color: colors.textSecondary }}>
                 vs last month
               </span>
             </div>
@@ -785,7 +820,7 @@ export default function TodaysRatesTab({
         </div>
 
         <div 
-          className={`${classes.card.container}`}
+          className="bg-white rounded-xl border shadow-sm p-6"
           style={{ 
             backgroundColor: colors.background,
             borderColor: colors.border,
@@ -824,7 +859,7 @@ export default function TodaysRatesTab({
         </div>
 
         <div 
-          className={`${classes.card.container}`}
+          className="bg-white rounded-xl border shadow-sm p-6"
           style={{ 
             backgroundColor: colors.background,
             borderColor: colors.border,

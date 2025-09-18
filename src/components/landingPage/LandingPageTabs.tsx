@@ -230,40 +230,64 @@ export default function LandingPageTabs({
   return (
     <div 
       className={`${className}`}
-      style={{ fontFamily: typography.fontFamily }}
+      style={{ 
+        fontFamily: typography.fontFamily
+      }}
     >
       {/* Modern Tab Navigation */}
       <div className="relative">
-        {/* Enhanced background with subtle pattern */}
+        {/* Enhanced background using template colors */}
         <div 
-          className="absolute inset-0 rounded-t-2xl shadow-inner"
+          className="absolute inset-0 rounded-t-2xl shadow-inner max-w-7xl mx-auto"
           style={{
-            background: selectedTemplate === 'template1' 
-              ? 'linear-gradient(to right, #fdf2f8, #fce7f3, #fdf2f8)' 
-              : 'linear-gradient(to right, #faf5ff, #f3e8ff, #faf5ff)'
+            background: `linear-gradient(to right, ${colors.primary}10, ${colors.primary}05, ${colors.primary}10)`,
+            paddingLeft: '1rem',
+            paddingRight: '1rem'
           }}
         />
         
         {/* Subtle pattern overlay */}
         <div 
-          className="absolute inset-0 opacity-5 rounded-t-2xl" 
+          className="absolute inset-0 opacity-5 rounded-t-2xl max-w-7xl mx-auto" 
           style={{
             backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
             backgroundSize: '20px 20px',
-            color: colors.border
+            color: colors.border,
+            paddingLeft: '1rem',
+            paddingRight: '1rem'
           }}
         />
         
         {/* Scrollable Tab Container */}
         <div className="relative">
-          {/* Tab Navigation */}
-          <nav 
-            className={`${classes.navigation.container} overflow-x-auto scrollbar-hide`}
-            style={{ 
-              padding: `${layout.padding.medium}px`,
-              gap: `${layout.spacing}px`
-            }}
-          >
+          {/* Scrollable Tab Navigation */}
+          <div className="relative max-w-7xl mx-auto px-4">
+            {/* Left scroll indicator */}
+            <div 
+              className="absolute left-0 top-0 w-8 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"
+              style={{ backgroundColor: `${colors.background}ff`, bottom: '16px' }}
+            />
+            
+            {/* Right scroll indicator */}
+            <div 
+              className="absolute right-0 top-0 w-8 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"
+              style={{ backgroundColor: `${colors.background}ff`, bottom: '16px' }}
+            />
+            
+            <nav 
+              className="overflow-x-auto overflow-y-hidden scrollbar-rounded"
+              style={{ 
+                paddingTop: `${layout.padding.xlarge}px`,
+                paddingBottom: `${layout.padding.xlarge + 8}px`,
+                gap: `${layout.spacing}px`,
+                display: 'flex',
+                flexWrap: 'nowrap',
+                alignItems: 'center',
+                scrollBehavior: 'smooth',
+                WebkitOverflowScrolling: 'touch',
+                minHeight: '80px'
+              }}
+            >
             {filteredTabs.map((tab, index) => {
               const isActive = effectiveActiveTab === tab.id;
               return (
@@ -271,21 +295,24 @@ export default function LandingPageTabs({
                   key={tab.id}
                   onClick={() => onTabChange(tab.id)}
                   className={`
-                    relative flex-shrink-0 flex items-center space-x-3 px-6 py-3 rounded-xl
+                    relative flex-shrink-0 flex items-center space-x-3 px-6 py-4 rounded-xl
                     transition-all duration-300 ease-out transform
-                    backdrop-blur-sm border border-white/30
-                    hover:shadow-md active:scale-95
-                    group font-medium
+                    backdrop-blur-sm border shadow-sm
+                    hover:shadow-lg active:scale-95
+                    group font-medium whitespace-nowrap
                   `}
                   title={tab.description}
                   style={{
-                    minWidth: '140px',
+                    minWidth: '180px',
                     backdropFilter: 'blur(10px)',
                     borderRadius: `${layout.borderRadius}px`,
                     backgroundColor: isActive ? colors.primary : colors.background,
                     color: isActive ? colors.background : colors.text,
                     borderColor: isActive ? colors.primary : colors.border,
-                    transform: isActive ? 'scale(1.05)' : 'scale(1)'
+                    transform: isActive ? 'scale(1.02)' : 'scale(1)',
+                    fontWeight: typography.fontWeight.medium,
+                    boxShadow: isActive ? `0 4px 12px ${colors.primary}30` : '0 2px 4px rgba(0,0,0,0.1)',
+                    margin: `${layout.padding.small}px 0`
                   }}
                 >
                   {/* Enhanced active indicator */}
@@ -302,7 +329,7 @@ export default function LandingPageTabs({
                     isActive ? 'drop-shadow-lg' : ''
                   }`}>
                     {React.createElement(icons[tab.icon], { 
-                      size: 20, 
+                      size: 22, 
                       color: isActive ? colors.background : colors.primary,
                       className: isActive ? 'drop-shadow-sm' : 'transition-colors duration-200'
                     })}
@@ -312,18 +339,23 @@ export default function LandingPageTabs({
                   </div>
                   
                   {/* Label */}
-                  <span className={`text-sm font-medium whitespace-nowrap transition-all duration-200 ${
-                    isActive ? 'text-white drop-shadow-sm' : 'text-gray-600'
-                  }`}>
+                  <span 
+                    className="text-sm font-medium whitespace-nowrap transition-all duration-200 drop-shadow-sm"
+                    style={{
+                      color: isActive ? colors.background : colors.textSecondary,
+                      fontWeight: typography.fontWeight.medium
+                    }}
+                  >
                     {tab.label}
                   </span>
                   
                   {/* Hover effect overlay */}
-                  <div className={`absolute inset-0 rounded-xl transition-opacity duration-200 ${
-                    selectedTemplate === 'template1' 
-                      ? 'bg-gradient-to-r from-pink-400/20 to-pink-500/20' 
-                      : 'bg-gradient-to-r from-purple-400/20 to-purple-500/20'
-                  } opacity-0 hover:opacity-100`} />
+                  <div 
+                    className="absolute inset-0 rounded-xl transition-opacity duration-200 opacity-0 hover:opacity-100"
+                    style={{
+                      background: `linear-gradient(to right, ${colors.primary}20, ${colors.secondary}20)`
+                    }}
+                  />
                   
                   {/* Ripple effect on click */}
                   <div className="absolute inset-0 rounded-xl overflow-hidden">
@@ -348,29 +380,44 @@ export default function LandingPageTabs({
               );
             })}
           </nav>
+          </div>
         </div>
         
         {/* Enhanced bottom border */}
         <div 
-          className="h-0.5 shadow-sm"
+          className="h-0.5 shadow-sm max-w-7xl mx-auto"
           style={{
-            background: selectedTemplate === 'template1' 
-              ? 'linear-gradient(to right, transparent, #f9a8d4, transparent)' 
-              : 'linear-gradient(to right, transparent, #c084fc, transparent)'
+            background: `linear-gradient(to right, transparent, ${colors.primary}60, transparent)`,
+            paddingLeft: '1rem',
+            paddingRight: '1rem'
           }}
         />
       </div>
 
       {/* Tab Content */}
-      <div 
-        className={`${classes.card.container} bg-white rounded-b-2xl shadow-lg border border-t-0`}
-        style={{ 
-          backgroundColor: colors.background,
-          borderColor: colors.border,
-          borderRadius: `0 0 ${layout.borderRadius * 2}px ${layout.borderRadius * 2}px`
-        }}
-      >
-        {renderTabContent()}
+      <div className="max-w-7xl mx-auto px-4">
+        <div 
+          className="bg-white rounded-b-2xl shadow-xl border border-t-0 overflow-hidden"
+          style={{ 
+            backgroundColor: colors.background,
+            borderColor: colors.border,
+            borderRadius: `0 0 ${layout.borderRadius * 2}px ${layout.borderRadius * 2}px`,
+            marginTop: `${layout.padding.small}px`,
+            minHeight: '600px',
+            boxShadow: `0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)`
+          }}
+        >
+          <div 
+            className="p-8"
+            style={{ 
+              padding: `${layout.padding.xlarge}px`
+            }}
+          >
+            <div className="space-y-8">
+              {renderTabContent()}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

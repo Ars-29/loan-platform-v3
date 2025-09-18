@@ -55,7 +55,7 @@ export default function ApplyNowTab({
     padding: { small: 8, medium: 16, large: 24, xlarge: 32 }
   };
   
-  const classes = templateData?.template?.classes || {
+  const defaultClasses = {
     button: {
       primary: selectedTemplate === 'template2' 
         ? 'px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white'
@@ -97,6 +97,16 @@ export default function ApplyNowTab({
         ? 'w-8 h-8 rounded-lg flex items-center justify-center'
         : 'w-8 h-8 rounded-lg flex items-center justify-center'
     }
+  };
+  const templateClasses = templateData?.template?.classes || {};
+  const classes = {
+    ...defaultClasses,
+    ...templateClasses,
+    button: { ...defaultClasses.button, ...(templateClasses.button || {}) },
+    card: { ...defaultClasses.card, ...(templateClasses.card || {}) },
+    heading: { ...defaultClasses.heading, ...(templateClasses.heading || {}) },
+    body: { ...defaultClasses.body, ...(templateClasses.body || {}) },
+    icon: { ...defaultClasses.icon, ...(templateClasses.icon || {}) }
   };
   const [applicationType, setApplicationType] = useState<'new' | 'existing'>('new');
   const [showIframe, setShowIframe] = useState(false);

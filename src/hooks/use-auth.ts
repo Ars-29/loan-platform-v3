@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { User } from '@supabase/supabase-js';
+import { useProfileCache } from '@/hooks/use-profile-cache';
 
 // interface Company {
 //   id: string;
@@ -20,6 +21,7 @@ export function useAuth() {
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const { getProfile } = useProfileCache();
 
   // Cache invalidation functions
   const clearProfileCache = useCallback(() => {
@@ -51,19 +53,28 @@ export function useAuth() {
 
   useEffect(() => {
     setMounted(true);
-    
-    // For free Supabase plan, we rely only on onAuthStateChange
-    // No initial session check to avoid getSession() calls
+    let isMounted = true;
 
-    // macOS-specific: Add small delay to ensure auth state is ready
-    const initTimeout = setTimeout(() => {
-      if (loading) {
-        console.log('🔐 useAuth: macOS timeout - forcing loading to false');
-        setLoading(false);
+    // 1) Resolve auth state immediately on mount (fast, reads from memory/localStorage)
+    (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!isMounted) return;
+        if (session?.user) {
+          console.log('🔐 useAuth: Initial session detected for:', session.user.email);
+          setUser(session.user);
+          await fetchUserRole(session.user.id);
+        } else {
+          console.log('🔐 useAuth: No initial session');
+        }
+      } catch (err) {
+        console.error('🔐 useAuth: getSession error:', err);
+      } finally {
+        if (isMounted) setLoading(false);
       }
-    }, 10000);
+    })();
 
-    // Listen for auth changes
+    // 2) Listen for subsequent auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: string, session: any) => {
         console.log('🔐 useAuth: Auth state changed:', event, session?.user?.email);
@@ -74,6 +85,10 @@ export function useAuth() {
           console.log('🔐 useAuth: User authenticated:', session.user.email, 'Event:', event);
           setUser(session.user);
           await fetchUserRole(session.user.id);
+          // Prewarm profile in the background (non-blocking)
+          try {
+            getProfile(session.user, false);
+          } catch {}
           // Only invalidate cache on actual sign in, not initial session
           if (event === 'SIGNED_IN') {
             invalidateCacheOnUserChange(session.user, previousUser);
@@ -83,6 +98,10 @@ export function useAuth() {
           setUser(null);
           setUserRole(null);
           setCompanyId(null);
+          // Prewarm fallback profile so UI won't stall
+          try {
+            getProfile(null, false);
+          } catch {}
           // Clear cache on sign out
           clearProfileCache();
         } else if (event === 'TOKEN_REFRESHED' && session?.user) {
@@ -93,13 +112,12 @@ export function useAuth() {
           // Don't clear cache on token refresh - same user
         }
         setLoading(false);
-        clearTimeout(initTimeout);
       }
     );
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
-      clearTimeout(initTimeout);
     };
   }, []);
 

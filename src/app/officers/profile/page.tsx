@@ -76,6 +76,8 @@ export default function OfficersProfilePage() {
   const { profile, refreshProfile, loading: profileLoading, getProfile } = useProfileCache();
   const { selectedTemplate, isLoading: templateSelectionLoading } = useTemplateSelection();
   const { templateData, isLoading: templateLoading, isFallback } = useTemplate(selectedTemplate);
+  // Avoid noisy console when template fallback is expected briefly
+  const templateReady = !!templateData?.template && !isFallback && !templateLoading;
   const { refreshTemplate } = useGlobalTemplates();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>('todays-rates');
@@ -234,7 +236,7 @@ export default function OfficersProfilePage() {
   });
 
   // Show loading state while essential data is being fetched
-  if (profileLoading || templateLoading || templateSelectionLoading) {
+  if (authLoading || profileLoading) {
     return (
       <RouteGuard allowedRoles={['employee']}>
         <DashboardLayout 
@@ -246,7 +248,7 @@ export default function OfficersProfilePage() {
               <div className={`animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4`} style={{ borderColor: templateData?.template?.colors?.primary || '#ec4899' }}></div>
               <p className="text-gray-600">Loading profile data...</p>
               <p className="text-sm text-gray-500 mt-2">
-                Auth: {authLoading ? 'Loading' : 'Ready'} | Profile: {profileLoading ? 'Loading' : 'Ready'} | Template: {templateLoading ? 'Loading' : 'Ready'} | Selection: {templateSelectionLoading ? 'Loading' : 'Ready'}
+                Auth: {authLoading ? 'Loading' : 'Ready'} | Profile: {profileLoading ? 'Loading' : 'Ready'}
               </p>
             </div>
           </div>

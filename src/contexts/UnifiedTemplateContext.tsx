@@ -87,8 +87,37 @@ const UnifiedTemplateContext = createContext<UnifiedTemplateState | undefined>(u
 // Provider component
 export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
   const { user, loading: authLoading } = useAuth();
-  const [templates, setTemplates] = useState<Record<string, TemplateData>>({});
-  const [selectedTemplate, setSelectedTemplateState] = useState<string>('template1');
+  const [templates, setTemplates] = useState<Record<string, TemplateData>>(() => {
+    if (typeof window === 'undefined') return {};
+    try {
+      const initialTemplates: Record<string, TemplateData> = {};
+      const loadFromLocalStorage = (slug: string): TemplateData | null => {
+        const raw = localStorage.getItem(`unified_template_latest_${slug}`);
+        if (!raw) return null;
+        try {
+          const parsed = JSON.parse(raw);
+          // We store either the data directly or { data, timestamp }
+          return (parsed?.data ?? parsed) as TemplateData;
+        } catch {
+          return null;
+        }
+      };
+      const t1 = loadFromLocalStorage('template1');
+      const t2 = loadFromLocalStorage('template2');
+      if (t1) initialTemplates['template1'] = t1;
+      if (t2) initialTemplates['template2'] = t2;
+      return initialTemplates;
+    } catch {
+      return {};
+    }
+  });
+  const [selectedTemplate, setSelectedTemplateState] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const ls = localStorage.getItem('selectedTemplate');
+      if (ls && (ls === 'template1' || ls === 'template2')) return ls;
+    }
+    return 'template1';
+  });
   const [customizerMode, setCustomizerModeState] = useState<CustomizerMode>({
     isCustomizerMode: false,
     customTemplate: undefined,
@@ -103,6 +132,29 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
   
   // Request cache to prevent duplicate API calls
   const requestCache = useRef<Map<string, Promise<TemplateData | null>>>(new Map());
+  const authTokenRef = useRef<string | null>(null);
+  // Get and cache auth token for this provider lifecycle
+  const getAuthToken = useCallback(async (): Promise<string> => {
+    if (authTokenRef.current) return authTokenRef.current;
+    const deadline = Date.now() + 2500; // wait up to 2.5s for token
+    while (Date.now() < deadline) {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (token) {
+        authTokenRef.current = token;
+        return token;
+      }
+      // Small backoff before next attempt
+      await new Promise(resolve => setTimeout(resolve, 200));
+    }
+    console.warn('⚠️ UnifiedTemplate: No session token after wait, proceeding with cache-only');
+    return '';
+  }, []);
+
+  // Clear cached token when user changes or signs out
+  useEffect(() => {
+    authTokenRef.current = null;
+  }, [user?.id]);
   
   // Global initialization lock to prevent multiple initializations
   const initializationLock = useRef<boolean>(false);
@@ -110,29 +162,28 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
   // Request counter for debugging
   const requestCounter = useRef<number>(0);
 
-  // Load selected template from Redis on mount
+  // Load selected template from Redis (server-only) via API route to avoid client env issues
   useEffect(() => {
     const loadSelectedTemplate = async () => {
-      if (user) {
-        try {
-          const savedTemplate = await redisCache.getSelection(user.id);
-          if (savedTemplate && ['template1', 'template2'].includes(savedTemplate)) {
-            setSelectedTemplateState(savedTemplate);
-            console.log('✅ UnifiedTemplate: Loaded selected template from Redis:', savedTemplate);
-          }
-        } catch (error) {
-          console.error('❌ UnifiedTemplate: Error loading selected template from Redis:', error);
-          // Fallback to localStorage if Redis fails
-          if (typeof window !== 'undefined') {
-            const fallbackTemplate = localStorage.getItem('selectedTemplate');
-            if (fallbackTemplate && ['template1', 'template2'].includes(fallbackTemplate)) {
-              setSelectedTemplateState(fallbackTemplate);
-            }
-          }
+      if (!user) return;
+      try {
+        const res = await fetch(`/api/templates/selection?userId=${encodeURIComponent(user.id)}`);
+        const json = await res.json();
+        const savedTemplate = json?.success ? json?.data : null;
+        if (savedTemplate && ['template1', 'template2'].includes(savedTemplate)) {
+          setSelectedTemplateState(savedTemplate);
+          console.log('✅ UnifiedTemplate: Loaded selected template from API/Redis:', savedTemplate);
+          return;
+        }
+      } catch {}
+      // Fallback to localStorage
+      if (typeof window !== 'undefined') {
+        const fallbackTemplate = localStorage.getItem('selectedTemplate');
+        if (fallbackTemplate && ['template1', 'template2'].includes(fallbackTemplate)) {
+          setSelectedTemplateState(fallbackTemplate);
         }
       }
     };
-    
     loadSelectedTemplate();
   }, [user]);
 
@@ -143,16 +194,15 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
       
       if (user) {
         try {
-          await redisCache.setSelection(user.id, slug);
-          console.log('✅ UnifiedTemplate: Saved selected template to Redis:', slug);
-        } catch (error) {
-          console.error('❌ UnifiedTemplate: Error saving selected template to Redis:', error);
-          // Fallback to localStorage if Redis fails
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('selectedTemplate', slug);
-          }
-        }
-      } else if (typeof window !== 'undefined') {
+          await fetch('/api/templates/selection', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: user.id, template: slug })
+          });
+          console.log('✅ UnifiedTemplate: Saved selected template to API/Redis:', slug);
+        } catch {}
+      } 
+      if (typeof window !== 'undefined') {
         // Fallback to localStorage if no user
         localStorage.setItem('selectedTemplate', slug);
       }
@@ -199,28 +249,37 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
 
     // Check Redis cache first
     try {
-      const cachedData = await redisCache.getTemplate(user.id, slug);
+      // Use server API to read Redis to avoid client env
+      const res = await fetch(`/api/cache/template?userId=${encodeURIComponent(user.id)}&slug=${encodeURIComponent(slug)}`);
+      const json = await res.json();
+      const cachedData = json?.success ? json?.data : null;
       if (cachedData) {
-        console.log('✅ UnifiedTemplate: Using Redis cache for:', slug);
+        console.log('✅ UnifiedTemplate: Using Redis cache (API) for:', slug);
         return cachedData;
       }
     } catch (error) {
-      console.error('❌ UnifiedTemplate: Error checking Redis cache:', error);
+      console.error('❌ UnifiedTemplate: Error checking Redis cache via API:', error);
       // Fallback to localStorage if Redis fails
       if (typeof window !== 'undefined') {
-        const cacheKey = `unified_template_${user.id}_${slug}`;
-        const cached = localStorage.getItem(cacheKey);
-        if (cached) {
+        const userScopedKey = `unified_template_${user.id}_${slug}`;
+        const genericKey = `unified_template_latest_${slug}`;
+        const tryRead = (key: string) => {
+          const cached = localStorage.getItem(key);
+          if (!cached) return null;
           try {
             const parsedCache = JSON.parse(cached);
-            if (Date.now() - parsedCache.timestamp < 5 * 60 * 1000) {
-              console.log('✅ UnifiedTemplate: Using localStorage fallback for:', slug);
-              return parsedCache.data;
+            const data = parsedCache?.data ?? parsedCache;
+            const ts = parsedCache?.timestamp ?? 0;
+            if (!parsedCache?.data || Date.now() - ts < 5 * 60 * 1000) {
+              console.log('✅ UnifiedTemplate: Using localStorage fallback for:', slug, 'key:', key);
+              return data;
             }
-          } catch (e) {
-            localStorage.removeItem(cacheKey);
+          } catch {
+            localStorage.removeItem(key);
           }
-        }
+          return null;
+        };
+        return tryRead(userScopedKey) || tryRead(genericKey);
       }
     }
 
@@ -234,15 +293,16 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
         setIsLoading(true);
         setError(null);
 
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session?.access_token) {
-          throw new Error('No valid session found');
+        const token = await getAuthToken();
+        if (!token) {
+          // No token: do not call protected API; just return null to allow fallback
+          return null;
         }
 
         const response = await fetch(`/api/templates/user/${slug}`, {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${session.access_token}`,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         });
@@ -259,17 +319,21 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
           
           // Cache the result in Redis
           try {
-            await redisCache.setTemplate(user.id, slug, result.data);
-            console.log('✅ UnifiedTemplate: Cached template in Redis:', slug);
+            await fetch('/api/cache/template', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ userId: user.id, slug, data: result.data })
+            });
+            console.log('✅ UnifiedTemplate: Cached template in Redis via API:', slug);
           } catch (error) {
-            console.error('❌ UnifiedTemplate: Error caching in Redis:', error);
+            console.error('❌ UnifiedTemplate: Error caching in Redis via API:', error);
             // Fallback to localStorage if Redis fails
             if (typeof window !== 'undefined') {
-              const cacheKey = `unified_template_${user.id}_${slug}`;
-              localStorage.setItem(cacheKey, JSON.stringify({
-                data: result.data,
-                timestamp: Date.now()
-              }));
+              const userScopedKey = `unified_template_${user.id}_${slug}`;
+              const genericKey = `unified_template_latest_${slug}`;
+              const payload = JSON.stringify({ data: result.data, timestamp: Date.now() });
+              localStorage.setItem(userScopedKey, payload);
+              localStorage.setItem(genericKey, payload);
             }
           }
           
@@ -322,14 +386,17 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
       
       for (const slug of templatesToLoad) {
         try {
-          const cachedData = await redisCache.getTemplate(user.id, slug);
+          // Read Redis via server API (works in client runtime)
+          const res = await fetch(`/api/cache/template?userId=${encodeURIComponent(user.id)}&slug=${encodeURIComponent(slug)}`);
+          const json = await res.json();
+          const cachedData = json?.success ? json?.data : null;
           if (cachedData) {
             cachedTemplates[slug] = cachedData;
-            console.log('✅ UnifiedTemplate: Using Redis cached:', slug);
+            console.log('✅ UnifiedTemplate: Using Redis cached (API):', slug);
             continue;
           }
         } catch (error) {
-          console.error('❌ UnifiedTemplate: Error checking Redis cache for:', slug, error);
+          console.error('❌ UnifiedTemplate: Error checking Redis cache via API for:', slug, error);
         }
         
         // Fallback to localStorage if Redis fails
@@ -375,7 +442,10 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
       });
 
       setTemplates(allTemplates);
-      setIsInitialized(true);
+      // Consider initialized if we loaded anything (cached or fetched).
+      // If nothing loaded yet (no token or cache miss), defer init so we can retry soon.
+      const loadedCount = Object.keys(allTemplates).length;
+      setIsInitialized(loadedCount > 0);
       
       console.log('✅ UnifiedTemplate: Initialized:', {
         total: Object.keys(allTemplates).length,
@@ -392,6 +462,9 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
       initializationLock.current = false;
     }
   }, [user, authLoading, isInitialized, fetchTemplate]);
+
+  // One-time prewarm after auth (loads both templates quickly to avoid fallbacks)
+  const prewarmDoneRef = useRef<string | null>(null);
 
   // Get template from cache
   const getTemplate = useCallback((slug: string): TemplateData | null => {
@@ -460,6 +533,25 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
     }
   }, [user, fetchTemplate]);
 
+  // One-time prewarm after auth (loads both templates quickly to avoid fallbacks)
+  useEffect(() => {
+    if (!user?.id) return;
+    if (prewarmDoneRef.current === user.id) return;
+    prewarmDoneRef.current = user.id;
+    const t1 = setTimeout(() => {
+      refreshTemplate('template1').catch(() => {});
+      refreshTemplate('template2').catch(() => {});
+    }, 250);
+    const t2 = setTimeout(() => {
+      refreshTemplate('template1').catch(() => {});
+      refreshTemplate('template2').catch(() => {});
+    }, 2000);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [user?.id, refreshTemplate]);
+
   // Save template settings
   const saveTemplate = useCallback(async (slug: string, customSettings: any, isPublished = false) => {
     if (!user) return;
@@ -467,15 +559,12 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
     try {
       console.log('💾 UnifiedTemplate: Saving:', slug);
       
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) {
-        throw new Error('No valid session found');
-      }
+        const token = await getAuthToken();
 
       const response = await fetch('/api/templates/user', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${session.access_token}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -565,23 +654,28 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
 
   // Initialize templates when user is available
   useEffect(() => {
-    if (!authLoading && user && !isInitialized) {
-      console.log('🚀 UnifiedTemplate: User authenticated, initializing templates...');
+    // Kick off initialization as soon as we have a user
+    if (user && !isInitialized) {
+      console.log('🚀 UnifiedTemplate: User present, initializing templates...');
       initializeTemplates();
-    } else if (!authLoading && !user) {
-      console.log('⚠️ UnifiedTemplate: No user, clearing cache...');
-      clearCache();
-    } else {
-      console.log('⚠️ UnifiedTemplate: Waiting for auth state...', { authLoading, hasUser: !!user, isInitialized });
+      return;
     }
-  }, [user, authLoading, isInitialized]); // Removed function dependencies to prevent infinite loops
+    // If auth has settled and there is no user, clear caches
+    if (!authLoading && !user) {
+      console.log('⚠️ UnifiedTemplate: No user after auth settled, clearing cache...');
+      clearCache();
+      return;
+    }
+    console.log('⚠️ UnifiedTemplate: Waiting for auth state...', { authLoading, hasUser: !!user, isInitialized });
+  }, [user, authLoading, isInitialized]);
 
   // Create the context value
   const contextValue: UnifiedTemplateState = {
     templates,
     selectedTemplate,
     customizerMode,
-    isLoading: isLoading || authLoading,
+    // isLoading: isLoading || authLoading,   // this is the original code
+    isLoading: isLoading,
     isInitialized,
     error,
     getTemplate,

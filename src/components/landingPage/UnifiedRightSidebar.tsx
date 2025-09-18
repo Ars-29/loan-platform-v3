@@ -214,237 +214,292 @@ export default function UnifiedRightSidebar({
 
   return (
     <div 
-      className={`rounded-lg border shadow-sm ${className}`}
+      className={`rounded-xl border shadow-lg p-2 md:p-4 lg:p-6 min-h-screen md:min-h-[500px] sm:min-h-[400px] flex flex-col relative overflow-hidden w-full max-w-full ${className}`}
       style={{
         backgroundColor: colors.background,
         borderColor: colors.border,
-        padding: `${layout.padding.large}px`,
-        fontFamily: typography.fontFamily
+        borderRadius: `${layout.borderRadius * 2}px`,
+        fontFamily: typography.fontFamily,
+        boxShadow: `0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)`
       }}
     >
-      {/* Brand Logo */}
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: `${layout.spacing}px`,
-        marginBottom: `${layout.padding.large}px`
-      }}>
-        {getCompanyLogo() ? (
-          <Image 
-            src={getCompanyLogo()!} 
-            alt={getCompanyName()}
-            width={48}
-            height={48}
-            style={{ 
-              borderRadius: '50%',
-              objectFit: 'cover'
-            }}
-          />
-        ) : (
-          <div 
-            style={{ 
-              width: '48px',
-              height: '48px',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: `${colors.primary}20`
-            }}
-          >
-            <span 
-              style={{ 
-                color: colors.primary,
-                fontSize: getFontSize('lg'),
-                fontWeight: typography.fontWeight.bold
-              }}
-            >
-              {getCompanyName().charAt(0)}
-            </span>
-          </div>
-        )}
-        <h3 style={{ 
-          color: colors.text,
-          fontSize: getFontSize('lg'),
-          fontWeight: typography.fontWeight.semibold
-        }}>
-          {getCompanyName()}
-        </h3>
-      </div>
-
-      {/* Customer Reviews */}
-      <div style={{ marginBottom: `${layout.padding.large}px` }}>
-        <h4 style={{ 
-          color: colors.text,
-          fontSize: getFontSize('base'),
-          fontWeight: typography.fontWeight.semibold,
-          marginBottom: `${layout.padding.medium}px`
-        }}>
-          Customer Reviews
-        </h4>
-        <div style={{ 
-          display: 'flex',
-          flexDirection: 'column',
-          gap: `${layout.spacing}px`
-        }}>
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'space-between'
-          }}>
-            <span style={{ 
-              color: colors.text,
-              fontSize: getFontSize('sm'),
-              fontWeight: typography.fontWeight.medium
-            }}>Google</span>
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: `${layout.spacing}px`
-            }}>
-              <span style={{ color: colors.secondary }}>★★★★★</span>
-              <span style={{ 
-                color: colors.textSecondary,
-                fontSize: getFontSize('xs'),
-                fontWeight: typography.fontWeight.normal
-              }}>1030 reviews</span>
-            </div>
-          </div>
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'space-between'
-          }}>
-            <span style={{ 
-              color: colors.text,
-              fontSize: getFontSize('sm'),
-              fontWeight: typography.fontWeight.medium
-            }}>Zillow</span>
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: `${layout.spacing}px`
-            }}>
-              <span style={{ color: colors.secondary }}>★★★★★</span>
-              <span style={{ 
-                color: colors.textSecondary,
-                fontSize: getFontSize('xs'),
-                fontWeight: typography.fontWeight.normal
-              }}>1030 reviews</span>
-            </div>
-          </div>
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'space-between'
-          }}>
-            <span style={{ 
-              color: colors.text,
-              fontSize: getFontSize('sm'),
-              fontWeight: typography.fontWeight.medium
-            }}>X Platform</span>
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: `${layout.spacing}px`
-            }}>
-              <span style={{ color: colors.secondary }}>★★★★★</span>
-              <span style={{ 
-                color: colors.textSecondary,
-                fontSize: getFontSize('xs'),
-                fontWeight: typography.fontWeight.normal
-              }}>1030 reviews</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Contact Information */}
-      <div style={{ marginBottom: `${layout.padding.large}px` }}>
-        <h4 style={{ 
-          color: colors.text,
-          fontSize: getFontSize('base'),
-          fontWeight: typography.fontWeight.semibold,
-          marginBottom: `${layout.padding.medium}px`
-        }}>
-          Contact Information
-        </h4>
-        <div style={{ 
-          display: 'flex',
-          flexDirection: 'column',
-          gap: `${layout.spacing}px`
-        }}>
-          <p style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: `${layout.spacing}px`,
-            color: colors.text,
-            fontSize: getFontSize('sm'),
-            fontWeight: typography.fontWeight.normal
-          }}>
-            {React.createElement(icons.phone, { size: 16, color: colors.textSecondary })}
-            <span>{getPhone()}</span>
-          </p>
-          <p style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: `${layout.spacing}px`,
-            color: colors.text,
-            fontSize: getFontSize('sm'),
-            fontWeight: typography.fontWeight.normal
-          }}>
-            {React.createElement(icons.email, { size: 16, color: colors.textSecondary })}
-            <span>{getEmail()}</span>
-          </p>
-          <p style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: `${layout.spacing}px`,
-            color: colors.text,
-            fontSize: getFontSize('sm'),
-            fontWeight: typography.fontWeight.normal
-          }}>
-            {React.createElement(icons.location, { size: 16, color: colors.textSecondary })}
-            <span>{getAddress()}</span>
-          </p>
-        </div>
-      </div>
-
-      {/* Follow Us */}
-      <div>
-        <h4 style={{ 
-          color: colors.text,
-          fontSize: getFontSize('base'),
-          fontWeight: typography.fontWeight.semibold,
-          marginBottom: `${layout.padding.medium}px`
-        }}>
-          Follow Us
-        </h4>
+      {/* Content wrapper */}
+      <div className="relative z-10" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        {/* Brand Section - Clean Design */}
         <div style={{ 
           display: 'flex', 
-          gap: `${layout.spacing}px`
+          alignItems: 'center', 
+          gap: `${layout.padding.medium}px`,
+          marginBottom: `${layout.padding.large}px`,
+          paddingBottom: `${layout.padding.medium}px`,
+          borderBottom: `1px solid ${colors.border}`
         }}>
+          {/* Brand logo - clean circular design */}
+          {getCompanyLogo() ? (
+            <Image 
+              src={getCompanyLogo()!} 
+              alt={getCompanyName()}
+              width={48}
+              height={48}
+              style={{ 
+                borderRadius: '50%',
+                objectFit: 'cover',
+                border: `2px solid ${colors.primary}`,
+                backgroundColor: colors.background
+              }}
+            />
+          ) : (
+            <div 
+              style={{ 
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: colors.background,
+                border: `2px solid ${colors.primary}`
+              }}
+            >
+              <span 
+                style={{ 
+                  color: colors.primary,
+                  fontSize: getFontSize('lg'),
+                  fontWeight: typography.fontWeight.bold
+                }}
+              >
+                {getCompanyName().charAt(0)}
+              </span>
+            </div>
+          )}
+          <div>
+            <h3 style={{ 
+              color: colors.secondary,
+              fontSize: getFontSize('xl'),
+              fontWeight: typography.fontWeight.bold,
+              marginTop: 0,
+              marginRight: 0,
+              marginLeft: 0,
+              marginBottom: `${layout.padding.small}px`
+            }}>
+              {getCompanyName()}
+            </h3>
+            <p style={{
+              color: colors.textSecondary,
+              fontSize: getFontSize('sm'),
+              fontWeight: typography.fontWeight.normal,
+              margin: 0
+            }}>
+              Professional Mortgage Services
+            </p>
+          </div>
+        </div>
+
+        {/* Customer Reviews Section - Clean Cards */}
+        <div style={{ marginBottom: `${layout.padding.large}px` }}>
+          <h4 style={{ 
+            color: colors.secondary,
+            fontSize: getFontSize('lg'),
+            fontWeight: typography.fontWeight.bold,
+            marginTop: 0,
+            marginRight: 0,
+            marginLeft: 0,
+            marginBottom: `${layout.padding.medium}px`
+          }}>
+            Customer Reviews
+          </h4>
+          <div style={{ 
+            display: 'flex',
+            flexDirection: 'column',
+            gap: `${layout.padding.small}px`
+          }}>
+            {[
+              { platform: 'Google', reviews: '1030' },
+              { platform: 'Zillow', reviews: '1030' },
+              { platform: 'X Platform', reviews: '1030' }
+            ].map((review, index) => (
+              <div 
+                key={index}
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'space-between',
+                  padding: `${layout.padding.small}px`,
+                  backgroundColor: `${colors.primary}08`,
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: `1px solid ${colors.border}`
+                }}
+              >
+                <span style={{ 
+                  color: colors.text,
+                  fontSize: getFontSize('sm'),
+                  fontWeight: typography.fontWeight.medium
+                }}>
+                  {review.platform}
+                </span>
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: `${layout.padding.small}px`
+                }}>
+                  <span style={{ color: colors.primary, fontSize: getFontSize('sm') }}>★★★★★</span>
+                  <span style={{ 
+                    color: colors.textSecondary,
+                    fontSize: getFontSize('xs'),
+                    fontWeight: typography.fontWeight.normal
+                  }}>
+                    {review.reviews} reviews
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Contact Information Section - Clean Cards */}
+        <div style={{ marginBottom: `${layout.padding.large}px` }}>
+          <h4 style={{ 
+            color: colors.secondary,
+            fontSize: getFontSize('lg'),
+            fontWeight: typography.fontWeight.bold,
+            marginTop: 0,
+            marginRight: 0,
+            marginLeft: 0,
+            marginBottom: `${layout.padding.medium}px`
+          }}>
+            Contact Information
+          </h4>
+          <div style={{ 
+            display: 'flex',
+            flexDirection: 'column',
+            gap: `${layout.padding.small}px`
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: `${layout.padding.medium}px`,
+              padding: `${layout.padding.medium}px`,
+              backgroundColor: `${colors.primary}08`,
+              borderRadius: `${layout.borderRadius}px`,
+              border: `1px solid ${colors.border}`
+            }}>
+              <div 
+                style={{ 
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: colors.secondary
+                }}
+              >
+                {React.createElement(icons.phone, { size: 16, color: colors.background })}
+              </div>
+              <span style={{ 
+                color: colors.text,
+                fontSize: getFontSize('sm'),
+                fontWeight: typography.fontWeight.normal
+              }}>
+                {getPhone()}
+              </span>
+            </div>
+            
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: `${layout.padding.medium}px`,
+              padding: `${layout.padding.medium}px`,
+              backgroundColor: `${colors.primary}08`,
+              borderRadius: `${layout.borderRadius}px`,
+              border: `1px solid ${colors.border}`
+            }}>
+              <div 
+                style={{ 
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: colors.secondary
+                }}
+              >
+                {React.createElement(icons.email, { size: 16, color: colors.background })}
+              </div>
+              <span style={{ 
+                color: colors.text,
+                fontSize: getFontSize('sm'),
+                fontWeight: typography.fontWeight.normal
+              }}>
+                {getEmail()}
+              </span>
+            </div>
+            
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: `${layout.padding.medium}px`,
+              padding: `${layout.padding.medium}px`,
+              backgroundColor: `${colors.primary}08`,
+              borderRadius: `${layout.borderRadius}px`,
+              border: `1px solid ${colors.border}`
+            }}>
+              <div 
+                style={{ 
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: colors.secondary
+                }}
+              >
+                {React.createElement(icons.location, { size: 16, color: colors.background })}
+              </div>
+              <span style={{ 
+                color: colors.text,
+                fontSize: getFontSize('sm'),
+                fontWeight: typography.fontWeight.normal
+              }}>
+                {getAddress()}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Follow Us Section - Clean Bottom Design */}
+        <div style={{ 
+          marginTop: 'auto', 
+          paddingTop: `${layout.padding.medium}px`, 
+          borderTop: `1px solid ${colors.border}`
+        }}>
+          <h4 style={{ 
+            color: colors.text,
+            fontSize: getFontSize('lg'),
+            fontWeight: typography.fontWeight.bold,
+            marginTop: 0,
+            marginRight: 0,
+            marginLeft: 0,
+            marginBottom: `${layout.padding.medium}px`,
+            textAlign: 'center'
+          }}>
+            Follow Us
+          </h4>
+          <div className="flex gap-2 md:gap-3 justify-center flex-wrap py-2">
           {socialLinks.facebook && (
             <a 
               href={socialLinks.facebook}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ 
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: colors.primary,
-                cursor: 'pointer',
-                transition: 'opacity 0.2s ease',
-                textDecoration: 'none'
+              className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-in-out hover:scale-105"
+              style={{
+                backgroundColor: colors.secondary,
+                boxShadow: `0 2px 4px ${colors.secondary}30`
               }}
-              onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
-              onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
             >
-              {React.createElement(icons.facebook, { size: 16, color: colors.background })}
+              {React.createElement(icons.facebook, { size: 18, color: colors.background })}
             </a>
           )}
           {socialLinks.twitter && (
@@ -452,22 +507,13 @@ export default function UnifiedRightSidebar({
               href={socialLinks.twitter}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ 
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: colors.primary,
-                cursor: 'pointer',
-                transition: 'opacity 0.2s ease',
-                textDecoration: 'none'
+              className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-in-out hover:scale-105"
+              style={{
+                backgroundColor: colors.secondary,
+                boxShadow: `0 2px 4px ${colors.secondary}30`
               }}
-              onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
-              onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
             >
-              {React.createElement(icons.twitter, { size: 16, color: colors.background })}
+              {React.createElement(icons.twitter, { size: 18, color: colors.background })}
             </a>
           )}
           {socialLinks.linkedin && (
@@ -475,22 +521,13 @@ export default function UnifiedRightSidebar({
               href={socialLinks.linkedin}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ 
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: colors.primary,
-                cursor: 'pointer',
-                transition: 'opacity 0.2s ease',
-                textDecoration: 'none'
+              className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-in-out hover:scale-105"
+              style={{
+                backgroundColor: colors.secondary,
+                boxShadow: `0 2px 4px ${colors.secondary}30`
               }}
-              onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
-              onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
             >
-              {React.createElement(icons.linkedin, { size: 16, color: colors.background })}
+              {React.createElement(icons.linkedin, { size: 18, color: colors.background })}
             </a>
           )}
           {socialLinks.instagram && (
@@ -498,26 +535,18 @@ export default function UnifiedRightSidebar({
               href={socialLinks.instagram}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ 
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: colors.primary,
-                cursor: 'pointer',
-                transition: 'opacity 0.2s ease',
-                textDecoration: 'none'
+              className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-in-out hover:scale-105"
+              style={{
+                backgroundColor: colors.secondary,
+                boxShadow: `0 2px 4px ${colors.secondary}30`
               }}
-              onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
-              onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
             >
-              {React.createElement(icons.instagram, { size: 16, color: colors.background })}
+              {React.createElement(icons.instagram, { size: 18, color: colors.background })}
             </a>
           )}
         </div>
       </div>
     </div>
+  </div>
   );
 }

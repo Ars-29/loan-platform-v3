@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase/client';
+import { redisCache } from '@/lib/redis';
 import { User } from '@supabase/supabase-js';
 
 export interface LoanOfficerProfile {
@@ -35,10 +36,14 @@ interface CachedProfile {
 
 const CACHE_KEY = 'loan_officer_profile_cache';
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+const MEMORY_TTL = 60 * 1000; // 60s in-memory hot cache to eliminate spinners on navigation
+
+// Simple in-memory hot cache (per-tab)
+const memoryCache: Map<string, { data: CachedProfile; expiresAt: number }> = new Map();
 
 export function useProfileCache() {
   const [profile, setProfile] = useState<LoanOfficerProfile | null>(null);
-  const [loading, setLoading] = useState(false); // Start with false, will be set to true when fetching
+  const [loading, setLoading] = useState(false); // set true only during actual network work
   const [error, setError] = useState<string | null>(null);
 
   console.log('🔍 useProfileCache hook initialized:', { loading, hasProfile: !!profile });
@@ -225,19 +230,17 @@ export function useProfileCache() {
   const getProfile = useCallback(async (user: User | null, authLoading: boolean) => {
     console.log('🔄 getProfile called:', { user: user?.email, authLoading, userId: user?.id });
     
-    if (authLoading) {
-      console.log('⏳ Auth still loading, waiting...');
-      return; // Wait for auth to load
-    }
+    // Do not block on authLoading; render from caches or fallback immediately
     
     try {
       console.log('🚀 Starting profile fetch...');
       console.log('🔍 Setting loading to true');
+      // only set loading if we expect to hit the network
       setLoading(true);
       setError(null);
 
       if (!user) {
-        console.log('⚠️ No authenticated user, using fallback');
+        console.log('⚠️ No authenticated user yet, using fallback profile');
         const fallbackProfile: LoanOfficerProfile = {
           id: 'fallback',
           firstName: 'User',
@@ -269,8 +272,32 @@ export function useProfileCache() {
         return;
       }
 
-      // Check cache first
-      const cachedProfile = getCachedProfile();
+      // 0) Check in-memory hot cache first
+      const memKey = user.id;
+      const mem = memoryCache.get(memKey);
+      if (mem && mem.expiresAt > Date.now()) {
+        console.log('✅ Using in-memory hot cached profile data');
+        setProfile(mem.data.profile);
+        setLoading(false);
+        return;
+      }
+
+      // 1) Check cache (Redis → localStorage fallback)
+      let cachedProfile = getCachedProfile();
+      if (!cachedProfile) {
+        try {
+          // Use API route (runs server-side, proper env access) to read Redis
+          const res = await fetch(`/api/cache/profile?userId=${encodeURIComponent(user.id)}`);
+          const json = await res.json();
+          if (json?.success && json?.data && json.data.userId === user.id) {
+            console.log('✅ Using Redis cached profile data via API');
+            cachedProfile = json.data as CachedProfile;
+            localStorage.setItem(CACHE_KEY, JSON.stringify(cachedProfile));
+          }
+        } catch (e) {
+          console.log('⚠️ Redis profile cache API unavailable, continuing with local cache');
+        }
+      }
       
       if (cachedProfile && isCacheValid(cachedProfile, user)) {
         console.log('✅ Using cached profile data:', {
@@ -280,6 +307,8 @@ export function useProfileCache() {
           email: cachedProfile.profile.email
         });
         setProfile(cachedProfile.profile);
+        // Warm in-memory cache too
+        memoryCache.set(memKey, { data: cachedProfile, expiresAt: Date.now() + MEMORY_TTL });
         setLoading(false);
         console.log('✅ Profile loading state cleared (cached)');
         return;
@@ -287,16 +316,43 @@ export function useProfileCache() {
 
       console.log('🔄 Cache invalid or expired, fetching fresh data');
       
-      // Fetch fresh data with timeout
-      const fetchPromise = fetchProfile(user);
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Profile fetch timeout after 10 seconds')), 10000)
-      );
+      // Fetch fresh data with timeout and retry once on timeout
+      const withTimeout = <T,>(promise: Promise<T>, ms: number) => {
+        return Promise.race([
+          promise,
+          new Promise<T>((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))
+        ]);
+      };
+
+      let freshProfile: LoanOfficerProfile;
+      try {
+        freshProfile = await withTimeout(fetchProfile(user), 7000) as LoanOfficerProfile;
+      } catch (e) {
+        console.warn('⚠️ Profile fetch timed out, retrying once...');
+        freshProfile = await withTimeout(fetchProfile(user), 7000) as LoanOfficerProfile;
+      }
       
-      const freshProfile = await Promise.race([fetchPromise, timeoutPromise]) as LoanOfficerProfile;
-      
-      // Save to cache
+      // Save to caches (Redis + local)
       saveToCache(freshProfile, user.id, user.email || 'unknown@example.com');
+      try {
+        await fetch('/api/cache/profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user.id,
+            data: {
+              profile: freshProfile,
+              userId: user.id,
+              userEmail: user.email || 'unknown@example.com',
+              cachedAt: new Date().toISOString(),
+              lastLoginAt: freshProfile.lastLoginAt,
+            }
+          })
+        });
+        console.log('✅ Profile cached in Redis via API');
+      } catch (e) {
+        console.log('⚠️ Failed to cache profile in Redis via API');
+      }
       
       // Set profile
       console.log('✅ Setting fresh profile data:', {
@@ -306,6 +362,14 @@ export function useProfileCache() {
         email: freshProfile.email
       });
       setProfile(freshProfile);
+      // Hot cache in memory
+      memoryCache.set(memKey, { data: {
+        profile: freshProfile,
+        userId: user.id,
+        userEmail: user.email || 'unknown@example.com',
+        cachedAt: new Date().toISOString(),
+        lastLoginAt: freshProfile.lastLoginAt,
+      }, expiresAt: Date.now() + MEMORY_TTL });
       setLoading(false);
       console.log('✅ Profile loading state cleared');
 

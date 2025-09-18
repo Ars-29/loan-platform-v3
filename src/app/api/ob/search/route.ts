@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { redisCache } from '@/lib/redis';
 
 type SearchBody = Record<string, unknown>;
 
@@ -32,6 +33,15 @@ function parseCreditScore(creditScoreRange: string): number {
   return 750;
 }
 
+const DEBUG_OB = process.env.DEBUG_OB === '1';
+
+function stableStringify(obj: any): string {
+  const allKeys: string[] = [];
+  JSON.stringify(obj, (key, value) => { allKeys.push(key); return value; });
+  allKeys.sort();
+  return JSON.stringify(obj, allKeys);
+}
+
 async function postBestExecutionSearch(body: SearchBody) {
   const url = `${OB_BASE_URL}/businesschannels/${BUSINESS_CHANNEL_ID}/originators/${ORIGINATOR_ID}/bestexsearch`;
   
@@ -47,14 +57,16 @@ async function postBestExecutionSearch(body: SearchBody) {
     headers["Authorization"] = `Bearer ${OB_BEARER_TOKEN}`;
   }
 
-  console.log('=== OPTIMAL BLUE API REQUEST ===');
-  console.log('URL:', url);
-  console.log('Method:', 'POST');
-  console.log('Headers:', JSON.stringify(headers, null, 2));
-  console.log('Credit Score Range:', body.representativeFICO);
-  console.log('Parsed Credit Score:', parseCreditScore(body.representativeFICO as string));
-  console.log('Request Body:', JSON.stringify(body, null, 2));
-  console.log('===============================');
+  if (DEBUG_OB) {
+    console.log('=== OPTIMAL BLUE API REQUEST ===');
+    console.log('URL:', url);
+    console.log('Method:', 'POST');
+    console.log('Headers:', JSON.stringify(headers, null, 2));
+    console.log('Credit Score Range:', body.representativeFICO);
+    console.log('Parsed Credit Score:', parseCreditScore(body.representativeFICO as string));
+    console.log('Request Body:', JSON.stringify(body, null, 2));
+    console.log('===============================');
+  }
 
   const res = await fetch(url, {
     method: "POST",
@@ -63,50 +75,58 @@ async function postBestExecutionSearch(body: SearchBody) {
     cache: "no-store",
   });
 
-  console.log('=== OPTIMAL BLUE API RESPONSE ===');
-  console.log('Status:', res.status);
-  console.log('Status Text:', res.statusText);
-  console.log('Response Headers:', JSON.stringify(Object.fromEntries(res.headers.entries()), null, 2));
+  if (DEBUG_OB) {
+    console.log('=== OPTIMAL BLUE API RESPONSE ===');
+    console.log('Status:', res.status);
+    console.log('Status Text:', res.statusText);
+    console.log('Response Headers:', JSON.stringify(Object.fromEntries(res.headers.entries()), null, 2));
+  }
   
   // Get response body
   const responseText = await res.text();
-  console.log('Response Body:', responseText);
+  if (DEBUG_OB) console.log('Response Body:', responseText);
   
   // Try to parse as JSON for better formatting
   try {
     const responseJson = JSON.parse(responseText);
-    console.log('Parsed Response JSON:', JSON.stringify(responseJson, null, 2));
+    if (DEBUG_OB) console.log('Parsed Response JSON:', JSON.stringify(responseJson, null, 2));
   } catch (e) {
-    console.log('Response is not valid JSON, showing raw text');
+    if (DEBUG_OB) console.log('Response is not valid JSON, showing raw text');
   }
   
   console.log('===============================');
 
   if (!res.ok) {
-    console.log(`API Error (${res.status}): ${responseText}`);
+    if (DEBUG_OB) console.log(`API Error (${res.status}): ${responseText}`);
     
     // Handle different error types
     if (res.status === 401) {
-      console.log('=== AUTHENTICATION FAILED ===');
-      console.log('Status:', res.status);
-      console.log('Error:', responseText);
-      console.log('Bearer Token provided:', !!OB_BEARER_TOKEN);
-      console.log('Business Channel ID:', BUSINESS_CHANNEL_ID);
-      console.log('Originator ID:', ORIGINATOR_ID);
-      console.log('============================');
-      console.log('Authentication failed, returning mock data...');
+      if (DEBUG_OB) {
+        console.log('=== AUTHENTICATION FAILED ===');
+        console.log('Status:', res.status);
+        console.log('Error:', responseText);
+        console.log('Bearer Token provided:', !!OB_BEARER_TOKEN);
+        console.log('Business Channel ID:', BUSINESS_CHANNEL_ID);
+        console.log('Originator ID:', ORIGINATOR_ID);
+        console.log('============================');
+        console.log('Authentication failed, returning mock data...');
+      }
     } else if (res.status === 400) {
-      console.log('=== VALIDATION ERROR ===');
-      console.log('Status:', res.status);
-      console.log('Error:', responseText);
-      console.log('========================');
-      console.log('Request validation failed, returning mock data...');
+      if (DEBUG_OB) {
+        console.log('=== VALIDATION ERROR ===');
+        console.log('Status:', res.status);
+        console.log('Error:', responseText);
+        console.log('========================');
+        console.log('Request validation failed, returning mock data...');
+      }
     } else {
-      console.log('=== API ERROR ===');
-      console.log('Status:', res.status);
-      console.log('Error:', responseText);
-      console.log('==================');
-      console.log('API error occurred, returning mock data...');
+      if (DEBUG_OB) {
+        console.log('=== API ERROR ===');
+        console.log('Status:', res.status);
+        console.log('Error:', responseText);
+        console.log('==================');
+        console.log('API error occurred, returning mock data...');
+      }
     }
     
     // Return mock data for any API error (401, 400, etc.)
@@ -196,15 +216,16 @@ async function postBestExecutionSearch(body: SearchBody) {
 
 export async function POST(request: NextRequest) {
   try {
-
     const body = (await request.json()) as SearchBody;
     
-    console.log('=== INCOMING REQUEST TO API ROUTE ===');
-    console.log('Request URL:', request.url);
-    console.log('Request Method:', request.method);
-    console.log('Request Headers:', JSON.stringify(Object.fromEntries(request.headers.entries()), null, 2));
-    console.log('Request body received:', JSON.stringify(body, null, 2));
-    console.log('=====================================');
+    if (DEBUG_OB) {
+      console.log('=== INCOMING REQUEST TO API ROUTE ===');
+      console.log('Request URL:', request.url);
+      console.log('Request Method:', request.method);
+      console.log('Request Headers:', JSON.stringify(Object.fromEntries(request.headers.entries()), null, 2));
+      console.log('Request body received:', JSON.stringify(body, null, 2));
+      console.log('=====================================');
+    }
 
     // Transform the request body to match Optimal Blue API format
     const apiRequestBody = {
@@ -281,15 +302,30 @@ export async function POST(request: NextRequest) {
       }
     };
 
-    console.log('Transformed API request body:', JSON.stringify(apiRequestBody, null, 2));
-    console.log('==========================================');
+    if (DEBUG_OB) {
+      console.log('Transformed API request body:', JSON.stringify(apiRequestBody, null, 2));
+      console.log('==========================================');
+    }
+
+    // Try Redis cache first (12h TTL)
+    const cacheKey = `ob:bestex:${stableStringify(apiRequestBody)}`;
+    const cached = await redisCache.get<any>(cacheKey);
+    if (cached) {
+      if (DEBUG_OB) console.log('✅ OB Cache hit:', cacheKey);
+      return new Response(
+        JSON.stringify(cached),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Call Optimal Blue Best Execution Search API
     const searchResponse = await postBestExecutionSearch(apiRequestBody);
     
-    console.log('=== OPTIMAL BLUE API RESPONSE DEBUG ===');
-    console.log('Response received:', JSON.stringify(searchResponse, null, 2));
-    console.log('=======================================');
+    if (DEBUG_OB) {
+      console.log('=== OPTIMAL BLUE API RESPONSE DEBUG ===');
+      console.log('Response received:', JSON.stringify(searchResponse, null, 2));
+      console.log('=======================================');
+    }
 
     // Check if the response contains mock data indicators
     const isMockData = searchResponse.isMockData === true || 
@@ -302,10 +338,12 @@ export async function POST(request: NextRequest) {
 
     const dataSource = isMockData ? 'mock_fallback' : 'optimal_blue_api';
 
-    console.log('=== DATA SOURCE DETECTION ===');
-    console.log('Is mock data:', isMockData);
-    console.log('Data source:', dataSource);
-    console.log('==============================');
+    if (DEBUG_OB) {
+      console.log('=== DATA SOURCE DETECTION ===');
+      console.log('Is mock data:', isMockData);
+      console.log('Data source:', dataSource);
+      console.log('==============================');
+    }
 
     const finalResponse = {
       success: true,
@@ -316,12 +354,24 @@ export async function POST(request: NextRequest) {
       source: dataSource
     };
 
-    console.log('=== FINAL RESPONSE TO CLIENT ===');
-    console.log('Response Status:', 200);
-    console.log('Is Mock Data:', isMockData);
-    console.log('Data Source:', dataSource);
-    console.log('Response Data:', JSON.stringify(finalResponse, null, 2));
-    console.log('===============================');
+    if (DEBUG_OB) {
+      console.log('=== FINAL RESPONSE TO CLIENT ===');
+      console.log('Response Status:', 200);
+      console.log('Is Mock Data:', isMockData);
+      console.log('Data Source:', dataSource);
+      console.log('Response Data:', JSON.stringify(finalResponse, null, 2));
+      console.log('===============================');
+    }
+
+    // Cache successful non-mock responses for 12 hours
+    if (!isMockData) {
+      try {
+        await redisCache.set(cacheKey, finalResponse, 12 * 60 * 60);
+        if (DEBUG_OB) console.log('💾 OB cached:', cacheKey);
+      } catch (e) {
+        if (DEBUG_OB) console.log('Redis cache set failed:', e);
+      }
+    }
 
     return new Response(
       JSON.stringify(finalResponse),

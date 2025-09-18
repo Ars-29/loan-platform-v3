@@ -94,7 +94,7 @@ export default function LeadCaptureModal({
     padding: { small: 8, medium: 16, large: 24, xlarge: 32 }
   };
   
-  const classes = templateData?.template?.classes || {
+  const defaultClasses = {
     button: {
       primary: 'px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white',
       secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium transition-all duration-200 border border-gray-300'
@@ -122,6 +122,16 @@ export default function LeadCaptureModal({
       base: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200',
       error: 'border-red-300 focus:ring-red-500 focus:border-red-500'
     }
+  };
+  const templateClasses = templateData?.template?.classes || {};
+  const classes = {
+    ...defaultClasses,
+    ...templateClasses,
+    button: { ...defaultClasses.button, ...(templateClasses.button || {}) },
+    card: { ...defaultClasses.card, ...(templateClasses.card || {}) },
+    heading: { ...defaultClasses.heading, ...(templateClasses.heading || {}) },
+    body: { ...defaultClasses.body, ...(templateClasses.body || {}) },
+    input: { ...defaultClasses.input, ...(templateClasses.input || {}) }
   };
   const [formData, setFormData] = useState({
     firstName: '',

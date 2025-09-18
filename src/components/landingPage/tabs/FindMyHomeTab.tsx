@@ -73,7 +73,7 @@ export default function FindMyHomeTab({
     padding: { small: 8, medium: 16, large: 24, xlarge: 32 }
   };
   
-  const classes = templateData?.template?.classes || {
+  const defaultClasses = {
     button: {
       primary: selectedTemplate === 'template2' 
         ? 'px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white'
@@ -129,6 +129,19 @@ export default function FindMyHomeTab({
       error: 'text-red-600 bg-red-50 px-2 py-1 rounded text-sm',
       info: 'text-blue-600 bg-blue-50 px-2 py-1 rounded text-sm'
     }
+  };
+  const templateClasses = templateData?.template?.classes || {};
+  const classes = {
+    ...defaultClasses,
+    ...templateClasses,
+    button: { ...defaultClasses.button, ...(templateClasses.button || {}) },
+    card: { ...defaultClasses.card, ...(templateClasses.card || {}) },
+    heading: { ...defaultClasses.heading, ...(templateClasses.heading || {}) },
+    body: { ...defaultClasses.body, ...(templateClasses.body || {}) },
+    icon: { ...defaultClasses.icon, ...(templateClasses.icon || {}) },
+    input: { ...defaultClasses.input, ...(templateClasses.input || {}) },
+    select: { ...defaultClasses.select, ...(templateClasses.select || {}) },
+    status: { ...defaultClasses.status, ...(templateClasses.status || {}) }
   };
   const [searchCriteria, setSearchCriteria] = useState({
     location: '',

@@ -71,7 +71,7 @@ export default function LearningCenterTab({
     padding: { small: 8, medium: 16, large: 24, xlarge: 32 }
   };
   
-  const classes = templateData?.template?.classes || {
+  const defaultClasses = {
     button: {
       primary: 'px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white',
       secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium transition-all duration-200 border border-gray-300',
@@ -113,6 +113,17 @@ export default function LearningCenterTab({
       error: 'text-red-600 bg-red-50 px-2 py-1 rounded text-sm',
       info: 'text-blue-600 bg-blue-50 px-2 py-1 rounded text-sm'
     }
+  };
+  const templateClasses = templateData?.template?.classes || {};
+  const classes = {
+    ...defaultClasses,
+    ...templateClasses,
+    button: { ...defaultClasses.button, ...(templateClasses.button || {}) },
+    card: { ...defaultClasses.card, ...(templateClasses.card || {}) },
+    heading: { ...defaultClasses.heading, ...(templateClasses.heading || {}) },
+    body: { ...defaultClasses.body, ...(templateClasses.body || {}) },
+    icon: { ...defaultClasses.icon, ...(templateClasses.icon || {}) },
+    status: { ...defaultClasses.status, ...(templateClasses.status || {}) }
   };
   const [activeSection, setActiveSection] = useState<'videos' | 'faq' | 'guides'>('videos');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');

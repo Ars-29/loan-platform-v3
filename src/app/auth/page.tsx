@@ -25,13 +25,17 @@ function AuthPageContent() {
       console.log('Checking user role for:', user.id);
       
       // Get user role from database
-      const { data: userData, error } = await supabase
+      const roleFetch = supabase
         .from('users')
         .select('role')
         .eq('id', user.id)
         .single();
 
-      if (error) {
+      // Add a hard timeout so UI never hangs here
+      const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('role_timeout')), 5000));
+      const { data: userData, error } = await Promise.race([roleFetch, timeout]) as any;
+
+      if (error || !userData) {
         console.error('Error fetching user role:', error);
         // If RLS is blocking, try to redirect based on email
         if (user.email === 'admin@loanplatform.com') {
@@ -39,8 +43,8 @@ function AuthPageContent() {
           router.push('/admin/companies');
           return;
         }
-        // Default fallback
-        router.push('/dashboard');
+        // Default fast fallback to officers dashboard
+        router.push('/officers/dashboard');
         return;
       }
 
@@ -110,8 +114,10 @@ function AuthPageContent() {
       } else if (data.user) {
         console.log('Sign in successful for:', data.user.email);
         setError('');
-        // Handle redirect directly after successful login
-        await checkUserRoleAndRedirect(data.user);
+        // Immediately go to dashboard to avoid waiting here; RouteGuard will settle
+        router.push('/officers/dashboard');
+        // Fire-and-forget role check to refine destination if needed
+        checkUserRoleAndRedirect(data.user).catch(() => {});
       }
     } catch (error) {
       console.error('Sign in error:', error);

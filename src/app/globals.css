@@ -25,13 +25,24 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Custom scrollbar styles for tab navigation */
-.scrollbar-hide {
-  -ms-overflow-style: none;  /* Internet Explorer 10+ */
-  scrollbar-width: none;  /* Firefox */
+/* Rounded scrollbar for horizontal tab nav */
+.scrollbar-rounded {
+  scrollbar-width: thin; /* Firefox */
 }
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;  /* Safari and Chrome */
+.scrollbar-rounded::-webkit-scrollbar {
+  height: 10px; /* horizontal bar height */
+}
+.scrollbar-rounded::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.04);
+  border-radius: 9999px;
+  margin: 0 10px; /* avoid edge clipping under gradients */
+}
+.scrollbar-rounded::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.22);
+  border-radius: 9999px;
+}
+.scrollbar-rounded::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,0,0,0.32);
 }
 
 /* Custom scale utilities */

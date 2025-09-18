@@ -152,8 +152,10 @@ export default function CustomizerPage() {
   
   // Deep merge template with custom settings for real-time preview
   const mergedTemplate = React.useMemo(() => {
-    if (!currentTemplate || isFallback || templateLoading) {
-      console.log('⚠️ Customizer: No current template, using fallback, or still loading - using fallback');
+    // Grace period to avoid noisy fallback during first paint
+    const ready = !!currentTemplate && !isFallback && !templateLoading;
+    if (!ready) {
+      // Do not log repeatedly; show silent fallback that still renders immediately
       return {
         id: 'fallback',
         slug: customizerState.selectedTemplate,
