@@ -86,7 +86,7 @@ const UnifiedTemplateContext = createContext<UnifiedTemplateState | undefined>(u
 
 // Provider component
 export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, userRole } = useAuth();
   const [templates, setTemplates] = useState<Record<string, TemplateData>>(() => {
     if (typeof window === 'undefined') return {};
     try {
@@ -136,7 +136,7 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
   // Get and cache auth token for this provider lifecycle
   const getAuthToken = useCallback(async (): Promise<string> => {
     if (authTokenRef.current) return authTokenRef.current;
-    const deadline = Date.now() + 2500; // wait up to 2.5s for token
+    const deadline = Date.now() + 1000; // wait up to 1s for token (reduced from 2.5s)
     while (Date.now() < deadline) {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
@@ -145,7 +145,7 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
         return token;
       }
       // Small backoff before next attempt
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(resolve => setTimeout(resolve, 100)); // reduced from 200ms
     }
     console.warn('⚠️ UnifiedTemplate: No session token after wait, proceeding with cache-only');
     return '';
@@ -216,6 +216,13 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
       return null;
     }
 
+    // Only fetch templates for active loan officers (employees)
+    // Skip if userRole is not loaded yet, or if it's not an employee, or if user is not active
+    if (!userRole || userRole.role !== 'employee' || userRole.isActive === false) {
+      console.log('UnifiedTemplate:fetchSkip - Not an active loan officer or role not loaded, skipping template fetch');
+      return null;
+    }
+
     // Check request cache first to prevent duplicate API calls
     const cacheKey = `${user.id}:${slug}`;
     if (requestCache.current.has(cacheKey)) {
@@ -241,7 +248,7 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
         // Timeout after max wait time
         setTimeout(() => {
           clearInterval(checkInterval);
-          console.log('⚠️ UnifiedTemplate: Timeout waiting for:', slug);
+          console.warn('UnifiedTemplate:waitTimeout', slug);
           resolve(null);
         }, maxWaitTime);
       });
@@ -259,35 +266,14 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error('❌ UnifiedTemplate: Error checking Redis cache via API:', error);
-      // Fallback to localStorage if Redis fails
-      if (typeof window !== 'undefined') {
-        const userScopedKey = `unified_template_${user.id}_${slug}`;
-        const genericKey = `unified_template_latest_${slug}`;
-        const tryRead = (key: string) => {
-          const cached = localStorage.getItem(key);
-          if (!cached) return null;
-          try {
-            const parsedCache = JSON.parse(cached);
-            const data = parsedCache?.data ?? parsedCache;
-            const ts = parsedCache?.timestamp ?? 0;
-            if (!parsedCache?.data || Date.now() - ts < 5 * 60 * 1000) {
-              console.log('✅ UnifiedTemplate: Using localStorage fallback for:', slug, 'key:', key);
-              return data;
-            }
-          } catch {
-            localStorage.removeItem(key);
-          }
-          return null;
-        };
-        return tryRead(userScopedKey) || tryRead(genericKey);
-      }
+        // No localStorage fallback: rely on 304/ETag + broadcast to simplify edge cases
     }
 
     // Create and cache the request promise
     const requestPromise = (async () => {
       try {
         requestCounter.current += 1;
-        console.log(`🔍 UnifiedTemplate: Fetching #${requestCounter.current}:`, slug);
+        console.log('UnifiedTemplate:fetch', slug, requestCounter.current);
         
         setFetchingTemplates(prev => new Set(prev).add(slug));
         setIsLoading(true);
@@ -307,15 +293,25 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
           },
         });
 
+        // Gracefully handle unauthorized (e.g., instant sign-out): treat as cache miss
+        if (response.status === 401) {
+          console.warn('⚠️ UnifiedTemplate: Unauthorized when fetching template (likely signed out); skipping fetch for', slug);
+          return null;
+        }
+        if (response.status === 304) {
+          console.log('✅ UnifiedTemplate: 304 Not Modified for', slug, '- keeping cached template');
+          return templates[slug] || null;
+        }
+
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to fetch template');
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `Failed to fetch template (${response.status})`);
         }
 
         const result = await response.json();
         
         if (result.success) {
-          console.log('✅ UnifiedTemplate: Fetched successfully:', slug);
+          console.log('UnifiedTemplate:fetched', slug);
           
           // Cache the result in Redis
           try {
@@ -324,7 +320,7 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ userId: user.id, slug, data: result.data })
             });
-            console.log('✅ UnifiedTemplate: Cached template in Redis via API:', slug);
+            console.log('UnifiedTemplate:redisSet', slug);
           } catch (error) {
             console.error('❌ UnifiedTemplate: Error caching in Redis via API:', error);
             // Fallback to localStorage if Redis fails
@@ -344,7 +340,8 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
 
       } catch (err) {
         console.error('❌ UnifiedTemplate: Error fetching:', err);
-        throw err;
+        // Do not propagate errors that would keep loading flags stuck
+        return null;
       } finally {
         setIsLoading(false);
         setFetchingTemplates(prev => {
@@ -361,19 +358,33 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
     requestCache.current.set(cacheKey, requestPromise);
     
     return requestPromise;
-  }, [user, fetchingTemplates, templates]);
+  }, [user, fetchingTemplates, templates, userRole]);
 
   // Initialize templates
   const initializeTemplates = useCallback(async () => {
     if (!user || authLoading || isInitialized || initializationLock.current) {
-      console.log('⚠️ UnifiedTemplate: Skipping initialization - no user, already initialized, or locked');
+      console.log('UnifiedTemplate:initSkip');
+      return;
+    }
+
+    // Only initialize templates for active loan officers (employees)
+    // Skip if userRole is not loaded yet, or if it's not an employee, or if user is not active
+    if (!userRole || userRole.role !== 'employee' || userRole.isActive === false) {
+      console.log('UnifiedTemplate:initSkip - Not an active loan officer or role not loaded, skipping template initialization', { 
+        hasUserRole: !!userRole, 
+        role: userRole?.role,
+        isActive: userRole?.isActive,
+        userEmail: user?.email 
+      });
+      setIsLoading(false);
+      setIsInitialized(true);
       return;
     }
     
     // Set initialization lock
     initializationLock.current = true;
     
-    console.log('🚀 UnifiedTemplate: Initializing...');
+    console.log('UnifiedTemplate:init');
     setIsLoading(true);
     setError(null);
 
@@ -392,7 +403,7 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
           const cachedData = json?.success ? json?.data : null;
           if (cachedData) {
             cachedTemplates[slug] = cachedData;
-            console.log('✅ UnifiedTemplate: Using Redis cached (API):', slug);
+            console.log('UnifiedTemplate:cacheHit', slug);
             continue;
           }
         } catch (error) {
@@ -447,11 +458,7 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
       const loadedCount = Object.keys(allTemplates).length;
       setIsInitialized(loadedCount > 0);
       
-      console.log('✅ UnifiedTemplate: Initialized:', {
-        total: Object.keys(allTemplates).length,
-        cached: Object.keys(cachedTemplates).length,
-        fetched: fetchResults.filter(r => r.templateData).length
-      });
+      console.log('UnifiedTemplate:ready', { total: Object.keys(allTemplates).length });
       
     } catch (error) {
       console.error('❌ UnifiedTemplate: Error initializing:', error);
@@ -501,22 +508,37 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
   const refreshTemplate = useCallback(async (slug: string) => {
     if (!user) return;
     
+    // Only refresh templates for active loan officers (employees)
+    // Skip if userRole is not loaded yet, or if it's not an employee, or if user is not active
+    if (!userRole || userRole.role !== 'employee' || userRole.isActive === false) {
+      console.log('UnifiedTemplate:refreshSkip - Not an active loan officer or role not loaded, skipping template refresh');
+      return;
+    }
+    
     try {
       console.log('🔄 UnifiedTemplate: Refreshing:', slug);
       
-      // Clear Redis cache
+      // Clear Redis cache via server API (client cannot access Redis directly)
       try {
-        await redisCache.delete(redisCache.getTemplateKey(user.id, slug));
-        console.log('🗑️ UnifiedTemplate: Cleared Redis cache for:', slug);
+        const res = await fetch(`/api/cache/template?userId=${encodeURIComponent(user.id)}&slug=${encodeURIComponent(slug)}`, {
+          method: 'DELETE'
+        });
+        if (!res.ok) {
+          console.warn('⚠️ UnifiedTemplate: Failed to delete server cache via API for:', slug);
+        } else {
+          console.log('🗑️ UnifiedTemplate: Cleared Redis cache via API for:', slug);
+        }
       } catch (error) {
-        console.error('❌ UnifiedTemplate: Error clearing Redis cache:', error);
+        console.error('❌ UnifiedTemplate: Error clearing Redis cache via API:', error);
       }
       
       // Clear localStorage fallback
       if (typeof window !== 'undefined') {
-        const cacheKey = `unified_template_${user.id}_${slug}`;
-        localStorage.removeItem(cacheKey);
-        console.log('🗑️ UnifiedTemplate: Cleared localStorage cache for:', slug);
+        const userScopedKey = `unified_template_${user.id}_${slug}`;
+        const genericKey = `unified_template_latest_${slug}`;
+        localStorage.removeItem(userScopedKey);
+        localStorage.removeItem(genericKey);
+        console.log('🗑️ UnifiedTemplate: Cleared localStorage cache for:', slug, 'keys:', userScopedKey, genericKey);
       }
       
       const templateData = await fetchTemplate(slug);
@@ -531,12 +553,20 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('❌ UnifiedTemplate: Error refreshing:', error);
     }
-  }, [user, fetchTemplate]);
+  }, [user, fetchTemplate, userRole]);
 
   // One-time prewarm after auth (loads both templates quickly to avoid fallbacks)
   useEffect(() => {
     if (!user?.id) return;
     if (prewarmDoneRef.current === user.id) return;
+    
+    // Only prewarm for active loan officers (employees)
+    // Skip if userRole is not loaded yet, or if it's not an employee, or if user is not active
+    if (!userRole || userRole.role !== 'employee' || userRole.isActive === false) {
+      console.log('UnifiedTemplate:prewarmSkip - Not an active loan officer or role not loaded, skipping template prewarm');
+      return;
+    }
+    
     prewarmDoneRef.current = user.id;
     const t1 = setTimeout(() => {
       refreshTemplate('template1').catch(() => {});
@@ -550,7 +580,7 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
       clearTimeout(t1);
       clearTimeout(t2);
     };
-  }, [user?.id, refreshTemplate]);
+  }, [user?.id, refreshTemplate, userRole]);
 
   // Save template settings
   const saveTemplate = useCallback(async (slug: string, customSettings: any, isPublished = false) => {
@@ -605,10 +635,12 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
     
     if (user) {
       try {
-        await redisCache.clearUserCache(user.id);
-        console.log('🗑️ UnifiedTemplate: Cleared Redis cache for user:', user.id);
+        // Best-effort: clear both templates via API (client cannot clear directly)
+        const slugs = ['template1', 'template2'];
+        await Promise.all(slugs.map(slug => fetch(`/api/cache/template?userId=${encodeURIComponent(user.id)}&slug=${encodeURIComponent(slug)}`, { method: 'DELETE' }).catch(() => {})));
+        console.log('🗑️ UnifiedTemplate: Requested Redis cache clear via API for user:', user.id);
       } catch (error) {
-        console.error('❌ UnifiedTemplate: Error clearing Redis cache:', error);
+        console.error('❌ UnifiedTemplate: Error clearing Redis cache via API:', error);
       }
       
       // Clear localStorage fallback
@@ -620,8 +652,10 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
             keysToRemove.push(key);
           }
         }
+        // Also clear generic latest keys
+        keysToRemove.push('unified_template_latest_template1', 'unified_template_latest_template2');
         keysToRemove.forEach(key => localStorage.removeItem(key));
-        console.log('🗑️ UnifiedTemplate: Cleared localStorage cache for user:', user.id);
+        console.log('🗑️ UnifiedTemplate: Cleared localStorage cache for user:', user.id, 'keys:', keysToRemove);
       }
     }
   }, [user]);
@@ -652,22 +686,63 @@ export function UnifiedTemplateProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  // BroadcastChannel: listen for template invalidations (cross-tab sync)
+  useEffect(() => {
+    if (typeof window === 'undefined' || !user?.id) return;
+    const bc = new BroadcastChannel('templates');
+    const handler = (e: MessageEvent) => {
+      const m = e.data as any;
+      if (m?.type === 'template:updated' && m.userId === user.id && m.slug) {
+        console.log('UnifiedTemplate:broadcast', m.slug);
+        refreshTemplate(m.slug).catch(() => {});
+      }
+    };
+    bc.addEventListener('message', handler);
+    return () => bc.removeEventListener('message', handler);
+  }, [user?.id, refreshTemplate]);
+
   // Initialize templates when user is available
   useEffect(() => {
-    // Kick off initialization as soon as we have a user
-    if (user && !isInitialized) {
+    console.log('🔄 UnifiedTemplate: Auth state changed:', { 
+      authLoading, 
+      hasUser: !!user, 
+      isInitialized,
+      userEmail: user?.email 
+    });
+    
+    // Kick off initialization as soon as we have a user and userRole
+    if (user && userRole && !isInitialized) {
       console.log('🚀 UnifiedTemplate: User present, initializing templates...');
       initializeTemplates();
       return;
     }
+    
+    // If user is present but no userRole yet, wait for it to load
+    if (user && !userRole && !authLoading) {
+      console.log('🔄 UnifiedTemplate: User present but role not loaded yet, waiting...');
+      return;
+    }
     // If auth has settled and there is no user, clear caches
     if (!authLoading && !user) {
-      console.log('⚠️ UnifiedTemplate: No user after auth settled, clearing cache...');
+      console.log('UnifiedTemplate:clearNoUser');
       clearCache();
       return;
     }
-    console.log('⚠️ UnifiedTemplate: Waiting for auth state...', { authLoading, hasUser: !!user, isInitialized });
-  }, [user, authLoading, isInitialized]);
+    console.log('UnifiedTemplate:authWait', { authLoading, hasUser: !!user, isInitialized });
+  }, [user, authLoading, isInitialized, userRole]);
+
+  // Add a timeout to prevent infinite loading
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (isLoading && !isInitialized) {
+        console.log('⚠️ UnifiedTemplate: Template loading timeout, forcing initialization');
+        setIsLoading(false);
+        setIsInitialized(true);
+      }
+    }, 10000); // 10 second timeout
+
+    return () => clearTimeout(timeout);
+  }, [isLoading, isInitialized]);
 
   // Create the context value
   const contextValue: UnifiedTemplateState = {
@@ -886,23 +961,43 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
   officerInfo
 }) => {
   const { setCustomizerMode, clearCustomizerMode } = useUnifiedTemplates();
+  const lastPayloadRef = React.useRef<{ isCustomizerMode: boolean; customTemplate?: any; officerInfo?: any } | null>(null);
+
+  const deepEqual = (a: any, b: any) => {
+    try {
+      return JSON.stringify(a) === JSON.stringify(b);
+    } catch {
+      return a === b;
+    }
+  };
   
   // Set customizer mode when provider mounts
   useEffect(() => {
-    if (isCustomizerMode) {
+    const nextPayload = {
+      isCustomizerMode: !!isCustomizerMode,
+      customTemplate: isCustomizerMode ? (customTemplate || templateData) : undefined,
+      officerInfo: isCustomizerMode ? officerInfo : undefined,
+    };
+
+    const prev = lastPayloadRef.current;
+
+    // Determine if we actually need to update context state
+    const changed = !prev
+      || prev.isCustomizerMode !== nextPayload.isCustomizerMode
+      || (nextPayload.isCustomizerMode && (!deepEqual(prev.customTemplate, nextPayload.customTemplate) || !deepEqual(prev.officerInfo, nextPayload.officerInfo)));
+
+    if (!changed) return;
+
+    if (nextPayload.isCustomizerMode) {
       setCustomizerMode({
         isCustomizerMode: true,
-        customTemplate: customTemplate || templateData,
-        officerInfo
+        customTemplate: nextPayload.customTemplate,
+        officerInfo: nextPayload.officerInfo
       });
     } else {
       clearCustomizerMode();
     }
-    
-    // Cleanup when provider unmounts
-    return () => {
-      clearCustomizerMode();
-    };
+    lastPayloadRef.current = nextPayload;
   }, [isCustomizerMode, customTemplate, templateData, officerInfo, setCustomizerMode, clearCustomizerMode]);
   
   return <>{children}</>;

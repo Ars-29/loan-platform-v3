@@ -4,8 +4,8 @@ import React, { useState, useMemo, lazy, Suspense } from 'react';
 import { RouteGuard } from '@/components/auth/RouteGuard';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useAuth } from '@/hooks/use-auth';
-import { useProfileCache } from '@/hooks/use-profile-cache';
 import { useTemplateSelection, useTemplate, useGlobalTemplates } from '@/contexts/UnifiedTemplateContext';
+import { supabase } from '@/lib/supabase/client';
 
 // Lazy load unified components
 const UnifiedHeroSection = lazy(() => import('@/components/landingPage/UnifiedHeroSection'));
@@ -73,7 +73,6 @@ SkeletonLoader.displayName = 'SkeletonLoader';
 
 export default function OfficersProfilePage() {
   const { user, userRole, loading: authLoading } = useAuth();
-  const { profile, refreshProfile, loading: profileLoading, getProfile } = useProfileCache();
   const { selectedTemplate, isLoading: templateSelectionLoading } = useTemplateSelection();
   const { templateData, isLoading: templateLoading, isFallback } = useTemplate(selectedTemplate);
   // Avoid noisy console when template fallback is expected briefly
@@ -82,7 +81,7 @@ export default function OfficersProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>('todays-rates');
   
-  // Form data state - initialize with profile data when available
+  // Form data state - initialize with user data
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -90,251 +89,242 @@ export default function OfficersProfilePage() {
     phone: '',
   });
 
-  // Update form data when profile is loaded
+  // Update form data when user is available
   React.useEffect(() => {
-    if (profile) {
+    if (user) {
       setFormData({
-        firstName: profile.firstName || '',
-        lastName: profile.lastName || '',
-        email: profile.email || '',
-        phone: profile.phone || '',
+        firstName: user.user_metadata?.first_name || user.email?.split('@')[0] || 'User',
+        lastName: user.user_metadata?.last_name || 'Smith',
+        email: user.email || '',
+        phone: user.user_metadata?.phone || '',
       });
     }
-  }, [profile]);
+  }, [user]);
 
-  // Trigger profile fetching when user/auth state changes
+  // Debug template loading
   React.useEffect(() => {
-    console.log('🔄 Profile page: Triggering profile fetch', { user: user?.email, authLoading, profileLoading });
-    getProfile(user, authLoading);
-  }, [user, authLoading, getProfile]);
-
-  // Debug template data
-  React.useEffect(() => {
-    console.log('🔄 Profile page: Template data debug:', {
+    console.log('🔄 Profile page: Template loading state:', {
       templateLoading,
       isFallback,
       hasTemplateData: !!templateData,
+      selectedTemplate,
       templateDataKeys: templateData ? Object.keys(templateData) : [],
       templateId: templateData?.template?.id,
-      rightSidebarModifications: templateData?.template?.rightSidebarModifications,
-      companyName: templateData?.template?.rightSidebarModifications?.companyName,
-      socialLinks: templateData?.template?.rightSidebarModifications,
-      timestamp: new Date().toISOString()
+      isCustomized: templateData?.metadata?.isCustomized
     });
   }, [templateData, templateLoading, isFallback]);
 
-  // Refresh template data when page becomes visible or focused (user navigates back from customizer)
-  React.useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (!document.hidden && selectedTemplate) {
-        console.log('🔄 Profile page: Page became visible, refreshing template data');
-        refreshTemplate(selectedTemplate).catch(error => {
-          console.error('❌ Profile page: Error refreshing template:', error);
-        });
-      }
-    };
-
-    const handleFocus = () => {
-      if (selectedTemplate) {
-        console.log('🔄 Profile page: Window focused, refreshing template data');
-        refreshTemplate(selectedTemplate).catch(error => {
-          console.error('❌ Profile page: Error refreshing template:', error);
-        });
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('focus', handleFocus);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('focus', handleFocus);
-    };
-  }, [selectedTemplate]); // Remove refreshTemplate from dependencies
-
-  // Memoize handlers to prevent unnecessary re-renders
-  const handleInputChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  }, []);
-
-  const handleSave = React.useCallback(async () => {
-    // TODO: Implement profile update logic
-    console.log('Saving profile:', formData);
-    setIsEditing(false);
-  }, [formData]);
-
-  const handleCancel = React.useCallback(() => {
-    if (profile) {
-      setFormData({
-        firstName: profile.firstName || '',
-        lastName: profile.lastName || '',
-        email: profile.email || '',
-        phone: profile.phone || '',
-      });
-    }
-    setIsEditing(false);
-  }, [profile]);
-
-  const handleTabChange = React.useCallback((tabId: TabId) => {
-    console.log('🔄 Profile page: Tab change requested:', tabId);
-    setActiveTab(tabId);
-    console.log('✅ Profile page: Tab changed to:', tabId);
-  }, []);
-
-  // Template selection is now handled globally in the customizer
-
-  const handleRefreshProfile = React.useCallback(async () => {
+  // Get officer information from user data
+  const officerInfo = React.useMemo(() => {
     if (user) {
-      console.log('🔄 Refreshing profile data...');
-      await refreshProfile(user);
-    }
-  }, [user, refreshProfile]);
-
-  // Memoize user information calculations using fetched profile data
-  const officerInfo = useMemo(() => {
-    if (profile) {
-      const info = {
-        officerName: `${profile.firstName} ${profile.lastName}`,
-        phone: profile.phone || null, // Only show if exists in database
-        email: profile.email || 'user@example.com',
+      return {
+        officerName: user.user_metadata?.full_name || `${user.user_metadata?.first_name || user.email?.split('@')[0] || 'User'} ${user.user_metadata?.last_name || 'Smith'}`,
+        phone: user.user_metadata?.phone || undefined,
+        email: user.email || 'user@example.com',
       };
-      console.log('🎯 Using fetched profile data for officerInfo:', info);
-      return info;
     }
     
-    // Fallback to form data if profile not loaded yet
-    const officerName = formData.firstName && formData.lastName 
-      ? `${formData.firstName} ${formData.lastName}`
-      : 'John Smith';
-    
-    const fallbackInfo = {
-      officerName,
-      phone: formData.phone || null, // Only show if exists
-      email: formData.email || 'john@example.com',
+    // Final fallback
+    return {
+      officerName: 'John Smith',
+      phone: '(555) 123-4567',
+      email: 'john@example.com',
     };
-    console.log('⚠️ Using fallback data for officerInfo:', fallbackInfo);
-    return fallbackInfo;
-  }, [profile, formData.firstName, formData.lastName, formData.phone, formData.email]);
+  }, [user]);
 
-  // Debug logging for loading states
-  console.log('🔍 Profile page render state:', {
-    authLoading,
-    profileLoading,
-    templateLoading,
-    templateSelectionLoading,
-    hasUser: !!user,
-    hasProfile: !!profile,
-    userEmail: user?.email,
-    selectedTemplate,
-    isFallback,
-    templateDataKeys: Object.keys(templateData?.template || {}),
-    templateColors: templateData?.template?.colors
-  });
 
-  // Show loading state while essential data is being fetched
-  if (authLoading || profileLoading) {
-    return (
-      <RouteGuard allowedRoles={['employee']}>
-        <DashboardLayout 
-          title="Loan Officer Profile" 
-          subtitle="Loading your profile..."
-        >
-          <div className="flex items-center justify-center min-h-screen">
-            <div className="text-center">
-              <div className={`animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4`} style={{ borderColor: templateData?.template?.colors?.primary || '#ec4899' }}></div>
-              <p className="text-gray-600">Loading profile data...</p>
-              <p className="text-sm text-gray-500 mt-2">
-                Auth: {authLoading ? 'Loading' : 'Ready'} | Profile: {profileLoading ? 'Loading' : 'Ready'}
-              </p>
-            </div>
-          </div>
-        </DashboardLayout>
-      </RouteGuard>
-    );
-  }
+  // Debug loading states
+  React.useEffect(() => {
+    console.log('🔄 Profile page: Loading states:', {
+      authLoading,
+      templateLoading,
+      templateSelectionLoading,
+      hasUser: !!user,
+      hasTemplate: !!templateData?.template
+    });
+  }, [authLoading, templateLoading, templateSelectionLoading, user, templateData]);
+
+  // Only show loading spinner when there's no user (let RouteGuard handle this)
+  // Remove the blocking condition that was causing the stuck loading issue
+  // if (authLoading || profileLoading) { ... }
 
   // Template data is now managed globally and always available (with fallback)
   console.log('🎨 Profile page using template:', {
     selectedTemplate,
     templateName: templateData?.template?.name,
     templateColors: templateData?.template?.colors,
-    isFallback
+    isFallback,
+    templateLoading
   });
+
+  const handleSave = async () => {
+    if (!user) return;
+    
+    setIsEditing(false);
+    
+    try {
+      // Update user profile in Supabase
+      const { error } = await supabase
+        .from('users')
+        .update({
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          phone: formData.phone || null,
+        })
+        .eq('id', user.id);
+
+      if (error) {
+        console.error('Error updating profile:', error);
+        return;
+      }
+      
+      console.log('Profile updated successfully');
+    } catch (error) {
+      console.error('Error saving profile:', error);
+    }
+  };
+
+  const handleCancel = () => {
+    // Reset form data to current user data
+    if (user) {
+      setFormData({
+        firstName: user.user_metadata?.first_name || user.email?.split('@')[0] || 'User',
+        lastName: user.user_metadata?.last_name || 'Smith',
+        email: user.email || '',
+        phone: user.user_metadata?.phone || '',
+      });
+    }
+    setIsEditing(false);
+  };
 
   return (
     <RouteGuard allowedRoles={['employee']}>
       <DashboardLayout 
-        title="Loan Officer Profile" 
-        subtitle="Manage your professional profile and mortgage rates"
+        title="Loan Officer Profile"
       >
-        {/* Refresh Button */}
-        <div className="mb-4 flex justify-end">
-          <button
-            onClick={() => {
-              console.log('🔄 Profile page: Manual refresh triggered');
-              refreshTemplate(selectedTemplate).catch(error => {
-                console.error('❌ Profile page: Error refreshing template:', error);
-              });
-            }}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm"
-          >
-            🔄 Refresh Data
-          </button>
-        </div>
-        
-        <div className="min-h-screen bg-white">
-          {/* Unified Template Rendering with Suspense */}
-          <Suspense fallback={<SkeletonLoader />}>
-            {/* Unified Hero Section */}
-            <UnifiedHeroSection
-              officerName={officerInfo.officerName}
-              phone={officerInfo.phone || undefined}
-              email={officerInfo.email}
-              template={selectedTemplate as 'template1' | 'template2'}
-              templateCustomization={templateData?.template}
-            />
+        <div className="space-y-6">
+          {/* Profile Header */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-blue-500 rounded-full flex items-center justify-center text-white text-xl font-bold">
+                  {officerInfo.officerName.split(' ').map((n: string) => n[0]).join('')}
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900">{officerInfo.officerName}</h2>
+                  <p className="text-gray-600">{officerInfo.email}</p>
+                  {officerInfo.phone && <p className="text-gray-600">{officerInfo.phone}</p>}
+                </div>
+              </div>
+              <button
+                onClick={() => setIsEditing(!isEditing)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              >
+                {isEditing ? 'Cancel' : 'Edit Profile'}
+              </button>
+            </div>
+          </div>
 
-            {/* Main Content Area */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-              <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 lg:gap-8">
-                {/* Main Content - Takes up 3/4 of the width on XL screens */}
-                <div className="xl:col-span-3">
-                  <LandingPageTabs
-                    activeTab={activeTab}
-                    onTabChange={handleTabChange}
-                    selectedTemplate={selectedTemplate as 'template1' | 'template2'}
-                    className="w-full"
-                    templateCustomization={templateData?.template}
+          {/* Profile Form */}
+          {isEditing && (
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Edit Profile Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                  <input
+                    type="text"
+                    value={formData.firstName}
+                    onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                  <input
+                    type="text"
+                    value={formData.lastName}
+                    onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    disabled
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end space-x-3 mt-6">
+                <button
+                  onClick={handleCancel}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          )}
 
-                {/* Right Sidebar - Takes up 1/4 of the width on XL screens */}
-                <div className="xl:col-span-1">
-                  <div className="sticky top-6 lg:top-8">
-                    <UnifiedRightSidebar 
-                      template={selectedTemplate as 'template1' | 'template2'} 
-                      templateCustomization={templateData?.template}
-                    />
+          {/* Live Preview Section */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Live Preview</h3>
+            <p className="text-gray-600 mb-4">This is how your profile appears to visitors:</p>
+            
+            {/* Unified Template Rendering with Suspense */}
+            <Suspense fallback={<SkeletonLoader />}>
+              <div className="border border-gray-200 rounded-lg overflow-hidden">
+                <UnifiedHeroSection
+                  officerName={officerInfo.officerName}
+                  phone={officerInfo.phone || undefined}
+                  email={officerInfo.email}
+                  template={selectedTemplate as 'template1' | 'template2'}
+                  templateCustomization={templateData?.template}
+                />
+                
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+                  <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 lg:gap-8">
+                    <div className="xl:col-span-3">
+                      <LandingPageTabs
+                        activeTab={activeTab}
+                        onTabChange={setActiveTab}
+                        selectedTemplate={selectedTemplate as 'template1' | 'template2'}
+                        className="w-full"
+                        templateCustomization={templateData?.template}
+                      />
+                    </div>
+                    <div className="xl:col-span-1">
+                      <div className="sticky top-6 lg:top-8">
+                        <UnifiedRightSidebar 
+                          template={selectedTemplate as 'template1' | 'template2'} 
+                          templateCustomization={templateData?.template}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* Footer */}
-            <footer className="bg-gray-900 text-white py-8 mt-16">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center">
-                  <p className="text-gray-400">
-                    © 2024 Your Brand™. All rights reserved. | NMLS Consumer Access
-                  </p>
-                </div>
-              </div>
-            </footer>
-          </Suspense>
+            </Suspense>
+          </div>
         </div>
       </DashboardLayout>
     </RouteGuard>

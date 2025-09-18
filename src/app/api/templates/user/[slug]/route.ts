@@ -87,8 +87,20 @@ export async function GET(
     // Check Redis cache first
     const cacheKey = getCacheKey(slug, targetUserId);
     const cachedData = await getCachedTemplate(cacheKey);
-    if (cachedData) {
-      return NextResponse.json(cachedData);
+    // ETag based on latest updated timestamp + user + slug
+    const cachedTs = (cachedData as any)?.data?.template?.updated_at || (cachedData as any)?.data?.template?.updatedAt || null;
+    const baseVersion = `${slug}:${targetUserId}:${cachedTs ?? 'nover'}`;
+    const etag = `"${Buffer.from(baseVersion).toString('base64')}"`;
+
+    const ifNoneMatch = request.headers.get('if-none-match');
+    if (cachedData && ifNoneMatch === etag) {
+      return new NextResponse(null, { status: 304, headers: { ETag: etag, 'Cache-Control': 'private, max-age=0, stale-while-revalidate=60' } });
+    }
+    if (cachedData && !ifNoneMatch) {
+      const res = NextResponse.json(cachedData);
+      res.headers.set('ETag', etag);
+      res.headers.set('Cache-Control', 'private, max-age=0, stale-while-revalidate=60');
+      return res;
     }
 
     // Get user's company information
@@ -233,7 +245,12 @@ export async function GET(
     // Cache the response in Redis
     await setCachedTemplate(cacheKey, response);
 
-    return NextResponse.json(response);
+    const latestVersion = `${slug}:${targetUserId}:${(finalTemplate as any)?.updated_at ?? 'nover'}`;
+    const latestEtag = `"${Buffer.from(latestVersion).toString('base64')}"`;
+    const res = NextResponse.json(response);
+    res.headers.set('ETag', latestEtag);
+    res.headers.set('Cache-Control', 'private, max-age=0, stale-while-revalidate=60');
+    return res;
 
   } catch (error) {
     console.error('❌ User Template API: Error:', error);

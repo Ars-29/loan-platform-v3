@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/Button';
 import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
 import { icons } from '@/components/ui/Icon';
 import { useAuth } from '@/hooks/use-auth';
-import { useProfileCache, type LoanOfficerProfile } from '@/hooks/use-profile-cache';
 
 interface UnifiedHeroSectionProps {
   officerName?: string;
@@ -43,35 +42,35 @@ export default function UnifiedHeroSection({
   templateCustomization
 }: UnifiedHeroSectionProps) {
   const { user, loading: authLoading } = useAuth();
-  const { profile, loading, error, getProfile } = useProfileCache();
 
   // Helper functions to get customized values
   const getOfficerName = () => {
     if (templateCustomization?.headerModifications?.officerName) {
       return templateCustomization.headerModifications.officerName;
     }
-    return officerName || `${profile?.firstName || 'User'} ${profile?.lastName || 'Smith'}`;
+    return officerName || user?.user_metadata?.full_name || `${user?.user_metadata?.first_name || user?.email?.split('@')[0] || 'User'} ${user?.user_metadata?.last_name || 'Smith'}` || 'User';
   };
 
   const getPhone = () => {
     if (templateCustomization?.headerModifications?.phone) {
       return templateCustomization.headerModifications.phone;
     }
-    return phone || profile?.phone || null;
+    return phone || user?.user_metadata?.phone || null;
   };
 
   const getEmail = () => {
     if (templateCustomization?.headerModifications?.email) {
       return templateCustomization.headerModifications.email;
     }
-    return email || profile?.email || 'user@example.com';
+    return email || user?.email || 'user@example.com';
   };
 
   const getProfileImage = () => {
     if (templateCustomization?.headerModifications?.avatar) {
       return templateCustomization.headerModifications.avatar;
     }
-    return profileImage || profile?.avatar || '/default-avatar.png';
+    // Only return a real image if one exists; otherwise signal no image
+    return profileImage || user?.user_metadata?.avatar_url || null;
   };
 
   // Get customization data from template or props
@@ -95,24 +94,18 @@ export default function UnifiedHeroSection({
   const displayName = getOfficerName();
   const displayPhone = getPhone();
   const displayEmail = getEmail();
+  const [imageError, setImageError] = useState(false);
   const displayImage = getProfileImage();
+  const hasExplicitImage = !!displayImage;
+  const showInitials = imageError || !hasExplicitImage;
 
-  useEffect(() => {
-    // Only fetch profile if we don't have the required props
-    if (!officerName || !email) {
-      console.log('🔄 UnifiedHeroSection: Fetching profile data');
-      getProfile(user, authLoading);
-    } else {
-      console.log('✅ UnifiedHeroSection: Using provided props, skipping profile fetch');
-    }
-  }, [user, authLoading, getProfile, officerName, email]);
+  // No need for profile fetching - using user data directly
 
   // Debug logging
   console.log('🎨 Display values:', {
     displayName,
     displayPhone,
     displayEmail,
-    profile: profile,
     user: user?.email
   });
 
@@ -165,8 +158,8 @@ export default function UnifiedHeroSection({
     padding: 24
   };
 
-  // Show loading state if we're still fetching data
-  if (loading || !templateData) {
+  // Show loading state only if we're still fetching auth (template data has fallbacks)
+  if (authLoading) {
     return (
       <section className={`relative overflow-hidden ${className}`}>
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -179,19 +172,21 @@ export default function UnifiedHeroSection({
     );
   }
 
-  // Show error state if there's an error
-  if (error) {
+  // If no user and not loading, show fallback
+  if (!user && !authLoading) {
     return (
       <section className={`relative overflow-hidden ${className}`}>
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
           <div className="text-center">
             <div className="text-red-600 mb-4">⚠️</div>
-            <p className="text-gray-600">Error loading profile: {error}</p>
+            <p className="text-gray-600">Please sign in to view your profile</p>
           </div>
         </div>
       </section>
     );
   }
+
+  // No error state needed since we're not fetching profile data
 
   return (
     <section 
@@ -226,28 +221,27 @@ export default function UnifiedHeroSection({
             {/* Profile Image */}
             <div className="relative inline-block mb-4">
               <div className="relative w-24 h-24 mx-auto">
-                <Image
-                  src={displayImage}
-                  alt={displayName}
-                  width={96}
-                  height={96}
-                  className="rounded-full object-cover border-4 border-white shadow-lg"
-                  style={{ borderColor: colors.primary }}
-                  onError={(e) => {
-                    console.warn('⚠️ UnifiedHeroSection: Image failed to load:', displayImage);
-                    // Fallback to initials if image fails
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    const parent = target.parentElement;
-                    if (parent) {
-                      parent.innerHTML = `
-                        <div class="w-24 h-24 rounded-full border-4 border-white shadow-lg flex items-center justify-center text-white font-bold text-2xl" style="background-color: ${colors.primary}; border-color: ${colors.primary}">
-                          ${displayName.split(' ').map(n => n[0]).join('').toUpperCase()}
-                        </div>
-                      `;
-                    }
-                  }}
-                />
+                {showInitials ? (
+                  <div
+                    className="w-24 h-24 rounded-full border-4 border-white shadow-lg flex items-center justify-center text-white font-bold text-2xl"
+                    style={{ backgroundColor: colors.primary, borderColor: colors.primary }}
+                  >
+                    {displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
+                  </div>
+                ) : (
+                  <Image
+                    src={displayImage as string}
+                    alt={displayName}
+                    width={96}
+                    height={96}
+                    className="rounded-full object-cover border-4 border-white shadow-lg"
+                    style={{ borderColor: colors.primary }}
+                    onError={() => {
+                      console.warn('⚠️ UnifiedHeroSection: Image failed to load:', displayImage);
+                      setImageError(true);
+                    }}
+                  />
+                )}
                 {/* Online Status Indicator */}
                 <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 rounded-full border-2 border-white"></div>
               </div>

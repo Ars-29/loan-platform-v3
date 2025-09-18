@@ -4,7 +4,6 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { RouteGuard } from '@/components/auth/RouteGuard';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useAuth } from '@/hooks/use-auth';
-import { useProfileCache } from '@/hooks/use-profile-cache';
 import { useTemplateSelection, useTemplate, useGlobalTemplates, TemplateProvider } from '@/contexts/UnifiedTemplateContext';
 import { supabase } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
@@ -75,7 +74,6 @@ interface CustomizerState {
 
 export default function CustomizerPage() {
   const { user, userRole, loading: authLoading } = useAuth();
-  const { profile, loading: profileLoading, getProfile } = useProfileCache();
   const { selectedTemplate, setSelectedTemplate, isLoading: templateSelectionLoading } = useTemplateSelection();
   const { templateData, isLoading: templateLoading, isFallback } = useTemplate(selectedTemplate);
   const { refreshTemplate } = useGlobalTemplates();
@@ -92,21 +90,12 @@ export default function CustomizerPage() {
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const loadedTemplateRef = useRef<string | null>(null);
 
-  // Get officer information from profile cache
+  // Get officer information from user data
   const officerInfo = React.useMemo(() => {
-    if (profile) {
-      return {
-        officerName: `${profile.firstName} ${profile.lastName}`,
-        phone: profile.phone || undefined,
-        email: profile.email || 'user@example.com',
-      };
-    }
-    
-    // Fallback to user data if profile not loaded
     if (user) {
       return {
-        officerName: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
-        phone: undefined,
+        officerName: user.user_metadata?.full_name || `${user.user_metadata?.first_name || user.email?.split('@')[0] || 'User'} ${user.user_metadata?.last_name || 'Smith'}`,
+        phone: user.user_metadata?.phone || undefined,
         email: user.email || 'user@example.com',
       };
     }
@@ -117,7 +106,7 @@ export default function CustomizerPage() {
       phone: '(555) 123-4567',
       email: 'john@example.com',
     };
-  }, [profile, user]);
+  }, [user]);
 
   // Update customizer state when global template selection changes
   React.useEffect(() => {
@@ -127,11 +116,7 @@ export default function CustomizerPage() {
     }));
   }, [selectedTemplate]);
 
-  // Trigger profile fetching when user/auth state changes
-  React.useEffect(() => {
-    console.log('🔄 Customizer: Triggering profile fetch', { user: user?.email, authLoading, profileLoading });
-    getProfile(user, authLoading);
-  }, [user, authLoading, getProfile]);
+  // No need for profile fetching - using user data directly
 
   // Get current template data from global state
   const currentTemplate = templateData?.template;
@@ -458,6 +443,11 @@ export default function CustomizerPage() {
             const efficientCacheKey = `template_${user.id}_${customizerState.selectedTemplate}`;
             localStorage.removeItem(efficientCacheKey);
             console.log('🗑️ Customizer: Cleared efficient templates cache for:', efficientCacheKey);
+            // Broadcast to other tabs to refresh the template now
+            try {
+              const bc = new BroadcastChannel('templates');
+              bc.postMessage({ type: 'template:updated', userId: user.id, slug: customizerState.selectedTemplate, ts: Date.now() });
+            } catch {}
           }
         } catch (error) {
           console.error('❌ Customizer: Error refreshing template data:', error);
@@ -482,25 +472,6 @@ export default function CustomizerPage() {
       customSettings: {}
     }));
   }, []);
-
-  // Loading state
-  if (authLoading || templateLoading || profileLoading || templateSelectionLoading) {
-    return (
-      <RouteGuard allowedRoles={['employee']}>
-        <DashboardLayout 
-          title="Template Customizer" 
-          subtitle="Loading customizer..."
-        >
-          <div className="flex items-center justify-center min-h-screen">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading customizer...</p>
-            </div>
-          </div>
-        </DashboardLayout>
-      </RouteGuard>
-    );
-  }
 
   return (
     <RouteGuard allowedRoles={['employee']}>

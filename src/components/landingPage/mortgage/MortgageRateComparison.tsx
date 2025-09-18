@@ -474,10 +474,10 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
     textSecondary: '#6b7280',
     border: '#e5e7eb'
   };
-  const unifiedStyles = templateData?.template?.classes || {
+  const unifiedStyles = {
     button: {
-      primary: 'px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white',
-      secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium transition-all duration-200 border border-gray-300'
+      primary: templateData?.template?.classes?.button?.primary || 'px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white',
+      secondary: templateData?.template?.classes?.button?.secondary || 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium transition-all duration-200 border border-gray-300'
     }
   };
   

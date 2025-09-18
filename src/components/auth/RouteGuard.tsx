@@ -43,7 +43,8 @@ export function RouteGuard({ children, allowedRoles, fallback }: RouteGuardProps
     }
   }, [user, userRole, loading, allowedRoles, router]);
 
-  if (loading) {
+  // Only block the UI when loading and there is no user yet.
+  if (loading && !user) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }}>
         <div style={{ textAlign: 'center' }}>

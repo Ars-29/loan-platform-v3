@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { User } from '@supabase/supabase-js';
-import { useProfileCache } from '@/hooks/use-profile-cache';
 
 // interface Company {
 //   id: string;
@@ -13,6 +12,7 @@ import { useProfileCache } from '@/hooks/use-profile-cache';
 interface UserRole {
   role: 'super_admin' | 'company_admin' | 'employee';
   companyId?: string;
+  isActive?: boolean;
 }
 
 export function useAuth() {
@@ -21,7 +21,6 @@ export function useAuth() {
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
-  const { getProfile } = useProfileCache();
 
   // Cache invalidation functions
   const clearProfileCache = useCallback(() => {
@@ -63,7 +62,12 @@ export function useAuth() {
         if (session?.user) {
           console.log('🔐 useAuth: Initial session detected for:', session.user.email);
           setUser(session.user);
-          await fetchUserRole(session.user.id);
+          // Fetch user role but don't block on it
+          fetchUserRole(session.user.id).catch(err => {
+            console.error('🔐 useAuth: Error fetching user role:', err);
+            // Set default role if fetch fails
+            setUserRole({ role: 'employee', isActive: true });
+          });
         } else {
           console.log('🔐 useAuth: No initial session');
         }
@@ -73,6 +77,14 @@ export function useAuth() {
         if (isMounted) setLoading(false);
       }
     })();
+
+    // 2) Set a timeout to prevent infinite loading
+    const timeout = setTimeout(() => {
+      if (isMounted) {
+        console.log('🔐 useAuth: Loading timeout reached, setting loading to false');
+        setLoading(false);
+      }
+    }, 2000); // Reduced to 2 seconds
 
     // 2) Listen for subsequent auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -84,11 +96,12 @@ export function useAuth() {
         if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user) {
           console.log('🔐 useAuth: User authenticated:', session.user.email, 'Event:', event);
           setUser(session.user);
-          await fetchUserRole(session.user.id);
-          // Prewarm profile in the background (non-blocking)
-          try {
-            getProfile(session.user, false);
-          } catch {}
+          // Fetch user role but don't block
+          fetchUserRole(session.user.id).catch(err => {
+            console.error('🔐 useAuth: Error fetching user role in auth change:', err);
+            setUserRole({ role: 'employee', isActive: true });
+          });
+          // No need for profile prewarming - using user data directly
           // Only invalidate cache on actual sign in, not initial session
           if (event === 'SIGNED_IN') {
             invalidateCacheOnUserChange(session.user, previousUser);
@@ -98,17 +111,18 @@ export function useAuth() {
           setUser(null);
           setUserRole(null);
           setCompanyId(null);
-          // Prewarm fallback profile so UI won't stall
-          try {
-            getProfile(null, false);
-          } catch {}
+          // No need for profile prewarming - using user data directly
           // Clear cache on sign out
           clearProfileCache();
         } else if (event === 'TOKEN_REFRESHED' && session?.user) {
           // Handle token refresh - user is still signed in
           console.log('🔐 useAuth: Token refreshed, user still signed in:', session.user.email);
           setUser(session.user);
-          await fetchUserRole(session.user.id);
+          // Fetch user role but don't block
+          fetchUserRole(session.user.id).catch(err => {
+            console.error('🔐 useAuth: Error fetching user role on token refresh:', err);
+            setUserRole({ role: 'employee', isActive: true });
+          });
           // Don't clear cache on token refresh - same user
         }
         setLoading(false);
@@ -117,6 +131,7 @@ export function useAuth() {
 
     return () => {
       isMounted = false;
+      clearTimeout(timeout);
       subscription.unsubscribe();
     };
   }, []);
@@ -124,11 +139,12 @@ export function useAuth() {
   const fetchUserRole = async (userId: string) => {
     try {
       console.log('🔍 useAuth: Fetching user role for:', userId);
+      const startTime = Date.now();
       
       // First check if user exists and is not deactivated
       const { data: userData } = await supabase
         .from('users')
-        .select('role, deactivated')
+        .select('role, deactivated, is_active')
         .eq('id', userId)
         .single();
 
@@ -150,10 +166,17 @@ export function useAuth() {
         return;
       }
 
+      // Check if user is active (not in invite flow)
+      if (userData.is_active === false) {
+        console.log('🔍 useAuth: User is not active (in invite flow), skipping role fetch');
+        setUserRole({ role: userData.role, isActive: false });
+        return;
+      }
+
       // Check if user is super admin
       if (userData.role === 'super_admin') {
         console.log('🔍 useAuth: User is super admin');
-        setUserRole({ role: 'super_admin' });
+        setUserRole({ role: 'super_admin', isActive: true });
         return;
       }
 
@@ -187,11 +210,11 @@ export function useAuth() {
             return;
           }
 
-          setUserRole({ role: 'company_admin', companyId: userCompany.company_id });
+          setUserRole({ role: 'company_admin', companyId: userCompany.company_id, isActive: true });
           setCompanyId(userCompany.company_id);
         } else {
           console.log('🔍 useAuth: No company found for company admin');
-          setUserRole({ role: 'company_admin' });
+          setUserRole({ role: 'company_admin', isActive: true });
         }
         return;
       }
@@ -224,14 +247,19 @@ export function useAuth() {
           return;
         }
 
-        setUserRole({ role: 'employee', companyId: userCompany.company_id });
+        setUserRole({ role: 'employee', companyId: userCompany.company_id, isActive: true });
         setCompanyId(userCompany.company_id);
       } else {
         console.log('🔍 useAuth: User has no company relationship');
-        setUserRole({ role: 'employee' });
+        setUserRole({ role: 'employee', isActive: true });
       }
+      
+      const endTime = Date.now();
+      console.log('🔍 useAuth: User role fetch completed in:', endTime - startTime, 'ms');
     } catch (error) {
       console.error('🔍 useAuth: Error fetching user role:', error);
+      // Set a default role to prevent infinite loading
+      setUserRole({ role: 'employee', isActive: true });
     }
   };
 
