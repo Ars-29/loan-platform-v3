@@ -114,16 +114,35 @@ export default function LearningCenterTab({
       info: 'text-blue-600 bg-blue-50 px-2 py-1 rounded text-sm'
     }
   };
-  const templateClasses = templateData?.template?.classes || {};
+  const templateClasses = templateData?.template?.classes;
+  const safeTemplateClasses = templateClasses && typeof templateClasses === 'object' ? templateClasses : {};
   const classes = {
     ...defaultClasses,
-    ...templateClasses,
-    button: { ...defaultClasses.button, ...(templateClasses.button || {}) },
-    card: { ...defaultClasses.card, ...(templateClasses.card || {}) },
-    heading: { ...defaultClasses.heading, ...(templateClasses.heading || {}) },
-    body: { ...defaultClasses.body, ...(templateClasses.body || {}) },
-    icon: { ...defaultClasses.icon, ...(templateClasses.icon || {}) },
-    status: { ...defaultClasses.status, ...(templateClasses.status || {}) }
+    ...safeTemplateClasses,
+button: { 
+      ...defaultClasses.button, 
+      ...(safeTemplateClasses?.button || {}) 
+    },
+    card: { 
+      ...defaultClasses.card, 
+      ...(safeTemplateClasses?.card || {}) 
+    },
+    heading: { 
+      ...defaultClasses.heading, 
+      ...(safeTemplateClasses?.heading || {}) 
+    },
+    body: { 
+      ...defaultClasses.body, 
+      ...(safeTemplateClasses?.body || {}) 
+    },
+    icon: { 
+      ...defaultClasses.icon, 
+      ...(safeTemplateClasses?.icon || {}) 
+    },
+    status: { 
+      ...defaultClasses.status, 
+      ...(safeTemplateClasses?.status || {}) 
+    }
   };
   const [activeSection, setActiveSection] = useState<'videos' | 'faq' | 'guides'>('videos');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');

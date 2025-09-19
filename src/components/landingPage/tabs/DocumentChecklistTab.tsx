@@ -133,16 +133,35 @@ export default function DocumentChecklistTab({
       error: 'w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white'
     }
   };
-  const templateClasses = templateData?.template?.classes || {};
+  const templateClasses = templateData?.template?.classes;
+  const safeTemplateClasses = templateClasses && typeof templateClasses === 'object' ? templateClasses : {};
   const classes = {
     ...defaultClasses,
-    ...templateClasses,
-    button: { ...defaultClasses.button, ...(templateClasses.button || {}) },
-    card: { ...defaultClasses.card, ...(templateClasses.card || {}) },
-    heading: { ...defaultClasses.heading, ...(templateClasses.heading || {}) },
-    body: { ...defaultClasses.body, ...(templateClasses.body || {}) },
-    icon: { ...defaultClasses.icon, ...(templateClasses.icon || {}) },
-    select: { ...defaultClasses.select, ...(templateClasses.select || {}) }
+    ...safeTemplateClasses,
+button: { 
+      ...defaultClasses.button, 
+      ...(safeTemplateClasses?.button || {}) 
+    },
+    card: { 
+      ...defaultClasses.card, 
+      ...(safeTemplateClasses?.card || {}) 
+    },
+    heading: { 
+      ...defaultClasses.heading, 
+      ...(safeTemplateClasses?.heading || {}) 
+    },
+    body: { 
+      ...defaultClasses.body, 
+      ...(safeTemplateClasses?.body || {}) 
+    },
+    icon: { 
+      ...defaultClasses.icon, 
+      ...(safeTemplateClasses?.icon || {}) 
+    },
+    select: { 
+      ...defaultClasses.select, 
+      ...(safeTemplateClasses?.select || {}) 
+    }
   };
   const [currentSlide, setCurrentSlide] = useState(0);
   const [formData, setFormData] = useState<FormData>({

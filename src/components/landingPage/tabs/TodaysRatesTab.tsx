@@ -165,18 +165,44 @@ export default function TodaysRatesTab({
       info: 'text-blue-600 bg-blue-50 px-2 py-1 rounded text-sm'
     }
   };
-  const templateClasses = templateData?.template?.classes || {};
+  
+  // More defensive approach for template classes
+  const templateClasses = templateData?.template?.classes;
+  const safeTemplateClasses = templateClasses && typeof templateClasses === 'object' ? templateClasses : {};
+  
   const classes = {
     ...defaultClasses,
-    ...templateClasses,
-    button: { ...defaultClasses.button, ...(templateClasses.button || {}) },
-    card: { ...defaultClasses.card, ...(templateClasses.card || {}) },
-    heading: { ...defaultClasses.heading, ...(templateClasses.heading || {}) },
-    body: { ...defaultClasses.body, ...(templateClasses.body || {}) },
-    icon: { ...defaultClasses.icon, ...(templateClasses.icon || {}) },
-    select: { ...defaultClasses.select, ...(templateClasses.select || {}) },
-    status: { ...defaultClasses.status, ...(templateClasses.status || {}) }
+    ...safeTemplateClasses,
+    button: { 
+      ...defaultClasses.button, 
+      ...(safeTemplateClasses?.button || {}) 
+    },
+    card: { 
+      ...defaultClasses.card, 
+      ...(safeTemplateClasses?.card || {}) 
+    },
+    heading: { 
+      ...defaultClasses.heading, 
+      ...(safeTemplateClasses?.heading || {}) 
+    },
+    body: { 
+      ...defaultClasses.body, 
+      ...(safeTemplateClasses?.body || {}) 
+    },
+    icon: { 
+      ...defaultClasses.icon, 
+      ...(safeTemplateClasses?.icon || {}) 
+    },
+    select: { 
+      ...defaultClasses.select, 
+      ...(safeTemplateClasses?.select || {}) 
+    },
+    status: { 
+      ...defaultClasses.status, 
+      ...(safeTemplateClasses?.status || {}) 
+    }
   };
+  
   const [rates, setRates] = useState<Rate[]>([]);
   const [filter, setFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'rate' | 'payment'>('rate');

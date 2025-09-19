@@ -98,16 +98,36 @@ export default function ApplyNowTab({
         : 'w-8 h-8 rounded-lg flex items-center justify-center'
     }
   };
-  const templateClasses = templateData?.template?.classes || {};
+  
+  // More defensive approach for template classes
+  const templateClasses = templateData?.template?.classes;
+  const safeTemplateClasses = templateClasses && typeof templateClasses === 'object' ? templateClasses : {};
+  
   const classes = {
     ...defaultClasses,
-    ...templateClasses,
-    button: { ...defaultClasses.button, ...(templateClasses.button || {}) },
-    card: { ...defaultClasses.card, ...(templateClasses.card || {}) },
-    heading: { ...defaultClasses.heading, ...(templateClasses.heading || {}) },
-    body: { ...defaultClasses.body, ...(templateClasses.body || {}) },
-    icon: { ...defaultClasses.icon, ...(templateClasses.icon || {}) }
+    ...safeTemplateClasses,
+    button: { 
+      ...defaultClasses.button, 
+      ...(safeTemplateClasses?.button || {}) 
+    },
+    card: { 
+      ...defaultClasses.card, 
+      ...(safeTemplateClasses?.card || {}) 
+    },
+    heading: { 
+      ...defaultClasses.heading, 
+      ...(safeTemplateClasses?.heading || {}) 
+    },
+    body: { 
+      ...defaultClasses.body, 
+      ...(safeTemplateClasses?.body || {}) 
+    },
+    icon: { 
+      ...defaultClasses.icon, 
+      ...(safeTemplateClasses?.icon || {}) 
+    }
   };
+  
   const [applicationType, setApplicationType] = useState<'new' | 'existing'>('new');
   const [showIframe, setShowIframe] = useState(false);
 

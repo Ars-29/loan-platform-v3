@@ -123,15 +123,31 @@ export default function LeadCaptureModal({
       error: 'border-red-300 focus:ring-red-500 focus:border-red-500'
     }
   };
-  const templateClasses = templateData?.template?.classes || {};
+  const templateClasses = templateData?.template?.classes;
+  const safeTemplateClasses = templateClasses && typeof templateClasses === 'object' ? templateClasses : {};
   const classes = {
     ...defaultClasses,
-    ...templateClasses,
-    button: { ...defaultClasses.button, ...(templateClasses.button || {}) },
-    card: { ...defaultClasses.card, ...(templateClasses.card || {}) },
-    heading: { ...defaultClasses.heading, ...(templateClasses.heading || {}) },
-    body: { ...defaultClasses.body, ...(templateClasses.body || {}) },
-    input: { ...defaultClasses.input, ...(templateClasses.input || {}) }
+    ...safeTemplateClasses,
+button: { 
+      ...defaultClasses.button, 
+      ...(safeTemplateClasses?.button || {}) 
+    },
+    card: { 
+      ...defaultClasses.card, 
+      ...(safeTemplateClasses?.card || {}) 
+    },
+    heading: { 
+      ...defaultClasses.heading, 
+      ...(safeTemplateClasses?.heading || {}) 
+    },
+    body: { 
+      ...defaultClasses.body, 
+      ...(safeTemplateClasses?.body || {}) 
+    },
+    input: { 
+      ...defaultClasses.input, 
+      ...(safeTemplateClasses?.input || {}) 
+    }
   };
   const [formData, setFormData] = useState({
     firstName: '',
