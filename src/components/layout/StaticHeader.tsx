@@ -6,9 +6,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { dashboard } from '@/theme/theme';
 import { icons } from '@/components/ui/Icon';
 
-interface StaticHeaderProps {
-  // No props needed - gets data from useAuth
-}
+// No props interface needed - component gets data from useAuth
 
 const StaticHeader = memo(function StaticHeader() {
   const { user, signOut, userRole, loading: authLoading } = useAuth();
