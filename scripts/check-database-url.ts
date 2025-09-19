@@ -22,8 +22,8 @@ async function checkDatabaseURL() {
     
     // Test DNS resolution
     console.log('🔍 Testing DNS resolution...');
-    const dns = require('dns');
-    const { promisify } = require('util');
+    const dns = await import('dns');
+    const { promisify } = await import('util');
     const lookup = promisify(dns.lookup);
     
     try {
