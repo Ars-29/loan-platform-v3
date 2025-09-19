@@ -30,12 +30,12 @@ async function checkDatabaseURL() {
       const result = await lookup(hostname);
       console.log('✅ DNS resolution successful:', result);
     } catch (dnsError) {
-      console.log('❌ DNS resolution failed:', dnsError.message);
+      console.log('❌ DNS resolution failed:', dnsError instanceof Error ? dnsError.message : 'Unknown DNS error');
       console.log('💡 This is likely the cause of the Vercel error');
     }
     
   } catch (urlError) {
-    console.log('❌ Invalid DATABASE_URL format:', urlError.message);
+    console.log('❌ Invalid DATABASE_URL format:', urlError instanceof Error ? urlError.message : 'Unknown URL error');
   }
   
   // Test database connection
@@ -52,7 +52,7 @@ async function checkDatabaseURL() {
     
     await client.end();
   } catch (dbError) {
-    console.log('❌ Database connection failed:', dbError.message);
+    console.log('❌ Database connection failed:', dbError instanceof Error ? dbError.message : 'Unknown database error');
     console.log('💡 This confirms the connection issue');
   }
 }
