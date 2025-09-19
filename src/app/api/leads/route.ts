@@ -52,6 +52,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate loan details structure
+    if (!loanDetails.monthlyPayment || !loanDetails.loanTerm || !loanDetails.loanProgram || !loanDetails.lenderName) {
+      console.log('❌ Invalid loan details structure');
+      console.log('❌ Loan details received:', loanDetails);
+      return NextResponse.json(
+        { error: 'Invalid loan details provided' },
+        { status: 400 }
+      );
+    }
+
     // For now, we'll create leads without authentication
     // In a real scenario, you might want to require authentication
     // or associate leads with a specific company/officer
@@ -74,6 +84,9 @@ export async function POST(request: NextRequest) {
     // Use existing company/user IDs or create a fallback
     const companyId = existingCompanies.length > 0 ? existingCompanies[0].id : null;
     const officerId = existingUsers.length > 0 ? existingUsers[0].id : null;
+    
+    console.log('🔍 Company ID type and value:', typeof companyId, companyId);
+    console.log('🔍 Officer ID type and value:', typeof officerId, officerId);
     
     if (!companyId || !officerId) {
       console.log('❌ No companies or users found in database');
@@ -109,7 +122,13 @@ export async function POST(request: NextRequest) {
         lockPeriod: loanDetails.lockPeriod,
       },
       // Auto-populate loan amount, down payment, credit score, and notes from API data
-      loanAmount: (loanDetails.monthlyPayment * loanDetails.loanTerm).toString(), // Convert to string for decimal field
+      loanAmount: (() => {
+        const monthlyPayment = parseFloat(loanDetails.monthlyPayment) || 0;
+        const loanTerm = parseInt(loanDetails.loanTerm) || 30;
+        const calculatedAmount = monthlyPayment * loanTerm;
+        console.log('🔢 Loan amount calculation:', { monthlyPayment, loanTerm, calculatedAmount });
+        return isNaN(calculatedAmount) ? '0' : calculatedAmount.toString();
+      })(),
       downPayment: '0', // Default to 0, can be updated later
       creditScore: creditScore ? parseInt(creditScore.replace(/[^0-9]/g, '')) || 0 : 0, // Parse credit score or default to 0
       notes: `Lead generated from rate table. Product: ${loanDetails.loanProgram} from ${loanDetails.lenderName}`,
@@ -119,6 +138,7 @@ export async function POST(request: NextRequest) {
     };
 
     console.log('💾 Inserting lead into database...');
+    console.log('💾 Lead data to insert:', JSON.stringify(leadData, null, 2));
     
     // Insert lead into database using Drizzle
     const [newLead] = await db.insert(leads).values(leadData).returning();
@@ -144,9 +164,25 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error creating lead:', error);
+    console.error('❌ Error creating lead:', error);
+    console.error('❌ Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined,
+    });
+    
+    // Return more detailed error information in development
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: 'Internal server error',
+        ...(isDevelopment && { 
+          details: errorMessage,
+          stack: error instanceof Error ? error.stack : undefined 
+        })
+      },
       { status: 500 }
     );
   }
