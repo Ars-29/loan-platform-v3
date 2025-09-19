@@ -3,12 +3,9 @@ import { db, templates } from '@/lib/db';
 import { eq } from 'drizzle-orm';
 
 // GET /api/templates/[slug] - Fetch specific template by slug
-export async function GET(
-  request: NextRequest, 
-  { params }: { params: Promise<{ slug: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: { slug: string } }) {
   try {
-    const { slug } = await params;
+    const { slug } = params;
 
     const template = await db
       .select()
