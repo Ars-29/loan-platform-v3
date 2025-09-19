@@ -816,7 +816,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
   // Show landing page by default
   if (showLanding) {
     return (
-      <div className={`min-h-screen ${template === 'template1' ? 'bg-gradient-to-br from-pink-50 to-pink-100' : 'bg-gradient-to-br from-purple-50 to-purple-100'} ${className}`}>
+      <div className="min-h-screen " >
         {/* Header */}
         {showHeader && (
           <header className="bg-white shadow-sm border-b">

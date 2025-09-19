@@ -158,28 +158,14 @@ export default function UnifiedHeroSection({
     padding: 24
   };
 
-  // Show loading state only if we're still fetching auth (template data has fallbacks)
-  if (authLoading) {
+  // Show loading state only if we're still fetching auth or template data
+  if (authLoading || !templateData) {
     return (
       <section className={`relative overflow-hidden ${className}`}>
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600 mx-auto mb-4"></div>
             <p className="text-gray-600">Loading profile...</p>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  // If no user and not loading, show fallback
-  if (!user && !authLoading) {
-    return (
-      <section className={`relative overflow-hidden ${className}`}>
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
-          <div className="text-center">
-            <div className="text-red-600 mb-4">⚠️</div>
-            <p className="text-gray-600">Please sign in to view your profile</p>
           </div>
         </div>
       </section>
@@ -215,8 +201,8 @@ export default function UnifiedHeroSection({
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 py-8 lg:py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+      <div className="relative z-10 py-2 lg:py-2">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 lg:py-2">
           <div className="text-center">
             {/* Profile Image */}
             <div className="relative inline-block mb-4">
@@ -242,8 +228,7 @@ export default function UnifiedHeroSection({
                     }}
                   />
                 )}
-                {/* Online Status Indicator */}
-                <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 rounded-full border-2 border-white"></div>
+                
               </div>
             </div>
 
@@ -312,27 +297,7 @@ export default function UnifiedHeroSection({
               </a>
             </div>
 
-            {/* Status Indicators */}
-            <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-6 mt-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                <span 
-                  className="text-sm font-medium"
-                  style={{ color: colors.textSecondary }}
-                >
-                  Available Now
-                </span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-                <span 
-                  className="text-sm font-medium"
-                  style={{ color: colors.textSecondary }}
-                >
-                  Quick Response
-                </span>
-              </div>
-            </div>
+            
           </div>
         </div>
       </div>

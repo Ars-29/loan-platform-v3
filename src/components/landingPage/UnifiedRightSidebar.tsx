@@ -214,18 +214,18 @@ export default function UnifiedRightSidebar({
 
   return (
     <div 
-      className={`rounded-xl border shadow-lg p-2 md:p-4 lg:p-6 min-h-screen md:min-h-[500px] sm:min-h-[400px] flex flex-col relative overflow-hidden w-full max-w-full ${className}`}
+      className={`rounded-lg border shadow-sm p-4 md:p-6 lg:p-4 min-h-screen md:min-h-[700px] sm:min-h-[700px] flex flex-col relative overflow-hidden w-full max-w-full ${className}`}
       style={{
         backgroundColor: colors.background,
         borderColor: colors.border,
-        borderRadius: `${layout.borderRadius * 2}px`,
+        borderRadius: `${layout.borderRadius}px`,
         fontFamily: typography.fontFamily,
-        boxShadow: `0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)`
+        boxShadow: `0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)`
       }}
     >
       {/* Content wrapper */}
-      <div className="relative z-10" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-        {/* Brand Section - Clean Design */}
+      <div className="relative z-10" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '100%' }}>
+        {/* Brand Section - Minimal Design */}
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
@@ -234,37 +234,37 @@ export default function UnifiedRightSidebar({
           paddingBottom: `${layout.padding.medium}px`,
           borderBottom: `1px solid ${colors.border}`
         }}>
-          {/* Brand logo - clean circular design */}
+          {/* Brand logo - minimal circular design */}
           {getCompanyLogo() ? (
             <Image 
               src={getCompanyLogo()!} 
               alt={getCompanyName()}
-              width={48}
-              height={48}
+              width={40}
+              height={40}
               style={{ 
                 borderRadius: '50%',
                 objectFit: 'cover',
-                border: `2px solid ${colors.primary}`,
+                border: `1px solid ${colors.border}`,
                 backgroundColor: colors.background
               }}
             />
           ) : (
             <div 
               style={{ 
-                width: '48px',
-                height: '48px',
+                width: '40px',
+                height: '40px',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundColor: colors.background,
-                border: `2px solid ${colors.primary}`
+                backgroundColor: colors.primary,
+                color: colors.background
               }}
             >
               <span 
                 style={{ 
-                  color: colors.primary,
-                  fontSize: getFontSize('lg'),
+                  color: colors.background,
+                  fontSize: getFontSize('base'),
                   fontWeight: typography.fontWeight.bold
                 }}
               >
@@ -274,28 +274,22 @@ export default function UnifiedRightSidebar({
           )}
           <div>
             <h3 style={{ 
-              color: colors.secondary,
-              fontSize: getFontSize('xl'),
-              fontWeight: typography.fontWeight.bold,
+              color: colors.text,
+              fontSize: getFontSize('lg'),
+              fontWeight: typography.fontWeight.semibold,
               marginTop: 0,
               marginRight: 0,
               marginLeft: 0,
-              marginBottom: `${layout.padding.small}px`
+              marginBottom: '4px'
             }}>
               {getCompanyName()}
             </h3>
-            <p style={{
-              color: colors.textSecondary,
-              fontSize: getFontSize('sm'),
-              fontWeight: typography.fontWeight.normal,
-              margin: 0
-            }}>
-              Professional Mortgage Services
-            </p>
+            
           </div>
         </div>
 
-        {/* Customer Reviews Section - Clean Cards */}
+        {/* Customer Reviews Section - COMMENTED OUT FOR MINIMAL DESIGN */}
+        {/* 
         <div style={{ marginBottom: `${layout.padding.large}px` }}>
           <h4 style={{ 
             color: colors.secondary,
@@ -355,33 +349,41 @@ export default function UnifiedRightSidebar({
             ))}
           </div>
         </div>
+        */}
 
-        {/* Contact Information Section - Clean Cards */}
-        <div style={{ marginBottom: `${layout.padding.large}px` }}>
+        {/* Contact Information Section - Expanded Design */}
+        <div style={{ 
+          marginBottom: `${layout.padding.large}px`,
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
           <h4 style={{ 
-            color: colors.secondary,
+            color: colors.text,
             fontSize: getFontSize('lg'),
-            fontWeight: typography.fontWeight.bold,
+            fontWeight: typography.fontWeight.semibold,
             marginTop: 0,
             marginRight: 0,
             marginLeft: 0,
-            marginBottom: `${layout.padding.medium}px`
+            marginBottom: `${layout.padding.large}px`
           }}>
             Contact Information
           </h4>
           <div style={{ 
             display: 'flex',
             flexDirection: 'column',
-            gap: `${layout.padding.small}px`
+            gap: `${layout.padding.small}px`,
+            flex: 1,
+            justifyContent: 'space-around'
           }}>
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 
-              gap: `${layout.padding.medium}px`,
-              padding: `${layout.padding.medium}px`,
-              backgroundColor: `${colors.primary}08`,
+              gap: `${layout.padding.small}px`,
+              padding: `${layout.padding.small}px`,
+              backgroundColor: 'transparent',
               borderRadius: `${layout.borderRadius}px`,
-              border: `1px solid ${colors.border}`
+              border: 'none'
             }}>
               <div 
                 style={{ 
@@ -391,7 +393,7 @@ export default function UnifiedRightSidebar({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: colors.secondary
+                  backgroundColor: colors.primary
                 }}
               >
                 {React.createElement(icons.phone, { size: 16, color: colors.background })}
@@ -408,11 +410,11 @@ export default function UnifiedRightSidebar({
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 
-              gap: `${layout.padding.medium}px`,
-              padding: `${layout.padding.medium}px`,
-              backgroundColor: `${colors.primary}08`,
+              gap: `${layout.padding.small}px`,
+              padding: `${layout.padding.small}px`,
+              backgroundColor: 'transparent',
               borderRadius: `${layout.borderRadius}px`,
-              border: `1px solid ${colors.border}`
+              border: 'none'
             }}>
               <div 
                 style={{ 
@@ -422,7 +424,7 @@ export default function UnifiedRightSidebar({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: colors.secondary
+                  backgroundColor: colors.primary
                 }}
               >
                 {React.createElement(icons.email, { size: 16, color: colors.background })}
@@ -439,11 +441,11 @@ export default function UnifiedRightSidebar({
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 
-              gap: `${layout.padding.medium}px`,
-              padding: `${layout.padding.medium}px`,
-              backgroundColor: `${colors.primary}08`,
+              gap: `${layout.padding.small}px`,
+              padding: `${layout.padding.small}px`,
+              backgroundColor: 'transparent',
               borderRadius: `${layout.borderRadius}px`,
-              border: `1px solid ${colors.border}`
+              border: 'none'
             }}>
               <div 
                 style={{ 
@@ -453,7 +455,7 @@ export default function UnifiedRightSidebar({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: colors.secondary
+                  backgroundColor: colors.primary
                 }}
               >
                 {React.createElement(icons.location, { size: 16, color: colors.background })}
@@ -469,37 +471,56 @@ export default function UnifiedRightSidebar({
           </div>
         </div>
 
-        {/* Follow Us Section - Clean Bottom Design */}
+        {/* Spacing Section */}
         <div style={{ 
-          marginTop: 'auto', 
+          marginTop: 'auto',
+          height: '250px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+        </div>
+
+        {/* Follow Us Section - Absolute Bottom Design */}
+        <div style={{ 
           paddingTop: `${layout.padding.medium}px`, 
-          borderTop: `1px solid ${colors.border}`
+          paddingBottom: `${layout.padding.large}px`,
+          backgroundColor: colors.background,
+          flexShrink: 0,
+          minHeight: '100px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          borderTop: `1px solid ${colors.border}`,
+
         }}>
           <h4 style={{ 
             color: colors.text,
-            fontSize: getFontSize('lg'),
-            fontWeight: typography.fontWeight.bold,
+            fontSize: getFontSize('sm'),
+            fontWeight: typography.fontWeight.semibold,
             marginTop: 0,
             marginRight: 0,
             marginLeft: 0,
-            marginBottom: `${layout.padding.medium}px`,
+            marginBottom: `${layout.padding.small}px`,
             textAlign: 'center'
           }}>
             Follow Us
           </h4>
-          <div className="flex gap-2 md:gap-3 justify-center flex-wrap py-2">
+          <div className="flex gap-2 justify-center flex-wrap">
           {socialLinks.facebook && (
             <a 
               href={socialLinks.facebook}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-in-out hover:scale-105"
+              className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ease-in-out hover:scale-110"
               style={{
-                backgroundColor: colors.secondary,
-                boxShadow: `0 2px 4px ${colors.secondary}30`
+                backgroundColor: colors.primary,
+                boxShadow: `0 1px 3px ${colors.primary}30`
               }}
             >
-              {React.createElement(icons.facebook, { size: 18, color: colors.background })}
+              {React.createElement(icons.facebook, { size: 16, color: colors.background })}
             </a>
           )}
           {socialLinks.twitter && (
@@ -507,13 +528,13 @@ export default function UnifiedRightSidebar({
               href={socialLinks.twitter}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-in-out hover:scale-105"
+              className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ease-in-out hover:scale-110"
               style={{
-                backgroundColor: colors.secondary,
-                boxShadow: `0 2px 4px ${colors.secondary}30`
+                backgroundColor: colors.primary,
+                boxShadow: `0 1px 3px ${colors.primary}30`
               }}
             >
-              {React.createElement(icons.twitter, { size: 18, color: colors.background })}
+              {React.createElement(icons.twitter, { size: 16, color: colors.background })}
             </a>
           )}
           {socialLinks.linkedin && (
@@ -521,13 +542,13 @@ export default function UnifiedRightSidebar({
               href={socialLinks.linkedin}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-in-out hover:scale-105"
+              className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ease-in-out hover:scale-110"
               style={{
-                backgroundColor: colors.secondary,
-                boxShadow: `0 2px 4px ${colors.secondary}30`
+                backgroundColor: colors.primary,
+                boxShadow: `0 1px 3px ${colors.primary}30`
               }}
             >
-              {React.createElement(icons.linkedin, { size: 18, color: colors.background })}
+              {React.createElement(icons.linkedin, { size: 16, color: colors.background })}
             </a>
           )}
           {socialLinks.instagram && (
@@ -535,13 +556,13 @@ export default function UnifiedRightSidebar({
               href={socialLinks.instagram}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-300 ease-in-out hover:scale-105"
+              className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ease-in-out hover:scale-110"
               style={{
-                backgroundColor: colors.secondary,
-                boxShadow: `0 2px 4px ${colors.secondary}30`
+                backgroundColor: colors.primary,
+                boxShadow: `0 1px 3px ${colors.primary}30`
               }}
             >
-              {React.createElement(icons.instagram, { size: 18, color: colors.background })}
+              {React.createElement(icons.instagram, { size: 16, color: colors.background })}
             </a>
           )}
         </div>

@@ -262,23 +262,11 @@ export default function LandingPageTabs({
         <div className="relative">
           {/* Scrollable Tab Navigation */}
           <div className="relative max-w-7xl mx-auto px-4">
-            {/* Left scroll indicator */}
-            <div 
-              className="absolute left-0 top-0 w-8 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"
-              style={{ backgroundColor: `${colors.background}ff`, bottom: '16px' }}
-            />
-            
-            {/* Right scroll indicator */}
-            <div 
-              className="absolute right-0 top-0 w-8 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"
-              style={{ backgroundColor: `${colors.background}ff`, bottom: '16px' }}
-            />
-            
             <nav 
               className="overflow-x-auto overflow-y-hidden scrollbar-rounded"
               style={{ 
-                paddingTop: `${layout.padding.xlarge}px`,
-                paddingBottom: `${layout.padding.xlarge + 8}px`,
+                paddingTop: `${layout.padding.small}px`,
+                paddingBottom: `${layout.padding.small + 8}px`,
                 gap: `${layout.spacing}px`,
                 display: 'flex',
                 flexWrap: 'nowrap',
@@ -383,34 +371,26 @@ export default function LandingPageTabs({
           </div>
         </div>
         
-        {/* Enhanced bottom border */}
-        <div 
-          className="h-0.5 shadow-sm max-w-7xl mx-auto"
-          style={{
-            background: `linear-gradient(to right, transparent, ${colors.primary}60, transparent)`,
-            paddingLeft: '1rem',
-            paddingRight: '1rem'
-          }}
-        />
+        
       </div>
 
       {/* Tab Content */}
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto">
         <div 
           className="bg-white rounded-b-2xl shadow-xl border border-t-0 overflow-hidden"
           style={{ 
             backgroundColor: colors.background,
             borderColor: colors.border,
             borderRadius: `0 0 ${layout.borderRadius * 2}px ${layout.borderRadius * 2}px`,
-            marginTop: `${layout.padding.small}px`,
+            
             minHeight: '600px',
             boxShadow: `0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)`
           }}
         >
           <div 
-            className="p-8"
+            className="p-4"
             style={{ 
-              padding: `${layout.padding.xlarge}px`
+              padding: `${layout.padding.medium}px`
             }}
           >
             <div className="space-y-8">

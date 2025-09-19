@@ -216,80 +216,13 @@ export default function OfficersProfilePage() {
                   {officerInfo.phone && <p className="text-gray-600">{officerInfo.phone}</p>}
                 </div>
               </div>
-              <button
-                onClick={() => setIsEditing(!isEditing)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                {isEditing ? 'Cancel' : 'Edit Profile'}
-              </button>
+              
             </div>
           </div>
-
-          {/* Profile Form */}
-          {isEditing && (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Edit Profile Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                  <input
-                    type="text"
-                    value={formData.firstName}
-                    onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                  <input
-                    type="text"
-                    value={formData.lastName}
-                    onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    disabled
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                  <input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end space-x-3 mt-6">
-                <button
-                  onClick={handleCancel}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSave}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                >
-                  Save Changes
-                </button>
-              </div>
-            </div>
-          )}
 
           {/* Live Preview Section */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Live Preview</h3>
-            <p className="text-gray-600 mb-4">This is how your profile appears to visitors:</p>
-            
             {/* Unified Template Rendering with Suspense */}
             <Suspense fallback={<SkeletonLoader />}>
               <div className="border border-gray-200 rounded-lg overflow-hidden">
@@ -301,8 +234,8 @@ export default function OfficersProfilePage() {
                   templateCustomization={templateData?.template}
                 />
                 
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-                  <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 lg:gap-8">
+                <div className="max-w-7xl mx-auto px-6 sm:px-6 lg:px-4 py-6 lg:py-4">
+                  <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 lg:gap-4">
                     <div className="xl:col-span-3">
                       <LandingPageTabs
                         activeTab={activeTab}
