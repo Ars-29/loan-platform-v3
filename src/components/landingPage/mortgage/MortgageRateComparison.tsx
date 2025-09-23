@@ -60,13 +60,18 @@ interface MortgageRateComparisonProps {
   showFooter?: boolean;
   className?: string;
   template?: 'template1' | 'template2';
+  // Public mode props
+  isPublic?: boolean;
+  publicTemplateData?: any;
 }
 
 const MortgageRateComparison = React.memo(function MortgageRateComparison({ 
   showHeader = true, 
   showFooter = true, 
   className = "",
-  template = 'template1'
+  template = 'template1',
+  isPublic = false,
+  publicTemplateData
 }: MortgageRateComparisonProps) {
   const searchParams = useSearchParams();
   const [products, setProducts] = useState<RateProduct[]>([]);
@@ -465,7 +470,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
 
   // Get template-specific styles and content
   const { getTemplateSync } = useEfficientTemplates();
-  const templateData = getTemplateSync(template);
+  const templateData = isPublic && publicTemplateData ? publicTemplateData : getTemplateSync(template);
   const colors = templateData?.template?.colors || {
     primary: '#ec4899',
     secondary: '#3b82f6',
@@ -1040,7 +1045,13 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Search Form */}
-        <MortgageSearchForm onSearch={handleSearch} loading={loading} template={template} />
+        <MortgageSearchForm 
+          onSearch={handleSearch} 
+          loading={loading} 
+          template={template}
+          isPublic={isPublic}
+          publicTemplateData={publicTemplateData}
+        />
 
         {/* Error Message */}
         {error && (
@@ -1069,6 +1080,8 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
           template={template}
           isMockData={isMockData}
           dataSource={dataSource}
+          isPublic={isPublic}
+          publicTemplateData={publicTemplateData}
         />
       </main>
 

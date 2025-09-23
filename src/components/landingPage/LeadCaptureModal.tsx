@@ -25,6 +25,9 @@ interface LeadCaptureModalProps {
   };
   onSubmit: (leadData: LeadData) => Promise<void>;
   template?: 'template1' | 'template2';
+  // NEW: Public mode props
+  isPublic?: boolean;
+  publicTemplateData?: any;
 }
 
 export interface LeadData {
@@ -49,15 +52,22 @@ export interface LeadData {
   };
 }
 
-export default function LeadCaptureModal({ 
-  isOpen, 
-  onClose, 
-  loanProduct, 
+export default function LeadCaptureModal({
+  isOpen,
+  onClose,
+  loanProduct,
   onSubmit,
-  template = 'template1'
+  template = 'template1',
+  // NEW: Public mode props
+  isPublic = false,
+  publicTemplateData
 }: LeadCaptureModalProps) {
   const { getTemplateSync } = useEfficientTemplates();
-  const templateData = getTemplateSync(template);
+  
+  // Template data fetching - support both public and auth modes
+  const templateData = isPublic && publicTemplateData 
+    ? publicTemplateData 
+    : getTemplateSync(template);
   
   // Comprehensive template data usage
   const colors = templateData?.template?.colors || {

@@ -16,6 +16,9 @@ interface UnifiedNavigationTabsProps {
   onTabChange?: (tabId: string) => void;
   template?: 'template1' | 'template2';
   className?: string;
+  // NEW: Public mode props
+  isPublic?: boolean;
+  publicTemplateData?: any;
 }
 
 const defaultTabs: Tab[] = [
@@ -30,11 +33,18 @@ export default function UnifiedNavigationTabs({
   activeTab = 'apply',
   onTabChange,
   template = 'template1',
-  className = ""
+  className = "",
+  // NEW: Public mode props
+  isPublic = false,
+  publicTemplateData
 }: UnifiedNavigationTabsProps) {
   const [currentTab, setCurrentTab] = useState(activeTab);
   const { getTemplateSync } = useEfficientTemplates();
-  const templateData = getTemplateSync(template);
+  
+  // Template data fetching - support both public and auth modes
+  const templateData = isPublic && publicTemplateData 
+    ? publicTemplateData 
+    : getTemplateSync(template);
   const colors = templateData?.template?.colors || {
     primary: '#ec4899',
     secondary: '#3b82f6',

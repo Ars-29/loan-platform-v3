@@ -45,11 +45,25 @@ interface MortgageSearchFormProps {
   onSearch: (data: SearchFormData) => void;
   loading: boolean;
   template?: 'template1' | 'template2';
+  // NEW: Public mode props
+  isPublic?: boolean;
+  publicTemplateData?: any;
 }
 
-function MortgageSearchForm({ onSearch, loading, template = 'template1' }: MortgageSearchFormProps) {
+function MortgageSearchForm({ 
+  onSearch, 
+  loading, 
+  template = 'template1',
+  // NEW: Public mode props
+  isPublic = false,
+  publicTemplateData
+}: MortgageSearchFormProps) {
   const { getTemplateSync } = useEfficientTemplates();
-  const templateData = getTemplateSync(template);
+  
+  // Template data fetching - support both public and auth modes
+  const templateData = isPublic && publicTemplateData 
+    ? publicTemplateData 
+    : getTemplateSync(template);
   const templateColors = templateData?.template?.colors || {
     primary: '#ec4899',
     secondary: '#3b82f6',

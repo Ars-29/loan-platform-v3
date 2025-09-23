@@ -6,6 +6,8 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useAuth } from '@/hooks/use-auth';
 import { useTemplateSelection, useTemplate, useGlobalTemplates } from '@/contexts/UnifiedTemplateContext';
 import { supabase } from '@/lib/supabase/client';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 
 // Lazy load unified components
 const UnifiedHeroSection = lazy(() => import('@/components/landingPage/UnifiedHeroSection'));
@@ -81,6 +83,11 @@ export default function OfficersProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>('todays-rates');
   
+  // Public link state
+  const [publicLink, setPublicLink] = useState<any>(null);
+  const [publicLinkLoading, setPublicLinkLoading] = useState(false);
+  const [publicLinkError, setPublicLinkError] = useState<string | null>(null);
+  
   // Form data state - initialize with user data
   const [formData, setFormData] = useState({
     firstName: '',
@@ -101,18 +108,163 @@ export default function OfficersProfilePage() {
     }
   }, [user]);
 
-  // Debug template loading
+  const fetchPublicLink = React.useCallback(async () => {
+    if (!user) return;
+    
+    try {
+      setPublicLinkLoading(true);
+      setPublicLinkError(null);
+      
+      // Get user's company ID from API
+      const companyResponse = await fetch(`/api/user-company?userId=${user.id}`);
+      const companyResult = await companyResponse.json();
+
+      if (!companyResult.success) {
+        setPublicLinkError(companyResult.message);
+        return;
+      }
+
+      const userCompany = companyResult.data;
+
+      const response = await fetch(`/api/public-links?userId=${user.id}&companyId=${userCompany.companyId}`);
+      const result = await response.json();
+      console.log('🔍 Fetch Public Link API Response:', result);
+
+      if (result.success) {
+        console.log('✅ Setting public link data from fetch:', result.data);
+        setPublicLink(result.data);
+      } else {
+        console.log('❌ Fetch API returned error:', result.message);
+        setPublicLinkError(result.message);
+      }
+    } catch (error) {
+      console.error('Error fetching public link:', error);
+      setPublicLinkError('Failed to fetch public link');
+    } finally {
+      setPublicLinkLoading(false);
+    }
+  }, [user]);
+
+  // Fetch public link data
   React.useEffect(() => {
-    console.log('🔄 Profile page: Template loading state:', {
-      templateLoading,
-      isFallback,
-      hasTemplateData: !!templateData,
-      selectedTemplate,
-      templateDataKeys: templateData ? Object.keys(templateData) : [],
-      templateId: templateData?.template?.id,
-      isCustomized: templateData?.metadata?.isCustomized
+    if (user) {
+      fetchPublicLink();
+    }
+  }, [user, fetchPublicLink]);
+
+  const createPublicLink = React.useCallback(async () => {
+    if (!user) return;
+    
+    try {
+      setPublicLinkLoading(true);
+      setPublicLinkError(null);
+      
+      // Get user's company ID from API
+      const companyResponse = await fetch(`/api/user-company?userId=${user.id}`);
+      const companyResult = await companyResponse.json();
+
+      if (!companyResult.success) {
+        setPublicLinkError(companyResult.message);
+        return;
+      }
+
+      const userCompany = companyResult.data;
+
+      const response = await fetch('/api/public-links', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          companyId: userCompany.companyId,
+        }),
+      });
+
+      const result = await response.json();
+      console.log('🔗 Create/Reactivate Public Link API Response:', result);
+
+      if (result.success) {
+        console.log('✅ Setting public link data:', result.data);
+        setPublicLink(result.data);
+      } else {
+        console.log('❌ API returned error:', result.message);
+        setPublicLinkError(result.message);
+      }
+    } catch (error) {
+      console.error('Error creating public link:', error);
+      setPublicLinkError('Failed to create public link');
+    } finally {
+      setPublicLinkLoading(false);
+    }
+  }, [user]);
+
+  const deactivatePublicLink = async () => {
+    if (!publicLink) return;
+    
+    try {
+      setPublicLinkLoading(true);
+      setPublicLinkError(null);
+
+      const response = await fetch(`/api/public-links?linkId=${publicLink.id}`, {
+        method: 'DELETE',
+      });
+
+      const result = await response.json();
+      console.log('🗑️ Deactivate Public Link API Response:', result);
+
+      if (result.success) {
+        console.log('✅ Deactivating public link, setting to null');
+        setPublicLink(null);
+      } else {
+        console.log('❌ Deactivate API returned error:', result.message);
+        setPublicLinkError(result.message);
+      }
+    } catch (error) {
+      console.error('Error deactivating public link:', error);
+      setPublicLinkError('Failed to deactivate public link');
+    } finally {
+      setPublicLinkLoading(false);
+    }
+  };
+
+  const copyPublicLink = () => {
+    if (publicLink) {
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
+      const publicUrl = `${baseUrl}/public/profile/${publicLink.publicSlug}`;
+      navigator.clipboard.writeText(publicUrl);
+      console.log('Copied public URL:', publicUrl);
+    }
+  };
+
+  // Debug template loading - Use useMemo to prevent infinite loops
+  const templateDebugInfo = React.useMemo(() => ({
+    templateLoading,
+    isFallback,
+    hasTemplateData: !!templateData,
+    selectedTemplate,
+    templateDataKeys: templateData ? Object.keys(templateData) : [],
+    templateId: templateData?.template?.id,
+    isCustomized: templateData?.metadata?.isCustomized
+  }), [templateLoading, isFallback, selectedTemplate, templateData?.template?.id, templateData?.metadata?.isCustomized]);
+
+  React.useEffect(() => {
+    console.log('🔄 Profile page: Template loading state:', templateDebugInfo);
+  }, [templateDebugInfo]);
+
+  // Debug public link state
+  React.useEffect(() => {
+    console.log('🔗 Profile page: Public link state:', {
+      publicLink: publicLink ? {
+        id: publicLink.id,
+        publicSlug: publicLink.publicSlug,
+        isActive: publicLink.isActive,
+        currentUses: publicLink.currentUses
+      } : null,
+      publicLinkLoading,
+      publicLinkError
     });
-  }, [templateData, templateLoading, isFallback]);
+  }, [publicLink, publicLinkLoading, publicLinkError]);
 
   // Get officer information from user data
   const officerInfo = React.useMemo(() => {
@@ -133,7 +285,7 @@ export default function OfficersProfilePage() {
   }, [user]);
 
 
-  // Debug loading states
+  // Debug loading states - Remove templateData from dependencies to prevent infinite loop
   React.useEffect(() => {
     console.log('🔄 Profile page: Loading states:', {
       authLoading,
@@ -142,7 +294,7 @@ export default function OfficersProfilePage() {
       hasUser: !!user,
       hasTemplate: !!templateData?.template
     });
-  }, [authLoading, templateLoading, templateSelectionLoading, user, templateData]);
+  }, [authLoading, templateLoading, templateSelectionLoading, user]);
 
   // Only show loading spinner when there's no user (let RouteGuard handle this)
   // Remove the blocking condition that was causing the stuck loading issue
@@ -218,6 +370,92 @@ export default function OfficersProfilePage() {
               </div>
               
             </div>
+          </div>
+
+          {/* Public Link Management Section */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Public Profile Link</h3>
+              <div className="text-sm text-gray-500">
+                Share your profile with borrowers
+              </div>
+            </div>
+            
+            {publicLinkError && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                <p className="text-sm text-red-600">{publicLinkError}</p>
+              </div>
+            )}
+
+            {publicLink ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="text-sm font-medium text-green-800">Public link is active</span>
+                    </div>
+                    <p className="text-sm text-green-600 mt-1">
+                      Your profile is publicly accessible
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      onClick={copyPublicLink}
+                      variant="secondary"
+                      size="sm"
+                    >
+                      Copy Link
+                    </Button>
+                    <Button
+                      onClick={deactivatePublicLink}
+                      variant="danger"
+                      size="sm"
+                    >
+                      Deactivate
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <span className="font-medium text-gray-700">Public URL:</span>
+                    <p className="text-gray-600 break-all">
+                      {typeof window !== 'undefined' ? window.location.origin : 'localhost:3000'}/public/profile/{publicLink.publicSlug}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-700">Views:</span>
+                    <p className="text-gray-600">{publicLink.currentUses}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-700">Created:</span>
+                    <p className="text-gray-600">
+                      {new Date(publicLink.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  </svg>
+                </div>
+                <h4 className="text-lg font-medium text-gray-900 mb-2">No Public Link</h4>
+                <p className="text-gray-600 mb-4">
+                  Create a public link to share your profile with borrowers
+                </p>
+                <Button
+                  onClick={createPublicLink}
+                  disabled={publicLinkLoading}
+                  variant="primary"
+                >
+                  {publicLinkLoading ? 'Creating...' : 'Create Public Link'}
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Live Preview Section */}

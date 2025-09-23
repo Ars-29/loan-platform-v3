@@ -60,6 +60,9 @@ interface LandingPageTabsProps {
       activeTab?: string;
     };
   };
+  // NEW: Public mode props
+  isPublic?: boolean;
+  publicTemplateData?: any;
 }
 
 const tabs: Tab[] = [
@@ -112,11 +115,18 @@ export default function LandingPageTabs({
   onTabChange,
   selectedTemplate,
   className = '',
-  templateCustomization
+  templateCustomization,
+  // NEW: Public mode props
+  isPublic = false,
+  publicTemplateData
 }: LandingPageTabsProps) {
   const { user } = useAuth();
   const { getTemplateSync } = useEfficientTemplates();
-  const templateData = getTemplateSync(selectedTemplate);
+  
+  // Template data fetching - support both public and auth modes
+  const templateData = isPublic && publicTemplateData 
+    ? publicTemplateData 
+    : getTemplateSync(selectedTemplate);
 
   // Get enabled tabs from customization or use all tabs
   const enabledTabs = templateCustomization?.bodyModifications?.enabledTabs || tabs.map(tab => tab.id);
@@ -193,7 +203,11 @@ export default function LandingPageTabs({
   const renderTabContent = () => {
     switch (effectiveActiveTab) {
       case 'todays-rates':
-        return <TodaysRatesTab selectedTemplate={selectedTemplate} />;
+        return <TodaysRatesTab 
+          selectedTemplate={selectedTemplate} 
+          isPublic={isPublic}
+          publicTemplateData={publicTemplateData}
+        />;
       
       case 'get-custom-rate':
         return (
@@ -203,27 +217,53 @@ export default function LandingPageTabs({
               showFooter={false}
               className="bg-transparent"
               template={selectedTemplate}
+              isPublic={isPublic}
+              publicTemplateData={publicTemplateData}
             />
           </Suspense>
         );
       
       case 'document-checklist':
-        return <DocumentChecklistTab selectedTemplate={selectedTemplate} />;
+        return <DocumentChecklistTab 
+          selectedTemplate={selectedTemplate} 
+          isPublic={isPublic}
+          publicTemplateData={publicTemplateData}
+        />;
       
       case 'apply-now':
-        return <ApplyNowTab selectedTemplate={selectedTemplate} />;
+        return <ApplyNowTab 
+          selectedTemplate={selectedTemplate} 
+          isPublic={isPublic}
+          publicTemplateData={publicTemplateData}
+        />;
       
       case 'my-home-value':
-        return <MyHomeValueTab selectedTemplate={selectedTemplate} />;
+        return <MyHomeValueTab 
+          selectedTemplate={selectedTemplate} 
+          isPublic={isPublic}
+          publicTemplateData={publicTemplateData}
+        />;
       
       case 'find-my-home':
-        return <FindMyHomeTab selectedTemplate={selectedTemplate} />;
+        return <FindMyHomeTab 
+          selectedTemplate={selectedTemplate} 
+          isPublic={isPublic}
+          publicTemplateData={publicTemplateData}
+        />;
       
       case 'learning-center':
-        return <LearningCenterTab selectedTemplate={selectedTemplate} />;
+        return <LearningCenterTab 
+          selectedTemplate={selectedTemplate} 
+          isPublic={isPublic}
+          publicTemplateData={publicTemplateData}
+        />;
       
       default:
-        return <TodaysRatesTab selectedTemplate={selectedTemplate} />;
+        return <TodaysRatesTab 
+          selectedTemplate={selectedTemplate} 
+          isPublic={isPublic}
+          publicTemplateData={publicTemplateData}
+        />;
     }
   };
 

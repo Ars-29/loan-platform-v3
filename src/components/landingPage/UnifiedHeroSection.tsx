@@ -28,6 +28,15 @@ interface UnifiedHeroSectionProps {
       applyNowLink?: string;
     };
   };
+  // NEW: Public mode props
+  isPublic?: boolean;
+  publicUserData?: {
+    name: string;
+    email: string;
+    phone?: string;
+    avatar?: string;
+  };
+  publicTemplateData?: any;
 }
 
 export default function UnifiedHeroSection({
@@ -39,43 +48,93 @@ export default function UnifiedHeroSection({
   className = "",
   applyNowLink,
   applyNowText,
-  templateCustomization
+  templateCustomization,
+  // NEW: Public mode props
+  isPublic = false,
+  publicUserData,
+  publicTemplateData
 }: UnifiedHeroSectionProps) {
   const { user, loading: authLoading } = useAuth();
 
   // Helper functions to get customized values
   const getOfficerName = () => {
+    // Public mode: check template customizations FIRST
+    if (isPublic && publicTemplateData?.template?.headerModifications?.officerName) {
+      console.log('🔍 UnifiedHeroSection: Public mode - using template officerName:', publicTemplateData.template.headerModifications.officerName);
+      return publicTemplateData.template.headerModifications.officerName;
+    }
+    // Public mode: fallback to public data
+    if (isPublic && publicUserData?.name) {
+      return publicUserData.name;
+    }
+    // Template customization: use custom data
     if (templateCustomization?.headerModifications?.officerName) {
       return templateCustomization.headerModifications.officerName;
     }
+    // Fallback to props or auth data
     return officerName || user?.user_metadata?.full_name || `${user?.user_metadata?.first_name || user?.email?.split('@')[0] || 'User'} ${user?.user_metadata?.last_name || 'Smith'}` || 'User';
   };
 
   const getPhone = () => {
+    // Public mode: check template customizations FIRST
+    if (isPublic && publicTemplateData?.template?.headerModifications?.phone) {
+      return publicTemplateData.template.headerModifications.phone;
+    }
+    // Public mode: fallback to public data
+    if (isPublic && publicUserData?.phone) {
+      return publicUserData.phone;
+    }
+    // Template customization: use custom data
     if (templateCustomization?.headerModifications?.phone) {
       return templateCustomization.headerModifications.phone;
     }
+    // Fallback to props or auth data
     return phone || user?.user_metadata?.phone || null;
   };
 
   const getEmail = () => {
+    // Public mode: check template customizations FIRST
+    if (isPublic && publicTemplateData?.template?.headerModifications?.email) {
+      return publicTemplateData.template.headerModifications.email;
+    }
+    // Public mode: fallback to public data
+    if (isPublic && publicUserData?.email) {
+      return publicUserData.email;
+    }
+    // Template customization: use custom data
     if (templateCustomization?.headerModifications?.email) {
       return templateCustomization.headerModifications.email;
     }
+    // Fallback to props or auth data
     return email || user?.email || 'user@example.com';
   };
 
   const getProfileImage = () => {
+    // Public mode: check template customizations FIRST
+    if (isPublic && publicTemplateData?.template?.headerModifications?.avatar) {
+      console.log('🔍 UnifiedHeroSection: Public mode - using template avatar:', publicTemplateData.template.headerModifications.avatar);
+      return publicTemplateData.template.headerModifications.avatar;
+    }
+    // Public mode: fallback to public data
+    if (isPublic && publicUserData?.avatar) {
+      return publicUserData.avatar;
+    }
+    // Template customization: use custom data
     if (templateCustomization?.headerModifications?.avatar) {
       return templateCustomization.headerModifications.avatar;
     }
-    // Only return a real image if one exists; otherwise signal no image
+    // Fallback to props or auth data
     return profileImage || user?.user_metadata?.avatar_url || null;
   };
 
   // Get customization data from template or props
   const getApplyNowText = () => {
     if (applyNowText) return applyNowText;
+    // Public mode: check template data first
+    if (isPublic && publicTemplateData?.template?.headerModifications?.applyNowText) {
+      return publicTemplateData.template.headerModifications.applyNowText;
+    }
+    // Internal mode: check templateCustomization
     if (templateCustomization?.headerModifications?.applyNowText) {
       return templateCustomization.headerModifications.applyNowText;
     }
@@ -84,6 +143,11 @@ export default function UnifiedHeroSection({
 
   const getApplyNowLink = () => {
     if (applyNowLink) return applyNowLink;
+    // Public mode: check template data first
+    if (isPublic && publicTemplateData?.template?.headerModifications?.applyNowLink) {
+      return publicTemplateData.template.headerModifications.applyNowLink;
+    }
+    // Internal mode: check templateCustomization
     if (templateCustomization?.headerModifications?.applyNowLink) {
       return templateCustomization.headerModifications.applyNowLink;
     }
@@ -102,15 +166,22 @@ export default function UnifiedHeroSection({
   // No need for profile fetching - using user data directly
 
   // Debug logging
-  console.log('🎨 Display values:', {
+  console.log('🎨 UnifiedHeroSection Debug:', {
+    isPublic,
+    publicUserData,
+    publicTemplateData: publicTemplateData?.template,
+    headerModifications: publicTemplateData?.template?.headerModifications,
     displayName,
     displayPhone,
     displayEmail,
     user: user?.email
   });
 
+  // Template data fetching - support both public and auth modes
   const { getTemplateSync } = useEfficientTemplates();
-  const templateData = getTemplateSync(template);
+  const templateData = isPublic && publicTemplateData 
+    ? publicTemplateData 
+    : getTemplateSync(template);
 
   // Debug logging for template data
   console.log('🎨 Template data:', {

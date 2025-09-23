@@ -91,6 +91,9 @@ export const templates = pgTable('templates', {
   bodyModifications: jsonb('body_modifications').default('{}'), // { activeTab, enabledTabs, tabOrder, tabSettings }
   rightSidebarModifications: jsonb('right_sidebar_modifications').default('{}'), // { socialMedia, companyName, logo, contactInfo, reviews }
   
+  // Public profile template selection
+  isSelected: boolean('is_selected').default(false), // true if this template is selected for public profile
+  
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 }, (table) => ({
@@ -229,6 +232,38 @@ export const analytics = pgTable('analytics', {
   createdAtIdx: index('analytics_created_at_idx').on(table.createdAt),
 }));
 
+// Loan Officer Public Links table
+export const loanOfficerPublicLinks = pgTable('loan_officer_public_links', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  companyId: uuid('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
+  publicSlug: text('public_slug').notNull().unique(),
+  isActive: boolean('is_active').default(true).notNull(),
+  expiresAt: timestamp('expires_at'),
+  maxUses: integer('max_uses'),
+  currentUses: integer('current_uses').default(0).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index('user_link_idx').on(table.userId),
+  companyIdx: index('company_link_idx').on(table.companyId),
+  publicSlugIdx: index('public_slug_idx').on(table.publicSlug),
+  isActiveIdx: index('public_link_active_idx').on(table.isActive),
+}));
+
+// Public Link Usage table for analytics
+export const publicLinkUsage = pgTable('public_link_usage', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  linkId: uuid('link_id').notNull().references(() => loanOfficerPublicLinks.id, { onDelete: 'cascade' }),
+  ipAddress: text('ip_address'),
+  userAgent: text('user_agent'),
+  referrer: text('referrer'),
+  accessedAt: timestamp('accessed_at').defaultNow().notNull(),
+}, (table) => ({
+  linkIdx: index('link_usage_idx').on(table.linkId),
+  accessedAtIdx: index('access_time_idx').on(table.accessedAt),
+}));
+
 // Type exports
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -250,3 +285,7 @@ export type ApiKey = typeof apiKeys.$inferSelect;
 export type NewApiKey = typeof apiKeys.$inferInsert;
 export type Analytics = typeof analytics.$inferSelect;
 export type NewAnalytics = typeof analytics.$inferInsert;
+export type LoanOfficerPublicLink = typeof loanOfficerPublicLinks.$inferSelect;
+export type NewLoanOfficerPublicLink = typeof loanOfficerPublicLinks.$inferInsert;
+export type PublicLinkUsage = typeof publicLinkUsage.$inferSelect;
+export type NewPublicLinkUsage = typeof publicLinkUsage.$inferInsert;

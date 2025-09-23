@@ -10,16 +10,26 @@ interface UnifiedHeaderProps {
   navigationItems?: string[];
   template?: 'template1' | 'template2';
   className?: string;
+  // NEW: Public mode props
+  isPublic?: boolean;
+  publicTemplateData?: any;
 }
 
 export default function UnifiedHeader({ 
   websiteName = "YOUR WEBSITE",
   navigationItems = ["Home", "About", "Contact"],
   template = 'template1',
-  className = ""
+  className = "",
+  // NEW: Public mode props
+  isPublic = false,
+  publicTemplateData
 }: UnifiedHeaderProps) {
   const { getTemplateSync } = useEfficientTemplates();
-  const templateData = getTemplateSync(template);
+  
+  // Template data fetching - support both public and auth modes
+  const templateData = isPublic && publicTemplateData 
+    ? publicTemplateData 
+    : getTemplateSync(template);
   
   // Debug logging
   console.log('🔍 UnifiedHeader Debug:', {

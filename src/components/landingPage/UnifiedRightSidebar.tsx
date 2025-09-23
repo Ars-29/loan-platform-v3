@@ -9,6 +9,17 @@ import { icons } from '@/components/ui/Icon';
 interface UnifiedRightSidebarProps {
   template?: 'template1' | 'template2';
   className?: string;
+  // Public mode props
+  isPublic?: boolean;
+  publicCompanyData?: {
+    name: string;
+    logo?: string;
+    phone?: string;
+    email?: string;
+    address?: any;
+    website?: string;
+  };
+  publicTemplateData?: any;
   // Template customization data
   templateCustomization?: {
     rightSidebarModifications?: {
@@ -28,11 +39,14 @@ interface UnifiedRightSidebarProps {
 export default function UnifiedRightSidebar({
   template = 'template1',
   className = "",
+  isPublic = false,
+  publicCompanyData,
+  publicTemplateData,
   templateCustomization
 }: UnifiedRightSidebarProps) {
   const { user } = useAuth();
   const { getTemplateSync } = useEfficientTemplates();
-  const templateData = getTemplateSync(template);
+  const templateData = isPublic && publicTemplateData ? publicTemplateData : getTemplateSync(template);
 
   // Debug when templateCustomization changes
   React.useEffect(() => {
@@ -45,6 +59,15 @@ export default function UnifiedRightSidebar({
 
   // Get customization data from template or props
   const getCompanyName = () => {
+    if (isPublic && publicTemplateData) {
+      console.log('🔍 UnifiedRightSidebar: Public mode - checking template data:', {
+        publicTemplateData,
+        template: publicTemplateData.template,
+        rightSidebarModifications: publicTemplateData.template?.rightSidebarModifications,
+        companyName: publicTemplateData.template?.rightSidebarModifications?.companyName
+      });
+      return publicTemplateData.template?.rightSidebarModifications?.companyName || 'Your Company';
+    }
     console.log('🔄 UnifiedRightSidebar: Getting company name:', {
       templateCustomization,
       rightSidebarModifications: templateCustomization?.rightSidebarModifications,
@@ -60,6 +83,9 @@ export default function UnifiedRightSidebar({
   };
 
   const getCompanyLogo = () => {
+    if (isPublic && publicTemplateData) {
+      return publicTemplateData.template?.rightSidebarModifications?.logo || null;
+    }
     console.log('🔄 UnifiedRightSidebar: Getting company logo:', {
       logo: templateCustomization?.rightSidebarModifications?.logo
     });
@@ -73,6 +99,9 @@ export default function UnifiedRightSidebar({
   };
 
   const getPhone = () => {
+    if (isPublic && publicTemplateData) {
+      return publicTemplateData.template?.rightSidebarModifications?.phone || '(555) 123-4567';
+    }
     console.log('🔄 UnifiedRightSidebar: Getting phone:', {
       phone: templateCustomization?.rightSidebarModifications?.phone
     });
@@ -86,6 +115,9 @@ export default function UnifiedRightSidebar({
   };
 
   const getEmail = () => {
+    if (isPublic && publicTemplateData) {
+      return publicTemplateData.template?.rightSidebarModifications?.email || 'info@yourbrand.com';
+    }
     console.log('🔄 UnifiedRightSidebar: Getting email:', {
       email: templateCustomization?.rightSidebarModifications?.email
     });
@@ -99,6 +131,9 @@ export default function UnifiedRightSidebar({
   };
 
   const getAddress = () => {
+    if (isPublic && publicTemplateData) {
+      return publicTemplateData.template?.rightSidebarModifications?.address || '123 Main St, City, State 12345';
+    }
     console.log('🔄 UnifiedRightSidebar: Getting address:', {
       address: templateCustomization?.rightSidebarModifications?.address
     });
@@ -114,9 +149,24 @@ export default function UnifiedRightSidebar({
 
   // Memoize social links to avoid multiple calls
   const socialLinks = React.useMemo(() => {
-    const socialMods = templateCustomization?.rightSidebarModifications || {};
+    let socialMods: {
+      facebook?: string;
+      twitter?: string;
+      linkedin?: string;
+      instagram?: string;
+    } = {};
+    
+    if (isPublic && publicTemplateData) {
+      // In public mode, get social links from template data
+      socialMods = publicTemplateData.template?.rightSidebarModifications || {};
+    } else {
+      // In internal mode, get from templateCustomization
+      socialMods = templateCustomization?.rightSidebarModifications || {};
+    }
+    
     console.log('🔄 UnifiedRightSidebar: Getting social links:', socialMods);
-    console.log('🔄 UnifiedRightSidebar: templateCustomization:', templateCustomization);
+    console.log('🔄 UnifiedRightSidebar: isPublic:', isPublic);
+    console.log('🔄 UnifiedRightSidebar: publicTemplateData:', publicTemplateData);
     
     const links = {
       facebook: socialMods.facebook || '',
@@ -131,7 +181,7 @@ export default function UnifiedRightSidebar({
     console.log('✅ UnifiedRightSidebar: Will show LinkedIn?', !!links.linkedin);
     console.log('✅ UnifiedRightSidebar: Will show Instagram?', !!links.instagram);
     return links;
-  }, [templateCustomization?.rightSidebarModifications]);
+  }, [isPublic, publicTemplateData, templateCustomization?.rightSidebarModifications]);
 
   
   // Comprehensive template data usage

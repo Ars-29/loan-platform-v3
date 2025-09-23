@@ -66,6 +66,7 @@ const LandingPageTabs = React.lazy(() => import('@/components/landingPage/Landin
 
 interface CustomizerState {
   selectedTemplate: string;
+  publicProfileTemplate: string;
   customSettings: Partial<Template>;
   isPreviewMode: boolean;
   activeSection: 'general' | 'header' | 'body' | 'rightSidebar';
@@ -80,6 +81,7 @@ export default function CustomizerPage() {
   
   const [customizerState, setCustomizerState] = useState<CustomizerState>({
     selectedTemplate: selectedTemplate, // Use global selection
+    publicProfileTemplate: 'template1', // Default public profile template
     customSettings: {},
     isPreviewMode: false,
     activeSection: 'general',
@@ -115,6 +117,58 @@ export default function CustomizerPage() {
       selectedTemplate: selectedTemplate
     }));
   }, [selectedTemplate]);
+
+  // Load public profile template from database on mount
+  React.useEffect(() => {
+    const loadPublicProfileTemplate = async () => {
+      try {
+        // Get the current session token
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.access_token) {
+          console.log('⚠️ No session token available, using localStorage fallback');
+          // Fallback to localStorage if no session
+          const savedPublicProfileTemplate = localStorage.getItem('publicProfileTemplate');
+          if (savedPublicProfileTemplate) {
+            setCustomizerState(prev => ({
+              ...prev,
+              publicProfileTemplate: savedPublicProfileTemplate
+            }));
+          }
+          return;
+        }
+        
+        const response = await fetch('/api/templates/get-public-profile-template', {
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success && result.templateSlug) {
+            setCustomizerState(prev => ({
+              ...prev,
+              publicProfileTemplate: result.templateSlug
+            }));
+            // Also save to localStorage for immediate UI feedback
+            localStorage.setItem('publicProfileTemplate', result.templateSlug);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading public profile template:', error);
+        // Fallback to localStorage if database fails
+        const savedPublicProfileTemplate = localStorage.getItem('publicProfileTemplate');
+        if (savedPublicProfileTemplate) {
+          setCustomizerState(prev => ({
+            ...prev,
+            publicProfileTemplate: savedPublicProfileTemplate
+          }));
+        }
+      }
+    };
+
+    loadPublicProfileTemplate();
+  }, []);
 
   // No need for profile fetching - using user data directly
 
@@ -288,6 +342,54 @@ export default function CustomizerPage() {
     // Templates should already be preloaded, no need to fetch again
     console.log('🔄 Customizer: Template selected:', templateSlug);
   }, [setSelectedTemplate]);
+
+  // Handle public profile template selection
+  const handlePublicProfileTemplateSelect = useCallback(async (templateSlug: string) => {
+    setCustomizerState(prev => ({
+      ...prev,
+      publicProfileTemplate: templateSlug
+    }));
+    
+    // Save the public profile template selection to localStorage
+    localStorage.setItem('publicProfileTemplate', templateSlug);
+    
+    // Also save to database
+    try {
+      console.log('🔄 Attempting to save public profile template to database:', templateSlug);
+      
+      // Get the current session token
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        console.error('❌ No session token available');
+        return;
+      }
+      
+      const response = await fetch('/api/templates/update-public-profile-template', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          templateSlug: templateSlug
+        }),
+      });
+      
+      console.log('📡 API Response status:', response.status);
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Public profile template saved to database:', result);
+      } else {
+        const errorResult = await response.json();
+        console.error('❌ Failed to save public profile template to database:', errorResult);
+      }
+    } catch (error) {
+      console.error('❌ Error saving public profile template to database:', error);
+    }
+    
+    console.log('🔄 Customizer: Public profile template selected:', templateSlug);
+  }, []);
 
   // Handle section change
   const handleSectionChange = useCallback((section: CustomizerState['activeSection']) => {
@@ -490,6 +592,25 @@ export default function CustomizerPage() {
                     value={customizerState.selectedTemplate}
                     onChange={(e) => handleTemplateSelect(e.target.value)}
                     className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                  >
+                    {['template1', 'template2'].map(templateSlug => {
+                      const templateName = templateSlug === 'template1' ? 'Red Theme' : 'Purple Theme';
+                      
+                      return (
+                        <option key={templateSlug} value={templateSlug}>
+                          {templateName}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-500">Public Profile:</span>
+                  <select
+                    value={customizerState.publicProfileTemplate || 'template1'}
+                    onChange={(e) => handlePublicProfileTemplateSelect(e.target.value)}
+                    className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     {['template1', 'template2'].map(templateSlug => {
                       const templateName = templateSlug === 'template1' ? 'Red Theme' : 'Purple Theme';

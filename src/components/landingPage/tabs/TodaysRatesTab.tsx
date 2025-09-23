@@ -35,6 +35,9 @@ interface ApiProduct {
 interface TodaysRatesTabProps {
   selectedTemplate: 'template1' | 'template2';
   className?: string;
+  // NEW: Public mode props
+  isPublic?: boolean;
+  publicTemplateData?: any;
 }
 
 // Default search parameters for today's rates
@@ -74,11 +77,18 @@ const defaultSearchParams = {
 
 export default function TodaysRatesTab({
   selectedTemplate,
-  className = ''
+  className = '',
+  // NEW: Public mode props
+  isPublic = false,
+  publicTemplateData
 }: TodaysRatesTabProps) {
   const { user } = useAuth();
   const { getTemplateSync } = useEfficientTemplates();
-  const templateData = getTemplateSync(selectedTemplate);
+  
+  // Template data fetching - support both public and auth modes
+  const templateData = isPublic && publicTemplateData 
+    ? publicTemplateData 
+    : getTemplateSync(selectedTemplate);
 
   
   // Comprehensive template data usage

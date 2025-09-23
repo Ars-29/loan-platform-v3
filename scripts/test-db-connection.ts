@@ -1,49 +1,59 @@
-#!/usr/bin/env tsx
-
 import { db } from '../src/lib/db';
-import { companies, users } from '../src/lib/db/schema';
+import { pageSettings, templates } from '../src/lib/db/schema';
+import { eq, and, desc } from 'drizzle-orm';
 
 async function testDatabaseConnection() {
   try {
-    console.log('🔌 Testing database connection...');
+    console.log('🔍 Testing database connection...');
     
     // Test basic connection
-    const companiesCount = await db.select().from(companies);
+    const testQuery = await db.select().from(templates).limit(1);
     console.log('✅ Database connection successful');
-    console.log('📊 Total companies:', companiesCount.length);
+    console.log('📋 Templates found:', testQuery.length);
     
-    // Test users table
-    const usersCount = await db.select().from(users);
-    console.log('📊 Total users:', usersCount.length);
-    
-    // Show sample data
-    if (companiesCount.length > 0) {
-      console.log('🏢 Sample company:', {
-        id: companiesCount[0].id,
-        name: companiesCount[0].name,
-        isActive: companiesCount[0].isActive,
-      });
+    if (testQuery.length > 0) {
+      console.log('🎨 Sample template:', testQuery[0]);
     }
     
-    if (usersCount.length > 0) {
-      console.log('👥 Sample user:', {
-        id: usersCount[0].id,
-        email: usersCount[0].email,
-        role: usersCount[0].role,
-        isActive: usersCount[0].isActive,
-      });
-    }
+    // Test page settings query
+    const userId = 'f2957bf7-74d1-4362-9a35-8bd6b45e3c7e';
+    console.log('🔍 Testing page settings query for userId:', userId);
     
-    console.log('✅ Database test completed successfully');
+    const pageSettingsData = await db
+      .select({
+        template: pageSettings.template,
+        settings: pageSettings.settings,
+        templateId: pageSettings.templateId,
+        isPublished: pageSettings.isPublished,
+        updatedAt: pageSettings.updatedAt,
+      })
+      .from(pageSettings)
+      .where(
+        and(
+          eq(pageSettings.officerId, userId),
+          eq(pageSettings.isPublished, true)
+        )
+      )
+      .orderBy(desc(pageSettings.updatedAt))
+      .limit(1);
+
+    console.log('📋 Page settings result:', pageSettingsData);
+    
+    if (pageSettingsData.length === 0) {
+      console.log('❌ No published page settings found for this user');
+      
+      // Check if there are any page settings at all for this user
+      const allPageSettings = await db
+        .select()
+        .from(pageSettings)
+        .where(eq(pageSettings.officerId, userId))
+        .limit(5);
+      
+      console.log('📋 All page settings for this user:', allPageSettings);
+    }
     
   } catch (error) {
     console.error('❌ Database connection failed:', error);
-    console.error('❌ Error details:', {
-      message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-    });
-  } finally {
-    process.exit(0);
   }
 }
 

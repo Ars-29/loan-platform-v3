@@ -48,11 +48,28 @@ interface RateResultsProps {
   template?: 'template1' | 'template2';
   isMockData?: boolean;
   dataSource?: string;
+  // Public mode props
+  isPublic?: boolean;
+  publicTemplateData?: any;
 }
 
-function RateResults({ products, loading, rawData, template = 'template1', isMockData = false, dataSource = 'unknown' }: RateResultsProps) {
+function RateResults({ 
+  products, 
+  loading, 
+  rawData, 
+  template = 'template1', 
+  isMockData = false, 
+  dataSource = 'unknown',
+  // NEW: Public mode props
+  isPublic = false,
+  publicTemplateData
+}: RateResultsProps) {
   const { getTemplateSync } = useEfficientTemplates();
-  const templateData = getTemplateSync(template);
+  
+  // Template data fetching - support both public and auth modes
+  const templateData = isPublic && publicTemplateData 
+    ? publicTemplateData 
+    : getTemplateSync(template);
   
   // Comprehensive debugging for template data
   console.log('🔍 RateResults Debug:', {
