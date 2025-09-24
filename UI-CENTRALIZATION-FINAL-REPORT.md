@@ -20,7 +20,7 @@
 ## 🧩 New Centralized Components Created
 
 ### 1. **Theme System** (`src/theme/theme.ts`)
-- **Color Palette**: Primary (pink), Secondary (dark blue), Status colors, Neutral grays
+- **Color Palette**: Primary (blue), Secondary (dark blue), Status colors, Neutral grays
 - **Typography**: Font families, sizes, weights, line heights
 - **Spacing & Breakpoints**: Consistent spacing scale and responsive breakpoints
 - **Component Tokens**: Button heights, input padding, card styles, table dimensions

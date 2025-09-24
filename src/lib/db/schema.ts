@@ -161,6 +161,21 @@ export const leads = pgTable('leads', {
   notes: text('notes'),
   tags: jsonb('tags').default('[]'), // Array of tags
   customFields: jsonb('custom_fields').default('{}'), // Custom form fields
+  
+  // Analytics columns
+  conversionStage: text('conversion_stage').default('lead'), // lead, application, approval, closing
+  conversionDate: timestamp('conversion_date'),
+  applicationDate: timestamp('application_date'),
+  approvalDate: timestamp('approval_date'),
+  closingDate: timestamp('closing_date'),
+  loanAmountClosed: decimal('loan_amount_closed', { precision: 15, scale: 2 }),
+  commissionEarned: decimal('commission_earned', { precision: 10, scale: 2 }),
+  responseTimeHours: integer('response_time_hours'), // hours to first response
+  lastContactDate: timestamp('last_contact_date'),
+  contactCount: integer('contact_count').default(0),
+  leadQualityScore: integer('lead_quality_score'), // 1-10 rating
+  geographicLocation: text('geographic_location'), // city, state for mapping
+  
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 }, (table) => ({
@@ -169,6 +184,13 @@ export const leads = pgTable('leads', {
   statusIdx: index('leads_status_idx').on(table.status),
   emailIdx: index('leads_email_idx').on(table.email),
   createdAtIdx: index('leads_created_at_idx').on(table.createdAt),
+  // Analytics indexes
+  conversionStageIdx: index('leads_conversion_stage_idx').on(table.conversionStage),
+  conversionDateIdx: index('leads_conversion_date_idx').on(table.conversionDate),
+  closingDateIdx: index('leads_closing_date_idx').on(table.closingDate),
+  responseTimeIdx: index('leads_response_time_idx').on(table.responseTimeHours),
+  qualityScoreIdx: index('leads_quality_score_idx').on(table.leadQualityScore),
+  locationIdx: index('leads_location_idx').on(table.geographicLocation),
 }));
 
 // Rate Data table (from Optimal Blue API)

@@ -235,7 +235,7 @@ export default function UnifiedHeroSection({
       <section className={`relative overflow-hidden ${className}`}>
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <p className="text-gray-600">Loading profile...</p>
           </div>
         </div>
@@ -305,9 +305,8 @@ export default function UnifiedHeroSection({
 
             {/* Officer Name */}
             <h1 
-              className="text-3xl lg:text-4xl font-bold mb-4"
+              className="text-3xl lg:text-4xl font-bold mb-4 text-white"
               style={{ 
-                color: colors.text,
                 fontWeight: typography.fontWeight.bold
               }}
             >
@@ -325,8 +324,7 @@ export default function UnifiedHeroSection({
                     </svg>
                   </div>
                   <span 
-                    className="text-lg"
-                    style={{ color: colors.textSecondary }}
+                    className="text-lg text-white opacity-90"
                   >
                     {displayEmail}
                   </span>
@@ -353,11 +351,8 @@ export default function UnifiedHeroSection({
               
               <a
                 href="#contact"
-                className="inline-flex items-center px-6 py-3 text-base font-semibold rounded-lg border-2 hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                className="inline-flex items-center px-6 py-3 text-base font-semibold rounded-lg border-2 hover:shadow-lg transition-all duration-300 transform hover:scale-105 text-white border-white hover:bg-white hover:text-gray-900"
                 style={{
-                  borderColor: colors.primary,
-                  color: colors.primary,
-                  backgroundColor: 'transparent',
                   fontWeight: typography.fontWeight.semibold
                 }}
               >

@@ -148,7 +148,7 @@ const NotificationItem: React.FC<{ notification: Notification; onClose: (id: str
           </div>
           <div className="ml-4 flex-shrink-0 flex">
             <button
-              className="bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
+              className="bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               onClick={() => onClose(notification.id)}
             >
               <span className="sr-only">Close</span>

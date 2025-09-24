@@ -135,7 +135,7 @@ export const Modal: React.FC<ModalProps> = ({
             </h3>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-pink-500 rounded-md p-1"
+              className="text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md p-1"
             >
               <span className="sr-only">Close</span>
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -249,7 +249,7 @@ export const FormModal: React.FC<FormModalProps> = ({
               placeholder={field.placeholder}
               required={field.required}
               className={`
-                w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-pink-500 focus:border-transparent
+                w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent
                 ${validationErrors[field.name] ? 'border-red-300' : 'border-gray-300'}
               `}
             />

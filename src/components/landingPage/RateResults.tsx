@@ -51,6 +51,9 @@ interface RateResultsProps {
   // Public mode props
   isPublic?: boolean;
   publicTemplateData?: any;
+  // User context props for lead submission
+  userId?: string;
+  companyId?: string;
 }
 
 function RateResults({ 
@@ -60,9 +63,12 @@ function RateResults({
   template = 'template1', 
   isMockData = false, 
   dataSource = 'unknown',
-  // NEW: Public mode props
+  // Public mode props
   isPublic = false,
-  publicTemplateData
+  publicTemplateData,
+  // User context props
+  userId,
+  companyId
 }: RateResultsProps) {
   const { getTemplateSync } = useEfficientTemplates();
   
@@ -138,13 +144,40 @@ function RateResults({
     try {
       console.log('🚀 Submitting lead data:', leadData);
       
+      // Get userId and companyId from props (passed from parent components)
+      let leadUserId: string | undefined;
+      let leadCompanyId: string | undefined;
+      
+      if (isPublic && publicTemplateData?.profileData) {
+        // For public profiles, get from profile data
+        leadUserId = publicTemplateData.profileData.user.id;
+        leadCompanyId = publicTemplateData.profileData.company.id;
+        console.log('🔗 Public profile - using userId:', leadUserId, 'companyId:', leadCompanyId);
+      } else if (userId && companyId) {
+        // For internal profiles, use props passed from parent
+        leadUserId = userId;
+        leadCompanyId = companyId;
+        console.log('🔗 Internal profile - using userId:', leadUserId, 'companyId:', leadCompanyId);
+      } else {
+        console.log('⚠️ Missing user context for lead submission');
+        throw new Error('Missing user or company information');
+      }
+      
+      if (!leadUserId || !leadCompanyId) {
+        throw new Error('Missing user or company information');
+      }
+      
       const response = await fetch('/api/leads', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include', // Include cookies for authentication
-        body: JSON.stringify(leadData),
+        body: JSON.stringify({
+          ...leadData,
+          userId: leadUserId,
+          companyId: leadCompanyId
+        }),
       });
 
       console.log('📡 Response status:', response.status);
@@ -704,6 +737,8 @@ function RateResults({
           onClose={handleCloseLeadModal}
           loanProduct={selectedLoanProduct}
           onSubmit={handleLeadSubmit}
+          isPublic={isPublic}
+          publicTemplateData={publicTemplateData}
         />
       )}
     </div>

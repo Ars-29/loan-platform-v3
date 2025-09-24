@@ -339,17 +339,13 @@ export default function CompaniesPage() {
   // Temporarily bypass auth check for testing
   // TODO: Fix authentication detection for free Supabase plan
   
-  // Show loading while checking authentication
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-pink-600"></div>
-      </div>
-    );
-  }
+  // Show loading while checking authentication - removed spinner for consistency
+  // if (authLoading) {
+  //   return null; // Let the page load normally without spinner
+  // }
 
-  // Show authentication required if not authenticated
-  if (!isAuthenticated) {
+  // Show authentication required if not authenticated (only after auth check is complete)
+  if (!authLoading && !isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -357,7 +353,7 @@ export default function CompaniesPage() {
           <p className="text-gray-600">Please sign in to access this page.</p>
           <button 
             onClick={() => window.location.href = '/auth'}
-            className="mt-4 bg-pink-600 text-white px-4 py-2 rounded-md hover:bg-pink-700"
+            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
           >
             Go to Login
           </button>

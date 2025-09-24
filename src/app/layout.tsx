@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import "../styles/mac-text-optimization.css";
 import { NotificationProvider } from "@/components/ui/Notification";
 import { UnifiedTemplateProvider } from "@/contexts/UnifiedTemplateContext";
 

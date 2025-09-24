@@ -74,7 +74,7 @@ const SkeletonLoader = React.memo(() => (
 SkeletonLoader.displayName = 'SkeletonLoader';
 
 export default function OfficersProfilePage() {
-  const { user, userRole, loading: authLoading } = useAuth();
+  const { user, userRole, companyId, loading: authLoading } = useAuth();
   const { selectedTemplate, isLoading: templateSelectionLoading } = useTemplateSelection();
   const { templateData, isLoading: templateLoading, isFallback } = useTemplate(selectedTemplate);
   // Avoid noisy console when template fallback is expected briefly
@@ -359,7 +359,7 @@ export default function OfficersProfilePage() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-blue-500 rounded-full flex items-center justify-center text-white text-xl font-bold">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-xl font-bold">
                   {officerInfo.officerName.split(' ').map((n: string) => n[0]).join('')}
                 </div>
                 <div>
@@ -481,6 +481,8 @@ export default function OfficersProfilePage() {
                         selectedTemplate={selectedTemplate as 'template1' | 'template2'}
                         className="w-full"
                         templateCustomization={templateData?.template}
+                        userId={user?.id}
+                        companyId={companyId || undefined}
                       />
                     </div>
                     <div className="xl:col-span-1">

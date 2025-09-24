@@ -50,6 +50,9 @@ import {
   Map,
   ExternalLink,
   Monitor,
+  DollarSign,
+  MessageSquare,
+  Filter,
 } from 'lucide-react';
 
 // Centralized icon registry for the entire app
@@ -139,6 +142,12 @@ export const icons = {
   x: X,
   search: Search,
   mail: Mail,
+  
+  // New icons for lead details
+  user: User,
+  dollarSign: DollarSign,
+  messageSquare: MessageSquare,
+  filter: Filter,
 } as const;
 
 interface IconProps {

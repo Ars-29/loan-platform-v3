@@ -49,7 +49,7 @@ export const Input: React.FC<InputProps> = ({
   const variantClasses = {
     default: `
       border-gray-300 
-      focus:border-pink-500 focus:ring-pink-500
+      focus:border-blue-500 focus:ring-blue-500
       placeholder-gray-400
     `,
     error: `
@@ -61,7 +61,7 @@ export const Input: React.FC<InputProps> = ({
 
   // Base input classes
   const baseClasses = `
-    block w-full rounded-md border
+    block w-full rounded-md border text-gray-900
     focus:outline-none focus:ring-1
     disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed
     transition-colors duration-200

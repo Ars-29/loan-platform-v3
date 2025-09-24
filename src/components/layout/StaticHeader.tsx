@@ -9,7 +9,7 @@ import { icons } from '@/components/ui/Icon';
 // No props interface needed - component gets data from useAuth
 
 const StaticHeader = memo(function StaticHeader() {
-  const { user, signOut, userRole, loading: authLoading } = useAuth();
+  const { user, signOut, userRole, loading: authLoading, roleLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -51,10 +51,14 @@ const StaticHeader = memo(function StaticHeader() {
       case 'super_admin':
         return [
           { name: 'Companies', href: '/admin/companies', current: pathname === '/admin/companies' },
+          { name: 'Leads Insights', href: '/super-admin/insights', current: pathname === '/super-admin/insights' },
+          { name: 'Conversion Stats', href: '/super-admin/stats', current: pathname === '/super-admin/stats' },
         ];
       case 'company_admin':
         return [
           { name: 'Loan Officers', href: '/companyadmin/loanofficers', current: pathname === '/companyadmin/loanofficers' },
+          { name: 'Leads Insights', href: '/admin/insights', current: pathname === '/admin/insights' },
+          { name: 'Conversion Stats', href: '/admin/stats', current: pathname === '/admin/stats' },
         ];
       case 'employee':
         return [
@@ -68,9 +72,65 @@ const StaticHeader = memo(function StaticHeader() {
     }
   }, [stableUserData.role, pathname]);
 
-  // Don't render if auth is still loading to prevent flashing
-  if (authLoading) {
-    return null;
+  // Don't render if auth is still loading OR if user role is not yet determined
+  if (authLoading || roleLoading || !user || !userRole) {
+    return (
+      <nav style={dashboard.nav}>
+        <div style={dashboard.navContent}>
+          <div style={dashboard.navInner}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div style={{ flexShrink: 0 }}>
+                <h1 style={{ 
+                  fontSize: '20px', 
+                  fontWeight: 'bold', 
+                  color: '#111827' 
+                }}>
+                  Loan Officer Platform
+                </h1>
+              </div>
+            </div>
+            <div style={dashboard.userInfo}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '12px',
+                opacity: 0.5 
+              }}>
+                <div style={{ 
+                  width: '32px', 
+                  height: '32px', 
+                  borderRadius: '50%', 
+                  backgroundColor: '#e5e7eb',
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center' 
+                }}>
+                  <div style={{ 
+                    width: '16px', 
+                    height: '16px', 
+                    borderRadius: '50%', 
+                    backgroundColor: '#9ca3af' 
+                  }}></div>
+                </div>
+                <span style={{ color: '#6b7280', fontSize: '14px' }}>
+                  <span style={{ 
+                    display: 'inline-block',
+                    width: '12px',
+                    height: '12px',
+                    border: '2px solid #e5e7eb',
+                    borderTop: '2px solid #3b82f6',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite',
+                    marginRight: '8px'
+                  }}></span>
+                  Loading...
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    );
   }
 
   const handleSignOut = async () => {

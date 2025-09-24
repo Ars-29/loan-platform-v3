@@ -379,6 +379,8 @@ export default function PublicProfilePage() {
                 onTabChange={handleTabChange}
                 selectedTemplate={selectedTemplate}
                 templateCustomization={profileData.template}
+                userId={profileData.user.id}
+                companyId={profileData.company.id}
               />
             </div>
 
@@ -408,14 +410,14 @@ export default function PublicProfilePage() {
         <footer className="bg-gray-900 text-white py-8 mt-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
-              <p className="text-gray-400">
+              <p className="text-white opacity-90">
                 © 2024 {profileData.company.name}™. All rights reserved. | NMLS Consumer Access
               </p>
-              <p className="text-sm text-gray-500 mt-2">
+              <p className="text-sm text-white opacity-75 mt-2">
                 This is an official public profile page.
               </p>
               {profileData.publicLink.maxUses && (
-                <p className="text-xs text-gray-600 mt-1">
+                <p className="text-xs text-white opacity-60 mt-1">
                   Profile views: {profileData.publicLink.currentUses} / {profileData.publicLink.maxUses}
                 </p>
               )}

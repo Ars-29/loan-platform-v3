@@ -4,7 +4,7 @@ import React from 'react';
 import { theme, RoleType, colors, spacing, borderRadius, typography } from '@/theme/theme';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'white' | 'outline-white';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
   role?: RoleType;
@@ -89,6 +89,16 @@ export const Button: React.FC<ButtonProps> = ({
       backgroundColor: '#dc2626',
       color: '#ffffff',
       border: `1px solid #dc2626`,
+    },
+    white: {
+      backgroundColor: '#ffffff',
+      color: colors.gray[900],
+      border: `1px solid #ffffff`,
+    },
+    'outline-white': {
+      backgroundColor: 'transparent',
+      color: '#ffffff',
+      border: `2px solid #ffffff`,
     },
   };
 

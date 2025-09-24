@@ -9,10 +9,10 @@ config({ path: '.env.local' });
 // Get the classes data from theme
 const template1Classes = {
   button: {
-    primary: 'bg-pink-600 hover:bg-pink-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md',
+    primary: 'bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md',
     secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium transition-all duration-200 border border-gray-300',
-    outline: 'border-2 border-pink-200 hover:border-pink-300 text-pink-600 hover:text-pink-700 hover:bg-pink-50 px-6 py-3 rounded-lg font-medium transition-all duration-200',
-    ghost: 'text-pink-600 hover:text-pink-700 hover:bg-pink-50 px-4 py-2 rounded-lg font-medium transition-all duration-200',
+    outline: 'border-2 border-blue-200 hover:border-blue-300 text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-6 py-3 rounded-lg font-medium transition-all duration-200',
+    ghost: 'text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-4 py-2 rounded-lg font-medium transition-all duration-200',
   },
   card: {
     container: 'bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200',
@@ -35,12 +35,12 @@ const template1Classes = {
     xs: 'text-xs text-gray-500 leading-normal',
   },
   input: {
-    base: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-200',
+    base: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200',
     error: 'border-red-300 focus:ring-red-500 focus:border-red-500',
     success: 'border-green-300 focus:ring-green-500 focus:border-green-500',
   },
   select: {
-    base: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-200 bg-white',
+    base: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white',
   },
   status: {
     success: 'bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium',
@@ -49,17 +49,17 @@ const template1Classes = {
     info: 'bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium',
   },
   icon: {
-    primary: 'w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center mb-4',
+    primary: 'w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4',
     secondary: 'w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mb-3',
-    small: 'w-8 h-8 bg-pink-50 rounded-lg flex items-center justify-center',
+    small: 'w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center',
   },
   navigation: {
     container: 'flex flex-wrap gap-2 p-4',
     tab: {
       base: 'px-4 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer',
       inactive: 'text-gray-600 hover:text-gray-800 hover:bg-gray-100',
-      active: 'bg-pink-600 text-white shadow-md',
-      hover: 'hover:bg-pink-50 hover:text-pink-700',
+      active: 'bg-blue-600 text-white shadow-md',
+      hover: 'hover:bg-blue-50 hover:text-blue-700',
     },
   },
   hero: {
@@ -67,9 +67,9 @@ const template1Classes = {
     overlay: 'bg-gradient-to-br from-blue-900/90 via-blue-800/90 to-indigo-900/90',
   },
   sidebar: {
-    container: 'bg-white border-2 border-pink-200 rounded-lg p-6',
+    container: 'bg-white border-2 border-blue-200 rounded-lg p-6',
     logo: {
-      background: 'bg-pink-600',
+      background: 'bg-blue-600',
       text: 'text-white',
     },
   },

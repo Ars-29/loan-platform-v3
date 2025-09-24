@@ -24,9 +24,9 @@ async function populateTemplates() {
     // Insert template1
     console.log('📝 Inserting template1...');
     await db.insert(templates).values({
-      name: 'Pink Theme',
+      name: 'Blue Theme',
       slug: 'template1',
-      description: 'Modern pink and blue theme with clean design',
+      description: 'Modern blue theme with clean design',
       previewImage: '/templates/template1-preview.png',
       isActive: true,
       isPremium: false,
@@ -56,7 +56,7 @@ async function populateTemplates() {
     });
 
     console.log('✅ Templates populated successfully!');
-    console.log('📊 Template1 (Pink Theme) - ID: template1');
+    console.log('📊 Template1 (Blue Theme) - ID: template1');
     console.log('📊 Template2 (Purple Theme) - ID: template2');
 
   } catch (error) {

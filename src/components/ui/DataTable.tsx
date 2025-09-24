@@ -151,7 +151,7 @@ export const DataTable = <T extends Record<string, any>>({
       <div className={`bg-white shadow rounded-lg ${className}`}>
         <div className="px-6 py-4">
           <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
             <p className="mt-2 text-sm text-gray-500">Loading...</p>
           </div>
         </div>
@@ -239,7 +239,9 @@ export const CompanyTable: React.FC<Omit<DataTableProps, 'role' | 'columns'>> = 
       key: 'email',
       title: 'Email',
       dataIndex: 'admin_email',
-      render: (value, record) => value || record.email,
+      render: (value, record) => (
+        <div className="text-sm text-gray-900">{value || record.email}</div>
+      ),
     },
     {
       key: 'status',
@@ -289,7 +291,11 @@ export const CompanyTable: React.FC<Omit<DataTableProps, 'role' | 'columns'>> = 
       dataIndex: 'created_at',
       render: (value, record) => {
         const date = value || record.createdAt;
-        return date ? new Date(date).toLocaleDateString() : 'N/A';
+        return (
+          <div className="text-sm text-gray-900">
+            {date ? new Date(date).toLocaleDateString() : 'N/A'}
+          </div>
+        );
       },
     },
   ];
@@ -303,7 +309,15 @@ export const CompanyTable: React.FC<Omit<DataTableProps, 'role' | 'columns'>> = 
   );
 };
 
-export const OfficerTable: React.FC<Omit<DataTableProps, 'role' | 'columns'>> = (props) => {
+export const OfficerTable: React.FC<Omit<DataTableProps, 'role' | 'columns'> & { 
+  onViewLeads?: (officerId: string) => void;
+  onResend?: (officer: any) => void;
+  onDeactivate?: (officer: any) => void;
+  onReactivate?: (officer: any) => void;
+  onDelete?: (officer: any) => void;
+}> = (props) => {
+  const { onViewLeads, onResend, onDeactivate, onReactivate, onDelete, ...restProps } = props;
+  
   const officerColumns: TableColumn[] = [
     {
       key: 'officer',
@@ -332,6 +346,9 @@ export const OfficerTable: React.FC<Omit<DataTableProps, 'role' | 'columns'>> = 
       key: 'email',
       title: 'Email',
       dataIndex: 'email',
+      render: (value) => (
+        <div className="text-sm text-gray-900">{value}</div>
+      ),
     },
     {
       key: 'status',
@@ -362,13 +379,85 @@ export const OfficerTable: React.FC<Omit<DataTableProps, 'role' | 'columns'>> = 
       key: 'joined',
       title: 'Joined',
       dataIndex: 'createdAt',
-      render: (value) => new Date(value).toLocaleDateString(),
+      render: (value) => (
+        <div className="text-sm text-gray-900">{new Date(value).toLocaleDateString()}</div>
+      ),
+    },
+    {
+      key: 'actions',
+      title: 'Actions',
+      render: (_: any, record: any) => (
+        <div className="flex items-center space-x-2">
+          {onViewLeads && (
+            <button
+              onClick={() => {
+                // Create slug from officer name instead of using ID
+                const officerSlug = `${record.firstName.toLowerCase()}-${record.lastName.toLowerCase()}`;
+                onViewLeads(officerSlug);
+              }}
+              className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-blue-600 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <svg
+                className="w-4 h-4 mr-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              View Leads
+            </button>
+          )}
+          
+          {onResend && (
+            <button
+              onClick={() => onResend(record)}
+              className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-blue-600 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Resend
+            </button>
+          )}
+          
+          {onDeactivate && record.isActive && !record.deactivated && (
+            <button
+              onClick={() => onDeactivate(record)}
+              className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-red-600 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            >
+              Deactivate
+            </button>
+          )}
+          
+          {onReactivate && record.deactivated && (
+            <button
+              onClick={() => onReactivate(record)}
+              className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-green-600 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            >
+              Reactivate
+            </button>
+          )}
+          
+          {onDelete && (
+            <button
+              onClick={() => onDelete(record)}
+              className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-red-600 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            >
+              Delete
+            </button>
+          )}
+        </div>
+      ),
     },
   ];
 
   return (
     <DataTable
-      {...props}
+      {...restProps}
       role="company_admin"
       columns={officerColumns}
     />

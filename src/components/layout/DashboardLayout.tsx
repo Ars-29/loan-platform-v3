@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { memo } from 'react';
 import { useRouter } from 'next/navigation';
 import { dashboard } from '@/theme/theme';
 import { icons } from '@/components/ui/Icon';
@@ -13,7 +13,7 @@ interface DashboardLayoutProps {
   showBackButton?: boolean;
 }
 
-export function DashboardLayout({ 
+const DashboardLayout = memo(function DashboardLayout({ 
   children, 
   title, 
   subtitle, 
@@ -23,7 +23,7 @@ export function DashboardLayout({
 
   return (
     <div style={dashboard.container}>
-      {/* Static Navigation Header */}
+      {/* Static Navigation Header - Memoized to prevent re-rendering */}
       <StaticHeader />
 
       {/* Main Content */}
@@ -80,4 +80,6 @@ export function DashboardLayout({
       </main>
     </div>
   );
-}
+});
+
+export { DashboardLayout };

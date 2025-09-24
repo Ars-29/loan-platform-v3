@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/Button';
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -43,7 +43,7 @@ export default function HomePage() {
         <div className="text-center">
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
             Build Stunning Landing Pages
-            <span className="block text-pink-600">for Loan Officers</span>
+            <span className="block text-blue-600">for Loan Officers</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
             Create professional, customizable landing pages that convert visitors into leads. 
@@ -76,8 +76,8 @@ export default function HomePage() {
           
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-white p-8 rounded-lg shadow-sm">
-              <div className="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
@@ -120,7 +120,7 @@ export default function HomePage() {
         </section>
 
         {/* CTA Section */}
-        <section className="bg-pink-600 rounded-2xl p-12 text-center text-white">
+        <section className="bg-blue-600 rounded-2xl p-12 text-center text-white">
           <h2 className="text-3xl font-bold mb-4">
             Ready to Get Started?
           </h2>
@@ -128,7 +128,7 @@ export default function HomePage() {
             Join thousands of loan officers who are already growing their business
           </p>
           <Link href="/auth">
-            <Button size="lg" variant="secondary">
+            <Button size="lg" variant="white">
               Create Your Account
             </Button>
           </Link>
@@ -140,7 +140,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h3 className="text-2xl font-bold mb-4">Loan Officer Platform</h3>
-            <p className="text-gray-400 mb-8">
+            <p className="text-white opacity-90 mb-8">
               Building the future of loan officer marketing
             </p>
             <div className="border-t border-gray-800 pt-8">

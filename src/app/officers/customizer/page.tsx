@@ -567,13 +567,6 @@ export default function CustomizerPage() {
     }
   }, [user, customizerState.selectedTemplate, customizerState.customSettings, refreshTemplate]);
 
-  // Reset to original
-  const handleReset = useCallback(() => {
-    setCustomizerState(prev => ({
-      ...prev,
-      customSettings: {}
-    }));
-  }, []);
 
   return (
     <RouteGuard allowedRoles={['employee']}>
@@ -591,7 +584,7 @@ export default function CustomizerPage() {
                   <select
                     value={customizerState.selectedTemplate}
                     onChange={(e) => handleTemplateSelect(e.target.value)}
-                    className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                    className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     {['template1', 'template2'].map(templateSlug => {
                       const templateName = templateSlug === 'template1' ? 'Red Theme' : 'Purple Theme';
@@ -627,26 +620,12 @@ export default function CustomizerPage() {
               
               <div className="flex items-center space-x-3">
                 <Button
-                  variant="secondary"
+                  variant={customizerState.isPreviewMode ? "primary" : "secondary"}
                   onClick={togglePreviewMode}
-                  className={customizerState.isPreviewMode ? '' : ''}
-                  style={customizerState.isPreviewMode ? {
-                    backgroundColor: `${mergedTemplate?.colors?.primary || '#ec4899'}10`,
-                    borderColor: mergedTemplate?.colors?.primary || '#ec4899',
-                    color: mergedTemplate?.colors?.primary || '#ec4899'
-                  } : {}}
+                  className={customizerState.isPreviewMode ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0' : 'bg-gray-100 hover:bg-gray-200 text-gray-700 border-gray-300'}
                 >
                   <Icon name={customizerState.isPreviewMode ? "chevronLeft" : "play"} size={16} className="mr-2" />
                   {customizerState.isPreviewMode ? 'Exit Preview' : 'Preview Mode'}
-                </Button>
-                
-                <Button
-                  variant="secondary"
-                  onClick={handleReset}
-                  disabled={Object.keys(customizerState.customSettings).length === 0}
-                >
-                  <Icon name="refresh" size={16} className="mr-2" />
-                  Reset
                 </Button>
                 
                 <Button
@@ -784,7 +763,7 @@ export default function CustomizerPage() {
                     >
                       <React.Suspense fallback={
                         <div className="flex items-center justify-center h-96">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600"></div>
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                         </div>
                       }>
                         {/* Live Preview Components with Real Officer Data and Merged Template */}
@@ -1000,7 +979,7 @@ function AvatarUploadComponent({ currentAvatar, onChange }: { currentAvatar: str
           onClick={() => setUploadMode('url')}
           className={`px-3 py-1 text-sm rounded-md transition-colors ${
             uploadMode === 'url'
-              ? 'bg-pink-100 text-pink-700 border border-pink-300'
+              ? 'bg-blue-100 text-blue-700 border border-blue-300'
               : 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200'
           }`}
         >
@@ -1011,7 +990,7 @@ function AvatarUploadComponent({ currentAvatar, onChange }: { currentAvatar: str
           onClick={() => setUploadMode('upload')}
           className={`px-3 py-1 text-sm rounded-md transition-colors ${
             uploadMode === 'upload'
-              ? 'bg-pink-100 text-pink-700 border border-pink-300'
+              ? 'bg-blue-100 text-blue-700 border border-blue-300'
               : 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200'
           }`}
         >
@@ -1027,7 +1006,7 @@ function AvatarUploadComponent({ currentAvatar, onChange }: { currentAvatar: str
             value={currentAvatar}
             onChange={handleUrlChange}
             placeholder="https://example.com/profile.jpg"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
       )}
@@ -1040,12 +1019,12 @@ function AvatarUploadComponent({ currentAvatar, onChange }: { currentAvatar: str
             type="file"
             accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
             onChange={handleFileUpload}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             disabled={isUploading}
           />
           {isUploading && (
             <div className="mt-2 flex items-center space-x-2 text-sm text-gray-600">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-pink-600"></div>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
               <span>Uploading...</span>
             </div>
           )}
@@ -1111,7 +1090,7 @@ function HeaderModifications({ template, officerInfo, onChange }: HeaderModifica
               type="text"
               value={headerMods.officerName || officerInfo.officerName}
               onChange={(e) => onChange('officerName', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
@@ -1121,7 +1100,7 @@ function HeaderModifications({ template, officerInfo, onChange }: HeaderModifica
               type="tel"
               value={headerMods.phone || officerInfo.phone || ''}
               onChange={(e) => onChange('phone', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
@@ -1131,7 +1110,7 @@ function HeaderModifications({ template, officerInfo, onChange }: HeaderModifica
               type="email"
               value={headerMods.email || officerInfo.email}
               onChange={(e) => onChange('email', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
@@ -1155,7 +1134,7 @@ function HeaderModifications({ template, officerInfo, onChange }: HeaderModifica
               value={headerMods.applyNowLink || ''}
               onChange={(e) => onChange('applyNowLink', e.target.value)}
               placeholder="https://example.com/apply"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
@@ -1165,7 +1144,7 @@ function HeaderModifications({ template, officerInfo, onChange }: HeaderModifica
               type="text"
               value={headerMods.applyNowText || 'Apply Now'}
               onChange={(e) => onChange('applyNowText', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
         </div>
@@ -1202,7 +1181,7 @@ function BodyModifications({ template, onChange }: SettingsProps) {
             <select
               value={activeTab}
               onChange={(e) => onChange('activeTab', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               {availableTabs.map(tab => (
                 <option key={tab.id} value={tab.id}>{tab.label}</option>
@@ -1224,7 +1203,7 @@ function BodyModifications({ template, onChange }: SettingsProps) {
                         : enabledTabs.filter((id: string) => id !== tab.id);
                       onChange('enabledTabs', newEnabledTabs);
                     }}
-                    className="rounded border-gray-300 text-pink-600 focus:ring-pink-500"
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                   <span className="text-sm text-gray-700">{tab.label}</span>
                 </label>
@@ -1254,7 +1233,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
               type="text"
               value={sidebarMods.companyName || 'Your Brand™'}
               onChange={(e) => onChange('companyName', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
@@ -1265,7 +1244,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
               value={sidebarMods.logo || ''}
               onChange={(e) => onChange('logo', e.target.value)}
               placeholder="https://example.com/logo.png"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
@@ -1275,7 +1254,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
               type="tel"
               value={sidebarMods.phone || '(555) 123-4567'}
               onChange={(e) => onChange('phone', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
@@ -1285,7 +1264,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
               type="email"
               value={sidebarMods.email || 'info@yourbrand.com'}
               onChange={(e) => onChange('email', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
@@ -1295,7 +1274,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
               value={sidebarMods.address || '123 Main St. City'}
               onChange={(e) => onChange('address', e.target.value)}
               rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
         </div>
@@ -1311,7 +1290,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
               value={sidebarMods.facebook || ''}
               onChange={(e) => onChange('facebook', e.target.value)}
               placeholder="https://facebook.com/yourcompany"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
@@ -1322,7 +1301,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
               value={sidebarMods.twitter || ''}
               onChange={(e) => onChange('twitter', e.target.value)}
               placeholder="https://twitter.com/yourcompany"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
@@ -1333,7 +1312,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
               value={sidebarMods.linkedin || ''}
               onChange={(e) => onChange('linkedin', e.target.value)}
               placeholder="https://linkedin.com/company/yourcompany"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
@@ -1344,7 +1323,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
               value={sidebarMods.instagram || ''}
               onChange={(e) => onChange('instagram', e.target.value)}
               placeholder="https://instagram.com/yourcompany"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
         </div>
@@ -1358,7 +1337,7 @@ function ColorsSettings({ template, onChange }: SettingsProps) {
 
   // Provide default values to prevent controlled/uncontrolled input errors
   const colors = {
-    primary: template.colors?.primary || '#ec4899',
+    primary: template.colors?.primary || '#3b82f6',
     secondary: template.colors?.secondary || '#3b82f6',
     background: template.colors?.background || '#ffffff',
     text: template.colors?.text || '#111827',
@@ -1381,7 +1360,7 @@ function ColorsSettings({ template, onChange }: SettingsProps) {
             type="text"
             value={colors.primary}
             onChange={(e) => onChange('primary', e.target.value)}
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
       </div>
@@ -1399,7 +1378,7 @@ function ColorsSettings({ template, onChange }: SettingsProps) {
             type="text"
             value={colors.secondary}
             onChange={(e) => onChange('secondary', e.target.value)}
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
       </div>
@@ -1417,7 +1396,7 @@ function ColorsSettings({ template, onChange }: SettingsProps) {
             type="text"
             value={colors.background}
             onChange={(e) => onChange('background', e.target.value)}
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
       </div>
@@ -1435,7 +1414,7 @@ function ColorsSettings({ template, onChange }: SettingsProps) {
             type="text"
             value={colors.text}
             onChange={(e) => onChange('text', e.target.value)}
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
       </div>
@@ -1466,7 +1445,7 @@ function TypographySettings({ template, onChange }: SettingsProps) {
         <select
           value={typography.fontFamily}
           onChange={(e) => onChange('fontFamily', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         >
           <option value="Inter">Inter</option>
           <option value="Roboto">Roboto</option>
@@ -1532,7 +1511,7 @@ function ContentSettings({ template, onChange }: SettingsProps) {
           type="text"
           value={content.headline}
           onChange={(e) => onChange('headline', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
 
@@ -1542,7 +1521,7 @@ function ContentSettings({ template, onChange }: SettingsProps) {
           value={content.subheadline}
           onChange={(e) => onChange('subheadline', e.target.value)}
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
 
@@ -1552,7 +1531,7 @@ function ContentSettings({ template, onChange }: SettingsProps) {
           type="text"
           value={content.ctaText}
           onChange={(e) => onChange('ctaText', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
 
@@ -1562,7 +1541,7 @@ function ContentSettings({ template, onChange }: SettingsProps) {
           type="text"
           value={content.companyName}
           onChange={(e) => onChange('companyName', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
     </div>
@@ -1586,7 +1565,7 @@ function LayoutSettings({ template, onChange }: SettingsProps) {
         <select
           value={layout.alignment}
           onChange={(e) => onChange('alignment', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         >
           <option value="left">Left</option>
           <option value="center">Center</option>
@@ -1641,10 +1620,10 @@ function AdvancedSettings({ template, onChange }: SettingsProps) {
           onChange={(e) => onChange('customCSS', e.target.value)}
           rows={6}
           placeholder="/* Add your custom CSS here */"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:border-pink-500 font-mono"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:border-blue-500 font-mono"
           style={{
             borderColor: template?.colors?.border || '#e5e7eb',
-            '--tw-ring-color': template?.colors?.primary || '#ec4899'
+            '--tw-ring-color': template?.colors?.primary || '#3b82f6'
           } as React.CSSProperties}
         />
       </div>
@@ -1655,7 +1634,7 @@ function AdvancedSettings({ template, onChange }: SettingsProps) {
             type="checkbox"
             checked={advanced.accessibility}
             onChange={(e) => onChange('accessibility', e.target.checked)}
-            className="rounded border-gray-300 text-pink-600 focus:ring-pink-500"
+            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
           />
           <span className="text-sm font-medium text-gray-700">Accessibility Features</span>
         </label>

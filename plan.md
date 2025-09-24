@@ -30,7 +30,7 @@ Building a comprehensive loan officer landing page and management system with re
 
 #### Task 1.2: Design System Foundation ✅ COMPLETED
 - [x] **1.2.1**: Create centralized theme configuration (`src/theme/theme.ts`)
-  - Color palette (pink, dark blue, white, black, light grey)
+  - Color palette (blue, dark blue, white, black, light grey)
   - Typography system (font families, sizes, weights)
   - Spacing scale and breakpoints
   - Border radius and shadow system
@@ -80,7 +80,7 @@ Building a comprehensive loan officer landing page and management system with re
 
 #### Task 2.1: Basic UI Components ✅ COMPLETED
 - [x] **2.1.1**: Create Button component with variants
-  - Primary (pink background, white text)
+  - Primary (blue background, white text)
   - Secondary (white background, black border)
   - Ghost (transparent background)
   - Danger (red background for destructive actions)
@@ -164,24 +164,24 @@ Building a comprehensive loan officer landing page and management system with re
 
 #### Task 3.1: Template 1 - Standard Layout
 - [ ] **3.1.1**: Create Header section
-  - Pink asterisk logo with "YOUR WEBSITE" text
+  - Blue asterisk logo with "YOUR WEBSITE" text
   - Three light grey navigation placeholders
   - Responsive design for mobile
 - [ ] **3.1.2**: Create Loan Officer Profile (Hero Section)
   - Dark blue background with geometric pattern
   - Circular profile photo with officer information
-  - Pink "Apply Now" and white "Contact [Officer]" buttons
+  - Blue "Apply Now" and white "Contact [Officer]" buttons
   - NMLS number and contact details
 - [ ] **3.1.3**: Create Navigation Tabs
   - 5 horizontal tabs with icons
-  - Active state with pink underline and border
+  - Active state with blue underline and border
   - Tab options: Apply for Loan, Get Custom Offer, Today's Rates, Calculators, About Us
 - [ ] **3.1.4**: Create Main Content Area
   - Greeting text: "Greetings! How can I help you?"
   - Custom quote section with "Low rates. Everyday!" title
   - Home Purchase and Home Refinance action buttons
 - [ ] **3.1.5**: Create Right Sidebar
-  - White panel with pink border
+  - White panel with blue border
   - Brand logo and "Your Brand™" text
   - Review ratings (Google, Zillow, X Platform)
   - Contact information and social media icons
@@ -190,7 +190,7 @@ Building a comprehensive loan officer landing page and management system with re
 - [ ] **3.2.1**: Create Header section (same as Template 1)
 - [ ] **3.2.2**: Create Loan Officer Profile with different styling
   - Similar layout but with different button styling
-  - "Contact [Officer]" as pink button, "Apply now" as light grey
+  - "Contact [Officer]" as blue button, "Apply now" as light grey
 - [ ] **3.2.3**: Create Navigation Tabs with dark purple active state
 - [ ] **3.2.4**: Create Main Content Area with different styling
 - [ ] **3.2.5**: Create Reviews Section

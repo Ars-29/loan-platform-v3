@@ -112,7 +112,7 @@ export default function TemplateSelector({
           </p>
         </div>
         <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
       </div>
     );
@@ -193,7 +193,7 @@ export default function TemplateSelector({
         {/* Loading indicator */}
         {isSaving && (
           <div className="mt-2 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-pink-600 mr-2"></div>
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
             <span className="text-sm text-gray-600">Switching template...</span>
           </div>
         )}

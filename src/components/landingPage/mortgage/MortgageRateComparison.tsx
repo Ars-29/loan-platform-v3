@@ -63,6 +63,9 @@ interface MortgageRateComparisonProps {
   // Public mode props
   isPublic?: boolean;
   publicTemplateData?: any;
+  // User context props for lead submission
+  userId?: string;
+  companyId?: string;
 }
 
 const MortgageRateComparison = React.memo(function MortgageRateComparison({ 
@@ -71,7 +74,10 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
   className = "",
   template = 'template1',
   isPublic = false,
-  publicTemplateData
+  publicTemplateData,
+  // User context props
+  userId,
+  companyId
 }: MortgageRateComparisonProps) {
   const searchParams = useSearchParams();
   const [products, setProducts] = useState<RateProduct[]>([]);
@@ -773,7 +779,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
 
       case 'fha-loan':
         return (
-          <div className={`${template === 'template1' ? 'bg-gradient-to-br from-pink-50 to-pink-100 border-pink-200' : 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'} rounded-lg shadow-sm border-2 p-6 mb-6`}>
+          <div className={`${template === 'template1' ? 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200' : 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'} rounded-lg shadow-sm border-2 p-6 mb-6`}>
             <h3 className="text-xl font-semibold mb-2 text-center" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: colors.text }}>
               {React.createElement(icons.target, { size: 24 })}
               Recommended: FHA Loan
@@ -1082,6 +1088,8 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
           dataSource={dataSource}
           isPublic={isPublic}
           publicTemplateData={publicTemplateData}
+          userId={userId}
+          companyId={companyId}
         />
       </main>
 

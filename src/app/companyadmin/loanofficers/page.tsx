@@ -9,6 +9,7 @@ import { OfficerTable } from '@/components/ui/DataTable';
 import { CreateButton } from '@/components/ui/Button';
 import { FormModal, FormField } from '@/components/ui/Modal';
 import { useNotification } from '@/components/ui/Notification';
+import { useRouter } from 'next/navigation';
 
 interface LoanOfficer {
   id: string;
@@ -32,6 +33,7 @@ interface CreateOfficerForm {
 export default function LoanOfficersPage() {
   const { companyId } = useAuth();
   const { showNotification } = useNotification();
+  const router = useRouter();
   const [officers, setOfficers] = useState<LoanOfficer[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -280,6 +282,10 @@ export default function LoanOfficersPage() {
         message: 'Failed to delete officer. Please try again.',
       });
     }
+  };
+
+  const handleViewLeads = (officerSlug: string) => {
+    router.push(`/companyadmin/loanofficers/${officerSlug}/leads`);
   };
 
   // Form fields configuration

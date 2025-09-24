@@ -8,18 +8,18 @@
 
 // Color Palette
 export const colors = {
-  // Primary Colors
+  // Primary Colors - Gradient Blue
   primary: {
-    50: '#fdf2f8',
-    100: '#fce7f3',
-    200: '#fbcfe8',
-    300: '#f9a8d4',
-    400: '#f472b6',
-    500: '#ec4899', // Main pink
-    600: '#db2777', // Primary pink
-    700: '#be185d',
-    800: '#9d174d',
-    900: '#831843',
+    50: '#eff6ff',
+    100: '#dbeafe',
+    200: '#bfdbfe',
+    300: '#93c5fd',
+    400: '#60a5fa',
+    500: '#3b82f6', // Main blue
+    600: '#2563eb', // Primary blue
+    700: '#1d4ed8',
+    800: '#1e40af',
+    900: '#1e3a8a',
   },
   
   // Dark Blue
@@ -825,8 +825,8 @@ import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
 const fallbackTemplates = {
   template1: {
     colors: {
-      primary: '#ec4899',
-      secondary: '#3b82f6',
+      primary: '#3b82f6',
+      secondary: '#1d4ed8',
       background: '#ffffff',
       text: '#111827',
       textSecondary: '#6b7280',
@@ -867,10 +867,10 @@ const fallbackTemplates = {
     },
     classes: {
       button: {
-        primary: 'bg-pink-600 hover:bg-pink-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md',
+        primary: 'bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md',
         secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium transition-all duration-200 border border-gray-300',
-        outline: 'border-2 border-pink-200 hover:border-pink-300 text-pink-600 hover:text-pink-700 hover:bg-pink-50 px-6 py-3 rounded-lg font-medium transition-all duration-200',
-        ghost: 'text-pink-600 hover:text-pink-700 hover:bg-pink-50 px-4 py-2 rounded-lg font-medium transition-all duration-200',
+        outline: 'border-2 border-blue-200 hover:border-blue-300 text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-6 py-3 rounded-lg font-medium transition-all duration-200',
+        ghost: 'text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-4 py-2 rounded-lg font-medium transition-all duration-200',
       },
       card: {
         container: 'bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200',
@@ -893,12 +893,12 @@ const fallbackTemplates = {
         xs: 'text-xs text-gray-500 leading-normal',
       },
       input: {
-        base: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-200',
+        base: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200',
         error: 'border-red-300 focus:ring-red-500 focus:border-red-500',
         success: 'border-green-300 focus:ring-green-500 focus:border-green-500',
       },
       select: {
-        base: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all duration-200 bg-white',
+        base: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white',
       },
       status: {
         success: 'bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium',
@@ -907,17 +907,17 @@ const fallbackTemplates = {
         info: 'bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium',
       },
       icon: {
-        primary: 'w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center mb-4',
+        primary: 'w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4',
         secondary: 'w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mb-3',
-        small: 'w-8 h-8 bg-pink-50 rounded-lg flex items-center justify-center',
+        small: 'w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center',
       },
       navigation: {
         container: 'flex flex-wrap gap-2 p-4',
         tab: {
           base: 'px-4 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer',
           inactive: 'text-gray-600 hover:text-gray-800 hover:bg-gray-100',
-          active: 'bg-pink-600 text-white shadow-md',
-          hover: 'hover:bg-pink-50 hover:text-pink-700',
+          active: 'bg-blue-600 text-white shadow-md',
+          hover: 'hover:bg-blue-50 hover:text-blue-700',
         },
       },
       hero: {
@@ -925,9 +925,9 @@ const fallbackTemplates = {
         overlay: 'bg-gradient-to-br from-blue-900/90 via-blue-800/90 to-indigo-900/90',
       },
       sidebar: {
-        container: 'bg-white border-2 border-pink-200 rounded-lg p-6',
+        container: 'bg-white border-2 border-blue-200 rounded-lg p-6',
         logo: {
-          background: 'bg-pink-600',
+          background: 'bg-blue-600',
           text: 'text-white',
         },
       },
@@ -1031,8 +1031,8 @@ const fallbackTemplates = {
         },
       },
       hero: {
-        background: 'bg-gradient-to-br from-red-900 via-red-800 to-rose-900',
-        overlay: 'bg-gradient-to-br from-red-900/90 via-red-800/90 to-rose-900/90',
+        background: 'bg-gradient-to-br from-red-900 via-red-800 to-red-900',
+        overlay: 'bg-gradient-to-br from-red-900/90 via-red-800/90 to-red-900/90',
       },
       sidebar: {
         container: 'bg-white border-2 border-purple-200 rounded-lg p-6',

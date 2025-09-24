@@ -176,7 +176,7 @@ src/
 
 The platform uses a comprehensive design system with:
 
-- **Colors**: Primary (pink), Secondary (blue), Status colors
+- **Colors**: Primary (blue), Secondary (blue), Status colors
 - **Typography**: Inter font family with multiple weights and sizes
 - **Spacing**: Consistent spacing scale
 - **Components**: Reusable UI components
@@ -251,7 +251,7 @@ The system includes two default templates that are available to all users:
 
 #### Template 1 - Red Theme
 - **Slug**: `template1`
-- **Primary Color**: `#ec4899` (Pink)
+- **Primary Color**: `#3b82f6` (Blue)
 - **Secondary Color**: `#3b82f6` (Blue)
 - **Description**: Modern red-themed template with clean design
 

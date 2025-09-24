@@ -60,9 +60,12 @@ interface LandingPageTabsProps {
       activeTab?: string;
     };
   };
-  // NEW: Public mode props
+  // Public mode props
   isPublic?: boolean;
   publicTemplateData?: any;
+  // User context props for lead submission
+  userId?: string;
+  companyId?: string;
 }
 
 const tabs: Tab[] = [
@@ -116,9 +119,12 @@ export default function LandingPageTabs({
   selectedTemplate,
   className = '',
   templateCustomization,
-  // NEW: Public mode props
+  // Public mode props
   isPublic = false,
-  publicTemplateData
+  publicTemplateData,
+  // User context props
+  userId,
+  companyId
 }: LandingPageTabsProps) {
   const { user } = useAuth();
   const { getTemplateSync } = useEfficientTemplates();
@@ -219,6 +225,8 @@ export default function LandingPageTabs({
               template={selectedTemplate}
               isPublic={isPublic}
               publicTemplateData={publicTemplateData}
+              userId={userId}
+              companyId={companyId}
             />
           </Suspense>
         );
