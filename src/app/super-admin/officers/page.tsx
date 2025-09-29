@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { useNotification } from '@/components/ui/Notification';
@@ -39,6 +39,27 @@ interface Company {
 
 
 export default function SuperAdminOfficersPage() {
+  return (
+    <RouteGuard allowedRoles={['super_admin']}>
+      <DashboardLayout 
+        title="Loan Officers" 
+        subtitle="Manage all loan officers across companies"
+        showBackButton={true}
+      >
+        <Suspense fallback={
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-2 text-gray-600">Loading officers...</span>
+          </div>
+        }>
+          <SuperAdminOfficersContent />
+        </Suspense>
+      </DashboardLayout>
+    </RouteGuard>
+  );
+}
+
+function SuperAdminOfficersContent() {
   const { loading: authLoading } = useAuth();
   const { showNotification, clearAllNotifications } = useNotification();
   const router = useRouter();
@@ -188,32 +209,17 @@ export default function SuperAdminOfficersPage() {
 
   if (authLoading || loading) {
     return (
-      <RouteGuard allowedRoles={['super_admin']}>
-        <DashboardLayout
-          title="Loan Officers"
-          subtitle="Manage all loan officers across companies"
-          showBackButton={true}
-        >
-          <div className="flex items-center justify-center h-64">
-            <div className="flex items-center space-x-2">
-              <Icon name="refresh" className="w-6 h-6 animate-spin text-blue-600" />
-              <span className="text-gray-600">Loading officers...</span>
-            </div>
-          </div>
-        </DashboardLayout>
-      </RouteGuard>
+      <div className="flex items-center justify-center h-64">
+        <div className="flex items-center space-x-2">
+          <Icon name="refresh" className="w-6 h-6 animate-spin text-blue-600" />
+          <span className="text-gray-600">Loading officers...</span>
+        </div>
+      </div>
     );
   }
 
-
   return (
-    <RouteGuard allowedRoles={['super_admin']}>
-      <DashboardLayout
-        title="Loan Officers"
-        subtitle="Manage all loan officers across companies"
-        showBackButton={true}
-      >
-        <div className="space-y-6">
+    <div className="space-y-6">
           {/* Filters */}
           <div className="bg-white p-6 rounded-lg shadow-sm border">
             <div className="space-y-4">
@@ -404,7 +410,5 @@ export default function SuperAdminOfficersPage() {
             )}
           </SpotlightCard>
         </div>
-      </DashboardLayout>
-    </RouteGuard>
-  );
-}
+    );
+  }
