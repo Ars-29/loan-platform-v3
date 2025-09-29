@@ -189,6 +189,7 @@ function InvitePageContent() {
           throw userError;
         }
 
+        // Update user_companies entry to active
         const { error: companyError } = await supabase
           .from('user_companies')
           .update({ is_active: true })
@@ -196,14 +197,23 @@ function InvitePageContent() {
           .eq('company_id', companyId);
 
         if (companyError) {
+          console.error('❌ Error updating user_companies:', companyError);
           throw companyError;
         }
+
+        console.log('✅ User-company relationship activated successfully');
 
         // Create personal templates for the loan officer when they activate their account
         try {
           console.log('🎨 Creating personal templates for activated loan officer:', user.id);
           const firstName = user.user_metadata?.first_name || '';
           const lastName = user.user_metadata?.last_name || '';
+          
+          // Validate user ID format
+          const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+          if (!uuidRegex.test(user.id)) {
+            throw new Error(`Invalid user ID format: ${user.id}`);
+          }
           
           // Call API to create personal templates
           const response = await fetch('/api/templates/create-personal', {
@@ -223,7 +233,9 @@ function InvitePageContent() {
             const result = await response.json();
             console.log('✅ Personal templates created successfully:', result.data.templatesCreated);
           } else {
-            console.error('❌ Error creating personal templates:', await response.text());
+            const errorText = await response.text();
+            console.error('❌ Error creating personal templates:', errorText);
+            // Don't fail the activation process if template creation fails
           }
         } catch (templateError) {
           console.error('❌ Error creating personal templates:', templateError);
@@ -275,7 +287,7 @@ function InvitePageContent() {
         if (isOfficerInvite) {
           router.push('/officers/dashboard');
         } else {
-          router.push('/companyadmin/loanofficers');
+          router.push('/admin/dashboard');
         }
       }, 2000);
 

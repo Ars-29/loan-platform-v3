@@ -43,8 +43,8 @@ export default function TestRedirectPage() {
           console.log('🔄 Redirecting to /admin/employees');
           router.push('/admin/employees');
         } else {
-          console.log('🔄 Redirecting to /dashboard (default)');
-          router.push('/dashboard');
+          console.log('🔄 Redirecting to /officers/dashboard (default)');
+          router.push('/officers/dashboard');
         }
       } catch (error) {
         console.error('❌ Error in checkUserAndRedirect:', error);

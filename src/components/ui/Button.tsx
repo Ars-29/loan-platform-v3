@@ -160,7 +160,7 @@ export const DeleteButton: React.FC<Omit<ButtonProps, 'action'>> = ({ role, ...p
 );
 
 export const ResendButton: React.FC<Omit<ButtonProps, 'action'>> = ({ role, ...props }) => (
-  <Button role={role} action="resend" variant="ghost" size="sm" {...props} />
+  <Button role={role} action="resend" variant="primary" size="sm" {...props} />
 );
 
 export const DeactivateButton: React.FC<Omit<ButtonProps, 'action'>> = ({ role, ...props }) => (

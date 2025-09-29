@@ -55,9 +55,9 @@ export default function LeadDetailsPage() {
 
   // Breadcrumb items
   const breadcrumbItems: BreadcrumbItem[] = [
-    { label: 'Dashboard', href: '/dashboard', icon: 'home' },
-    { label: 'Loan Officers', href: '/companyadmin/loanofficers', icon: 'user' },
-    { label: officerInfo ? `${officerInfo.firstName} ${officerInfo.lastName}` : 'Loading...', href: `/companyadmin/loanofficers/${officerSlug}/leads`, icon: 'user' },
+    { label: 'Dashboard', href: '/admin/insights', icon: 'home' },
+    { label: 'Loan Officers', href: '/admin/loanofficers', icon: 'user' },
+    { label: officerInfo ? `${officerInfo.firstName} ${officerInfo.lastName}` : 'Loading...', href: `/admin/loanofficers/${officerSlug}/leads`, icon: 'user' },
     { label: lead ? `${lead.firstName} ${lead.lastName}` : 'Loading...', icon: 'profile' }
   ];
 
@@ -200,7 +200,7 @@ export default function LeadDetailsPage() {
         <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
           <h3 className="text-lg font-semibold text-yellow-600 mb-2">Lead Not Found</h3>
           <p className="text-yellow-600 mb-4">The requested lead could not be found.</p>
-          <Button onClick={() => router.back()} variant="primary">
+          <Button onClick={() => router.push('/admin/loanofficers')} variant="primary">
             Go Back
           </Button>
         </div>
@@ -209,10 +209,11 @@ export default function LeadDetailsPage() {
   }
 
   return (
-    <DashboardLayout 
-      title={`${lead.firstName} ${lead.lastName}`}
-      subtitle="Lead Details"
-    >
+      <DashboardLayout 
+        title={`${lead.firstName} ${lead.lastName}`}
+        subtitle="Lead Details"
+        showBackButton={true}
+      >
       <div className="space-y-6">
         {/* Breadcrumb Navigation */}
         <Breadcrumb items={breadcrumbItems} />
@@ -231,15 +232,6 @@ export default function LeadDetailsPage() {
             </div>
           </div>
           <div className="flex space-x-3">
-            <button
-              onClick={() => router.push(`/companyadmin/loanofficers/${officerSlug}/leads`)}
-              className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-lg border-0 flex items-center transition-all duration-200"
-            >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back to Leads
-            </button>
             <Button variant="primary">
               Edit Lead
             </Button>

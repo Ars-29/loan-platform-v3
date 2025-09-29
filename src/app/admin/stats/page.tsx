@@ -9,6 +9,7 @@ export default function AdminStatsPage() {
       <DashboardLayout 
         title="Conversion Statistics" 
         subtitle="Detailed analytics and conversion metrics for your loan officers"
+        showBackButton={true}
       >
         <ConversionStatsDashboard />
       </DashboardLayout>

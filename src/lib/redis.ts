@@ -196,6 +196,13 @@ export class RedisCache {
     return this.set<T>(key, data, CACHE_CONFIG.TTL);
   }
 
+  // Clear profile cache specifically
+  async clearProfile(userId: string): Promise<void> {
+    const key = this.getProfileKey(userId);
+    await this.delete(key);
+    console.log('🗑️ Redis: Cleared profile cache for user:', userId);
+  }
+
   // Clear all user cache
   async clearUserCache(userId: string): Promise<void> {
     const redisClient = this.getRedis();
@@ -208,11 +215,13 @@ export class RedisCache {
       // Get all keys for this user
       const templatePattern = this.getTemplateKey(userId, '*');
       const selectionPattern = this.getSelectionKey(userId);
+      const profilePattern = this.getProfileKey(userId);
       
       // Note: Redis doesn't support wildcard deletion directly
       // We'll need to get keys first, then delete them
       const keys = await redisClient.keys(templatePattern);
       keys.push(selectionPattern);
+      keys.push(profilePattern);
       
       if (keys.length > 0) {
         await this.deleteMultiple(keys);

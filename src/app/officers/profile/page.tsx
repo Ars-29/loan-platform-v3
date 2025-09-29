@@ -353,6 +353,7 @@ export default function OfficersProfilePage() {
     <RouteGuard allowedRoles={['employee']}>
       <DashboardLayout 
         title="Loan Officer Profile"
+        showBackButton={true}
       >
         <div className="space-y-6">
           {/* Profile Header */}

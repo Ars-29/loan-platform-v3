@@ -75,6 +75,7 @@ export async function GET(request: NextRequest) {
       }
     } else {
       // Get company admin's company
+      // Note: In user_companies table, company admin role is stored as 'admin'
       const { data: userCompany, error: companyError } = await supabase
         .from('user_companies')
         .select('company_id')
@@ -88,6 +89,8 @@ export async function GET(request: NextRequest) {
 
       companyIds = [userCompany.company_id];
     }
+
+    console.log('🔍 Company IDs to process:', companyIds);
 
     // Get companies with their loan officers and leads data
     const companiesData = await Promise.all(
@@ -108,7 +111,7 @@ export async function GET(request: NextRequest) {
           .from('user_companies')
           .select('user_id')
           .eq('company_id', companyId)
-          .eq('role', 'employee');
+          .in('role', ['employee', 'loan_officer', 'officer']);
 
         console.log('🔍 User companies query result:', { userCompanyData, userCompanyError });
 
@@ -162,7 +165,7 @@ export async function GET(request: NextRequest) {
           uniqueOfficers.map(async (officer) => {
             const { data: leads, error: leadsError } = await supabase
               .from('leads')
-              .select('id, status, conversion_stage, created_at, updated_at')
+              .select('id, status, created_at, updated_at')
               .eq('officer_id', officer.user_id);
 
             if (leadsError || !leads) {
@@ -179,8 +182,7 @@ export async function GET(request: NextRequest) {
 
             const totalLeads = leads.length;
             const convertedLeads = leads.filter(lead => 
-              lead.status === 'converted' || 
-              lead.conversion_stage === 'closing'
+              lead.status === 'converted'
             ).length;
             const conversionRate = totalLeads > 0 ? (convertedLeads / totalLeads) * 100 : 0;
             
@@ -253,6 +255,17 @@ export async function GET(request: NextRequest) {
       const totalConverted = validCompanies.reduce((sum, company) => sum + (company?.totalConverted || 0), 0);
       const overallConversionRate = totalLeads > 0 ? (totalConverted / totalLeads) * 100 : 0;
 
+      // Collect all officers from all companies for the officers dropdown
+      const allOfficers = validCompanies.flatMap(company => 
+        (company?.loanOfficers || []).map(officer => ({
+          ...officer,
+          companyName: company?.name || 'Unknown Company',
+          companyId: company?.id || ''
+        }))
+      );
+
+      console.log('📊 All officers collected:', allOfficers);
+
       return NextResponse.json({
         success: true,
         companies: validCompanies.map(company => ({
@@ -263,6 +276,7 @@ export async function GET(request: NextRequest) {
           convertedLeads: company?.totalConverted || 0,
           conversionRate: company?.conversionRate || 0
         })),
+        officers: allOfficers, // Add all officers to the response
         totalCompanies,
         totalLoanOfficers,
         totalLeads,

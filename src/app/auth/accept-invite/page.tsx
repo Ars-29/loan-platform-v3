@@ -136,7 +136,7 @@ function AcceptInvitePageContent() {
       setSuccess('🎉 Welcome! Your account has been set up successfully. Redirecting to your dashboard...');
       
       setTimeout(() => {
-        router.push('/admin/employees');
+        router.push('/admin/dashboard');
       }, 2000);
 
     } catch (error) {

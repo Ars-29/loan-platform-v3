@@ -193,6 +193,29 @@ export const colors = {
   white: '#ffffff',
 } as const;
 
+// Spotlight Colors for SpotlightCard component
+export const spotlightColors = {
+  // Primary colors - more visible for white backgrounds
+  primary: 'rgba(59, 130, 246, 0.15)',      // Blue
+  success: 'rgba(16, 185, 129, 0.15)',      // Green
+  warning: 'rgba(251, 146, 60, 0.12)',      // Orange
+  neutral: 'rgba(107, 114, 128, 0.12)',     // Gray
+  purple: 'rgba(139, 92, 246, 0.15)',       // Purple
+  
+  // Additional accent colors
+  info: 'rgba(59, 130, 246, 0.15)',         // Blue (same as primary)
+  error: 'rgba(239, 68, 68, 0.12)',         // Red
+  pink: 'rgba(244, 114, 182, 0.12)',        // Pink
+  
+  // Light variations for extra subtlety - very minimal for inner cards
+  lightBlue: 'rgba(147, 197, 253, 0.04)',   // Very light blue
+  lightGreen: 'rgba(134, 239, 172, 0.04)',  // Very light green
+  lightPurple: 'rgba(196, 181, 253, 0.04)', // Very light purple
+  
+  // Default fallback
+  default: 'rgba(107, 114, 128, 0.12)',     // Gray
+} as const;
+
 // Typography System
 export const typography = {
   fontFamily: {
@@ -1337,6 +1360,7 @@ export const getTextColor = (backgroundType: 'white' | 'light' | 'colored' | 'da
 // Export default theme object
 export const theme = {
   colors,
+  spotlightColors,
   typography,
   spacing,
   breakpoints,

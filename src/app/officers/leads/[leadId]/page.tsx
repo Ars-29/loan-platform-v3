@@ -209,7 +209,7 @@ export default function LeadDetailsPage() {
 
   if (loading) {
     return (
-      <DashboardLayout title="Lead Details" subtitle="Loading lead information...">
+      <DashboardLayout title="Lead Details" subtitle="Loading lead information..." showBackButton={true}>
         <div style={{
           display: 'flex',
           justifyContent: 'center',
@@ -227,7 +227,7 @@ export default function LeadDetailsPage() {
 
   if (error) {
     return (
-      <DashboardLayout title="Lead Details" subtitle="Error loading lead information">
+      <DashboardLayout title="Lead Details" subtitle="Error loading lead information" showBackButton={true}>
         <div style={{ padding: spacing[6] }}>
           <Breadcrumb items={breadcrumbItems} />
           <div style={{
@@ -245,8 +245,8 @@ export default function LeadDetailsPage() {
               <Button onClick={fetchLeadDetails} variant="primary">
                 Try Again
               </Button>
-              <Button onClick={() => router.push('/officers/leads')} variant="secondary">
-                Back to Leads
+              <Button onClick={() => router.push('/officers/dashboard')} variant="secondary">
+                Back to Dashboard
               </Button>
             </div>
           </div>
@@ -257,7 +257,7 @@ export default function LeadDetailsPage() {
 
   if (!lead) {
     return (
-      <DashboardLayout title="Lead Details" subtitle="Lead not found">
+      <DashboardLayout title="Lead Details" subtitle="Lead not found" showBackButton={true}>
         <div style={{ padding: spacing[6] }}>
           <Breadcrumb items={breadcrumbItems} />
           <div style={{
@@ -272,8 +272,8 @@ export default function LeadDetailsPage() {
               Lead Not Found
             </h3>
             <p style={{ marginBottom: spacing[4] }}>The lead you're looking for doesn't exist or you don't have permission to view it.</p>
-            <Button onClick={() => router.push('/officers/leads')} variant="primary">
-              Back to Leads
+            <Button onClick={() => router.push('/officers/dashboard')} variant="primary">
+              Back to Dashboard
             </Button>
           </div>
         </div>
@@ -282,7 +282,7 @@ export default function LeadDetailsPage() {
   }
 
   return (
-    <DashboardLayout title={`Lead: ${lead.firstName} ${lead.lastName}`} subtitle="Complete lead analysis and details">
+    <DashboardLayout title={`Lead: ${lead.firstName} ${lead.lastName}`} subtitle="Complete lead analysis and details" showBackButton={true}>
       <div style={{ padding: spacing[6] }}>
         {/* Breadcrumb Navigation */}
         <Breadcrumb items={breadcrumbItems} />
@@ -290,13 +290,13 @@ export default function LeadDetailsPage() {
         {/* Header Actions */}
         <div className="flex justify-between items-center mb-6">
           <button
-            onClick={() => router.push('/officers/leads')}
+            onClick={() => router.push('/officers/dashboard')}
             className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-lg border-0 flex items-center transition-all duration-200"
           >
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Back to Leads
+            Back to Dashboard
           </button>
           
           <div className="flex gap-2">

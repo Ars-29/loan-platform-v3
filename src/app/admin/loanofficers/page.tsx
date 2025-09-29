@@ -22,6 +22,9 @@ interface LoanOfficer {
   inviteSentAt?: string;
   inviteExpiresAt?: string;
   createdAt: string;
+  totalLeads?: number;
+  hasPublicLink?: boolean;
+  selectedTemplate?: string;
 }
 
 interface CreateOfficerForm {
@@ -31,8 +34,8 @@ interface CreateOfficerForm {
 }
 
 export default function LoanOfficersPage() {
-  const { companyId } = useAuth();
-  const { showNotification } = useNotification();
+  const { companyId, loading: authLoading } = useAuth();
+  const { showNotification, clearAllNotifications } = useNotification();
   const router = useRouter();
   const [officers, setOfficers] = useState<LoanOfficer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,18 +50,34 @@ export default function LoanOfficersPage() {
 
   const fetchOfficers = useCallback(async () => {
     if (!companyId) {
-      showNotification({
-        type: 'error',
-        title: 'Error',
-        message: 'Company ID not found. Please contact support.',
-      });
+      console.error('❌ Company ID not found. Please contact support.');
       setLoading(false);
       return;
     }
 
     try {
-      const officerData = await getLoanOfficersByCompany(companyId);
-      setOfficers(officerData);
+      // Fetch enhanced officers data
+      const response = await fetch(`/api/officers/enhanced?companyId=${companyId}`);
+      const result = await response.json();
+
+      if (result.success) {
+        console.log('📊 Fetched officers data:', result.data);
+        
+        // Additional client-side deduplication as a safety measure
+        const uniqueOfficers = result.data.reduce((acc: LoanOfficer[], officer: LoanOfficer) => {
+          if (!acc.find(item => item.id === officer.id)) {
+            acc.push(officer);
+          } else {
+            console.warn(`⚠️ Client-side duplicate officer found: ${officer.email} (${officer.id})`);
+          }
+          return acc;
+        }, []);
+        
+        console.log(`✅ Set ${uniqueOfficers.length} unique officers (${result.data.length - uniqueOfficers.length} duplicates removed)`);
+        setOfficers(uniqueOfficers);
+      } else {
+        throw new Error(result.error || 'Failed to fetch officers');
+      }
     } catch (error) {
       console.error('Error fetching officers:', error);
       showNotification({
@@ -72,12 +91,22 @@ export default function LoanOfficersPage() {
   }, [companyId, showNotification]);
 
   useEffect(() => {
-    if (companyId) {
+    if (companyId && !authLoading) {
       fetchOfficers();
     }
-  }, [companyId, fetchOfficers]);
+  }, [companyId, authLoading, fetchOfficers]);
+
+  // Clear any existing notifications when component mounts
+  useEffect(() => {
+    clearAllNotifications();
+  }, [clearAllNotifications]);
 
   const handleCreateOfficer = async () => {
+    // Don't proceed if auth is still loading
+    if (authLoading) {
+      return;
+    }
+
     setIsCreating(true);
     setValidationErrors({});
 
@@ -97,11 +126,7 @@ export default function LoanOfficersPage() {
     }
 
     if (!companyId) {
-      showNotification({
-        type: 'error',
-        title: 'Error',
-        message: 'Company ID not found. Please contact support.',
-      });
+      console.error('❌ Company ID not found. Please contact support.');
       setIsCreating(false);
       return;
     }
@@ -285,7 +310,7 @@ export default function LoanOfficersPage() {
   };
 
   const handleViewLeads = (officerSlug: string) => {
-    router.push(`/companyadmin/loanofficers/${officerSlug}/leads`);
+    router.push(`/admin/loanofficers/${officerSlug}/leads`);
   };
 
   // Form fields configuration
@@ -313,11 +338,32 @@ export default function LoanOfficersPage() {
     },
   ];
 
+  const handleViewDetails = (officerSlug: string) => {
+    router.push(`/admin/loanofficers/${officerSlug}/details`);
+  };
+
+  if (authLoading) {
+    return (
+      <RouteGuard allowedRoles={['super_admin', 'company_admin']}>
+        <DashboardLayout 
+          title="Loan Officers" 
+          subtitle="Loading..."
+          showBackButton={true}
+        >
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        </DashboardLayout>
+      </RouteGuard>
+    );
+  }
+
   return (
     <RouteGuard allowedRoles={['super_admin', 'company_admin']}>
       <DashboardLayout 
         title="Loan Officers" 
         subtitle="Manage loan officers for your company"
+        showBackButton={true}
       >
         <div className="space-y-6">
           {/* Header with Create Button */}
@@ -328,6 +374,7 @@ export default function LoanOfficersPage() {
                 <CreateButton
                   role="company_admin"
                   onClick={() => setShowCreateModal(true)}
+                  disabled={authLoading}
                 />
               </div>
             </div>
@@ -341,6 +388,7 @@ export default function LoanOfficersPage() {
                 onDeactivate={handleDeactivateOfficer}
                 onReactivate={handleReactivateOfficer}
                 onDelete={handleDeleteOfficer}
+                onViewDetails={handleViewDetails}
               />
             </div>
           </div>

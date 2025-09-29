@@ -53,6 +53,15 @@ import {
   DollarSign,
   MessageSquare,
   Filter,
+  UserPlus,
+  Building,
+  LogIn,
+  Activity,
+  Eye,
+  Palette,
+  Settings,
+  Link,
+  AlertCircle,
 } from 'lucide-react';
 
 // Centralized icon registry for the entire app
@@ -148,6 +157,21 @@ export const icons = {
   dollarSign: DollarSign,
   messageSquare: MessageSquare,
   filter: Filter,
+  
+  // Activity icons
+  userPlus: UserPlus,
+  building: Building,
+  logIn: LogIn,
+  activity: Activity,
+  eye: Eye,
+  palette: Palette,
+  settings: Settings,
+  
+  // Additional icons
+  checkCircle: CheckCircle,
+  alertTriangle: AlertTriangle,
+  link: Link,
+  alertCircle: AlertCircle,
 } as const;
 
 interface IconProps {

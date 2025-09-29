@@ -572,6 +572,7 @@ export default function CustomizerPage() {
     <RouteGuard allowedRoles={['employee']}>
       <DashboardLayout 
         title="Template Customizer" 
+        showBackButton={true}
       >
         <div className="h-screen flex flex-col bg-gray-50">
           {/* Header Controls */}

@@ -1,10 +1,12 @@
 'use client';
 
 import React, { memo, useMemo, useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter, usePathname } from 'next/navigation';
 import { dashboard } from '@/theme/theme';
 import { icons } from '@/components/ui/Icon';
+import { supabase } from '@/lib/supabase/client';
 
 // No props interface needed - component gets data from useAuth
 
@@ -16,20 +18,74 @@ const StaticHeader = memo(function StaticHeader() {
   // Stable state that only updates when user actually changes
   const [stableUserData, setStableUserData] = useState({
     email: '',
+    firstName: '',
+    lastName: '',
+    fullName: '',
     initial: 'U',
-    role: 'employee'
+    role: 'employee',
+    avatar: null as string | null
   });
+  const [profileLoading, setProfileLoading] = useState(false);
 
-  // Only update stable data when user actually changes (not on every auth update)
+  // Fetch user profile data from users table
   useEffect(() => {
-    if (user?.email && userRole?.role) {
-      setStableUserData({
-        email: user.email,
-        initial: user.email.charAt(0).toUpperCase(),
-        role: userRole.role
-      });
+    const fetchUserProfile = async () => {
+      if (!user?.id) return;
+      
+      setProfileLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('users')
+          .select('first_name, last_name, avatar')
+          .eq('id', user.id)
+          .single();
+
+        if (error) {
+          console.error('Error fetching user profile:', error);
+          // Fallback to email-based data
+          setStableUserData(prev => ({
+            ...prev,
+            email: user.email || '',
+            initial: user.email?.charAt(0).toUpperCase() || 'U',
+            role: userRole?.role || 'employee'
+          }));
+          return;
+        }
+
+        const firstName = data.first_name || '';
+        const lastName = data.last_name || '';
+        const fullName = `${firstName} ${lastName}`.trim() || user.email || '';
+        const initial = firstName ? firstName.charAt(0).toUpperCase() : 
+                       lastName ? lastName.charAt(0).toUpperCase() : 
+                       user.email?.charAt(0).toUpperCase() || 'U';
+
+        setStableUserData({
+          email: user.email || '',
+          firstName,
+          lastName,
+          fullName,
+          initial,
+          role: userRole?.role || 'employee',
+          avatar: data.avatar
+        });
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+        // Fallback to email-based data
+        setStableUserData(prev => ({
+          ...prev,
+          email: user.email || '',
+          initial: user.email?.charAt(0).toUpperCase() || 'U',
+          role: userRole?.role || 'employee'
+        }));
+      } finally {
+        setProfileLoading(false);
+      }
+    };
+
+    if (user?.id && userRole?.role) {
+      fetchUserProfile();
     }
-  }, [user?.email, userRole?.role]);
+  }, [user?.id, user?.email, userRole?.role]);
 
   // Memoize role display name based on stable data
   const roleDisplayName = useMemo(() => {
@@ -45,35 +101,22 @@ const StaticHeader = memo(function StaticHeader() {
     }
   }, [stableUserData.role]);
 
-  // Memoize navigation items based on stable data
-  const navigationItems = useMemo(() => {
+  // Get dashboard URL based on user role
+  const getDashboardUrl = useMemo(() => {
     switch (stableUserData.role) {
       case 'super_admin':
-        return [
-          { name: 'Companies', href: '/admin/companies', current: pathname === '/admin/companies' },
-          { name: 'Leads Insights', href: '/super-admin/insights', current: pathname === '/super-admin/insights' },
-          { name: 'Conversion Stats', href: '/super-admin/stats', current: pathname === '/super-admin/stats' },
-        ];
+        return '/super-admin/dashboard';
       case 'company_admin':
-        return [
-          { name: 'Loan Officers', href: '/companyadmin/loanofficers', current: pathname === '/companyadmin/loanofficers' },
-          { name: 'Leads Insights', href: '/admin/insights', current: pathname === '/admin/insights' },
-          { name: 'Conversion Stats', href: '/admin/stats', current: pathname === '/admin/stats' },
-        ];
+        return '/admin/dashboard';
       case 'employee':
-        return [
-          { name: 'Dashboard', href: '/officers/dashboard', current: pathname === '/officers/dashboard' },
-          { name: 'Profile', href: '/officers/profile', current: pathname === '/officers/profile' },
-          { name: 'Customizer', href: '/officers/customizer', current: pathname === '/officers/customizer' },
-          { name: 'Leads', href: '/officers/leads', current: pathname === '/officers/leads' },
-        ];
+        return '/officers/dashboard';
       default:
-        return [];
+        return '/officers/dashboard';
     }
-  }, [stableUserData.role, pathname]);
+  }, [stableUserData.role]);
 
   // Don't render if auth is still loading OR if user role is not yet determined
-  if (authLoading || roleLoading || !user || !userRole) {
+  if (authLoading || roleLoading || profileLoading || !user || !userRole) {
     return (
       <nav style={dashboard.nav}>
         <div style={dashboard.navContent}>
@@ -138,61 +181,97 @@ const StaticHeader = memo(function StaticHeader() {
     router.push('/auth');
   };
 
+  const handleProfileClick = () => {
+    // Navigate to settings page based on user role
+    if (userRole?.role === 'super_admin') {
+      router.push('/super-admin/settings');
+    } else if (userRole?.role === 'company_admin') {
+      router.push('/admin/settings');
+    } else {
+      router.push('/officers/settings');
+    }
+  };
+
   return (
     <nav style={dashboard.nav}>
       <div style={dashboard.navContent}>
         <div style={dashboard.navInner}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <div style={{ flexShrink: 0 }}>
-              <h1 style={{ 
-                fontSize: '20px', 
-                fontWeight: 'bold', 
-                color: '#111827' 
-              }}>
+              <button
+                onClick={() => router.push(getDashboardUrl)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '0',
+                  fontSize: '20px',
+                  fontWeight: 'bold',
+                  color: '#111827',
+                  textDecoration: 'none',
+                  transition: 'color 0.2s ease-in-out',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#3b82f6';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = '#111827';
+                }}
+              >
                 Loan Officer Platform
-              </h1>
-            </div>
-            <div style={{ 
-              marginLeft: '24px', 
-              ...dashboard.navLinks 
-            }}>
-              {navigationItems.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  style={{
-                    ...dashboard.navLink,
-                    ...(item.current ? dashboard.navLinkActive : {}),
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!item.current) {
-                      Object.assign(e.currentTarget.style, dashboard.navLinkHover);
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!item.current) {
-                      Object.assign(e.currentTarget.style, dashboard.navLink);
-                    }
-                  }}
-                >
-                  {item.name}
-                </a>
-              ))}
+              </button>
             </div>
           </div>
           
           <div style={dashboard.userInfo}>
-            <div style={dashboard.userInfo}>
+            <button
+              onClick={handleProfileClick}
+              style={{
+                ...dashboard.userInfo,
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '8px',
+                borderRadius: '8px',
+                transition: 'background-color 0.2s ease-in-out',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#f3f4f6';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
               <div style={dashboard.userDetails}>
-                <p style={dashboard.userEmail}>{stableUserData.email}</p>
+                <p style={dashboard.userEmail}>
+                  {stableUserData.fullName || stableUserData.email}
+                </p>
                 <p style={dashboard.userRole}>{roleDisplayName}</p>
               </div>
               <div style={dashboard.userAvatar}>
-                <span style={dashboard.userAvatarText}>
-                  {stableUserData.initial}
-                </span>
+                {stableUserData.avatar ? (
+                  <Image
+                    src={stableUserData.avatar}
+                    alt={stableUserData.fullName || stableUserData.email}
+                    width={32}
+                    height={32}
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '50%',
+                      objectFit: 'cover'
+                    }}
+                  />
+                ) : (
+                  <span style={dashboard.userAvatarText}>
+                    {stableUserData.initial}
+                  </span>
+                )}
               </div>
-            </div>
+            </button>
             
             <button
               onClick={handleSignOut}

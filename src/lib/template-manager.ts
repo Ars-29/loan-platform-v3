@@ -52,6 +52,12 @@ export async function createPersonalTemplatesForUser(
 ): Promise<Template[]> {
   try {
     console.log('🎨 Creating personal templates for user:', userId);
+    
+    // Validate userId is a valid UUID
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(userId)) {
+      throw new Error(`Invalid user ID format: ${userId}. Expected valid UUID.`);
+    }
 
     // Get default templates to use as base
     const { data: defaultTemplates, error: defaultError } = await getSupabaseClient()

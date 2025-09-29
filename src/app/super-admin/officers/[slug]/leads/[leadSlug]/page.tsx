@@ -199,7 +199,7 @@ export default function SuperAdminLeadDetailsPage() {
         <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
           <h3 className="text-lg font-semibold text-yellow-600 mb-2">Lead Not Found</h3>
           <p className="text-yellow-600 mb-4">The requested lead could not be found.</p>
-          <Button onClick={() => router.back()} variant="primary">
+          <Button onClick={() => router.push('/super-admin/insights')} variant="primary">
             Go Back
           </Button>
         </div>
@@ -212,6 +212,7 @@ export default function SuperAdminLeadDetailsPage() {
       <DashboardLayout 
         title={`${lead.firstName} ${lead.lastName}`}
         subtitle="Lead Details"
+        showBackButton={true}
       >
         <div className="space-y-6">
           {/* Breadcrumb Navigation */}
@@ -231,12 +232,6 @@ export default function SuperAdminLeadDetailsPage() {
               </div>
             </div>
             <div className="flex space-x-3">
-              <Button
-                variant="outline-white"
-                onClick={() => router.push(`/super-admin/officers/${officerSlug}/leads`)}
-              >
-                Back to Leads
-              </Button>
               <Button variant="primary">
                 Edit Lead
               </Button>

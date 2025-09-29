@@ -287,14 +287,29 @@ export function useAuth() {
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
+      // Clear state immediately to prevent further API calls
       setUser(null);
       setUserRole(null);
       setCompanyId(null);
+      setAccessToken(null);
+      setRoleLoading(false);
+      
       // Clear cache on manual sign out
       clearProfileCache();
+      
+      // Sign out from Supabase (don't await to make it faster)
+      supabase.auth.signOut().catch((error) => {
+        console.error('Supabase signOut error:', error);
+      });
     } catch (error) {
       console.error('Error signing out:', error);
+      // Even if signOut fails, clear local state
+      setUser(null);
+      setUserRole(null);
+      setCompanyId(null);
+      setAccessToken(null);
+      setRoleLoading(false);
+      clearProfileCache();
     }
   };
 

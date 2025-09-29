@@ -352,10 +352,11 @@ export default function SuperAdminOfficerLeadsPage() {
 
   return (
     <RouteGuard allowedRoles={['super_admin']}>
-      <DashboardLayout 
-        title={`${officerInfo ? `${officerInfo.firstName} ${officerInfo.lastName}` : 'Officer'} Leads`}
-        subtitle={`Manage leads for ${officerInfo ? `${officerInfo.firstName} ${officerInfo.lastName}` : 'this officer'}`}
-      >
+    <DashboardLayout 
+      title={`${officerInfo ? `${officerInfo.firstName} ${officerInfo.lastName}` : 'Officer'} Leads`}
+      subtitle={`Manage leads for ${officerInfo ? `${officerInfo.firstName} ${officerInfo.lastName}` : 'this officer'}`}
+      showBackButton={true}
+    >
         <div className="space-y-6">
           {/* Breadcrumb Navigation */}
           <Breadcrumb items={breadcrumbItems} />

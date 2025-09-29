@@ -28,10 +28,10 @@ export function RouteGuard({ children, allowedRoles, fallback }: RouteGuardProps
         // Redirect based on user role
         switch (userRole.role) {
           case 'super_admin':
-            router.push('/admin/companies');
+            router.push('/super-admin/dashboard');
             break;
           case 'company_admin':
-            router.push('/companyadmin/loanofficers');
+            router.push('/admin/dashboard');
             break;
           case 'employee':
             router.push('/officers/dashboard');

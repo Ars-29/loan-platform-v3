@@ -1,6 +1,7 @@
 import React from 'react';
 import { theme, RoleType } from '@/theme/theme';
 import { Button, ResendButton, DeactivateButton, DeleteButton, ReactivateButton } from './Button';
+import Icon from './Icon';
 
 export interface TableColumn<T = any> {
   key: string;
@@ -22,6 +23,7 @@ export interface DataTableProps<T = any> {
   onDeactivate?: (record: T) => void;
   onReactivate?: (record: T) => void;
   onDelete?: (record: T) => void;
+  onViewDetails?: (record: T) => void;
   className?: string;
 }
 
@@ -45,6 +47,7 @@ export const DataTable = <T extends Record<string, any>>({
   onDeactivate,
   onReactivate,
   onDelete,
+  onViewDetails,
   className = '',
 }: DataTableProps<T>) => {
   // Get role-based empty message
@@ -73,19 +76,17 @@ export const DataTable = <T extends Record<string, any>>({
           key="reactivate"
           role={role}
           onClick={() => onReactivate(record)}
-          className="text-green-600 hover:text-green-900 text-xs"
         />
       );
     }
 
-    // Resend button for pending/sent/expired invites (only if not deactivated)
-    if (onResend && !isDeactivated && (inviteStatus === 'sent' || inviteStatus === 'expired' || !isActive)) {
+    // Resend button for pending/sent/expired invites (only if not deactivated and not accepted)
+    if (onResend && !isDeactivated && inviteStatus !== 'accepted' && (inviteStatus === 'sent' || inviteStatus === 'expired' || inviteStatus === 'pending')) {
       actions.push(
         <ResendButton
           key="resend"
           role={role}
           onClick={() => onResend(record)}
-          className="text-blue-600 hover:text-blue-900 text-xs"
         />
       );
     }
@@ -102,7 +103,6 @@ export const DataTable = <T extends Record<string, any>>({
           key="deactivate"
           role={role}
           onClick={() => onDeactivate(record)}
-          className="text-red-600 hover:text-red-900 text-xs"
         />
       );
     }
@@ -122,8 +122,26 @@ export const DataTable = <T extends Record<string, any>>({
           key="delete"
           role={role}
           onClick={() => onDelete(record)}
-          className="text-red-600 hover:text-red-900 text-xs"
         />
+      );
+    }
+
+    // View Details button (always show if handler provided)
+    if (onViewDetails) {
+      // Add separator if we have other actions
+      if (actions.length > 0) {
+        actions.push(<span key="separator-details" className="text-gray-300">|</span>);
+      }
+      actions.push(
+        <Button
+          key="view-details"
+          variant="secondary"
+          size="sm"
+          onClick={() => onViewDetails(record)}
+          className="text-xs"
+        >
+          View Details
+        </Button>
       );
     }
 
@@ -137,7 +155,7 @@ export const DataTable = <T extends Record<string, any>>({
   // Add actions column if any action handlers are provided
   const finalColumns: TableColumn<T>[] = [
     ...columns,
-    ...(onResend || onDeactivate || onReactivate || onDelete ? [{
+    ...(onResend || onDeactivate || onReactivate || onDelete || onViewDetails ? [{
       key: 'actions',
       title: 'Actions',
       render: (value, record, index) => renderActions(record),
@@ -194,7 +212,7 @@ export const DataTable = <T extends Record<string, any>>({
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {data.map((record, index) => (
-              <tr key={record.id || index} className="hover:bg-gray-50">
+              <tr key={`${record.id || 'unknown'}-${index}-${record.email || record.name || 'no-email'}`} className="hover:bg-gray-50">
                 {finalColumns.map((column) => {
                   const value = column.dataIndex ? record[column.dataIndex] : record[column.key];
                   return (
@@ -220,7 +238,15 @@ export const DataTable = <T extends Record<string, any>>({
 };
 
 // Specialized components for common use cases
-export const CompanyTable: React.FC<Omit<DataTableProps, 'role' | 'columns'>> = (props) => {
+export const CompanyTable: React.FC<Omit<DataTableProps, 'role' | 'columns'> & { 
+  onViewDetails?: (companySlug: string) => void;
+}> = (props) => {
+  const { onViewDetails, ...restProps } = props;
+  
+  // Wrap onViewDetails to extract slug from record
+  const handleViewDetails = onViewDetails ? (record: any) => {
+    onViewDetails(record.slug || record.id);
+  } : undefined;
   const companyColumns: TableColumn[] = [
     {
       key: 'company',
@@ -230,7 +256,10 @@ export const CompanyTable: React.FC<Omit<DataTableProps, 'role' | 'columns'>> = 
           <div className="text-sm font-medium text-gray-900">{record.name}</div>
           <div className="text-sm text-gray-500">{record.slug}</div>
           {record.isActive && (
-            <div className="text-xs text-green-600 font-medium">🟢 Active Company</div>
+            <div className="text-xs text-green-600 font-medium flex items-center">
+              <Icon name="checkCircle" className="w-3 h-3 mr-1" />
+              Active Company
+            </div>
           )}
         </div>
       ),
@@ -271,10 +300,27 @@ export const CompanyTable: React.FC<Omit<DataTableProps, 'role' | 'columns'>> = 
               status === 'expired' ? 'bg-red-100 text-red-800' :
               'bg-yellow-100 text-yellow-800'
             }`}>
-              {status === 'accepted' ? '✅ Active' :
-               status === 'sent' ? '📧 Invite Sent' :
-               status === 'expired' ? '⏰ Expired' :
-               '⏳ Pending'}
+            {status === 'accepted' ? (
+              <>
+                <Icon name="checkCircle" className="w-3 h-3 mr-1" />
+                Active
+              </>
+            ) : status === 'sent' ? (
+              <>
+                <Icon name="mail" className="w-3 h-3 mr-1" />
+                Invite Sent
+              </>
+            ) : status === 'expired' ? (
+              <>
+                <Icon name="clock" className="w-3 h-3 mr-1" />
+                Expired
+              </>
+            ) : (
+              <>
+                <Icon name="clock" className="w-3 h-3 mr-1" />
+                Pending
+              </>
+            )}
             </span>
             {status === 'sent' && expiresAt && (
               <div className="text-xs text-gray-500 mt-1">
@@ -298,25 +344,47 @@ export const CompanyTable: React.FC<Omit<DataTableProps, 'role' | 'columns'>> = 
         );
       },
     },
+    {
+      key: 'totalOfficers',
+      title: 'Total Officers',
+      dataIndex: 'totalOfficers',
+      render: (value) => (
+        <div className="text-sm text-gray-900 font-medium">
+          {value || 0}
+        </div>
+      ),
+    },
+    {
+      key: 'totalLeads',
+      title: 'Total Leads',
+      dataIndex: 'totalLeads',
+      render: (value) => (
+        <div className="text-sm text-gray-900 font-medium">
+          {value || 0}
+        </div>
+      ),
+    },
   ];
 
   return (
     <DataTable
-      {...props}
+      {...restProps}
       role="super_admin"
       columns={companyColumns}
+      onViewDetails={handleViewDetails}
     />
   );
 };
 
 export const OfficerTable: React.FC<Omit<DataTableProps, 'role' | 'columns'> & { 
   onViewLeads?: (officerId: string) => void;
+  onViewDetails?: (officerId: string) => void;
   onResend?: (officer: any) => void;
   onDeactivate?: (officer: any) => void;
   onReactivate?: (officer: any) => void;
   onDelete?: (officer: any) => void;
 }> = (props) => {
-  const { onViewLeads, onResend, onDeactivate, onReactivate, onDelete, ...restProps } = props;
+  const { onViewLeads, onViewDetails, onResend, onDeactivate, onReactivate, onDelete, ...restProps } = props;
   
   const officerColumns: TableColumn[] = [
     {
@@ -336,7 +404,10 @@ export const OfficerTable: React.FC<Omit<DataTableProps, 'role' | 'columns'> & {
               {record.firstName} {record.lastName}
             </div>
             {record.isActive && (
-              <div className="text-xs text-green-600 font-medium">🟢 Active Officer</div>
+              <div className="text-xs text-green-600 font-medium flex items-center">
+                <Icon name="checkCircle" className="w-3 h-3 mr-1" />
+                Active Officer
+              </div>
             )}
           </div>
         </div>
@@ -360,17 +431,28 @@ export const OfficerTable: React.FC<Omit<DataTableProps, 'role' | 'columns'> & {
         // If deactivated, show deactivated status
         if (isDeactivated) {
           return (
-            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
-              🚫 Deactivated
+            <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+              <Icon name="error" className="w-3 h-3 mr-1" />
+              Deactivated
             </span>
           );
         }
 
         return (
-          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+          <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${
             value ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
           }`}>
-            {value ? '✅ Active' : '⏳ Inactive'}
+            {value ? (
+              <>
+                <Icon name="checkCircle" className="w-3 h-3 mr-1" />
+                Active
+              </>
+            ) : (
+              <>
+                <Icon name="clock" className="w-3 h-3 mr-1" />
+                Inactive
+              </>
+            )}
           </span>
         );
       },
@@ -381,6 +463,52 @@ export const OfficerTable: React.FC<Omit<DataTableProps, 'role' | 'columns'> & {
       dataIndex: 'createdAt',
       render: (value) => (
         <div className="text-sm text-gray-900">{new Date(value).toLocaleDateString()}</div>
+      ),
+    },
+    {
+      key: 'totalLeads',
+      title: 'Total Leads',
+      dataIndex: 'totalLeads',
+      render: (value) => (
+        <div className="text-sm text-gray-900 font-medium">
+          {value || 0}
+        </div>
+      ),
+    },
+    {
+      key: 'publicLink',
+      title: 'Public Link',
+      dataIndex: 'hasPublicLink',
+      render: (value) => (
+        <div className="flex items-center">
+          {value ? (
+            <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+              <Icon name="checkCircle" className="w-3 h-3 mr-1" />
+              Active
+            </span>
+          ) : (
+            <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+              <Icon name="error" className="w-3 h-3 mr-1" />
+              None
+            </span>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'selectedTemplate',
+      title: 'Template',
+      dataIndex: 'selectedTemplate',
+      render: (value) => (
+        <div className="text-sm text-gray-900">
+          {value ? (
+            <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+              {value}
+            </span>
+          ) : (
+            <span className="text-gray-500">Not selected</span>
+          )}
+        </div>
       ),
     },
     {
@@ -415,40 +543,69 @@ export const OfficerTable: React.FC<Omit<DataTableProps, 'role' | 'columns'> & {
             </button>
           )}
           
-          {onResend && (
+          {onViewDetails && (
             <button
-              onClick={() => onResend(record)}
-              className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-blue-600 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              onClick={() => {
+                // Create slug from officer name for breadcrumb navigation
+                const officerSlug = `${record.firstName.toLowerCase()}-${record.lastName.toLowerCase()}`;
+                onViewDetails(officerSlug);
+              }}
+              className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-green-600 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             >
-              Resend
+              <svg
+                className="w-4 h-4 mr-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                />
+              </svg>
+              View Details
             </button>
+          )}
+          
+          {onResend && !record.isActive && (
+            <ResendButton
+              role="company_admin"
+              onClick={() => onResend(record)}
+              className="text-xs px-2 py-1 h-6"
+            />
           )}
           
           {onDeactivate && record.isActive && !record.deactivated && (
-            <button
+            <DeactivateButton
+              role="company_admin"
               onClick={() => onDeactivate(record)}
-              className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-red-600 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-            >
-              Deactivate
-            </button>
+              className="text-xs px-2 py-1 h-6"
+            />
           )}
           
           {onReactivate && record.deactivated && (
-            <button
+            <ReactivateButton
+              role="company_admin"
               onClick={() => onReactivate(record)}
-              className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-green-600 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-            >
-              Reactivate
-            </button>
+              className="text-xs px-2 py-1 h-6"
+            />
           )}
           
           {onDelete && (
-            <button
+            <DeleteButton
+              role="company_admin"
               onClick={() => onDelete(record)}
-              className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-red-600 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-            >
-              Delete
-            </button>
+              className="text-xs px-2 py-1 h-6"
+            />
           )}
         </div>
       ),

@@ -354,23 +354,12 @@ export default function OfficerLeadsPage() {
     <DashboardLayout 
       title={`${officerInfo ? `${officerInfo.firstName} ${officerInfo.lastName}` : 'Officer'} Leads`}
       subtitle={`Manage leads for ${officerInfo ? `${officerInfo.firstName} ${officerInfo.lastName}` : 'this officer'}`}
+      showBackButton={true}
     >
       <div className="space-y-6">
         {/* Breadcrumb Navigation */}
         <Breadcrumb items={breadcrumbItems} />
 
-        {/* Header with back button */}
-        <div className="flex justify-between items-center">
-          <button
-            onClick={() => router.push('/admin/insights')}
-            className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-lg border-0 flex items-center transition-all duration-200"
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Back to Leads Insights
-          </button>
-        </div>
 
         {/* Header with stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

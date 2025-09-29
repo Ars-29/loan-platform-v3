@@ -9,6 +9,7 @@ export default function SuperAdminStatsPage() {
       <DashboardLayout 
         title="Conversion Statistics" 
         subtitle="Detailed analytics and conversion metrics across all companies"
+        showBackButton={true}
       >
         <SuperAdminStatsManager />
       </DashboardLayout>

@@ -380,7 +380,7 @@ export default function LeadsPage() {
 
   if (loading) {
     return (
-      <DashboardLayout title="Leads" subtitle="Manage your leads">
+      <DashboardLayout title="Leads" subtitle="Manage your leads" showBackButton={true}>
         <div style={{
           display: 'flex',
           justifyContent: 'center',
@@ -397,7 +397,7 @@ export default function LeadsPage() {
 
   if (error) {
     return (
-      <DashboardLayout title="Leads" subtitle="Manage your leads">
+      <DashboardLayout title="Leads" subtitle="Manage your leads" showBackButton={true}>
         <div style={{
           padding: spacing[6],
           backgroundColor: colors.red[50],
@@ -418,7 +418,7 @@ export default function LeadsPage() {
   }
 
   return (
-    <DashboardLayout title="Leads" subtitle="Manage your leads">
+    <DashboardLayout title="Leads" subtitle="Manage your leads" showBackButton={true}>
       <div style={{ padding: spacing[6] }}>
         {/* Breadcrumb Navigation */}
         <Breadcrumb items={breadcrumbItems} />

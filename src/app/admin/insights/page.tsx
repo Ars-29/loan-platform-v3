@@ -1,16 +1,21 @@
 import React from 'react';
 import { RouteGuard } from '@/components/auth/RouteGuard';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import SimpleLeadsInsights from '@/components/analytics/SimpleLeadsInsights';
+import AdminLeadsView from '@/components/analytics/AdminLeadsView';
 
 export default function AdminInsightsPage() {
   return (
     <RouteGuard allowedRoles={['company_admin']}>
       <DashboardLayout 
-        title="Leads Insights" 
-        subtitle="View all loan officers and their leads data"
+        title="Leads" 
+        subtitle="Manage your leads"
+        showBackButton={true}
       >
-        <SimpleLeadsInsights isSuperAdmin={false} />
+        <AdminLeadsView 
+          isSuperAdmin={false}
+          showCompanyFilter={false}
+          showOfficerFilter={true}
+        />
       </DashboardLayout>
     </RouteGuard>
   );
