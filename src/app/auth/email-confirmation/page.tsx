@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
 import SpotlightCard from '@/components/ui/SpotlightCard';
 import { useNotification } from '@/components/ui/Notification';
+import { LiquidChromeBackground } from '@/components/ui/LiquidChromeBackground';
 
 function EmailConfirmationContent() {
   const [loading, setLoading] = useState(true);
@@ -226,67 +227,118 @@ function EmailConfirmationContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Confirming email change...</p>
-        </div>
+      <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#005b7c] via-[#008eab] to-[#01bcc6]">
+        <LiquidChromeBackground />
+        
+        {/* Header */}
+        <header className="bg-[#F7F1E9]/95 backdrop-blur-xl shadow-lg border-b border-[#F7F1E9]/30 relative z-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-4">
+              <div className="flex items-center">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-[#005b7c] to-[#01bcc6] bg-clip-text text-transparent">
+                  Loan Officer Platform
+                </h1>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <main className="relative z-10 min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-md w-full">
+            <div className="bg-[#F7F1E9]/95 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-[#F7F1E9]/40">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-[#01bcc6] to-[#008eab] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                </div>
+                <h2 className="text-3xl font-bold text-[#005b7c] mb-4 drop-shadow-lg">Confirming Email</h2>
+                <p className="text-[#005b7c]/80 text-lg">Please wait while we confirm your email change...</p>
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-md w-full">
-        <SpotlightCard variant="primary" className="p-8 text-center">
-          {status === 'success' && (
-            <div>
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Email Updated!</h1>
-              <p className="text-gray-600 mb-6">{message}</p>
-              <p className="text-sm text-gray-500 mb-4">
-                Redirecting to dashboard in 3 seconds...
-              </p>
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#005b7c] via-[#008eab] to-[#01bcc6]">
+      <LiquidChromeBackground />
+      
+      {/* Header */}
+      <header className="bg-[#F7F1E9]/95 backdrop-blur-xl shadow-lg border-b border-[#F7F1E9]/30 relative z-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-[#005b7c] to-[#01bcc6] bg-clip-text text-transparent">
+                Loan Officer Platform
+              </h1>
+            </div>
+            <div className="flex items-center space-x-4">
               <button
-                onClick={() => router.push('/officers/dashboard')}
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                onClick={() => window.location.href = '/auth'}
+                className="text-[#005b7c] hover:text-[#01bcc6] font-medium transition-colors duration-200"
               >
-                Go to Dashboard
+                Back to Login
               </button>
             </div>
-          )}
+          </div>
+        </div>
+      </header>
 
-          {status === 'error' && (
-            <div>
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Confirmation Failed</h1>
-              <p className="text-gray-600 mb-6">{message}</p>
-              <div className="space-y-3">
-                <button
-                  onClick={() => router.push('/officers/settings')}
-                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Back to Settings
-                </button>
+      {/* Main Content */}
+      <main className="relative z-10 min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full">
+          <div className="bg-[#F7F1E9]/95 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-[#F7F1E9]/40">
+            {status === 'success' && (
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h2 className="text-3xl font-bold text-[#005b7c] mb-4 drop-shadow-lg">Email Updated!</h2>
+                <p className="text-[#005b7c]/80 text-lg mb-6">{message}</p>
+                <p className="text-sm text-[#005b7c]/60 mb-6">
+                  Redirecting to dashboard in 3 seconds...
+                </p>
                 <button
                   onClick={() => router.push('/officers/dashboard')}
-                  className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors"
+                  className="w-full bg-gradient-to-r from-[#01bcc6] to-[#008eab] hover:from-[#008eab] hover:to-[#005b7c] text-white py-3 px-6 text-lg font-bold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
                 >
                   Go to Dashboard
                 </button>
               </div>
-            </div>
-          )}
-        </SpotlightCard>
-      </div>
+            )}
+
+            {status === 'error' && (
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </div>
+                <h2 className="text-3xl font-bold text-[#005b7c] mb-4 drop-shadow-lg">Confirmation Failed</h2>
+                <p className="text-[#005b7c]/80 text-lg mb-6">{message}</p>
+                <div className="space-y-4">
+                  <button
+                    onClick={() => router.push('/officers/settings')}
+                    className="w-full bg-gradient-to-r from-[#01bcc6] to-[#008eab] hover:from-[#008eab] hover:to-[#005b7c] text-white py-3 px-6 text-lg font-bold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+                  >
+                    Back to Settings
+                  </button>
+                  <button
+                    onClick={() => router.push('/officers/dashboard')}
+                    className="w-full bg-[#F7F1E9] text-[#005b7c] border-2 border-[#01bcc6]/30 hover:bg-[#01bcc6]/10 hover:border-[#01bcc6]/50 py-3 px-6 text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                  >
+                    Go to Dashboard
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
@@ -294,10 +346,10 @@ function EmailConfirmationContent() {
 export default function EmailConfirmationPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-lg text-gray-700">Loading...</p>
+      <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#005b7c] via-[#008eab] to-[#01bcc6]">
+        <LiquidChromeBackground />
+        <div className="relative z-10 min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#01bcc6]"></div>
         </div>
       </div>
     }>

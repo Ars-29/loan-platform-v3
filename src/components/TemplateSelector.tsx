@@ -30,7 +30,7 @@ export default function TemplateSelector({
   
   const colors = template1Data?.template?.colors || {
     primary: '#ec4899',
-    secondary: '#3b82f6',
+    secondary: '#01bcc6',
     background: '#ffffff',
     text: '#111827',
     textSecondary: '#6b7280',
@@ -112,7 +112,7 @@ export default function TemplateSelector({
           </p>
         </div>
         <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#01bcc6]"></div>
         </div>
       </div>
     );
@@ -193,7 +193,7 @@ export default function TemplateSelector({
         {/* Loading indicator */}
         {isSaving && (
           <div className="mt-2 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#01bcc6] mr-2"></div>
             <span className="text-sm text-gray-600">Switching template...</span>
           </div>
         )}
@@ -289,10 +289,10 @@ export default function TemplateSelector({
 
       {/* User Info */}
       {user && (
-        <div className="mt-4 p-2 bg-blue-50 border border-blue-200 rounded text-xs">
+        <div className="mt-4 p-2 bg-[#01bcc6]/10 border border-[#01bcc6]/20 rounded text-xs">
           <div className="flex items-center space-x-2">
-            <Icon name="profile" size={12} className="text-blue-600" />
-            <span className="text-blue-700">
+            <Icon name="profile" size={12} className="text-[#01bcc6]" />
+            <span className="text-[#01bcc6]">
               {user.email} • User • Employee
             </span>
           </div>

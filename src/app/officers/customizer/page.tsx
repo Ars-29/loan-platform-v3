@@ -201,7 +201,7 @@ export default function CustomizerPage() {
         name: 'Fallback Template',
         colors: {
           primary: '#ec4899',
-          secondary: '#3b82f6',
+          secondary: '#01bcc6',
           background: '#ffffff',
           text: '#111827',
           textSecondary: '#6b7280',
@@ -576,7 +576,7 @@ export default function CustomizerPage() {
       >
         <div className="h-screen flex flex-col bg-gray-50">
           {/* Header Controls */}
-          <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0">
+          <div className="bg-[#F7F1E9] border-b border-gray-200 px-6 py-4 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <h1 className="text-2xl font-bold text-gray-900">Template Customizer</h1>
@@ -585,7 +585,7 @@ export default function CustomizerPage() {
                   <select
                     value={customizerState.selectedTemplate}
                     onChange={(e) => handleTemplateSelect(e.target.value)}
-                    className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
                   >
                     {['template1', 'template2'].map(templateSlug => {
                       const templateName = templateSlug === 'template1' ? 'Red Theme' : 'Purple Theme';
@@ -604,7 +604,7 @@ export default function CustomizerPage() {
                   <select
                     value={customizerState.publicProfileTemplate || 'template1'}
                     onChange={(e) => handlePublicProfileTemplateSelect(e.target.value)}
-                    className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
                   >
                     {['template1', 'template2'].map(templateSlug => {
                       const templateName = templateSlug === 'template1' ? 'Red Theme' : 'Purple Theme';
@@ -623,7 +623,7 @@ export default function CustomizerPage() {
                 <Button
                   variant={customizerState.isPreviewMode ? "primary" : "secondary"}
                   onClick={togglePreviewMode}
-                  className={customizerState.isPreviewMode ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0' : 'bg-gray-100 hover:bg-gray-200 text-gray-700 border-gray-300'}
+                  className={customizerState.isPreviewMode ? 'bg-[#005b7c] hover:bg-[#01bcc6] text-white border-0' : 'bg-gray-100 hover:bg-gray-200 text-gray-700 border-gray-300'}
                 >
                   <Icon name={customizerState.isPreviewMode ? "chevronLeft" : "play"} size={16} className="mr-2" />
                   {customizerState.isPreviewMode ? 'Exit Preview' : 'Preview Mode'}
@@ -632,6 +632,7 @@ export default function CustomizerPage() {
                 <Button
                   onClick={handleSave}
                   disabled={isSaving || Object.keys(customizerState.customSettings).length === 0}
+                  className="bg-[#005b7c] hover:bg-[#01bcc6] text-white border-0 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Icon name="save" size={16} className="mr-2" />
                   {isSaving ? 'Saving...' : 'Save Template'}
@@ -653,7 +654,7 @@ export default function CustomizerPage() {
           {/* Main Content - Takes remaining height */}
           <div className="flex flex-1 min-h-0">
             {/* Left Sidebar - Sections or Section Details */}
-            <div className={`w-80 bg-white border-r border-gray-200 transition-all duration-300 flex-shrink-0 ${
+            <div className={`w-80 bg-[#F7F1E9]/30 border-r border-gray-200 transition-all duration-300 flex-shrink-0 ${
               customizerState.isPreviewMode ? '-ml-80' : 'ml-0'
             }`}>
               {!customizerState.showSectionDetails ? (
@@ -755,7 +756,7 @@ export default function CustomizerPage() {
             <div className="flex-1 bg-gray-100 overflow-hidden">
               <div className="h-full overflow-auto overflow-x-auto">
                 <div className="p-6">
-                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 min-h-full w-full min-w-max">
+                  <div className="bg-[#F7F1E9]/30 rounded-lg shadow-sm border border-gray-200 min-h-full w-full min-w-max">
                     <TemplateProvider
                       templateData={mergedTemplate}
                       isCustomizerMode={true}
@@ -764,7 +765,7 @@ export default function CustomizerPage() {
                     >
                       <React.Suspense fallback={
                         <div className="flex items-center justify-center h-96">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#01bcc6]"></div>
                         </div>
                       }>
                         {/* Live Preview Components with Real Officer Data and Merged Template */}
@@ -980,7 +981,7 @@ function AvatarUploadComponent({ currentAvatar, onChange }: { currentAvatar: str
           onClick={() => setUploadMode('url')}
           className={`px-3 py-1 text-sm rounded-md transition-colors ${
             uploadMode === 'url'
-              ? 'bg-blue-100 text-blue-700 border border-blue-300'
+              ? 'bg-[#01bcc6]/10 text-[#01bcc6] border border-[#01bcc6]/20'
               : 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200'
           }`}
         >
@@ -991,7 +992,7 @@ function AvatarUploadComponent({ currentAvatar, onChange }: { currentAvatar: str
           onClick={() => setUploadMode('upload')}
           className={`px-3 py-1 text-sm rounded-md transition-colors ${
             uploadMode === 'upload'
-              ? 'bg-blue-100 text-blue-700 border border-blue-300'
+              ? 'bg-[#01bcc6]/10 text-[#01bcc6] border border-[#01bcc6]/20'
               : 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200'
           }`}
         >
@@ -1007,7 +1008,7 @@ function AvatarUploadComponent({ currentAvatar, onChange }: { currentAvatar: str
             value={currentAvatar}
             onChange={handleUrlChange}
             placeholder="https://example.com/profile.jpg"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
           />
         </div>
       )}
@@ -1020,12 +1021,12 @@ function AvatarUploadComponent({ currentAvatar, onChange }: { currentAvatar: str
             type="file"
             accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
             onChange={handleFileUpload}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             disabled={isUploading}
           />
           {isUploading && (
             <div className="mt-2 flex items-center space-x-2 text-sm text-gray-600">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#01bcc6]"></div>
               <span>Uploading...</span>
             </div>
           )}
@@ -1091,7 +1092,7 @@ function HeaderModifications({ template, officerInfo, onChange }: HeaderModifica
               type="text"
               value={headerMods.officerName || officerInfo.officerName}
               onChange={(e) => onChange('officerName', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             />
           </div>
 
@@ -1101,7 +1102,7 @@ function HeaderModifications({ template, officerInfo, onChange }: HeaderModifica
               type="tel"
               value={headerMods.phone || officerInfo.phone || ''}
               onChange={(e) => onChange('phone', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             />
           </div>
 
@@ -1111,7 +1112,7 @@ function HeaderModifications({ template, officerInfo, onChange }: HeaderModifica
               type="email"
               value={headerMods.email || officerInfo.email}
               onChange={(e) => onChange('email', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             />
           </div>
 
@@ -1135,7 +1136,7 @@ function HeaderModifications({ template, officerInfo, onChange }: HeaderModifica
               value={headerMods.applyNowLink || ''}
               onChange={(e) => onChange('applyNowLink', e.target.value)}
               placeholder="https://example.com/apply"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             />
           </div>
 
@@ -1145,7 +1146,7 @@ function HeaderModifications({ template, officerInfo, onChange }: HeaderModifica
               type="text"
               value={headerMods.applyNowText || 'Apply Now'}
               onChange={(e) => onChange('applyNowText', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             />
           </div>
         </div>
@@ -1182,7 +1183,7 @@ function BodyModifications({ template, onChange }: SettingsProps) {
             <select
               value={activeTab}
               onChange={(e) => onChange('activeTab', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             >
               {availableTabs.map(tab => (
                 <option key={tab.id} value={tab.id}>{tab.label}</option>
@@ -1234,7 +1235,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
               type="text"
               value={sidebarMods.companyName || 'Your Brand™'}
               onChange={(e) => onChange('companyName', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             />
           </div>
 
@@ -1245,7 +1246,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
               value={sidebarMods.logo || ''}
               onChange={(e) => onChange('logo', e.target.value)}
               placeholder="https://example.com/logo.png"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             />
           </div>
 
@@ -1255,7 +1256,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
               type="tel"
               value={sidebarMods.phone || '(555) 123-4567'}
               onChange={(e) => onChange('phone', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             />
           </div>
 
@@ -1265,7 +1266,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
               type="email"
               value={sidebarMods.email || 'info@yourbrand.com'}
               onChange={(e) => onChange('email', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             />
           </div>
 
@@ -1275,7 +1276,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
               value={sidebarMods.address || '123 Main St. City'}
               onChange={(e) => onChange('address', e.target.value)}
               rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             />
           </div>
         </div>
@@ -1291,7 +1292,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
               value={sidebarMods.facebook || ''}
               onChange={(e) => onChange('facebook', e.target.value)}
               placeholder="https://facebook.com/yourcompany"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             />
           </div>
 
@@ -1302,7 +1303,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
               value={sidebarMods.twitter || ''}
               onChange={(e) => onChange('twitter', e.target.value)}
               placeholder="https://twitter.com/yourcompany"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             />
           </div>
 
@@ -1313,7 +1314,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
               value={sidebarMods.linkedin || ''}
               onChange={(e) => onChange('linkedin', e.target.value)}
               placeholder="https://linkedin.com/company/yourcompany"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             />
           </div>
 
@@ -1324,7 +1325,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
               value={sidebarMods.instagram || ''}
               onChange={(e) => onChange('instagram', e.target.value)}
               placeholder="https://instagram.com/yourcompany"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             />
           </div>
         </div>
@@ -1338,8 +1339,8 @@ function ColorsSettings({ template, onChange }: SettingsProps) {
 
   // Provide default values to prevent controlled/uncontrolled input errors
   const colors = {
-    primary: template.colors?.primary || '#3b82f6',
-    secondary: template.colors?.secondary || '#3b82f6',
+    primary: template.colors?.primary || '#01bcc6',
+    secondary: template.colors?.secondary || '#01bcc6',
     background: template.colors?.background || '#ffffff',
     text: template.colors?.text || '#111827',
     textSecondary: template.colors?.textSecondary || '#6b7280',
@@ -1624,7 +1625,7 @@ function AdvancedSettings({ template, onChange }: SettingsProps) {
           className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:border-blue-500 font-mono"
           style={{
             borderColor: template?.colors?.border || '#e5e7eb',
-            '--tw-ring-color': template?.colors?.primary || '#3b82f6'
+            '--tw-ring-color': template?.colors?.primary || '#01bcc6'
           } as React.CSSProperties}
         />
       </div>

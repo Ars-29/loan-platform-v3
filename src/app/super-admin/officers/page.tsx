@@ -221,7 +221,7 @@ function SuperAdminOfficersContent() {
   return (
     <div className="space-y-6">
           {/* Filters */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border">
             <div className="space-y-4">
               {/* Search Bar */}
               <div>
@@ -260,8 +260,8 @@ function SuperAdminOfficersContent() {
                       setSearchTerm('');
                       setSelectedCompany('');
                     }}
-                    variant="secondary"
-                    className="w-full"
+                    variant="primary"
+                    className="w-full bg-[#01bcc6] hover:bg-[#008eab] text-white"
                   >
                     Clear Filters
                   </Button>
@@ -271,16 +271,17 @@ function SuperAdminOfficersContent() {
           </div>
 
           {/* Officers Table */}
-          <SpotlightCard variant="primary" className="p-6">
+          <SpotlightCard variant="default" className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">
                 Officers ({filteredOfficers.length})
               </h3>
               <Button
-                variant="secondary"
+                variant="primary"
                 size="sm"
                 onClick={fetchOfficers}
                 disabled={loading}
+                className="bg-[#01bcc6] hover:bg-[#008eab] text-white"
               >
                 <Icon name="refresh" className="w-4 h-4 mr-2" />
                 Refresh
@@ -319,7 +320,7 @@ function SuperAdminOfficersContent() {
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-[#F7F1E9]/30 divide-y divide-gray-200">
                       {paginatedOfficers.map((officer) => (
                         <tr key={officer.id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -362,10 +363,10 @@ function SuperAdminOfficersContent() {
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div className="flex items-center space-x-2">
                               <Button
-                                variant="secondary"
+                                variant="primary"
                                 size="sm"
                                 onClick={() => handleViewDetails(officer)}
-                                className="text-xs"
+                                className="text-xs bg-[#01bcc6] hover:bg-[#008eab] text-white"
                               >
                                 View Details
                               </Button>

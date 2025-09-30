@@ -49,7 +49,7 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
 
   return (
     <div 
-      className={`bg-white rounded-lg border border-gray-200 p-4 ${className}`}
+      className={`bg-[#F7F1E9]/30 rounded-lg border border-gray-200 p-4 ${className}`}
       style={{
         borderRadius: borderRadius.lg,
         border: `1px solid ${colors.gray[200]}`,
@@ -88,7 +88,7 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
               {React.createElement(icons.filter, { size: 16 })}
               <span className="ml-1">Filters</span>
               {hasActiveFilters && (
-                <span className="ml-1 bg-blue-600 text-white rounded-full px-1.5 py-0.5 text-xs">
+                <span className="ml-1 bg-[#01bcc6] text-white rounded-full px-1.5 py-0.5 text-xs">
                   {filters.filter(f => f.value !== '').length}
                 </span>
               )}
@@ -97,10 +97,10 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
             {/* Clear filters button */}
             {hasActiveFilters && onClearFilters && (
               <Button
-                variant="ghost"
+                variant="primary"
                 size="sm"
                 onClick={onClearFilters}
-                className="text-red-600 hover:text-red-800"
+                className="bg-[#01bcc6] hover:bg-[#008eab] text-white"
               >
                 Clear
               </Button>
@@ -130,7 +130,7 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
                 <select
                   value={filter.value}
                   onChange={(e) => filter.onChange(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
                   style={{
                     borderRadius: borderRadius.md,
                     border: `1px solid ${colors.gray[300]}`,
@@ -153,10 +153,10 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
           {hasActiveFilters && onClearFilters && (
             <div className="mt-4 hidden sm:block">
               <Button
-                variant="ghost"
+                variant="primary"
                 size="sm"
                 onClick={onClearFilters}
-                className="text-red-600 hover:text-red-800 flex items-center"
+                className="bg-[#01bcc6] hover:bg-[#008eab] text-white flex items-center"
               >
                 {React.createElement(icons.x, { size: 16 })}
                 <span className="ml-1">Clear all filters</span>

@@ -66,10 +66,10 @@ const CleanDashboardChart: React.FC<CleanDashboardChartProps> = ({
           <Line
             type="monotone"
             dataKey="value"
-            stroke="#3b82f6"
+            stroke="#01bcc6"
             strokeWidth={3}
-            dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
-            activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2 }}
+            dot={{ fill: '#01bcc6', strokeWidth: 2, r: 4 }}
+            activeDot={{ r: 6, stroke: '#01bcc6', strokeWidth: 2 }}
           />
         </LineChart>
       );
@@ -94,7 +94,7 @@ const CleanDashboardChart: React.FC<CleanDashboardChartProps> = ({
         <Tooltip content={<CustomTooltip />} />
         <Bar 
           dataKey="value"
-          fill="#3b82f6"
+          fill="#01bcc6"
           radius={[4, 4, 0, 0]}
         />
       </BarChart>

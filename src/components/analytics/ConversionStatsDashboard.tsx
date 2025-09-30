@@ -5,7 +5,10 @@ import { useAuth } from '@/hooks/use-auth';
 import LeadVolumeChart from './charts/LeadVolumeChart';
 import OfficerPerformanceChart from './charts/OfficerPerformanceChart';
 import ConversionFunnelChart from './charts/ConversionFunnelChart';
+import SimpleTrendChart from './charts/SimpleTrendChart';
+import CleanBarChart from './charts/CleanBarChart';
 import DateRangeFilter from './filters/DateRangeFilter';
+import { TableLoadingState } from '@/components/ui/LoadingState';
 
 interface ConversionStatsData {
   totalLeads: number;
@@ -46,6 +49,7 @@ interface ConversionFunnelData {
   stage: string;
   count: number;
   percentage: number;
+  color: string;
 }
 
 interface ConversionStatsDashboardProps {
@@ -143,9 +147,7 @@ const ConversionStatsDashboard: React.FC<ConversionStatsDashboardProps> = ({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
+      <TableLoadingState />
     );
   }
 
@@ -173,6 +175,13 @@ const ConversionStatsDashboard: React.FC<ConversionStatsDashboardProps> = ({
 
   const { conversionStats, officerPerformance, revenueTrends, conversionFunnelData, companyComparison, metrics } = data;
 
+  // Debug logging
+  console.log('ConversionStatsDashboard data:', {
+    conversionStats,
+    revenueTrends: revenueTrends?.length,
+    officerPerformance: officerPerformance?.length
+  });
+
   return (
     <div className="space-y-6">
       {/* Header with Filters */}
@@ -181,7 +190,7 @@ const ConversionStatsDashboard: React.FC<ConversionStatsDashboardProps> = ({
           {isSuperAdmin && onBackToCompanies && (
             <button
               onClick={onBackToCompanies}
-              className="mb-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-lg border-0 flex items-center transition-all duration-200"
+              className="mb-2 px-4 py-2 text-sm font-medium text-white bg-[#005b7c] hover:bg-[#01bcc6] rounded-lg border-0 flex items-center transition-all duration-200"
             >
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -189,18 +198,7 @@ const ConversionStatsDashboard: React.FC<ConversionStatsDashboardProps> = ({
               Back to Companies
             </button>
           )}
-          <h1 className="text-2xl font-bold text-gray-900">
-            {isSuperAdmin && selectedCompanyName 
-              ? `${selectedCompanyName} - Conversion Stats`
-              : 'Conversion Stats'
-            }
-          </h1>
-          <p className="text-gray-600">
-            {isSuperAdmin && selectedCompanyName
-              ? `Top 10 officers performance for ${selectedCompanyName}`
-              : 'Top 10 officers performance - Track conversion rates and revenue performance'
-            }
-          </p>
+          
         </div>
         <div className="flex flex-wrap gap-3">
           <DateRangeFilter
@@ -212,56 +210,56 @@ const ConversionStatsDashboard: React.FC<ConversionStatsDashboardProps> = ({
 
       {/* Key Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Overall Conversion</p>
-              <p className="text-2xl font-bold text-green-600">{conversionStats.conversionRate.toFixed(3)}%</p>
+              <p className="text-2xl font-bold text-[#01bcc6]">{conversionStats.conversionRate.toFixed(3)}%</p>
             </div>
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-12 h-12 bg-[#01bcc6]/10 rounded-lg flex items-center justify-center">
+              <svg className="w-6 h-6 text-[#01bcc6]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Closed Deals</p>
-              <p className="text-2xl font-bold text-blue-600">{conversionStats.closings.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-[#008eab]">{conversionStats.closings.toLocaleString()}</p>
             </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-12 h-12 bg-[#008eab]/10 rounded-lg flex items-center justify-center">
+              <svg className="w-6 h-6 text-[#008eab]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Avg Loan Amount</p>
-              <p className="text-2xl font-bold text-purple-600">${metrics.avgLoanAmount.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-[#005b7c]">${metrics.avgLoanAmount.toLocaleString()}</p>
             </div>
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-12 h-12 bg-[#005b7c]/10 rounded-lg flex items-center justify-center">
+              <svg className="w-6 h-6 text-[#005b7c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-              <p className="text-2xl font-bold text-orange-600">${conversionStats.totalCommission.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-[#008eab]">${conversionStats.totalCommission.toLocaleString()}</p>
             </div>
-            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-12 h-12 bg-[#008eab]/10 rounded-lg flex items-center justify-center">
+              <svg className="w-6 h-6 text-[#008eab]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
               </svg>
             </div>
@@ -271,56 +269,96 @@ const ConversionStatsDashboard: React.FC<ConversionStatsDashboardProps> = ({
 
       {/* Conversion Rate Breakdown */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="text-center">
             <p className="text-sm font-medium text-gray-600">Lead → Application</p>
-            <p className="text-3xl font-bold text-blue-600">{metrics.leadToApplicationRate.toFixed(1)}%</p>
+            <p className="text-3xl font-bold text-[#005b7c]">{metrics.leadToApplicationRate.toFixed(1)}%</p>
             <p className="text-xs text-gray-500 mt-1">{conversionStats.applications} applications</p>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="text-center">
             <p className="text-sm font-medium text-gray-600">Application → Approval</p>
-            <p className="text-3xl font-bold text-green-600">{metrics.applicationToApprovalRate.toFixed(1)}%</p>
+            <p className="text-3xl font-bold text-[#008eab]">{metrics.applicationToApprovalRate.toFixed(1)}%</p>
             <p className="text-xs text-gray-500 mt-1">{conversionStats.approvals} approvals</p>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="text-center">
             <p className="text-sm font-medium text-gray-600">Approval → Closing</p>
-            <p className="text-3xl font-bold text-purple-600">{metrics.approvalToClosingRate.toFixed(1)}%</p>
+            <p className="text-3xl font-bold text-[#01bcc6]">{metrics.approvalToClosingRate.toFixed(1)}%</p>
             <p className="text-xs text-gray-500 mt-1">{conversionStats.closings} closings</p>
           </div>
         </div>
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Conversion Funnel */}
-        <ConversionFunnelChart
-          data={conversionFunnelData}
-          title="Conversion Funnel"
-          height={400}
-        />
+      
 
-        {/* Officer Performance */}
-        <OfficerPerformanceChart
-          data={officerPerformance}
-          title="Officer Performance"
-          height={400}
-          metric={selectedMetric}
-        />
-      </div>
-
-      {/* Revenue Trends */}
-      <LeadVolumeChart
-        data={revenueTrends}
-        title="Revenue Trends Over Time"
+      {/* Conversion Funnel */}
+      <ConversionFunnelChart
+        data={conversionStats ? (() => {
+          // Create proper funnel progression - each stage shows cumulative count
+          const totalLeads = conversionStats.totalLeads || 0;
+          const applications = conversionStats.applications || 0;
+          const approvals = conversionStats.approvals || 0;
+          const closings = conversionStats.closings || 0;
+          
+          const funnelData = [
+            {
+              stage: 'Total Leads',
+              count: totalLeads,
+              percentage: 100,
+              color: '#005b7c'
+            },
+            {
+              stage: 'Applications',
+              count: applications,
+              percentage: totalLeads ? Math.round((applications / totalLeads) * 100) : 0,
+              color: '#008eab'
+            },
+            {
+              stage: 'Approvals',
+              count: approvals,
+              percentage: totalLeads ? Math.round((approvals / totalLeads) * 100) : 0,
+              color: '#01bcc6'
+            },
+            {
+              stage: 'Closings',
+              count: closings,
+              percentage: totalLeads ? Math.round((closings / totalLeads) * 100) : 0,
+              color: '#01bcc6'
+            }
+          ];
+          
+          console.log('Conversion Funnel data being passed:', funnelData);
+          return funnelData;
+        })() : [
+          // Fallback test data with proper funnel progression
+          { stage: 'Total Leads', count: 47, percentage: 100, color: '#005b7c' },
+          { stage: 'Applications', count: 11, percentage: 23, color: '#008eab' },
+          { stage: 'Approvals', count: 3, percentage: 6, color: '#01bcc6' },
+          { stage: 'Closings', count: 8, percentage: 17, color: '#01bcc6' }
+        ]}
+        title="Lead Conversion Funnel"
         height={400}
       />
 
+      {/* Performance Trends */}
+      <SimpleTrendChart
+        data={revenueTrends && revenueTrends.length > 0 ? revenueTrends.map(item => ({
+          date: item.date,
+          totalLeads: item.totalLeads,
+          convertedLeads: item.convertedLeads,
+          conversionRate: item.totalLeads > 0 ? Math.round((item.convertedLeads / item.totalLeads) * 100) : 0
+        })) : []}
+        title="Lead Performance Trends"
+        height={400}
+        chartType="area"
+      />
+
       {/* Metric Selector for Officer Performance */}
-      <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+      <div className="bg-[#F7F1E9]/30 p-4 rounded-lg shadow-sm border border-gray-200">
         <h3 className="text-sm font-semibold text-gray-900 mb-3">Performance Metric</h3>
         <div className="flex flex-wrap gap-2">
           {[
@@ -335,7 +373,7 @@ const ConversionStatsDashboard: React.FC<ConversionStatsDashboardProps> = ({
               onClick={() => setSelectedMetric(metric.key as any)}
               className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
                 selectedMetric === metric.key
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-[#005b7c] text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -375,17 +413,17 @@ const ConversionStatsDashboard: React.FC<ConversionStatsDashboardProps> = ({
                   <button
                     onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                     disabled={currentPage === 1 || paginationLoading}
-                    className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300"
+                    className="px-3 py-1 text-sm bg-[#01bcc6] text-white rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#008eab] disabled:bg-gray-300 disabled:text-gray-500"
                   >
                     {paginationLoading ? '...' : 'Previous'}
                   </button>
-                  <span className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded">
+                  <span className="px-3 py-1 text-sm bg-[#01bcc6]/10 text-[#01bcc6] rounded">
                     {currentPage} of {totalPages}
                   </span>
                   <button
                     onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                     disabled={currentPage === totalPages || paginationLoading}
-                    className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300"
+                    className="px-3 py-1 text-sm bg-[#01bcc6] text-white rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#008eab] disabled:bg-gray-300 disabled:text-gray-500"
                   >
                     {paginationLoading ? '...' : 'Next'}
                   </button>
@@ -398,7 +436,7 @@ const ConversionStatsDashboard: React.FC<ConversionStatsDashboardProps> = ({
 
       {/* Loan Officer Comparison (Super Admin only) */}
       {isSuperAdmin && companyComparison && (
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Loan Officer Comparison</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -411,7 +449,7 @@ const ConversionStatsDashboard: React.FC<ConversionStatsDashboardProps> = ({
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Revenue</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-[#F7F1E9]/30 divide-y divide-gray-200">
                 {companyComparison.slice(0, 10).map((officer) => (
                   <tr key={`${officer.companyId}-${officer.officerId}`}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -426,9 +464,9 @@ const ConversionStatsDashboard: React.FC<ConversionStatsDashboardProps> = ({
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                         officer.conversionRate >= 20 
-                          ? 'bg-green-100 text-green-800'
+                          ? 'bg-[#01bcc6]/10 text-[#01bcc6]'
                           : officer.conversionRate >= 10
-                          ? 'bg-yellow-100 text-yellow-800'
+                          ? 'bg-[#008eab]/10 text-[#008eab]'
                           : 'bg-red-100 text-red-800'
                       }`}>
                         {officer.conversionRate.toFixed(3)}%

@@ -194,7 +194,7 @@ export default function UnifiedHeroSection({
   // Comprehensive template data usage
   const colors = templateData?.template?.colors || {
     primary: '#ec4899',
-    secondary: '#3b82f6',
+    secondary: '#01bcc6',
     background: '#ffffff',
     text: '#111827',
     textSecondary: '#6b7280',
@@ -235,7 +235,7 @@ export default function UnifiedHeroSection({
       <section className={`relative overflow-hidden ${className}`}>
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#01bcc6] mx-auto mb-4"></div>
             <p className="text-gray-600">Loading profile...</p>
           </div>
         </div>

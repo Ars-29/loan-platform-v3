@@ -181,7 +181,7 @@ export default function OfficerDetailsPage({ params }: { params: Promise<{ slug:
               </div>
             </SpotlightCard>
 
-            <SpotlightCard variant="warning" className="p-6">
+            <SpotlightCard variant="primary" className="p-6">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <Icon name="alertTriangle" className="h-8 w-8 text-orange-600" />
@@ -193,7 +193,7 @@ export default function OfficerDetailsPage({ params }: { params: Promise<{ slug:
               </div>
             </SpotlightCard>
 
-            <SpotlightCard variant="warning" className="p-6">
+            <SpotlightCard variant="primary" className="p-6">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <Icon name="alertCircle" className="h-8 w-8 text-red-600" />
@@ -205,7 +205,7 @@ export default function OfficerDetailsPage({ params }: { params: Promise<{ slug:
               </div>
             </SpotlightCard>
 
-            <SpotlightCard variant="success" className="p-6">
+            <SpotlightCard variant="primary" className="p-6">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <Icon name="checkCircle" className="h-8 w-8 text-green-600" />
@@ -221,7 +221,7 @@ export default function OfficerDetailsPage({ params }: { params: Promise<{ slug:
           {/* Officer Information */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Basic Information */}
-            <SpotlightCard variant="neutral" className="p-6">
+            <SpotlightCard variant="default" className="p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
               <div className="space-y-3">
                 <div className="flex justify-between">
@@ -262,7 +262,7 @@ export default function OfficerDetailsPage({ params }: { params: Promise<{ slug:
             </SpotlightCard>
 
             {/* Public Profile */}
-            <SpotlightCard variant="neutral" className="p-6">
+            <SpotlightCard variant="default" className="p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Public Profile</h3>
               <div className="space-y-3">
                 <div className="flex justify-between">
@@ -307,7 +307,7 @@ export default function OfficerDetailsPage({ params }: { params: Promise<{ slug:
           </div>
 
           {/* Recent Leads */}
-          <SpotlightCard variant="neutral" className="p-6">
+          <SpotlightCard variant="default" className="p-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-900">Recent Leads</h3>
               <button

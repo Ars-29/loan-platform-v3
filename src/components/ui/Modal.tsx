@@ -143,7 +143,7 @@ export function FormModal({
             value={formData[field.name] || ''}
             onChange={(e) => handleInputChange(field.name, e.target.value)}
             placeholder={field.placeholder}
-            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-[#01bcc6] focus:border-[#01bcc6] ${
               hasError ? 'border-red-300' : 'border-gray-300'
             }`}
             rows={3}
@@ -157,7 +157,7 @@ export function FormModal({
             id={field.name}
             value={formData[field.name] || ''}
             onChange={(e) => handleInputChange(field.name, e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-[#01bcc6] focus:border-[#01bcc6] ${
               hasError ? 'border-red-300' : 'border-gray-300'
             }`}
             disabled={loading}
@@ -179,7 +179,7 @@ export function FormModal({
             value={formData[field.name] || ''}
             onChange={(e) => handleInputChange(field.name, e.target.value)}
             placeholder={field.placeholder}
-            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-[#01bcc6] focus:border-[#01bcc6] ${
               hasError ? 'border-red-300' : 'border-gray-300'
             }`}
             disabled={loading}

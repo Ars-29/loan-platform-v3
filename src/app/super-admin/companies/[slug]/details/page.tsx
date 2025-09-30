@@ -204,7 +204,7 @@ export default function CompanyDetailsPage({ params }: { params: Promise<{ slug:
               </div>
             </SpotlightCard>
 
-            <SpotlightCard variant="warning" className="p-6">
+            <SpotlightCard variant="secondary" className="p-6">
               <div className="flex items-center">
                 <div className="p-2 bg-yellow-100 rounded-lg">
                   <Icon name="alertTriangle" className="w-6 h-6 text-yellow-600" />
@@ -216,7 +216,7 @@ export default function CompanyDetailsPage({ params }: { params: Promise<{ slug:
               </div>
             </SpotlightCard>
 
-            <SpotlightCard variant="warning" className="p-6">
+            <SpotlightCard variant="secondary" className="p-6">
               <div className="flex items-center">
                 <div className="p-2 bg-red-100 rounded-lg">
                   <Icon name="alertCircle" className="w-6 h-6 text-red-600" />
@@ -228,7 +228,7 @@ export default function CompanyDetailsPage({ params }: { params: Promise<{ slug:
               </div>
             </SpotlightCard>
 
-            <SpotlightCard variant="success" className="p-6">
+            <SpotlightCard variant="primary" className="p-6">
               <div className="flex items-center">
                 <div className="p-2 bg-green-100 rounded-lg">
                   <Icon name="checkCircle" className="w-6 h-6 text-green-600" />
@@ -254,7 +254,7 @@ export default function CompanyDetailsPage({ params }: { params: Promise<{ slug:
           </div>
 
           {/* Company Information */}
-          <SpotlightCard variant="neutral" className="p-6">
+          <SpotlightCard variant="default" className="p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Company Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -369,7 +369,7 @@ export default function CompanyDetailsPage({ params }: { params: Promise<{ slug:
           </SpotlightCard>
 
           {/* Recent Leads Section */}
-          <SpotlightCard variant="warning" className="p-6">
+          <SpotlightCard variant="default" className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">Recent Leads</h3>
               <button

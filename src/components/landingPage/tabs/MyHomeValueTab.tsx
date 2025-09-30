@@ -32,7 +32,7 @@ export default function MyHomeValueTab({
   // Comprehensive template data usage
   const colors = templateData?.template?.colors || {
     primary: '#ec4899',
-    secondary: '#3b82f6',
+    secondary: '#01bcc6',
     background: '#ffffff',
     text: '#111827',
     textSecondary: '#6b7280',
@@ -126,7 +126,7 @@ export default function MyHomeValueTab({
         : 'w-8 h-8 rounded-lg flex items-center justify-center'
     },
     input: {
-      base: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+      base: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#01bcc6] focus:border-transparent',
       error: 'w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent'
     }
   };
@@ -396,19 +396,19 @@ button: {
               <div className={`${classes.card.body}`}>
                 <div className="space-y-3">
                   <div className="flex items-start space-x-3">
-                    <Icon name="info" size={20} className="text-blue-500 mt-0.5" />
+                    <Icon name="info" size={20} className="text-[#01bcc6] mt-0.5" />
                     <p className={`${classes.body.small}`}>
                       Estimates are based on public records and comparable sales
                     </p>
                   </div>
                   <div className="flex items-start space-x-3">
-                    <Icon name="info" size={20} className="text-blue-500 mt-0.5" />
+                    <Icon name="info" size={20} className="text-[#01bcc6] mt-0.5" />
                     <p className={`${classes.body.small}`}>
                       For accurate pricing, consult with a real estate professional
                     </p>
                   </div>
                   <div className="flex items-start space-x-3">
-                    <Icon name="info" size={20} className="text-blue-500 mt-0.5" />
+                    <Icon name="info" size={20} className="text-[#01bcc6] mt-0.5" />
                     <p className={`${classes.body.small}`}>
                       Values can vary based on property condition and market changes
                     </p>

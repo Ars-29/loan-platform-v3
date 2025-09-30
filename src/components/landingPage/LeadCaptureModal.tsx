@@ -72,7 +72,7 @@ export default function LeadCaptureModal({
   // Comprehensive template data usage
   const colors = templateData?.template?.colors || {
     primary: '#ec4899',
-    secondary: '#3b82f6',
+    secondary: '#01bcc6',
     background: '#ffffff',
     text: '#111827',
     textSecondary: '#6b7280',
@@ -129,7 +129,7 @@ export default function LeadCaptureModal({
       xs: 'text-xs text-gray-500 leading-normal'
     },
     input: {
-      base: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200',
+      base: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6] transition-all duration-200',
       error: 'border-red-300 focus:ring-red-500 focus:border-red-500'
     }
   };

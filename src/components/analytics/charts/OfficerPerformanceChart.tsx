@@ -132,7 +132,7 @@ const OfficerPerformanceChart: React.FC<OfficerPerformanceChartProps> = ({
             <Tooltip content={<CustomTooltip />} />
             <Bar 
               dataKey={(item) => getMetricValue(item)} 
-              fill="#3b82f6"
+              fill="#01bcc6"
               radius={[4, 4, 0, 0]}
             />
           </BarChart>

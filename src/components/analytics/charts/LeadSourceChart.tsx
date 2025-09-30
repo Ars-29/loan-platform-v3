@@ -30,7 +30,7 @@ const LeadSourceChart: React.FC<LeadSourceChartProps> = ({
 }) => {
   // Color palette for different sources
   const COLORS = [
-    '#3b82f6', // Blue
+    '#01bcc6', // Teal
     '#10b981', // Green
     '#f59e0b', // Amber
     '#ef4444', // Red

@@ -61,7 +61,7 @@ export const Card: React.FC<CardProps> = ({
 
   // Base card classes
   const baseClasses = `
-    bg-white rounded-lg
+    bg-[#F7F1E9]/30 rounded-lg
     ${border ? 'border border-gray-200' : ''}
     ${shadowClasses[shadow]}
     ${paddingClasses[padding]}

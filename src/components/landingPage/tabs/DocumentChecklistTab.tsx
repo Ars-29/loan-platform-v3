@@ -64,7 +64,7 @@ export default function DocumentChecklistTab({
   // Comprehensive template data usage
   const colors = templateData?.template?.colors || {
     primary: '#ec4899',
-    secondary: '#3b82f6',
+    secondary: '#01bcc6',
     background: '#ffffff',
     text: '#111827',
     textSecondary: '#6b7280',
@@ -139,7 +139,7 @@ export default function DocumentChecklistTab({
         : 'w-8 h-8 rounded-lg flex items-center justify-center'
     },
     select: {
-      base: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white',
+      base: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#01bcc6] focus:border-transparent bg-white',
       error: 'w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white'
     }
   };
@@ -928,7 +928,7 @@ button: {
       case 12: // Summary
         return (
           <div className="space-y-6">
-            <div className={`${classes.card.container} bg-blue-50`}>
+            <div className={`${classes.card.container} bg-[#01bcc6]/10`}>
               <div className={`${classes.card.body}`}>
                 <h3 className={`${classes.heading.h4} mb-4`}>
                   Your Required Documents Checklist

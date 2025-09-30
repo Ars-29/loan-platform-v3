@@ -66,7 +66,7 @@ function MortgageSearchForm({
     : getTemplateSync(template);
   const templateColors = templateData?.template?.colors || {
     primary: '#ec4899',
-    secondary: '#3b82f6',
+    secondary: '#01bcc6',
     background: '#ffffff',
     text: '#111827',
     textSecondary: '#6b7280',

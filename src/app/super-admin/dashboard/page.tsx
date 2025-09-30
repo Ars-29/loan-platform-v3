@@ -6,6 +6,7 @@ import { RouteGuard } from '@/components/auth/RouteGuard';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useAuth } from '@/hooks/use-auth';
 import { supabase } from '@/lib/supabase/client';
+import { DashboardLoadingState } from '@/components/ui/LoadingState';
 import { dashboard } from '@/theme/theme';
 import { icons } from '@/components/ui/Icon';
 import { Button } from '@/components/ui/Button';
@@ -313,26 +314,9 @@ export default function SuperAdminDashboardPage() {
           title="Super Admin Dashboard" 
           subtitle="Welcome to your super admin dashboard"
         >
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center', 
-            minHeight: '400px',
-            flexDirection: 'column',
-            gap: '16px'
-          }}>
-            <div style={{
-              width: '40px',
-              height: '40px',
-              border: '4px solid #e5e7eb',
-              borderTop: '4px solid #3b82f6',
-              borderRadius: '50%',
-              animation: 'spin 1s linear infinite'
-            }} />
-            <p style={{ color: '#6b7280', fontSize: '16px' }}>
-              {authLoading ? 'Loading user data...' : 'Loading platform data...'}
-            </p>
-          </div>
+          <DashboardLoadingState 
+            text={authLoading ? 'Loading user data...' : 'Loading platform data...'} 
+          />
         </DashboardLayout>
       </RouteGuard>
     );
@@ -357,7 +341,7 @@ export default function SuperAdminDashboardPage() {
             <div style={{
               width: '48px',
               height: '48px',
-              backgroundColor: '#fee2e2',
+              backgroundColor: '#EBDBC7',
               borderRadius: '50%',
               display: 'flex',
               alignItems: 'center',
@@ -395,16 +379,16 @@ export default function SuperAdminDashboardPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {/* Platform Statistics */}
           <div style={dashboard.grid.cols4}>
-            <SpotlightCard variant="primary" className="p-5">
+            <SpotlightCard variant="default" className="p-5">
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ flexShrink: 0 }}>
                   <div style={{
                     ...dashboard.statsCardIcon,
-                    backgroundColor: '#dbeafe'
+                    backgroundColor: 'rgba(1, 188, 198, 0.1)'
                   }}>
                     {React.createElement(icons.building, { 
                       size: 20, 
-                      style: { color: '#2563eb' } 
+                      style: { color: '#008eab' } 
                     })}
                   </div>
                 </div>
@@ -415,16 +399,16 @@ export default function SuperAdminDashboardPage() {
               </div>
             </SpotlightCard>
 
-            <SpotlightCard variant="success" className="p-5">
+            <SpotlightCard variant="default" className="p-5">
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ flexShrink: 0 }}>
                   <div style={{
                     ...dashboard.statsCardIcon,
-                    backgroundColor: '#dcfce7'
+                    backgroundColor: 'rgba(1, 188, 198, 0.1)'
                   }}>
                     {React.createElement(icons.profile, { 
                       size: 20, 
-                      style: { color: '#16a34a' } 
+                      style: { color: '#008eab' } 
                     })}
                   </div>
                 </div>
@@ -435,16 +419,16 @@ export default function SuperAdminDashboardPage() {
               </div>
             </SpotlightCard>
 
-            <SpotlightCard variant="warning" className="p-5">
+            <SpotlightCard variant="default" className="p-5">
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ flexShrink: 0 }}>
                   <div style={{
                     ...dashboard.statsCardIcon,
-                    backgroundColor: '#fef3c7'
+                    backgroundColor: 'rgba(1, 188, 198, 0.1)'
                   }}>
                     {React.createElement(icons.document, { 
                       size: 20, 
-                      style: { color: '#d97706' } 
+                      style: { color: '#008eab' } 
                     })}
                   </div>
                 </div>
@@ -455,16 +439,16 @@ export default function SuperAdminDashboardPage() {
               </div>
             </SpotlightCard>
 
-            <SpotlightCard variant="purple" className="p-5">
+            <SpotlightCard variant="default" className="p-5">
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ flexShrink: 0 }}>
                   <div style={{
                     ...dashboard.statsCardIcon,
-                    backgroundColor: '#e0e7ff'
+                    backgroundColor: 'rgba(1, 188, 198, 0.1)'
                   }}>
                     {React.createElement(icons.trendingUp, { 
                       size: 20, 
-                      style: { color: '#6366f1' } 
+                      style: { color: '#008eab' } 
                     })}
                   </div>
                 </div>
@@ -478,16 +462,16 @@ export default function SuperAdminDashboardPage() {
 
           {/* Platform Performance Metrics */}
           <div style={dashboard.grid.cols3}>
-            <SpotlightCard variant="neutral" className="p-5">
+            <SpotlightCard variant="default" className="p-5">
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ flexShrink: 0 }}>
                   <div style={{
                     ...dashboard.statsCardIcon,
-                    backgroundColor: '#f3e8ff'
+                    backgroundColor: 'rgba(1, 188, 198, 0.1)'
                   }}>
                     {React.createElement(icons.star, { 
                       size: 20, 
-                      style: { color: '#9333ea' } 
+                      style: { color: '#008eab' } 
                     })}
                   </div>
                 </div>
@@ -498,16 +482,16 @@ export default function SuperAdminDashboardPage() {
               </div>
             </SpotlightCard>
 
-            <SpotlightCard variant="success" className="p-5">
+            <SpotlightCard variant="default" className="p-5">
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ flexShrink: 0 }}>
                   <div style={{
                     ...dashboard.statsCardIcon,
-                    backgroundColor: '#dcfce7'
+                    backgroundColor: 'rgba(1, 188, 198, 0.1)'
                   }}>
                     {React.createElement(icons.checkCircle, { 
                       size: 20, 
-                      style: { color: '#16a34a' } 
+                      style: { color: '#008eab' } 
                     })}
                   </div>
                 </div>
@@ -518,16 +502,16 @@ export default function SuperAdminDashboardPage() {
               </div>
             </SpotlightCard>
 
-            <SpotlightCard variant="primary" className="p-5">
+            <SpotlightCard variant="default" className="p-5">
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ flexShrink: 0 }}>
                   <div style={{
                     ...dashboard.statsCardIcon,
-                    backgroundColor: '#dbeafe'
+                    backgroundColor: 'rgba(1, 188, 198, 0.1)'
                   }}>
                     {React.createElement(icons.calendar, { 
                       size: 20, 
-                      style: { color: '#2563eb' } 
+                      style: { color: '#008eab' } 
                     })}
                   </div>
                 </div>
@@ -540,101 +524,106 @@ export default function SuperAdminDashboardPage() {
           </div>
 
           {/* Quick Actions */}
-          <SpotlightCard variant="neutral" className="p-6">
+          <SpotlightCard variant="default" className="p-6">
             <h3 style={{
               fontSize: '18px',
-              fontWeight: 'medium',
-              color: '#111827',
+              fontWeight: 'bold',
+              color: '#005b7c',
               marginBottom: '16px'
             }}>
               Quick Actions
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px' }}>
               <SpotlightCard 
-                variant="primary" 
+                variant="default" 
                 onClick={() => router.push('/super-admin/companies')}
                 className="p-4 text-center cursor-pointer"
+                style={{ backgroundColor: 'white', border: '1px solid rgba(1, 188, 198, 0.2)' }}
               >
                 <div style={{
                   ...dashboard.quickActionIcon,
-                  backgroundColor: '#dbeafe',
+                  backgroundColor: 'rgba(1, 188, 198, 0.1)',
                   margin: '0 auto 8px auto'
                 }}>
                   {React.createElement(icons.building, { 
                     size: 20, 
-                    style: { color: '#2563eb' } 
+                    style: { color: '#008eab' } 
                   })}
                 </div>
                 <p style={dashboard.quickActionTitle}>Companies</p>
               </SpotlightCard>
 
               <SpotlightCard 
-                variant="success" 
+                variant="default" 
                 onClick={() => router.push('/super-admin/officers')}
                 className="p-4 text-center cursor-pointer"
+                style={{ backgroundColor: 'white', border: '1px solid rgba(1, 188, 198, 0.2)' }}
               >
                 <div style={{
                   ...dashboard.quickActionIcon,
-                  backgroundColor: '#dcfce7',
+                  backgroundColor: 'rgba(1, 188, 198, 0.1)',
                   margin: '0 auto 8px auto'
                 }}>
                   {React.createElement(icons.profile, { 
                     size: 20, 
-                    style: { color: '#16a34a' } 
+                    style: { color: '#008eab' } 
                   })}
                 </div>
                 <p style={dashboard.quickActionTitle}>Loan Officers</p>
               </SpotlightCard>
 
               <SpotlightCard 
-                variant="warning" 
+                variant="default" 
                 onClick={() => router.push('/super-admin/insights')}
                 className="p-4 text-center cursor-pointer"
+                style={{ backgroundColor: 'white', border: '1px solid rgba(1, 188, 198, 0.2)' }}
               >
                 <div style={{
                   ...dashboard.quickActionIcon,
-                  backgroundColor: '#fef3c7',
+                  backgroundColor: 'rgba(1, 188, 198, 0.1)',
                   margin: '0 auto 8px auto'
                 }}>
                   {React.createElement(icons.trendingUp, { 
                     size: 20, 
-                    style: { color: '#d97706' } 
+                    style: { color: '#008eab' } 
                   })}
                 </div>
                 <p style={dashboard.quickActionTitle}>Leads Insights</p>
               </SpotlightCard>
 
               <SpotlightCard 
-                variant="purple" 
+                variant="default" 
                 onClick={() => router.push('/super-admin/stats')}
                 className="p-4 text-center cursor-pointer"
+                style={{ backgroundColor: 'white', border: '1px solid rgba(1, 188, 198, 0.2)' }}
               >
                 <div style={{
                   ...dashboard.quickActionIcon,
-                  backgroundColor: '#e0e7ff',
+                  backgroundColor: 'rgba(1, 188, 198, 0.1)',
                   margin: '0 auto 8px auto'
                 }}>
                   {React.createElement(icons.calculator, { 
                     size: 20, 
-                    style: { color: '#6366f1' } 
+                    style: { color: '#008eab' } 
                   })}
                 </div>
                 <p style={dashboard.quickActionTitle}>Conversion Stats</p>
               </SpotlightCard>
 
               <SpotlightCard 
-                variant="lightGreen" 
+                variant="default" 
                 onClick={() => router.push('/super-admin/settings')}
                 className="p-4 text-center cursor-pointer"
+                style={{ backgroundColor: 'white', border: '1px solid rgba(1, 188, 198, 0.2)' }}
               >
                 <div style={{
                   ...dashboard.quickActionIcon,
-                  backgroundColor: '#dcfce7',
+                  backgroundColor: 'rgba(1, 188, 198, 0.1)',
                   margin: '0 auto 8px auto'
                 }}>
                   {React.createElement(icons.settings, { 
                     size: 20, 
-                    style: { color: '#16a34a' } 
+                    style: { color: '#008eab' } 
                   })}
                 </div>
                 <p style={dashboard.quickActionTitle}>Settings</p>
@@ -645,28 +634,20 @@ export default function SuperAdminDashboardPage() {
           {/* Platform Management & Analytics */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
             {/* Recent Companies */}
-            <SpotlightCard variant="neutral" className="p-6">
+            <SpotlightCard variant="default" className="p-6">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <h3 style={{
                   fontSize: '18px',
-                  fontWeight: 'medium',
-                  color: '#111827'
+                  fontWeight: 'bold',
+                  color: '#005b7c'
                 }}>
                   Recent Companies
                 </h3>
                 <Button
-                  variant="secondary"
+                  variant="primary"
                   size="sm"
                   onClick={() => router.push('/super-admin/companies')}
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    fontWeight: '500',
-                    border: '1px solid #e5e7eb',
-                    backgroundColor: '#f9fafb',
-                    color: '#374151'
-                  }}
+                  className="bg-[#01bcc6] hover:bg-[#008eab] text-white"
                 >
                   View All
                 </Button>
@@ -680,15 +661,15 @@ export default function SuperAdminDashboardPage() {
                         display: 'flex',
                         alignItems: 'center',
                         padding: '12px',
-                        backgroundColor: '#f9fafb',
+                        backgroundColor: 'white',
                         borderRadius: '8px',
-                        border: '1px solid #e5e7eb'
+                        border: '1px solid rgba(1, 188, 198, 0.2)'
                       }}
                     >
                       <div style={{
                         width: '32px',
                         height: '32px',
-                        backgroundColor: '#dbeafe',
+                        backgroundColor: 'rgba(1, 188, 198, 0.1)',
                         borderRadius: '50%',
                         display: 'flex',
                         alignItems: 'center',
@@ -718,28 +699,20 @@ export default function SuperAdminDashboardPage() {
             </SpotlightCard>
 
             {/* Recent Officers */}
-            <SpotlightCard variant="success" className="p-6">
+            <SpotlightCard variant="default" className="p-6">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <h3 style={{
                   fontSize: '18px',
-                  fontWeight: 'medium',
-                  color: '#111827'
+                  fontWeight: 'bold',
+                  color: '#005b7c'
                 }}>
                   Recent Officers
                 </h3>
                 <Button
-                  variant="secondary"
+                  variant="primary"
                   size="sm"
                   onClick={() => router.push('/super-admin/officers')}
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    fontWeight: '500',
-                    border: '1px solid #e5e7eb',
-                    backgroundColor: '#f9fafb',
-                    color: '#374151'
-                  }}
+                  className="bg-[#01bcc6] hover:bg-[#008eab] text-white"
                 >
                   View All
                 </Button>
@@ -753,15 +726,15 @@ export default function SuperAdminDashboardPage() {
                         display: 'flex',
                         alignItems: 'center',
                         padding: '12px',
-                        backgroundColor: '#f9fafb',
+                        backgroundColor: 'white',
                         borderRadius: '8px',
-                        border: '1px solid #e5e7eb'
+                        border: '1px solid rgba(1, 188, 198, 0.2)'
                       }}
                     >
                       <div style={{
                         width: '32px',
                         height: '32px',
-                        backgroundColor: '#dcfce7',
+                        backgroundColor: 'rgba(1, 188, 198, 0.1)',
                         borderRadius: '50%',
                         display: 'flex',
                         alignItems: 'center',
@@ -791,28 +764,20 @@ export default function SuperAdminDashboardPage() {
             </SpotlightCard>
 
             {/* Recent Leads */}
-            <SpotlightCard variant="warning" className="p-6">
+            <SpotlightCard variant="default" className="p-6">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <h3 style={{
                   fontSize: '18px',
-                  fontWeight: 'medium',
-                  color: '#111827'
+                  fontWeight: 'bold',
+                  color: '#005b7c'
                 }}>
                   Recent Leads
                 </h3>
                 <Button
-                  variant="secondary"
+                  variant="primary"
                   size="sm"
                   onClick={() => router.push('/super-admin/insights')}
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    fontWeight: '500',
-                    border: '1px solid #e5e7eb',
-                    backgroundColor: '#f9fafb',
-                    color: '#374151'
-                  }}
+                  className="bg-[#01bcc6] hover:bg-[#008eab] text-white"
                 >
                   View All
                 </Button>
@@ -826,9 +791,9 @@ export default function SuperAdminDashboardPage() {
                         display: 'flex',
                         alignItems: 'center',
                         padding: '12px',
-                        backgroundColor: '#f9fafb',
+                        backgroundColor: 'white',
                         borderRadius: '8px',
-                        border: '1px solid #e5e7eb'
+                        border: '1px solid rgba(1, 188, 198, 0.2)'
                       }}
                     >
                       <div style={{

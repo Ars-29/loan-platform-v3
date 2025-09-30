@@ -32,7 +32,7 @@ export default function FindMyHomeTab({
   // Comprehensive template data usage
   const colors = templateData?.template?.colors || {
     primary: '#ec4899',
-    secondary: '#3b82f6',
+    secondary: '#01bcc6',
     background: '#ffffff',
     text: '#111827',
     textSecondary: '#6b7280',
@@ -126,18 +126,18 @@ export default function FindMyHomeTab({
         : 'w-8 h-8 rounded-lg flex items-center justify-center'
     },
     input: {
-      base: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+      base: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#01bcc6] focus:border-transparent',
       error: 'w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent'
     },
     select: {
-      base: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white',
+      base: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#01bcc6] focus:border-transparent bg-white',
       error: 'w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white'
     },
     status: {
       success: 'text-green-600 bg-green-50 px-2 py-1 rounded text-sm',
       warning: 'text-yellow-600 bg-yellow-50 px-2 py-1 rounded text-sm',
       error: 'text-red-600 bg-red-50 px-2 py-1 rounded text-sm',
-      info: 'text-blue-600 bg-blue-50 px-2 py-1 rounded text-sm'
+      info: 'text-[#01bcc6] bg-[#01bcc6]/10 px-2 py-1 rounded text-sm'
     }
   };
   const templateClasses = templateData?.template?.classes;

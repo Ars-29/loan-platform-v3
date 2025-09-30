@@ -87,6 +87,8 @@ export default function RecentActivity({ className }: RecentActivityProps) {
 
       const result = await response.json();
       
+      console.log('📊 Recent Activity Response:', result);
+      
       if (result.success) {
         // Deduplicate activities by ID to prevent duplicate keys
         const uniqueActivities = result.data.activities.reduce((acc: ActivityItem[], activity: ActivityItem) => {
@@ -96,6 +98,7 @@ export default function RecentActivity({ className }: RecentActivityProps) {
           return acc;
         }, []);
         
+        console.log(`📊 Setting ${uniqueActivities.length} unique activities`);
         setActivities(uniqueActivities);
         setError(null);
       } else {
@@ -310,7 +313,7 @@ export default function RecentActivity({ className }: RecentActivityProps) {
 
   const getActivityColor = (type: string) => {
     switch (type) {
-      case 'lead_created': return '#3b82f6';
+      case 'lead_created': return '#01bcc6';
       case 'lead_updated': return '#10b981';
       case 'lead_converted': return '#f59e0b';
       case 'officer_added': return '#8b5cf6';
@@ -420,8 +423,8 @@ export default function RecentActivity({ className }: RecentActivityProps) {
       <div style={dashboard.card} className={className}>
         <h3 style={{
           fontSize: '18px',
-          fontWeight: 'medium',
-          color: '#111827',
+          fontWeight: 'bold',
+          color: '#005b7c',
           marginBottom: '16px'
         }}>
           Recent Activity
@@ -436,7 +439,7 @@ export default function RecentActivity({ className }: RecentActivityProps) {
             width: '24px',
             height: '24px',
             border: '2px solid #e5e7eb',
-            borderTop: '2px solid #3b82f6',
+            borderTop: '2px solid #01bcc6',
             borderRadius: '50%',
             animation: 'spin 1s linear infinite',
             marginBottom: '8px'
@@ -452,8 +455,8 @@ export default function RecentActivity({ className }: RecentActivityProps) {
       <div style={dashboard.card} className={className}>
         <h3 style={{
           fontSize: '18px',
-          fontWeight: 'medium',
-          color: '#111827',
+          fontWeight: 'bold',
+          color: '#005b7c',
           marginBottom: '16px'
         }}>
           Recent Activity
@@ -479,8 +482,8 @@ export default function RecentActivity({ className }: RecentActivityProps) {
       }}>
         <h3 style={{
           fontSize: '18px',
-          fontWeight: 'medium',
-          color: '#111827'
+          fontWeight: 'bold',
+          color: '#005b7c'
         }}>
           Recent Activity
         </h3>
@@ -623,17 +626,17 @@ export default function RecentActivity({ className }: RecentActivityProps) {
           <button
             style={{
               fontSize: '14px',
-              color: '#3b82f6',
+              color: '#01bcc6',
               background: 'none',
               border: 'none',
               cursor: 'pointer',
               textDecoration: 'underline'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.color = '#2563eb';
+              e.currentTarget.style.color = '#008eab';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.color = '#3b82f6';
+              e.currentTarget.style.color = '#01bcc6';
             }}
           >
             View All Activity

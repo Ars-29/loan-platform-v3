@@ -8,6 +8,8 @@ import { EmailInput, PasswordInput } from '@/components/ui/Input';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { useNotification } from '@/components/ui/Notification';
 import Modal from '@/components/ui/Modal';
+import { PageLoadingState } from '@/components/ui/LoadingState';
+import { LiquidChromeBackground } from '@/components/ui/LiquidChromeBackground';
 // Removed Session import - not needed for free plan
 
 function AuthPageContent() {
@@ -191,135 +193,189 @@ function AuthPageContent() {
   // Signup functionality removed - only admin-created accounts
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to Loan Officer Platform
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Access your dashboard
-          </p>
-        </div>
-        
-        {success && (
-          <div className="mt-4 bg-green-50 border border-green-200 rounded-md p-3 text-center animate-in fade-in-0 slide-in-from-top-1 duration-300">
-            <p className="text-green-800 text-sm">{success}</p>
-          </div>
-        )}
-        
-        <form className="mt-8 space-y-6" onSubmit={handleSignIn}>
-          <div className="space-y-4">
-            <EmailInput
-              label="Email Address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              required
-              autoComplete="email"
-            />
-            <PasswordInput
-              label="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              required
-              autoComplete="current-password"
-            />
-          </div>
-
-          {error && (
-            <div className="bg-orange-50 border border-orange-200 rounded-md p-3 text-center animate-in fade-in-0 slide-in-from-top-1 duration-300">
-              <p className="text-orange-800 text-sm">
-                {error}
-              </p>
-              {error.includes('Wrong credentials') && (
-                <p className="text-orange-700 text-xs mt-1">
-                  💡 Try checking your caps lock or contact your administrator if you're unsure
-                </p>
-              )}
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#005b7c] via-[#008eab] to-[#01bcc6]">
+      <LiquidChromeBackground />
+      
+      {/* Header */}
+      <header className="bg-[#F7F1E9]/95 backdrop-blur-xl shadow-lg border-b border-[#F7F1E9]/30 relative z-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-[#005b7c] to-[#01bcc6] bg-clip-text text-transparent">
+                Loan Officer Platform
+              </h1>
             </div>
-          )}
-
-          <div className="flex space-x-3">
-            <Button
-              type="submit"
-              disabled={isLoading}
-              loading={isLoading}
-              className="w-full"
-            >
-              {isLoading ? 'Signing in...' : 'Sign in'}
-            </Button>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => window.location.href = '/'}
+                className="text-[#005b7c] hover:text-[#01bcc6] font-medium transition-colors duration-200"
+              >
+                Back to Home
+              </button>
+            </div>
           </div>
-        </form>
-
-        <div className="text-center space-y-4">
-          <button
-            onClick={handleForgotPassword}
-            disabled={isLoading}
-            className="text-sm text-blue-600 hover:text-blue-500 font-medium disabled:opacity-50"
-          >
-            Forgot your password?
-          </button>
-          <p className="text-sm text-gray-600">
-            Contact your administrator for account access
-          </p>
         </div>
-      </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="relative z-10 min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
+          {/* Login Card */}
+          <div className="bg-[#F7F1E9]/95 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-[#F7F1E9]/40">
+            <div className="text-center mb-8">
+              <h2 className="text-4xl font-bold text-[#005b7c] mb-4 drop-shadow-lg">
+                Welcome Back
+              </h2>
+              <p className="text-[#005b7c]/80 text-lg">
+                Sign in to access your dashboard
+              </p>
+            </div>
+            
+            {success && (
+              <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 text-center animate-in fade-in-0 slide-in-from-top-1 duration-300">
+                <p className="text-green-800 text-sm">{success}</p>
+              </div>
+            )}
+            
+            <form className="space-y-6" onSubmit={handleSignIn}>
+              <div className="space-y-4">
+                <EmailInput
+                  label="Email Address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required
+                  autoComplete="email"
+                />
+                <PasswordInput
+                  label="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  required
+                  autoComplete="current-password"
+                />
+              </div>
+
+              {error && (
+                <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 text-center animate-in fade-in-0 slide-in-from-top-1 duration-300">
+                  <p className="text-orange-800 text-sm">
+                    {error}
+                  </p>
+                  {error.includes('Wrong credentials') && (
+                    <p className="text-orange-700 text-xs mt-1">
+                      💡 Try checking your caps lock or contact your administrator if you're unsure
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <div className="space-y-4">
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  loading={isLoading}
+                  className="w-full bg-gradient-to-r from-[#01bcc6] to-[#008eab] hover:from-[#008eab] hover:to-[#005b7c] text-[#F7F1E9] py-3 text-lg font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  {isLoading ? 'Signing in...' : 'Sign in'}
+                </Button>
+              </div>
+            </form>
+
+            <div className="text-center space-y-4 mt-6">
+              <button
+                onClick={handleForgotPassword}
+                disabled={isLoading}
+                className="text-sm text-[#01bcc6] hover:text-[#008eab] font-medium disabled:opacity-50 transition-colors duration-200"
+              >
+                Forgot your password?
+              </button>
+              <p className="text-sm text-[#005b7c]/70">
+                Contact your administrator for account access
+              </p>
+            </div>
+          </div>
+        </div>
+      </main>
 
       {/* Forgot Password Modal */}
       <Modal
         isOpen={showForgotPasswordModal}
         onClose={() => setShowForgotPasswordModal(false)}
         title="Reset Password"
+        className="bg-[#F7F1E9]/95 backdrop-blur-xl border border-[#F7F1E9]/40"
       >
-        <div className="space-y-4">
-          <p className="text-sm text-gray-600">
-            Enter your email address and we'll send you a link to reset your password.
-          </p>
+        <div className="space-y-6">
+          <div className="text-center mb-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-[#01bcc6] to-[#008eab] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+              </svg>
+            </div>
+            <p className="text-[#005b7c] text-lg font-medium leading-relaxed">
+              Enter your email address and we'll send you a secure link to reset your password.
+            </p>
+          </div>
           
-          <div>
-            <label htmlFor="forgot-email" className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="space-y-2">
+            <label htmlFor="forgot-email" className="block text-sm font-semibold text-[#005b7c] mb-3">
               Email Address *
             </label>
-            <input
-              id="forgot-email"
-              type="email"
-              value={forgotPasswordEmail}
-              onChange={(e) => setForgotPasswordEmail(e.target.value)}
-              placeholder="Enter your email"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              disabled={forgotPasswordLoading}
-            />
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg className="w-5 h-5 text-[#01bcc6]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                </svg>
+              </div>
+              <input
+                id="forgot-email"
+                type="email"
+                value={forgotPasswordEmail}
+                onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                placeholder="Enter your email address"
+                className="w-full pl-12 pr-4 py-4 border-2 border-[#01bcc6]/20 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-[#01bcc6]/20 focus:border-[#01bcc6] transition-all duration-300 bg-[#F7F1E9]/50 backdrop-blur-sm text-[#005b7c] font-medium placeholder-[#005b7c]/50"
+                disabled={forgotPasswordLoading}
+              />
+            </div>
           </div>
 
           {forgotPasswordError && (
-            <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
-              {forgotPasswordError}
+            <div className="bg-red-50 border-2 border-red-200 p-4 rounded-xl shadow-lg animate-in fade-in-0 slide-in-from-top-2 duration-300">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-red-700 font-medium">{forgotPasswordError}</p>
+              </div>
             </div>
           )}
 
           {forgotPasswordSuccess && (
-            <div className="text-sm text-green-600 bg-green-50 p-3 rounded-md">
-              {forgotPasswordSuccess}
+            <div className="bg-green-50 border-2 border-green-200 p-4 rounded-xl shadow-lg animate-in fade-in-0 slide-in-from-top-2 duration-300">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-green-700 font-medium">{forgotPasswordSuccess}</p>
+              </div>
             </div>
           )}
 
-          <div className="flex space-x-3 pt-4">
+          <div className="flex space-x-4 pt-4">
             <Button
               onClick={handleForgotPasswordSubmit}
               disabled={forgotPasswordLoading || !forgotPasswordEmail}
               loading={forgotPasswordLoading}
-              className="flex-1"
+              className="flex-1 bg-gradient-to-r from-[#01bcc6] to-[#008eab] hover:from-[#008eab] hover:to-[#005b7c] text-white py-4 text-lg font-bold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
             >
-              {forgotPasswordLoading ? 'Sending...' : 'Get Reset Password Link'}
+              {forgotPasswordLoading ? 'Sending...' : 'Reset Password'}
             </Button>
             
             <Button
               onClick={() => setShowForgotPasswordModal(false)}
               variant="secondary"
               disabled={forgotPasswordLoading}
-              className="flex-1"
+              className="flex-1 bg-[#F7F1E9] text-[#005b7c] border-2 border-[#01bcc6]/30 hover:bg-[#01bcc6]/10 hover:border-[#01bcc6]/50 py-4 text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
             >
               Cancel
             </Button>
@@ -333,9 +389,7 @@ function AuthPageContent() {
 export default function AuthPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
+      <PageLoadingState />
     }>
       <AuthPageContent />
     </Suspense>

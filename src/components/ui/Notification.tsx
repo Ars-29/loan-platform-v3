@@ -111,7 +111,7 @@ const NotificationItem: React.FC<{ notification: Notification; onClose: (id: str
       case 'warning':
         return 'bg-yellow-50 border-yellow-200 text-yellow-800';
       case 'info':
-        return 'bg-blue-50 border-blue-200 text-blue-800';
+        return 'bg-[#01bcc6]/10 border-[#01bcc6]/20 text-[#01bcc6]';
     }
   };
 
@@ -124,7 +124,7 @@ const NotificationItem: React.FC<{ notification: Notification; onClose: (id: str
       case 'warning':
         return 'text-yellow-400';
       case 'info':
-        return 'text-blue-400';
+        return 'text-[#01bcc6]';
     }
   };
 
@@ -148,7 +148,7 @@ const NotificationItem: React.FC<{ notification: Notification; onClose: (id: str
           </div>
           <div className="ml-4 flex-shrink-0 flex">
             <button
-              className="bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#01bcc6]"
               onClick={() => onClose(notification.id)}
             >
               <span className="sr-only">Close</span>

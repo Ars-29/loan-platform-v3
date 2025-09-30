@@ -34,7 +34,7 @@ const SimpleDashboardChart: React.FC<SimpleDashboardChartProps> = ({
 }) => {
   // Clean, professional colors
   const COLORS = {
-    primary: '#3b82f6',    // Blue
+    primary: '#01bcc6',    // Teal
     success: '#10b981',    // Green
     warning: '#f59e0b',    // Amber
     danger: '#ef4444',     // Red
@@ -43,7 +43,7 @@ const SimpleDashboardChart: React.FC<SimpleDashboardChartProps> = ({
   };
 
   const PIE_COLORS = [
-    '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'
+    '#01bcc6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'
   ];
 
   const CustomTooltip = ({ active, payload, label }: any) => {

@@ -6,6 +6,7 @@ import { DataTable } from '@/components/ui/DataTable';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/hooks/use-auth';
+import { supabase } from '@/lib/supabase/client';
 import { typography, colors, spacing, borderRadius } from '@/theme/theme';
 import { icons } from '@/components/ui/Icon';
 import EnhancedLeadsTable from '@/components/analytics/tables/EnhancedLeadsTable';
@@ -172,21 +173,34 @@ export default function LeadsPage() {
 
   const handleStatusUpdate = async (leadId: string, newStatus: Lead['status']) => {
     try {
-      if (!accessToken) {
-        throw new Error('No access token available');
+      // Get fresh session to ensure we have a valid token
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session?.access_token) {
+        console.error('Session error:', sessionError);
+        throw new Error('Authentication failed. Please refresh the page and try again.');
       }
 
       const response = await fetch(`/api/leads/${leadId}/analytics`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
+          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({ status: newStatus }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update lead status');
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('API Error:', response.status, errorData);
+        
+        if (response.status === 401) {
+          throw new Error('Authentication expired. Please refresh the page and try again.');
+        } else if (response.status === 403) {
+          throw new Error('You do not have permission to edit this lead.');
+        } else {
+          throw new Error(`Failed to update lead status: ${errorData.error || 'Unknown error'}`);
+        }
       }
 
       // Update local state
@@ -195,29 +209,45 @@ export default function LeadsPage() {
           lead.id === leadId ? { ...lead, status: newStatus } : lead
         )
       );
+      
+      console.log('Lead status updated successfully');
     } catch (err) {
       console.error('Error updating lead status:', err);
-      alert('Failed to update lead status. Please try again.');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update lead status. Please try again.';
+      alert(errorMessage);
     }
   };
 
   const handleConversionStageUpdate = async (leadId: string, newStage: Lead['conversionStage']) => {
     try {
-      if (!accessToken) {
-        throw new Error('No access token available');
+      // Get fresh session to ensure we have a valid token
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session?.access_token) {
+        console.error('Session error:', sessionError);
+        throw new Error('Authentication failed. Please refresh the page and try again.');
       }
 
       const response = await fetch(`/api/leads/${leadId}/analytics`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
+          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({ conversionStage: newStage }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update conversion stage');
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('API Error:', response.status, errorData);
+        
+        if (response.status === 401) {
+          throw new Error('Authentication expired. Please refresh the page and try again.');
+        } else if (response.status === 403) {
+          throw new Error('You do not have permission to edit this lead.');
+        } else {
+          throw new Error(`Failed to update conversion stage: ${errorData.error || 'Unknown error'}`);
+        }
       }
 
       setLeads(prevLeads =>
@@ -225,29 +255,45 @@ export default function LeadsPage() {
           lead.id === leadId ? { ...lead, conversionStage: newStage } : lead
         )
       );
+      
+      console.log('Lead conversion stage updated successfully');
     } catch (err) {
       console.error('Error updating conversion stage:', err);
-      alert('Failed to update conversion stage. Please try again.');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update conversion stage. Please try again.';
+      alert(errorMessage);
     }
   };
 
   const handlePriorityUpdate = async (leadId: string, newPriority: Lead['priority']) => {
     try {
-      if (!accessToken) {
-        throw new Error('No access token available');
+      // Get fresh session to ensure we have a valid token
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session?.access_token) {
+        console.error('Session error:', sessionError);
+        throw new Error('Authentication failed. Please refresh the page and try again.');
       }
 
       const response = await fetch(`/api/leads/${leadId}/analytics`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
+          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({ priority: newPriority }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update priority');
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('API Error:', response.status, errorData);
+        
+        if (response.status === 401) {
+          throw new Error('Authentication expired. Please refresh the page and try again.');
+        } else if (response.status === 403) {
+          throw new Error('You do not have permission to edit this lead.');
+        } else {
+          throw new Error(`Failed to update priority: ${errorData.error || 'Unknown error'}`);
+        }
       }
 
       setLeads(prevLeads =>
@@ -255,29 +301,45 @@ export default function LeadsPage() {
           lead.id === leadId ? { ...lead, priority: newPriority } : lead
         )
       );
+      
+      console.log('Lead priority updated successfully');
     } catch (err) {
       console.error('Error updating priority:', err);
-      alert('Failed to update priority. Please try again.');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update priority. Please try again.';
+      alert(errorMessage);
     }
   };
 
   const handleQualityScoreUpdate = async (leadId: string, newScore: number) => {
     try {
-      if (!accessToken) {
-        throw new Error('No access token available');
+      // Get fresh session to ensure we have a valid token
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session?.access_token) {
+        console.error('Session error:', sessionError);
+        throw new Error('Authentication failed. Please refresh the page and try again.');
       }
 
       const response = await fetch(`/api/leads/${leadId}/analytics`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
+          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({ leadQualityScore: newScore }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update quality score');
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('API Error:', response.status, errorData);
+        
+        if (response.status === 401) {
+          throw new Error('Authentication expired. Please refresh the page and try again.');
+        } else if (response.status === 403) {
+          throw new Error('You do not have permission to edit this lead.');
+        } else {
+          throw new Error(`Failed to update quality score: ${errorData.error || 'Unknown error'}`);
+        }
       }
 
       setLeads(prevLeads =>
@@ -285,29 +347,45 @@ export default function LeadsPage() {
           lead.id === leadId ? { ...lead, leadQualityScore: newScore } : lead
         )
       );
+      
+      console.log('Lead quality score updated successfully');
     } catch (err) {
       console.error('Error updating quality score:', err);
-      alert('Failed to update quality score. Please try again.');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update quality score. Please try again.';
+      alert(errorMessage);
     }
   };
 
   const handleNotesUpdate = async (leadId: string, newNotes: string) => {
     try {
-      if (!accessToken) {
-        throw new Error('No access token available');
+      // Get fresh session to ensure we have a valid token
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session?.access_token) {
+        console.error('Session error:', sessionError);
+        throw new Error('Authentication failed. Please refresh the page and try again.');
       }
 
       const response = await fetch(`/api/leads/${leadId}/analytics`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
+          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({ notes: newNotes }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update notes');
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('API Error:', response.status, errorData);
+        
+        if (response.status === 401) {
+          throw new Error('Authentication expired. Please refresh the page and try again.');
+        } else if (response.status === 403) {
+          throw new Error('You do not have permission to edit this lead.');
+        } else {
+          throw new Error(`Failed to update notes: ${errorData.error || 'Unknown error'}`);
+        }
       }
 
       setLeads(prevLeads =>
@@ -315,9 +393,12 @@ export default function LeadsPage() {
           lead.id === leadId ? { ...lead, notes: newNotes } : lead
         )
       );
+      
+      console.log('Lead notes updated successfully');
     } catch (err) {
       console.error('Error updating notes:', err);
-      alert('Failed to update notes. Please try again.');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update notes. Please try again.';
+      alert(errorMessage);
     }
   };
 
@@ -432,42 +513,42 @@ export default function LeadsPage() {
         }}>
           <div style={{
             padding: spacing[4],
-            backgroundColor: colors.blue[50],
+            backgroundColor: 'rgba(247, 241, 233, 0.3)',
             borderRadius: borderRadius.lg,
-            border: `1px solid ${colors.blue[200]}`
+            border: `1px solid ${colors.gray[200]}`
           }}>
-            <div style={{ fontSize: typography.fontSize['2xl'], fontWeight: typography.fontWeight.bold, color: colors.blue[600] }}>
+            <div style={{ fontSize: typography.fontSize['2xl'], fontWeight: typography.fontWeight.bold, color: '#005b7c' }}>
               {filteredLeads.length}
             </div>
-            <div style={{ fontSize: typography.fontSize.sm, color: colors.blue[600] }}>
+            <div style={{ fontSize: typography.fontSize.sm, color: '#005b7c' }}>
               {searchQuery || statusFilter || stageFilter || priorityFilter || sourceFilter ? 'Filtered' : 'Total'} Leads
             </div>
           </div>
           
           <div style={{
             padding: spacing[4],
-            backgroundColor: colors.green[50],
+            backgroundColor: 'rgba(247, 241, 233, 0.3)',
             borderRadius: borderRadius.lg,
-            border: `1px solid ${colors.green[200]}`
+            border: `1px solid ${colors.gray[200]}`
           }}>
-            <div style={{ fontSize: typography.fontSize['2xl'], fontWeight: typography.fontWeight.bold, color: colors.green[600] }}>
+            <div style={{ fontSize: typography.fontSize['2xl'], fontWeight: typography.fontWeight.bold, color: '#008eab' }}>
               {filteredLeads.filter(lead => lead.status === 'new').length}
             </div>
-            <div style={{ fontSize: typography.fontSize.sm, color: colors.green[600] }}>
+            <div style={{ fontSize: typography.fontSize.sm, color: '#008eab' }}>
               New Leads
             </div>
           </div>
           
           <div style={{
             padding: spacing[4],
-            backgroundColor: colors.darkPurple[50],
+            backgroundColor: 'rgba(247, 241, 233, 0.3)',
             borderRadius: borderRadius.lg,
-            border: `1px solid ${colors.darkPurple[200]}`
+            border: `1px solid ${colors.gray[200]}`
           }}>
-            <div style={{ fontSize: typography.fontSize['2xl'], fontWeight: typography.fontWeight.bold, color: colors.darkPurple[600] }}>
+            <div style={{ fontSize: typography.fontSize['2xl'], fontWeight: typography.fontWeight.bold, color: '#01bcc6' }}>
               {filteredLeads.filter(lead => lead.status === 'converted').length}
             </div>
-            <div style={{ fontSize: typography.fontSize.sm, color: colors.darkPurple[600] }}>
+            <div style={{ fontSize: typography.fontSize.sm, color: '#01bcc6' }}>
               Converted
             </div>
           </div>

@@ -64,7 +64,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({
                 {item.href && !isLast ? (
                   <Link
                     href={item.href}
-                    className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                    className="text-[#01bcc6] hover:text-[#008eab] transition-colors duration-200"
                     style={{
                       color: colors.blue[600],
                       fontSize: typography.fontSize.sm,

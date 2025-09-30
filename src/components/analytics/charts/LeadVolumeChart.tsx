@@ -89,47 +89,47 @@ const LeadVolumeChart: React.FC<LeadVolumeChartProps> = ({
             <Line
               type="monotone"
               dataKey="totalLeads"
-              stroke="#3b82f6"
+              stroke="#005b7c"
               strokeWidth={2}
               name="Total Leads"
-              dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
-              activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2 }}
+              dot={{ fill: '#005b7c', strokeWidth: 2, r: 4 }}
+              activeDot={{ r: 6, stroke: '#005b7c', strokeWidth: 2 }}
             />
             <Line
               type="monotone"
               dataKey="convertedLeads"
-              stroke="#10b981"
+              stroke="#01bcc6"
               strokeWidth={2}
               name="Converted Leads"
-              dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
-              activeDot={{ r: 6, stroke: '#10b981', strokeWidth: 2 }}
+              dot={{ fill: '#01bcc6', strokeWidth: 2, r: 4 }}
+              activeDot={{ r: 6, stroke: '#01bcc6', strokeWidth: 2 }}
             />
             <Line
               type="monotone"
               dataKey="applications"
-              stroke="#f59e0b"
+              stroke="#008eab"
               strokeWidth={2}
               name="Applications"
-              dot={{ fill: '#f59e0b', strokeWidth: 2, r: 4 }}
-              activeDot={{ r: 6, stroke: '#f59e0b', strokeWidth: 2 }}
+              dot={{ fill: '#008eab', strokeWidth: 2, r: 4 }}
+              activeDot={{ r: 6, stroke: '#008eab', strokeWidth: 2 }}
             />
             <Line
               type="monotone"
               dataKey="approvals"
-              stroke="#8b5cf6"
+              stroke="#01bcc6"
               strokeWidth={2}
               name="Approvals"
-              dot={{ fill: '#8b5cf6', strokeWidth: 2, r: 4 }}
-              activeDot={{ r: 6, stroke: '#8b5cf6', strokeWidth: 2 }}
+              dot={{ fill: '#01bcc6', strokeWidth: 2, r: 4 }}
+              activeDot={{ r: 6, stroke: '#01bcc6', strokeWidth: 2 }}
             />
             <Line
               type="monotone"
               dataKey="closings"
-              stroke="#ef4444"
+              stroke="#008eab"
               strokeWidth={2}
               name="Closings"
-              dot={{ fill: '#ef4444', strokeWidth: 2, r: 4 }}
-              activeDot={{ r: 6, stroke: '#ef4444', strokeWidth: 2 }}
+              dot={{ fill: '#008eab', strokeWidth: 2, r: 4 }}
+              activeDot={{ r: 6, stroke: '#008eab', strokeWidth: 2 }}
             />
           </LineChart>
         </ResponsiveContainer>

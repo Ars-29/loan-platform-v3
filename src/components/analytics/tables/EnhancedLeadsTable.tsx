@@ -42,6 +42,7 @@ interface EnhancedLeadsTableProps {
   onQualityScoreUpdate: (leadId: string, newScore: number) => void;
   onNotesUpdate: (leadId: string, newNotes: string) => void;
   onViewDetails?: (lead: EnhancedLead) => void;
+  allowEditing?: boolean; // New prop to control editing permissions
 }
 
 const EnhancedLeadsTable: React.FC<EnhancedLeadsTableProps> = ({
@@ -52,7 +53,8 @@ const EnhancedLeadsTable: React.FC<EnhancedLeadsTableProps> = ({
   onPriorityUpdate,
   onQualityScoreUpdate,
   onNotesUpdate,
-  onViewDetails
+  onViewDetails,
+  allowEditing = true // Default to true for backward compatibility
 }) => {
   const [editingLead, setEditingLead] = useState<string | null>(null);
   const [editingField, setEditingField] = useState<string | null>(null);
@@ -198,7 +200,7 @@ const EnhancedLeadsTable: React.FC<EnhancedLeadsTableProps> = ({
       render: (value: any, lead: EnhancedLead, index: number) => {
         if (!lead) return <div className="text-gray-400">No data</div>;
         return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#01bcc6]/10 text-[#01bcc6]">
             {lead.source?.replace('_', ' ').toUpperCase() || 'Unknown'}
           </span>
         );
@@ -232,11 +234,11 @@ const EnhancedLeadsTable: React.FC<EnhancedLeadsTableProps> = ({
         }
         return (
           <div
-            className="cursor-pointer"
-            onClick={() => handleEditStart(lead.id, 'status', lead.status)}
+            className={allowEditing ? "cursor-pointer" : "cursor-default"}
+            onClick={allowEditing ? () => handleEditStart(lead.id, 'status', lead.status) : undefined}
           >
             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-              lead.status === 'new' ? 'bg-blue-100 text-blue-800' :
+              lead.status === 'new' ? 'bg-[#01bcc6]/10 text-[#01bcc6]' :
               lead.status === 'contacted' ? 'bg-yellow-100 text-yellow-800' :
               lead.status === 'qualified' ? 'bg-green-100 text-green-800' :
               lead.status === 'converted' ? 'bg-purple-100 text-purple-800' :
@@ -276,11 +278,11 @@ const EnhancedLeadsTable: React.FC<EnhancedLeadsTableProps> = ({
         }
         return (
           <div
-            className="cursor-pointer"
-            onClick={() => handleEditStart(lead.id, 'conversionStage', lead.conversionStage)}
+            className={allowEditing ? "cursor-pointer" : "cursor-default"}
+            onClick={allowEditing ? () => handleEditStart(lead.id, 'conversionStage', lead.conversionStage) : undefined}
           >
             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-              lead.conversionStage === 'lead' ? 'bg-blue-100 text-blue-800' :
+              lead.conversionStage === 'lead' ? 'bg-[#01bcc6]/10 text-[#01bcc6]' :
               lead.conversionStage === 'application' ? 'bg-yellow-100 text-yellow-800' :
               lead.conversionStage === 'approval' ? 'bg-green-100 text-green-800' :
               lead.conversionStage === 'closing' ? 'bg-purple-100 text-purple-800' :
@@ -319,12 +321,12 @@ const EnhancedLeadsTable: React.FC<EnhancedLeadsTableProps> = ({
         }
         return (
           <div
-            className="cursor-pointer"
-            onClick={() => handleEditStart(lead.id, 'priority', lead.priority)}
+            className={allowEditing ? "cursor-pointer" : "cursor-default"}
+            onClick={allowEditing ? () => handleEditStart(lead.id, 'priority', lead.priority) : undefined}
           >
             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
               lead.priority === 'low' ? 'bg-gray-100 text-gray-800' :
-              lead.priority === 'medium' ? 'bg-blue-100 text-blue-800' :
+              lead.priority === 'medium' ? 'bg-[#01bcc6]/10 text-[#01bcc6]' :
               lead.priority === 'high' ? 'bg-yellow-100 text-yellow-800' :
               lead.priority === 'urgent' ? 'bg-red-100 text-red-800' :
               'bg-gray-100 text-gray-800'
@@ -345,28 +347,8 @@ const EnhancedLeadsTable: React.FC<EnhancedLeadsTableProps> = ({
             variant="primary"
             size="sm"
             onClick={() => onViewDetails(lead)}
-            className="flex items-center"
+            className="border-0"
           >
-            <svg
-              className="w-4 h-4 mr-1"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-              />
-            </svg>
             View Details
           </Button>
         );
@@ -378,11 +360,14 @@ const EnhancedLeadsTable: React.FC<EnhancedLeadsTableProps> = ({
   const validLeads = leads.filter(lead => lead != null);
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div className="bg-[#F7F1E9]/30 rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       <div className="px-6 py-4 border-b border-gray-200">
         <h3 className="text-lg font-semibold text-gray-900">Enhanced Leads Management</h3>
         <p className="text-sm text-gray-600 mt-1">
-          Click on any field to edit. Track conversion stages, quality scores, and response times.
+          {allowEditing 
+            ? "Click on any field to edit. Track conversion stages, quality scores, and response times."
+            : "View lead information. Only Loan Officers can edit lead details."
+          }
         </p>
       </div>
       <DataTable

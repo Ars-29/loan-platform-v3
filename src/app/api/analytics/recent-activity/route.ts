@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { db, leads, users, companies, templates, publicLinkUsage, loanOfficerPublicLinks } from '@/lib/db';
+import { db, leads, users, companies, templates, publicLinkUsage, loanOfficerPublicLinks, userCompanies } from '@/lib/db';
 import { eq, desc, and, gte, sql } from 'drizzle-orm';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -60,45 +60,92 @@ export async function GET(request: NextRequest) {
 
     // Get company_id for non-super-admin users
     if (role !== 'super_admin') {
+      console.log(`🔍 Looking for company association for user: ${user.id}`);
+      
       const { data: userCompany, error: companyError } = await supabase
         .from('user_companies')
-        .select('company_id')
+        .select('company_id, role')
         .eq('user_id', user.id)
         .single();
 
+      console.log(`🔍 Company query result:`, { userCompany, companyError });
+
       if (companyError || !userCompany) {
         console.error('❌ Recent Activity API: Company not found for user:', user.id, 'Error:', companyError);
+        console.log('⚠️ Recent Activity API: User has no company association, but continuing to process activities');
         
-        // For new users who just accepted invites, they might not have a user_companies entry yet
-        // This can happen during the transition period after accepting an invite
-        console.log('⚠️ Recent Activity API: User has no company association yet, returning empty activities');
-        
-        // Return empty activities instead of error for new users
-        return NextResponse.json({
-          success: true,
-          data: { activities: [], total: 0 }
-        });
+        // Try alternative query using Drizzle ORM
+        try {
+          const drizzleCompany = await db
+            .select({ companyId: userCompanies.companyId, role: userCompanies.role })
+            .from(userCompanies)
+            .where(eq(userCompanies.userId, user.id))
+            .limit(1);
+          
+          if (drizzleCompany.length > 0) {
+            company_id = drizzleCompany[0].companyId;
+            console.log(`✅ Found company association via Drizzle: company_id=${company_id}, role=${drizzleCompany[0].role}`);
+          } else {
+            console.log('❌ No company association found via Drizzle either');
+            company_id = null;
+          }
+        } catch (drizzleError) {
+          console.error('❌ Drizzle query also failed:', drizzleError);
+          company_id = null;
+        }
+      } else {
+        company_id = userCompany.company_id;
+        console.log(`✅ Found company association: company_id=${company_id}, role=${userCompany.role}`);
       }
-
-      company_id = userCompany.company_id;
     }
     const activities: ActivityItem[] = [];
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30); // Extended to 30 days
+
+    console.log(`🔍 User: ${user.id}, Role: ${role}, Company ID: ${company_id}`);
+    console.log(`📅 Looking for activities since: ${thirtyDaysAgo.toISOString()}`);
+    
+    // Let's also check if there are ANY leads in the entire database
+    const totalLeads = await db.select({ count: sql<number>`count(*)` }).from(leads);
+    console.log(`📊 Total leads in database: ${totalLeads[0]?.count || 0}`);
+    
+    // Check if there are ANY templates in the entire database
+    const totalTemplates = await db.select({ count: sql<number>`count(*)` }).from(templates);
+    console.log(`🎨 Total templates in database: ${totalTemplates[0]?.count || 0}`);
 
     if (role === 'super_admin') {
-      await getSuperAdminActivities(activities, sevenDaysAgo);
+      await getSuperAdminActivities(activities, thirtyDaysAgo);
     } else if (role === 'company_admin' && company_id) {
-      await getCompanyAdminActivities(activities, company_id, sevenDaysAgo);
-    } else if (role === 'employee' && company_id) {
-      await getEmployeeActivities(activities, user.id, company_id, sevenDaysAgo);
-      // Add public profile views and template modifications for employees
-      await getPublicProfileViews(activities, user.id, sevenDaysAgo);
-      await getTemplateModifications(activities, user.id, sevenDaysAgo);
+      await getCompanyAdminActivities(activities, company_id, thirtyDaysAgo);
+    } else if (role === 'employee') {
+      // Process employee activities even without company_id
+      await getEmployeeActivities(activities, user.id, company_id, thirtyDaysAgo);
+      // Add public profile views and template modifications for employees (these don't require company_id)
+      await getPublicProfileViews(activities, user.id, thirtyDaysAgo);
+      await getTemplateModifications(activities, user.id, thirtyDaysAgo);
+      
+    } else {
+      console.log(`⚠️ No matching role found: role=${role}, company_id=${company_id}`);
+    }
+
+
+    // If no activities found, add a welcome activity
+    if (activities.length === 0) {
+      activities.push({
+        id: 'welcome_activity',
+        type: 'login',
+        title: 'Welcome!',
+        description: 'Your activity feed will show your recent actions here',
+        timestamp: new Date().toISOString(),
+        icon: '👋',
+        color: '#01bcc6'
+      });
     }
 
     activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
     const recentActivities = activities.slice(0, 10);
+
+    console.log(`📈 Recent Activity API: Found ${activities.length} total activities, returning ${recentActivities.length} recent activities for user ${user.id} (${role})`);
 
     return NextResponse.json({
       success: true,
@@ -160,7 +207,7 @@ async function getSuperAdminActivities(activities: ActivityItem[], since: Date) 
         companyName: lead.companyName,
         userName: lead.officerName,
         icon: '👤',
-        color: '#3b82f6'
+        color: '#01bcc6'
       });
     }
 
@@ -256,7 +303,7 @@ async function getCompanyAdminActivities(activities: ActivityItem[], companyId: 
         leadLastName: lead.lastName,
         userName: lead.officerName,
         icon: '👤',
-        color: '#3b82f6'
+        color: '#01bcc6'
       });
     }
 
@@ -296,59 +343,88 @@ async function getCompanyAdminActivities(activities: ActivityItem[], companyId: 
   });
 }
 
-async function getEmployeeActivities(activities: ActivityItem[], userId: string, companyId: string, since: Date) {
-  const userLeads = await db
-    .select({
-      id: leads.id,
-      firstName: leads.firstName,
-      lastName: leads.lastName,
-      status: leads.status,
-      conversionStage: leads.conversionStage,
-      createdAt: leads.createdAt,
-      updatedAt: leads.updatedAt
-    })
-    .from(leads)
-    .where(and(
-      eq(leads.officerId, userId),
-      gte(leads.createdAt, since)
-    ))
-    .orderBy(desc(leads.createdAt))
-    .limit(10);
+async function getEmployeeActivities(activities: ActivityItem[], userId: string, companyId: string | null, since: Date) {
+  try {
+    console.log(`🔍 Fetching employee activities for user ${userId} since ${since.toISOString()}`);
+    
+    // First, let's check if there are ANY leads for this user (without time filter)
+    const allUserLeads = await db
+      .select({
+        id: leads.id,
+        firstName: leads.firstName,
+        lastName: leads.lastName,
+        status: leads.status,
+        conversionStage: leads.conversionStage,
+        createdAt: leads.createdAt,
+        updatedAt: leads.updatedAt
+      })
+      .from(leads)
+      .where(eq(leads.officerId, userId))
+      .orderBy(desc(leads.createdAt))
+      .limit(5);
 
-  userLeads.forEach(lead => {
-    if (lead.createdAt) {
-      activities.push({
-        id: `my_lead_${lead.id}`,
-        type: 'lead_created',
-        title: 'New Lead',
-        description: `${lead.firstName} ${lead.lastName}`,
-        timestamp: lead.createdAt.toISOString(),
-        leadId: lead.id,
-        leadName: `${lead.firstName} ${lead.lastName}`,
-        leadFirstName: lead.firstName,
-        leadLastName: lead.lastName,
-        icon: '👤',
-        color: '#3b82f6'
-      });
+    console.log(`📊 Total leads for user ${userId}: ${allUserLeads.length}`);
+    if (allUserLeads.length > 0) {
+      console.log(`📊 Most recent lead: ${allUserLeads[0].firstName} ${allUserLeads[0].lastName} created at ${allUserLeads[0].createdAt}`);
     }
+    
+    const userLeads = await db
+      .select({
+        id: leads.id,
+        firstName: leads.firstName,
+        lastName: leads.lastName,
+        status: leads.status,
+        conversionStage: leads.conversionStage,
+        createdAt: leads.createdAt,
+        updatedAt: leads.updatedAt
+      })
+      .from(leads)
+      .where(and(
+        eq(leads.officerId, userId),
+        gte(leads.createdAt, since)
+      ))
+      .orderBy(desc(leads.createdAt))
+      .limit(10);
 
-    if (lead.updatedAt && lead.updatedAt.getTime() !== lead.createdAt?.getTime()) {
-      activities.push({
-        id: `my_lead_update_${lead.id}`,
-        type: 'lead_updated',
-        title: 'Lead Updated',
-        description: `${lead.firstName} ${lead.lastName} - ${lead.status}`,
-        timestamp: lead.updatedAt.toISOString(),
-        leadId: lead.id,
-        leadName: `${lead.firstName} ${lead.lastName}`,
-        leadFirstName: lead.firstName,
-        leadLastName: lead.lastName,
-        metadata: { status: lead.status, conversionStage: lead.conversionStage },
-        icon: '📊',
-        color: '#10b981'
-      });
-    }
-  });
+    console.log(`📊 Found ${userLeads.length} leads for employee ${userId} in the last 30 days`);
+
+    userLeads.forEach(lead => {
+      if (lead.createdAt) {
+        activities.push({
+          id: `my_lead_${lead.id}`,
+          type: 'lead_created',
+          title: 'New Lead',
+          description: `${lead.firstName} ${lead.lastName}`,
+          timestamp: lead.createdAt.toISOString(),
+          leadId: lead.id,
+          leadName: `${lead.firstName} ${lead.lastName}`,
+          leadFirstName: lead.firstName,
+          leadLastName: lead.lastName,
+          icon: '👤',
+          color: '#01bcc6'
+        });
+      }
+
+      if (lead.updatedAt && lead.updatedAt.getTime() !== lead.createdAt?.getTime()) {
+        activities.push({
+          id: `my_lead_update_${lead.id}`,
+          type: 'lead_updated',
+          title: 'Lead Updated',
+          description: `${lead.firstName} ${lead.lastName} - ${lead.status}`,
+          timestamp: lead.updatedAt.toISOString(),
+          leadId: lead.id,
+          leadName: `${lead.firstName} ${lead.lastName}`,
+          leadFirstName: lead.firstName,
+          leadLastName: lead.lastName,
+          metadata: { status: lead.status, conversionStage: lead.conversionStage },
+          icon: '📊',
+          color: '#10b981'
+        });
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error fetching employee activities:', error);
+  }
 }
 
 async function getPublicProfileViews(activities: ActivityItem[], userId: string, since: Date) {
@@ -397,6 +473,26 @@ async function getPublicProfileViews(activities: ActivityItem[], userId: string,
 
 async function getTemplateModifications(activities: ActivityItem[], userId: string, since: Date) {
   try {
+    console.log(`🎨 Fetching template modifications for user ${userId} since ${since.toISOString()}`);
+    
+    // First, let's check if there are ANY templates for this user (without time filter)
+    const allUserTemplates = await db
+      .select({
+        id: templates.id,
+        name: templates.name,
+        updatedAt: templates.updatedAt,
+        isDefault: templates.isDefault
+      })
+      .from(templates)
+      .where(eq(templates.userId, userId))
+      .orderBy(desc(templates.updatedAt))
+      .limit(5);
+
+    console.log(`🎨 Total templates for user ${userId}: ${allUserTemplates.length}`);
+    if (allUserTemplates.length > 0) {
+      console.log(`🎨 Most recent template: ${allUserTemplates[0].name} updated at ${allUserTemplates[0].updatedAt}`);
+    }
+    
     // Get template modifications for this user
     const templateModifications = await db
       .select({
@@ -412,6 +508,8 @@ async function getTemplateModifications(activities: ActivityItem[], userId: stri
       ))
       .orderBy(desc(templates.updatedAt))
       .limit(10);
+
+    console.log(`🎨 Found ${templateModifications.length} template modifications for user ${userId} in the last 30 days`);
 
     templateModifications.forEach(template => {
       if (template.updatedAt) {
@@ -433,6 +531,6 @@ async function getTemplateModifications(activities: ActivityItem[], userId: stri
       }
     });
   } catch (error) {
-    console.error('Error fetching template modifications:', error);
+    console.error('❌ Error fetching template modifications:', error);
   }
 }

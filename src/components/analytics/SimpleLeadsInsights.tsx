@@ -249,7 +249,7 @@ export default function SimpleLeadsInsights({ isSuperAdmin = false }: { isSuperA
       title: 'Actions',
       render: (value: any, row: CompanyData) => (
         <Button
-          variant="secondary"
+          variant="primary"
           size="sm"
           onClick={() => {
             // Toggle loan officers visibility and fetch data if needed
@@ -357,7 +357,7 @@ export default function SimpleLeadsInsights({ isSuperAdmin = false }: { isSuperA
     return (
       <div className="text-center py-8">
         <div className="text-red-600 mb-4">{error}</div>
-        <Button onClick={fetchData} variant="secondary">
+        <Button onClick={fetchData} variant="primary" className="bg-[#01bcc6] hover:bg-[#008eab] text-white">
           Retry
         </Button>
       </div>

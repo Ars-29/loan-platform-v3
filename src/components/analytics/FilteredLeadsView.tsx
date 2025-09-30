@@ -296,7 +296,7 @@ export default function FilteredLeadsView({
       title: 'Status',
       render: (lead: Lead) => {
         const statusColors = {
-          new: 'bg-blue-100 text-blue-800',
+          new: 'bg-[#01bcc6]/10 text-[#01bcc6]',
           contacted: 'bg-yellow-100 text-yellow-800',
           qualified: 'bg-green-100 text-green-800',
           converted: 'bg-purple-100 text-purple-800',
@@ -315,7 +315,7 @@ export default function FilteredLeadsView({
       render: (lead: Lead) => {
         const priorityColors = {
           low: 'bg-gray-100 text-gray-800',
-          medium: 'bg-blue-100 text-blue-800',
+          medium: 'bg-[#01bcc6]/10 text-[#01bcc6]',
           high: 'bg-yellow-100 text-yellow-800',
           urgent: 'bg-red-100 text-red-800'
         };
@@ -346,7 +346,7 @@ export default function FilteredLeadsView({
   if (loading && leads.length === 0) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#01bcc6]"></div>
       </div>
     );
   }
@@ -411,13 +411,28 @@ export default function FilteredLeadsView({
           {/* Officer Filter */}
           {showOfficerFilter && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Loan Officer</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Loan Officer
+                {showCompanyFilter && !selectedCompany && (
+                  <span className="text-xs text-gray-500 ml-1">(Select company first)</span>
+                )}
+              </label>
               <select
                 value={selectedOfficer}
                 onChange={(e) => handleOfficerChange(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={showCompanyFilter && !selectedCompany}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  showCompanyFilter && !selectedCompany
+                    ? 'border-gray-200 bg-gray-100 text-gray-500 cursor-not-allowed'
+                    : 'border-gray-300 bg-white text-gray-900'
+                }`}
               >
-                <option value="">All Officers</option>
+                <option value="">
+                  {showCompanyFilter && !selectedCompany 
+                    ? 'Select a company first' 
+                    : 'All Officers'
+                  }
+                </option>
                 {officers.map((officer) => (
                   <option key={officer.id} value={officer.id}>
                     {officer.name}
@@ -442,9 +457,9 @@ export default function FilteredLeadsView({
           {/* Clear Filters */}
           <div className="flex items-end">
             <Button
-              variant="secondary"
+              variant="primary"
               onClick={handleClearFilters}
-              className="w-full"
+              className="w-full bg-[#01bcc6] hover:bg-[#008eab] text-white"
             >
               Clear Filters
             </Button>

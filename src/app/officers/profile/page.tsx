@@ -357,10 +357,10 @@ export default function OfficersProfilePage() {
       >
         <div className="space-y-6">
           {/* Profile Header */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-[#F7F1E9]/30 rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-xl font-bold">
+                <div className="w-16 h-16 bg-[#005b7c] hover:bg-[#01bcc6] rounded-full flex items-center justify-center text-white text-xl font-bold">
                   {officerInfo.officerName.split(' ').map((n: string) => n[0]).join('')}
                 </div>
                 <div>
@@ -374,7 +374,7 @@ export default function OfficersProfilePage() {
           </div>
 
           {/* Public Link Management Section */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-[#F7F1E9]/30 rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">Public Profile Link</h3>
               <div className="text-sm text-gray-500">
@@ -403,8 +403,9 @@ export default function OfficersProfilePage() {
                   <div className="flex items-center space-x-2">
                     <Button
                       onClick={copyPublicLink}
-                      variant="secondary"
+                      variant="primary"
                       size="sm"
+                      className="bg-[#01bcc6] hover:bg-[#008eab] text-white"
                     >
                       Copy Link
                     </Button>
@@ -460,7 +461,7 @@ export default function OfficersProfilePage() {
           </div>
 
           {/* Live Preview Section */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-[#F7F1E9]/30 rounded-lg shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Live Preview</h3>
             {/* Unified Template Rendering with Suspense */}
             <Suspense fallback={<SkeletonLoader />}>

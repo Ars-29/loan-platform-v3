@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "../styles/scrollbar.css";
 import { NotificationProvider } from "@/components/ui/Notification";
 import { UnifiedTemplateProvider } from "@/contexts/UnifiedTemplateContext";
 
@@ -14,7 +15,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <body
         className="antialiased"
         suppressHydrationWarning

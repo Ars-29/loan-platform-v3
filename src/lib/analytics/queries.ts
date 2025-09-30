@@ -108,8 +108,8 @@ export async function getCompanyLeadsInsights(
     .select({
       totalLeads: count(),
       convertedLeads: count(sql`CASE WHEN ${leads.status} = 'converted' THEN 1 END`),
-      applications: count(sql`CASE WHEN ${leads.conversionStage} = 'application' THEN 1 END`),
-      approvals: count(sql`CASE WHEN ${leads.conversionStage} = 'approval' THEN 1 END`),
+      applications: count(sql`CASE WHEN ${leads.conversionStage} = 'application' OR ${leads.conversionStage} = 'approval' OR ${leads.conversionStage} = 'closing' THEN 1 END`),
+      approvals: count(sql`CASE WHEN ${leads.conversionStage} = 'approval' OR ${leads.conversionStage} = 'closing' THEN 1 END`),
       closings: count(sql`CASE WHEN ${leads.conversionStage} = 'closing' THEN 1 END`),
       avgResponseTime: avg(leads.responseTimeHours),
       totalLoanVolume: sum(leads.loanAmountClosed),

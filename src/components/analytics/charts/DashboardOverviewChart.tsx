@@ -27,7 +27,7 @@ const DashboardOverviewChart: React.FC<DashboardOverviewChartProps> = ({
 }) => {
   // Clean, professional color scheme
   const COLORS = {
-    leads: '#3b82f6',        // Blue - Primary
+    leads: '#01bcc6',        // Teal - Primary
     converted: '#10b981',    // Green - Success
     applications: '#f59e0b', // Amber - Warning
     approvals: '#8b5cf6',    // Purple - Info

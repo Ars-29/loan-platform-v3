@@ -936,7 +936,7 @@ export default function HierarchicalLeadsInsights() {
           <Button
             variant="primary"
             onClick={navigateBack}
-            className="flex items-center bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0"
+            className="flex items-center bg-[#005b7c] hover:bg-[#01bcc6] text-white border-0"
           >
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />

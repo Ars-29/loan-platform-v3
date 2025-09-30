@@ -6,20 +6,20 @@
  * to ensure consistency across the entire application.
  */
 
-// Color Palette
+// Color Palette - Final Theme Colors
 export const colors = {
-  // Primary Colors - Gradient Blue
+  // Primary Colors - Final Theme (#005b7c #008eab #01bcc6 #EBDBC7 #F7F1E9)
   primary: {
-    50: '#eff6ff',
-    100: '#dbeafe',
-    200: '#bfdbfe',
-    300: '#93c5fd',
-    400: '#60a5fa',
-    500: '#3b82f6', // Main blue
-    600: '#2563eb', // Primary blue
-    700: '#1d4ed8',
-    800: '#1e40af',
-    900: '#1e3a8a',
+    50: '#F7F1E9',   // Light background
+    100: '#EBDBC7',  // Light accent
+    200: '#EBDBC7',  // Light accent
+    300: '#EBDBC7',  // Light accent
+    400: '#EBDBC7',  // Light accent
+    500: '#01bcc6',  // Main teal
+    600: '#008eab',  // Medium blue
+    700: '#005b7c',  // Dark blue
+    800: '#005b7c',  // Dark blue
+    900: '#005b7c',  // Dark blue
   },
   
   // Dark Blue
@@ -29,7 +29,7 @@ export const colors = {
     200: '#bfdbfe',
     300: '#93c5fd',
     400: '#60a5fa',
-    500: '#3b82f6',
+    500: '#005b7c',
     600: '#2563eb',
     700: '#1d4ed8',
     800: '#1e40af',
@@ -52,16 +52,16 @@ export const colors = {
   
   // Neutral Colors
   gray: {
-    50: '#f9fafb',
-    100: '#f3f4f6',
-    200: '#e5e7eb',
-    300: '#d1d5db',
-    400: '#9ca3af',
-    500: '#6b7280',
-    600: '#4b5563',
-    700: '#374151',
-    800: '#1f2937',
-    900: '#111827',
+    50: '#f9fafb',   // Very light gray
+    100: '#f3f4f6',  // Light gray
+    200: '#e5e7eb',  // Light border
+    300: '#d1d5db',  // Medium light gray
+    400: '#9ca3af',  // Medium gray
+    500: '#6b7280',  // Medium dark gray
+    600: '#4b5563',  // Dark gray
+    700: '#374151',  // Darker gray
+    800: '#1f2937',  // Very dark gray
+    900: '#111827',  // Darkest gray
   },
   
   // Status Colors
@@ -110,7 +110,7 @@ export const colors = {
     200: '#bfdbfe',
     300: '#93c5fd',
     400: '#60a5fa',
-    500: '#3b82f6',
+    500: '#01bcc6',
     600: '#2563eb',
     700: '#1d4ed8',
     800: '#1e40af',
@@ -124,7 +124,7 @@ export const colors = {
     200: '#bfdbfe',
     300: '#93c5fd',
     400: '#60a5fa',
-    500: '#3b82f6',
+    500: '#01bcc6',
     600: '#2563eb',
     700: '#1d4ed8',
     800: '#1e40af',
@@ -173,10 +173,10 @@ export const colors = {
   // Text colors - Context-aware contrast system
   text: {
     // Default text colors for white/light backgrounds
-    primary: '#000000', // Black text for white backgrounds
-    secondary: '#374151', // Dark gray for secondary text on white backgrounds
-    muted: '#6b7280', // Medium gray for muted text on white backgrounds
-    light: '#9ca3af', // Light gray for subtle text on white backgrounds
+    primary: '#005b7c',   // Dark blue for headings
+    secondary: '#374151', // Dark gray for secondary text
+    muted: '#6b7280',     // Medium gray for muted text
+    light: '#9ca3af',     // Light gray for subtle text
     
     // Text colors for colored/dark backgrounds
     onPrimary: '#ffffff', // White text for primary colored backgrounds
@@ -193,28 +193,8 @@ export const colors = {
   white: '#ffffff',
 } as const;
 
-// Spotlight Colors for SpotlightCard component
-export const spotlightColors = {
-  // Primary colors - more visible for white backgrounds
-  primary: 'rgba(59, 130, 246, 0.15)',      // Blue
-  success: 'rgba(16, 185, 129, 0.15)',      // Green
-  warning: 'rgba(251, 146, 60, 0.12)',      // Orange
-  neutral: 'rgba(107, 114, 128, 0.12)',     // Gray
-  purple: 'rgba(139, 92, 246, 0.15)',       // Purple
-  
-  // Additional accent colors
-  info: 'rgba(59, 130, 246, 0.15)',         // Blue (same as primary)
-  error: 'rgba(239, 68, 68, 0.12)',         // Red
-  pink: 'rgba(244, 114, 182, 0.12)',        // Pink
-  
-  // Light variations for extra subtlety - very minimal for inner cards
-  lightBlue: 'rgba(147, 197, 253, 0.04)',   // Very light blue
-  lightGreen: 'rgba(134, 239, 172, 0.04)',  // Very light green
-  lightPurple: 'rgba(196, 181, 253, 0.04)', // Very light purple
-  
-  // Default fallback
-  default: 'rgba(107, 114, 128, 0.12)',     // Gray
-} as const;
+// Spotlight Colors for SpotlightCard component - New Professional Scheme
+// Spotlight colors removed - no longer used
 
 // Typography System
 export const typography = {
@@ -252,13 +232,13 @@ export const typography = {
   
   // Typography Classes for consistent styling - Context-aware contrast
   headings: {
-    // Default headings for white/light backgrounds
-    h1: 'text-4xl md:text-5xl lg:text-6xl font-bold text-black leading-tight',
-    h2: 'text-3xl md:text-4xl lg:text-5xl font-bold text-black leading-tight',
-    h3: 'text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-tight',
-    h4: 'text-xl md:text-2xl lg:text-3xl font-bold text-black leading-tight',
-    h5: 'text-lg md:text-xl lg:text-2xl font-bold text-black leading-tight',
-    h6: 'text-base md:text-lg lg:text-xl font-bold text-black leading-tight',
+    // Default headings for white/light backgrounds - Using new primary color
+    h1: 'text-4xl md:text-5xl lg:text-6xl font-bold text-[#005b7c] leading-tight',
+    h2: 'text-3xl md:text-4xl lg:text-5xl font-bold text-[#005b7c] leading-tight',
+    h3: 'text-2xl md:text-3xl lg:text-4xl font-bold text-[#005b7c] leading-tight',
+    h4: 'text-xl md:text-2xl lg:text-3xl font-bold text-[#005b7c] leading-tight',
+    h5: 'text-lg md:text-xl lg:text-2xl font-bold text-[#005b7c] leading-tight',
+    h6: 'text-base md:text-lg lg:text-xl font-bold text-[#005b7c] leading-tight',
     
     // Headings for colored/dark backgrounds
     h1OnColored: 'text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight',
@@ -285,9 +265,9 @@ export const typography = {
   
   // Responsive text utilities - Context-aware contrast
   responsive: {
-    // Default responsive text for white/light backgrounds
-    hero: 'text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-black leading-tight',
-    title: 'text-2xl sm:text-3xl md:text-4xl font-bold text-black leading-tight',
+    // Default responsive text for white/light backgrounds - Using new primary color
+    hero: 'text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#005b7c] leading-tight',
+    title: 'text-2xl sm:text-3xl md:text-4xl font-bold text-[#005b7c] leading-tight',
     subtitle: 'text-lg sm:text-xl md:text-2xl font-semibold text-gray-900 leading-relaxed',
     body: 'text-sm sm:text-base md:text-lg text-gray-900 leading-relaxed',
     caption: 'text-xs sm:text-sm text-gray-700 leading-normal',
@@ -539,9 +519,9 @@ export const dashboard = {
   borderRadius: borderRadius,
   shadows: shadows,
   
-  // Header styles
+  // Header styles - New navbar gradient
   header: {
-    backgroundColor: '#ffffff',
+    background: 'linear-gradient(135deg, #EBDBC7 0%, #F7F1E9 50%, #ffffff 100%)',
     boxShadow: shadows.sm,
     borderBottom: `1px solid ${colors.gray[200]}`,
   },
@@ -557,9 +537,9 @@ export const dashboard = {
     height: '64px', // h-16
   },
   
-  // Navigation styles
+  // Navigation styles - Solid background
   nav: {
-    backgroundColor: '#ffffff',
+    background: '#F7F1E9',
     boxShadow: shadows.sm,
     borderBottom: `1px solid ${colors.gray[200]}`,
   },
@@ -590,30 +570,30 @@ export const dashboard = {
     transition: 'all 0.2s ease-in-out',
   },
   navLinkActive: {
-    borderBottomColor: colors.primary[500],
-    color: colors.gray[900],
+    borderBottomColor: '#005b7c',
+    color: '#005b7c',
   },
   navLinkHover: {
     borderBottomColor: colors.gray[300],
     color: colors.gray[700],
   },
   
-  // Card styles
-  card: {
-    backgroundColor: '#ffffff',
-    borderRadius: borderRadius.lg,
-    boxShadow: shadows.sm,
-    border: `1px solid ${colors.gray[200]}`,
-    padding: spacing[6],
-  },
+  // Card styles - Solid background with transparency
+    card: {
+      background: 'rgba(247, 241, 233, 0.3)', // #F7F1E9 with 30% opacity
+      borderRadius: borderRadius.lg,
+      boxShadow: shadows.sm,
+      border: `1px solid ${colors.gray[200]}`,
+      padding: spacing[6],
+    },
   cardHover: {
     boxShadow: shadows.md,
     transition: 'box-shadow 0.2s ease-in-out',
   },
   
-  // Stats card styles
+  // Stats card styles - Solid background with transparency
   statsCard: {
-    backgroundColor: '#ffffff',
+    background: 'rgba(247, 241, 233, 0.3)',
     borderRadius: borderRadius.lg,
     boxShadow: shadows.sm,
     border: `1px solid ${colors.gray[200]}`,
@@ -648,9 +628,9 @@ export const dashboard = {
     color: colors.gray[900],
   },
   
-  // Quick action styles
+  // Quick action styles - Solid background with transparency
   quickActionCard: {
-    backgroundColor: '#ffffff',
+    background: 'rgba(247, 241, 233, 0.3)',
     padding: spacing[6],
     borderRadius: borderRadius.lg,
     boxShadow: shadows.sm,
@@ -681,10 +661,10 @@ export const dashboard = {
     color: colors.gray[500],
   },
   
-  // Button styles
+  // Button styles - New gradient buttons
   button: {
     primary: {
-      backgroundColor: colors.primary[600],
+      background: '#005b7c',
       color: '#ffffff',
       padding: `${spacing[2]} ${spacing[4]}`,
       borderRadius: borderRadius.md,
@@ -692,10 +672,10 @@ export const dashboard = {
       fontWeight: typography.fontWeight.medium,
       border: 'none',
       cursor: 'pointer',
-      transition: 'background-color 0.2s ease-in-out',
+      transition: 'all 0.2s ease-in-out',
     },
     primaryHover: {
-      backgroundColor: colors.primary[700],
+      background: 'linear-gradient(135deg, #003d52 0%, #006b7a 50%, #0099a3 100%)',
     },
     secondary: {
       backgroundColor: '#ffffff',
@@ -723,7 +703,7 @@ export const dashboard = {
   userAvatar: {
     width: '32px',
     height: '32px',
-    backgroundColor: colors.primary[100],
+    backgroundColor: 'rgba(1, 188, 198, 0.1)', // #01bcc6 with 10% opacity - much more transparent
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
@@ -733,7 +713,7 @@ export const dashboard = {
   userAvatarText: {
     fontSize: typography.fontSize.sm,
     fontWeight: typography.fontWeight.medium,
-    color: colors.primary[600],
+    color: '#008eab', // New icon color
   },
   userDetails: {
     textAlign: 'right',
@@ -848,7 +828,7 @@ import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
 const fallbackTemplates = {
   template1: {
     colors: {
-      primary: '#3b82f6',
+      primary: '#01bcc6',
       secondary: '#1d4ed8',
       background: '#ffffff',
       text: '#111827',
@@ -890,10 +870,10 @@ const fallbackTemplates = {
     },
     classes: {
       button: {
-        primary: 'bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md',
+        primary: 'bg-[#01bcc6] hover:bg-[#008eab] text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md',
         secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium transition-all duration-200 border border-gray-300',
-        outline: 'border-2 border-blue-200 hover:border-blue-300 text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-6 py-3 rounded-lg font-medium transition-all duration-200',
-        ghost: 'text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-4 py-2 rounded-lg font-medium transition-all duration-200',
+        outline: 'border-2 border-[#01bcc6]/20 hover:border-[#01bcc6]/30 text-[#01bcc6] hover:text-[#008eab] hover:bg-[#01bcc6]/10 px-6 py-3 rounded-lg font-medium transition-all duration-200',
+        ghost: 'text-[#01bcc6] hover:text-[#008eab] hover:bg-[#01bcc6]/10 px-4 py-2 rounded-lg font-medium transition-all duration-200',
       },
       card: {
         container: 'bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200',
@@ -916,31 +896,31 @@ const fallbackTemplates = {
         xs: 'text-xs text-gray-500 leading-normal',
       },
       input: {
-        base: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200',
+        base: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6] transition-all duration-200',
         error: 'border-red-300 focus:ring-red-500 focus:border-red-500',
         success: 'border-green-300 focus:ring-green-500 focus:border-green-500',
       },
       select: {
-        base: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white',
+        base: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6] transition-all duration-200 bg-white',
       },
       status: {
         success: 'bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium',
         warning: 'bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium',
         error: 'bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium',
-        info: 'bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium',
+        info: 'bg-[#01bcc6]/10 text-[#01bcc6] px-3 py-1 rounded-full text-sm font-medium',
       },
       icon: {
-        primary: 'w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4',
+        primary: 'w-12 h-12 bg-[#01bcc6]/10 rounded-lg flex items-center justify-center mb-4',
         secondary: 'w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mb-3',
-        small: 'w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center',
+        small: 'w-8 h-8 bg-[#01bcc6]/10 rounded-lg flex items-center justify-center',
       },
       navigation: {
         container: 'flex flex-wrap gap-2 p-4',
         tab: {
           base: 'px-4 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer',
           inactive: 'text-gray-600 hover:text-gray-800 hover:bg-gray-100',
-          active: 'bg-blue-600 text-white shadow-md',
-          hover: 'hover:bg-blue-50 hover:text-blue-700',
+          active: 'bg-[#01bcc6] text-white shadow-md',
+          hover: 'hover:bg-[#01bcc6]/10 hover:text-[#01bcc6]',
         },
       },
       hero: {
@@ -948,9 +928,9 @@ const fallbackTemplates = {
         overlay: 'bg-gradient-to-br from-blue-900/90 via-blue-800/90 to-indigo-900/90',
       },
       sidebar: {
-        container: 'bg-white border-2 border-blue-200 rounded-lg p-6',
+        container: 'bg-white border-2 border-[#01bcc6]/20 rounded-lg p-6',
         logo: {
-          background: 'bg-blue-600',
+          background: 'bg-[#01bcc6]',
           text: 'text-white',
         },
       },
@@ -1037,7 +1017,7 @@ const fallbackTemplates = {
         success: 'bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium',
         warning: 'bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium',
         error: 'bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium',
-        info: 'bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium',
+        info: 'bg-[#01bcc6]/10 text-[#01bcc6] px-3 py-1 rounded-full text-sm font-medium',
       },
       icon: {
         primary: 'w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4',
@@ -1360,7 +1340,6 @@ export const getTextColor = (backgroundType: 'white' | 'light' | 'colored' | 'da
 // Export default theme object
 export const theme = {
   colors,
-  spotlightColors,
   typography,
   spacing,
   breakpoints,

@@ -97,11 +97,11 @@ export const Pagination: React.FC<PaginationProps> = ({
       <div className="flex items-center space-x-2">
         {/* Previous button */}
         <Button
-          variant="secondary"
+          variant="primary"
           size="sm"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="flex items-center"
+          className="flex items-center bg-[#01bcc6] hover:bg-[#008eab] text-white disabled:bg-gray-300 disabled:text-gray-500"
         >
           {React.createElement(icons.chevronLeft, { size: 16 })}
           <span className="ml-1 hidden sm:inline">Previous</span>
@@ -134,12 +134,12 @@ export const Pagination: React.FC<PaginationProps> = ({
                 onClick={() => onPageChange(pageNumber)}
                 className={`px-3 py-2 text-sm font-medium transition-colors duration-200 ${
                   isActive
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-[#01bcc6] text-white'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
                 style={{
                   borderRadius: borderRadius.md,
-                  backgroundColor: isActive ? colors.blue[600] : 'transparent',
+                  backgroundColor: isActive ? '#01bcc6' : 'transparent',
                   color: isActive ? '#ffffff' : colors.gray[700],
                   fontSize: typography.fontSize.sm,
                   fontWeight: typography.fontWeight.medium
@@ -153,11 +153,11 @@ export const Pagination: React.FC<PaginationProps> = ({
 
         {/* Next button */}
         <Button
-          variant="secondary"
+          variant="primary"
           size="sm"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="flex items-center"
+          className="flex items-center bg-[#01bcc6] hover:bg-[#008eab] text-white disabled:bg-gray-300 disabled:text-gray-500"
         >
           <span className="mr-1 hidden sm:inline">Next</span>
           {React.createElement(icons.chevronRight, { size: 16 })}

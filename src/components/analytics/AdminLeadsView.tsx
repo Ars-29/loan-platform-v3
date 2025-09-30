@@ -444,7 +444,7 @@ export default function AdminLeadsView({
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#01bcc6]"></div>
       </div>
     );
   }
@@ -463,22 +463,22 @@ export default function AdminLeadsView({
     <div className="space-y-6">
       {/* Summary Cards - Exact same as loan officers page */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
+        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border">
           <div className="text-sm font-medium text-gray-500">Total Leads</div>
-          <div className="text-2xl font-bold text-blue-600">{filteredLeads.length}</div>
+          <div className="text-2xl font-bold text-[#005b7c]">{filteredLeads.length}</div>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
+        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border">
           <div className="text-sm font-medium text-gray-500">New Leads</div>
-          <div className="text-2xl font-bold text-green-600">{newLeads}</div>
+          <div className="text-2xl font-bold text-[#008eab]">{newLeads}</div>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
+        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border">
           <div className="text-sm font-medium text-gray-500">Converted</div>
-          <div className="text-2xl font-bold text-purple-600">{convertedLeads}</div>
+          <div className="text-2xl font-bold text-[#01bcc6]">{convertedLeads}</div>
         </div>
       </div>
 
       {/* Search and Filters - Enhanced with admin filters */}
-      <div className="bg-white p-6 rounded-lg shadow-sm border">
+      <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border">
         <div className="space-y-4">
           {/* Search Bar */}
           <div>
@@ -487,7 +487,7 @@ export default function AdminLeadsView({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by name, email, or phone..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#01bcc6]"
             />
           </div>
 
@@ -500,7 +500,7 @@ export default function AdminLeadsView({
                 <select
                   value={selectedCompany}
                   onChange={(e) => handleCompanyChange(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#01bcc6]"
                 >
                   <option value="">All Companies</option>
                   {companies.map((company) => (
@@ -516,14 +516,28 @@ export default function AdminLeadsView({
             {showOfficerFilter && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Loan Officer {selectedCompany && `(${filteredOfficers.length} officers)`}
+                  Loan Officer 
+                  {showCompanyFilter && !selectedCompany && (
+                    <span className="text-xs text-gray-500 ml-1">(Select company first)</span>
+                  )}
+                  {selectedCompany && ` (${filteredOfficers.length} officers)`}
                 </label>
                 <select
                   value={selectedOfficer}
                   onChange={(e) => handleOfficerChange(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={showCompanyFilter && !selectedCompany}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#01bcc6] ${
+                    showCompanyFilter && !selectedCompany
+                      ? 'border-gray-200 bg-gray-100 text-gray-500 cursor-not-allowed'
+                      : 'border-gray-300 bg-white text-gray-900'
+                  }`}
                 >
-                  <option value="">All Officers</option>
+                  <option value="">
+                    {showCompanyFilter && !selectedCompany 
+                      ? 'Select a company first' 
+                      : 'All Officers'
+                    }
+                  </option>
                   {filteredOfficers.map((officer) => (
                     <option key={officer.id} value={officer.id}>
                       {officer.name}
@@ -536,9 +550,9 @@ export default function AdminLeadsView({
             {/* Clear Filters Button */}
             <div className="flex items-end">
               <Button
-                variant="secondary"
+                variant="primary"
                 onClick={handleClearFilters}
-                className="w-full"
+                className="w-full bg-[#01bcc6] hover:bg-[#008eab] text-white"
               >
                 Clear Filters
               </Button>
@@ -552,7 +566,7 @@ export default function AdminLeadsView({
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#01bcc6]"
               >
                 <option value="">All Status</option>
                 {statusOptions.map((option) => (
@@ -568,7 +582,7 @@ export default function AdminLeadsView({
               <select
                 value={stageFilter}
                 onChange={(e) => setStageFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#01bcc6]"
               >
                 <option value="">All Stage</option>
                 {stageOptions.map((option) => (
@@ -584,7 +598,7 @@ export default function AdminLeadsView({
               <select
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#01bcc6]"
               >
                 <option value="">All Priority</option>
                 {priorityOptions.map((option) => (
@@ -600,7 +614,7 @@ export default function AdminLeadsView({
               <select
                 value={sourceFilter}
                 onChange={(e) => setSourceFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#01bcc6]"
               >
                 <option value="">All Source</option>
                 {sourceOptions.map((option) => (
@@ -615,7 +629,7 @@ export default function AdminLeadsView({
       </div>
 
       {/* Leads Table */}
-      <div className="bg-white rounded-lg shadow-sm border">
+      <div className="bg-[#F7F1E9]/30 rounded-lg shadow-sm border">
         <EnhancedLeadsTable
           leads={paginatedLeads}
           loading={loading}
@@ -625,6 +639,7 @@ export default function AdminLeadsView({
           onQualityScoreUpdate={handleQualityScoreUpdate}
           onNotesUpdate={handleNotesUpdate}
           onViewDetails={handleViewDetails}
+          allowEditing={false} // Disable editing for Super Admins and Company Admins
         />
         
         {/* Client-side Pagination */}

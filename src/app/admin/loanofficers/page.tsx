@@ -367,7 +367,7 @@ export default function LoanOfficersPage() {
       >
         <div className="space-y-6">
           {/* Header with Create Button */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+          <div className="bg-[#F7F1E9]/30 rounded-lg shadow-sm border border-gray-200">
             <div className="px-6 py-4 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-gray-900">Loan Officers</h2>

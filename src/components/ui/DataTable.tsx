@@ -2,6 +2,7 @@ import React from 'react';
 import { theme, RoleType } from '@/theme/theme';
 import { Button, ResendButton, DeactivateButton, DeleteButton, ReactivateButton } from './Button';
 import Icon from './Icon';
+import { TableLoadingState } from './LoadingState';
 
 export interface TableColumn<T = any> {
   key: string;
@@ -135,10 +136,10 @@ export const DataTable = <T extends Record<string, any>>({
       actions.push(
         <Button
           key="view-details"
-          variant="secondary"
+          variant="primary"
           size="sm"
           onClick={() => onViewDetails(record)}
-          className="text-xs"
+          className="text-xs bg-[#01bcc6] hover:bg-[#008eab] text-white"
         >
           View Details
         </Button>
@@ -168,10 +169,7 @@ export const DataTable = <T extends Record<string, any>>({
     return (
       <div className={`bg-white shadow rounded-lg ${className}`}>
         <div className="px-6 py-4">
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-2 text-sm text-gray-500">Loading...</p>
-          </div>
+          <TableLoadingState />
         </div>
       </div>
     );
@@ -296,7 +294,7 @@ export const CompanyTable: React.FC<Omit<DataTableProps, 'role' | 'columns'> & {
           <div>
             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
               status === 'accepted' ? 'bg-green-100 text-green-800' :
-              status === 'sent' ? 'bg-blue-100 text-blue-800' :
+              status === 'sent' ? 'bg-[#01bcc6]/10 text-[#01bcc6]' :
               status === 'expired' ? 'bg-red-100 text-red-800' :
               'bg-yellow-100 text-yellow-800'
             }`}>
@@ -393,8 +391,8 @@ export const OfficerTable: React.FC<Omit<DataTableProps, 'role' | 'columns'> & {
       render: (_, record) => (
         <div className="flex items-center">
           <div className="h-10 w-10 flex-shrink-0">
-            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-              <span className="text-sm font-medium text-blue-600">
+            <div className="h-10 w-10 rounded-full bg-[#01bcc6]/10 flex items-center justify-center">
+              <span className="text-sm font-medium text-[#01bcc6]">
                 {record.firstName?.charAt(0)}{record.lastName?.charAt(0)}
               </span>
             </div>
@@ -502,7 +500,7 @@ export const OfficerTable: React.FC<Omit<DataTableProps, 'role' | 'columns'> & {
       render: (value) => (
         <div className="text-sm text-gray-900">
           {value ? (
-            <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+            <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-[#01bcc6]/10 text-[#01bcc6]">
               {value}
             </span>
           ) : (
@@ -523,7 +521,7 @@ export const OfficerTable: React.FC<Omit<DataTableProps, 'role' | 'columns'> & {
                 const officerSlug = `${record.firstName.toLowerCase()}-${record.lastName.toLowerCase()}`;
                 onViewLeads(officerSlug);
               }}
-              className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-blue-600 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-[#01bcc6] bg-[#01bcc6]/10 hover:bg-[#01bcc6]/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#01bcc6]"
             >
               <svg
                 className="w-4 h-4 mr-1"
@@ -550,28 +548,8 @@ export const OfficerTable: React.FC<Omit<DataTableProps, 'role' | 'columns'> & {
                 const officerSlug = `${record.firstName.toLowerCase()}-${record.lastName.toLowerCase()}`;
                 onViewDetails(officerSlug);
               }}
-              className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-green-600 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              className="inline-flex items-center px-3 py-1 border-0 text-sm font-medium rounded-md text-white bg-[#01bcc6] hover:bg-[#008eab] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#01bcc6]"
             >
-              <svg
-                className="w-4 h-4 mr-1"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                />
-              </svg>
               View Details
             </button>
           )}

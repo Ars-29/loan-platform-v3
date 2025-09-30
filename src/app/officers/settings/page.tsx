@@ -11,6 +11,7 @@ import { EmailInput, PasswordInput } from '@/components/ui/Input';
 import SpotlightCard from '@/components/ui/SpotlightCard';
 import { useNotification } from '@/components/ui/Notification';
 import { supabase } from '@/lib/supabase/client';
+import { PageLoadingState } from '@/components/ui/LoadingState';
 import { 
   User, 
   Mail, 
@@ -317,9 +318,7 @@ export default function OfficersSettingsPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
+      <PageLoadingState text="Loading settings..." />
     );
   }
 
@@ -354,7 +353,7 @@ export default function OfficersSettingsPage() {
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`flex items-center space-x-2 px-1 py-4 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-[#005b7c] text-[#005b7c]'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -367,7 +366,7 @@ export default function OfficersSettingsPage() {
 
         {/* Personal Info Tab */}
         {activeTab === 'personal' && (
-          <SpotlightCard variant="primary" className="p-6">
+          <SpotlightCard variant="default" className="p-6">
             <CardHeader>
               <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
               <p className="text-sm text-gray-600">Update your personal details</p>
@@ -432,7 +431,7 @@ export default function OfficersSettingsPage() {
 
         {/* Email Tab */}
         {activeTab === 'email' && (
-          <SpotlightCard variant="success" className="p-6">
+          <SpotlightCard variant="default" className="p-6">
             <CardHeader>
               <h3 className="text-lg font-semibold text-gray-900">Change Email</h3>
               <p className="text-sm text-gray-600">Update your email address</p>
@@ -510,23 +509,23 @@ export default function OfficersSettingsPage() {
 
         {/* Password Tab */}
         {activeTab === 'password' && (
-          <SpotlightCard variant="warning" className="p-6">
+          <SpotlightCard variant="default" className="p-6">
             <CardHeader>
               <h3 className="text-lg font-semibold text-gray-900">Change Password</h3>
               <p className="text-sm text-gray-600">Update your password securely</p>
             </CardHeader>
             <CardBody>
               <div className="space-y-6">
-                <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+                <div className="bg-[#01bcc6]/10 border border-[#01bcc6]/20 rounded-md p-4">
                   <div className="flex">
                     <div className="flex-shrink-0">
-                      <Lock className="h-5 w-5 text-blue-400" />
+                      <Lock className="h-5 w-5 text-[#008eab]" />
                     </div>
                     <div className="ml-3">
-                      <h3 className="text-sm font-medium text-blue-800">
+                      <h3 className="text-sm font-medium text-[#005b7c]">
                         Secure Password Reset
                       </h3>
-                      <div className="mt-2 text-sm text-blue-700">
+                      <div className="mt-2 text-sm text-[#008eab]">
                         <p>
                           For security reasons, password changes require email verification. 
                           Click the button below to receive a secure password reset link.
@@ -554,7 +553,7 @@ export default function OfficersSettingsPage() {
 
         {/* Avatar Tab */}
         {activeTab === 'avatar' && (
-          <SpotlightCard variant="lightBlue" className="p-6">
+          <SpotlightCard variant="default" className="p-6">
             <CardHeader>
               <h3 className="text-lg font-semibold text-gray-900">Profile Picture</h3>
               <p className="text-sm text-gray-600">Upload and manage your avatar</p>
@@ -585,7 +584,7 @@ export default function OfficersSettingsPage() {
                       type="file"
                       accept="image/*"
                       onChange={handleFileSelect}
-                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-[#01bcc6]/10 file:text-[#005b7c] hover:file:bg-[#01bcc6]/20"
                     />
                     <p className="mt-1 text-xs text-gray-500">
                       PNG, JPG, GIF up to 10MB

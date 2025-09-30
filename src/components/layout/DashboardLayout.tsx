@@ -54,21 +54,21 @@ const DashboardLayout = memo(function DashboardLayout({
                 alignItems: 'center',
                 fontSize: '14px',
                 color: '#ffffff',
-                background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)',
                 border: 'none',
                 borderRadius: '8px',
                 padding: '8px 16px',
                 cursor: 'pointer',
-                boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)',
+                boxShadow: '0 2px 4px rgba(0, 91, 124, 0.3)',
                 transition: 'all 0.2s ease-in-out',
               }}
+              className="btn-primary-solid"
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-1px)';
-                e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.4)';
+                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 91, 124, 0.4)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.3)';
+                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 91, 124, 0.3)';
               }}
             >
               {React.createElement(icons.chevronLeft, { 
@@ -83,7 +83,7 @@ const DashboardLayout = memo(function DashboardLayout({
             <h1 style={{ 
               fontSize: '30px', 
               fontWeight: 'bold', 
-              color: '#111827' 
+              color: '#005b7c' 
             }}>
               {title}
             </h1>

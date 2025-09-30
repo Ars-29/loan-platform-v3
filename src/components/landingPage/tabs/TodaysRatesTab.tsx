@@ -94,7 +94,7 @@ export default function TodaysRatesTab({
   // Comprehensive template data usage
   const colors = templateData?.template?.colors || {
     primary: '#ec4899',
-    secondary: '#3b82f6',
+    secondary: '#01bcc6',
     background: '#ffffff',
     text: '#111827',
     textSecondary: '#6b7280',
@@ -165,14 +165,14 @@ export default function TodaysRatesTab({
       small: 'w-8 h-8 rounded-lg flex items-center justify-center'
     },
     select: {
-      base: 'px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
+      base: 'px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]',
       error: 'px-3 py-2 border border-red-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500'
     },
     status: {
       success: 'text-green-600 bg-green-50 px-2 py-1 rounded text-sm',
       warning: 'text-yellow-600 bg-yellow-50 px-2 py-1 rounded text-sm',
       error: 'text-red-600 bg-red-50 px-2 py-1 rounded text-sm',
-      info: 'text-blue-600 bg-blue-50 px-2 py-1 rounded text-sm'
+      info: 'text-[#01bcc6] bg-[#01bcc6]/10 px-2 py-1 rounded text-sm'
     }
   };
   
@@ -533,9 +533,9 @@ export default function TodaysRatesTab({
                 day: 'numeric' 
               })}
             </p>
-            <div className="inline-flex items-center gap-2 mt-2 px-3 py-1 bg-blue-50 border border-blue-200 rounded-lg">
-              {React.createElement(icons.calendar, { size: 16, className: "text-blue-600" })}
-              <span className="text-sm font-medium text-blue-700">
+            <div className="inline-flex items-center gap-2 mt-2 px-3 py-1 bg-[#01bcc6]/10 border border-[#01bcc6]/20 rounded-lg">
+              {React.createElement(icons.calendar, { size: 16, className: "text-[#01bcc6]" })}
+              <span className="text-sm font-medium text-[#01bcc6]">
                 Showing only today's rates
               </span>
             </div>
@@ -559,7 +559,7 @@ export default function TodaysRatesTab({
               </span>
             )}
             {lastUpdated === 'Cached' && (
-              <span className="px-2 py-1 text-xs font-medium text-blue-700 bg-blue-50 rounded-md">
+              <span className="px-2 py-1 text-xs font-medium text-[#01bcc6] bg-[#01bcc6]/10 rounded-md">
                 Cached Data
               </span>
             )}

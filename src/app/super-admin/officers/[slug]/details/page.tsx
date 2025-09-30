@@ -198,7 +198,7 @@ export default function OfficerDetailsPage({ params }: { params: Promise<{ slug:
         >
           <div className="flex items-center justify-center h-64">
             <div className="flex items-center space-x-2">
-              <Icon name="refresh" className="w-6 h-6 animate-spin text-blue-600" />
+              <Icon name="refresh" className="w-6 h-6 animate-spin text-[#01bcc6]" />
               <span className="text-gray-600">Loading officer details...</span>
             </div>
           </div>
@@ -243,8 +243,8 @@ export default function OfficerDetailsPage({ params }: { params: Promise<{ slug:
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
             <SpotlightCard variant="primary" className="p-6">
               <div className="flex items-center">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Icon name="user" className="w-6 h-6 text-blue-600" />
+                <div className="p-2 bg-[#01bcc6]/10 rounded-lg">
+                  <Icon name="user" className="w-6 h-6 text-[#01bcc6]" />
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Total Leads</p>
@@ -253,7 +253,7 @@ export default function OfficerDetailsPage({ params }: { params: Promise<{ slug:
               </div>
             </SpotlightCard>
 
-            <SpotlightCard variant="warning" className="p-6">
+            <SpotlightCard variant="secondary" className="p-6">
               <div className="flex items-center">
                 <div className="p-2 bg-yellow-100 rounded-lg">
                   <Icon name="alertTriangle" className="w-6 h-6 text-yellow-600" />
@@ -265,7 +265,7 @@ export default function OfficerDetailsPage({ params }: { params: Promise<{ slug:
               </div>
             </SpotlightCard>
 
-            <SpotlightCard variant="warning" className="p-6">
+            <SpotlightCard variant="secondary" className="p-6">
               <div className="flex items-center">
                 <div className="p-2 bg-red-100 rounded-lg">
                   <Icon name="alertCircle" className="w-6 h-6 text-red-600" />
@@ -277,7 +277,7 @@ export default function OfficerDetailsPage({ params }: { params: Promise<{ slug:
               </div>
             </SpotlightCard>
 
-            <SpotlightCard variant="success" className="p-6">
+            <SpotlightCard variant="primary" className="p-6">
               <div className="flex items-center">
                 <div className="p-2 bg-green-100 rounded-lg">
                   <Icon name="checkCircle" className="w-6 h-6 text-green-600" />
@@ -291,8 +291,8 @@ export default function OfficerDetailsPage({ params }: { params: Promise<{ slug:
 
             <SpotlightCard variant="primary" className="p-6">
               <div className="flex items-center">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Icon name="link" className="w-6 h-6 text-blue-600" />
+                <div className="p-2 bg-[#01bcc6]/10 rounded-lg">
+                  <Icon name="link" className="w-6 h-6 text-[#01bcc6]" />
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Active Public Links</p>
@@ -303,7 +303,7 @@ export default function OfficerDetailsPage({ params }: { params: Promise<{ slug:
           </div>
 
           {/* Officer Information */}
-          <SpotlightCard variant="neutral" className="p-6">
+          <SpotlightCard variant="default" className="p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Officer Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -363,8 +363,8 @@ export default function OfficerDetailsPage({ params }: { params: Promise<{ slug:
               {officerDetails.recentLeads.slice(0, 5).map((lead) => (
                 <div key={lead.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-sm font-medium text-blue-600">
+                    <div className="w-8 h-8 bg-[#01bcc6]/10 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-medium text-[#01bcc6]">
                         {lead.firstName.charAt(0)}{lead.lastName.charAt(0)}
                       </span>
                     </div>
@@ -393,7 +393,7 @@ export default function OfficerDetailsPage({ params }: { params: Promise<{ slug:
           </SpotlightCard>
 
           {/* Actions */}
-          <SpotlightCard variant="neutral" className="p-6">
+          <SpotlightCard variant="default" className="p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Actions</h3>
             <div className="flex items-center space-x-4">
               <Button

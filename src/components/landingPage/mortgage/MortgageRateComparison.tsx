@@ -479,7 +479,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
   const templateData = isPublic && publicTemplateData ? publicTemplateData : getTemplateSync(template);
   const colors = templateData?.template?.colors || {
     primary: '#ec4899',
-    secondary: '#3b82f6',
+    secondary: '#01bcc6',
     background: '#ffffff',
     text: '#111827',
     textSecondary: '#6b7280',
@@ -779,7 +779,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
 
       case 'fha-loan':
         return (
-          <div className={`${template === 'template1' ? 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200' : 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'} rounded-lg shadow-sm border-2 p-6 mb-6`}>
+          <div className={`${template === 'template1' ? 'bg-gradient-to-br from-[#01bcc6]/10 to-[#01bcc6]/20 border-[#01bcc6]/20' : 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'} rounded-lg shadow-sm border-2 p-6 mb-6`}>
             <h3 className="text-xl font-semibold mb-2 text-center" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: colors.text }}>
               {React.createElement(icons.target, { size: 24 })}
               Recommended: FHA Loan
@@ -1035,7 +1035,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
                     setShowQuestionnaire(true);
                     setShowLanding(false);
                   }}
-                  className="text-blue-600 hover:text-blue-800 font-medium"
+                  className="text-[#01bcc6] hover:text-[#008eab] font-medium"
                 >
                   Find Your Ideal Loan
                 </button>

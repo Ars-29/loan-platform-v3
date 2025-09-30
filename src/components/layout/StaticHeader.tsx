@@ -126,7 +126,7 @@ const StaticHeader = memo(function StaticHeader() {
                 <h1 style={{ 
                   fontSize: '20px', 
                   fontWeight: 'bold', 
-                  color: '#111827' 
+                  color: '#005b7c' 
                 }}>
                   Loan Officer Platform
                 </h1>
@@ -152,7 +152,7 @@ const StaticHeader = memo(function StaticHeader() {
                     width: '16px', 
                     height: '16px', 
                     borderRadius: '50%', 
-                    backgroundColor: '#9ca3af' 
+                    backgroundColor: '#01bcc6' 
                   }}></div>
                 </div>
                 <span style={{ color: '#6b7280', fontSize: '14px' }}>
@@ -161,7 +161,7 @@ const StaticHeader = memo(function StaticHeader() {
                     width: '12px',
                     height: '12px',
                     border: '2px solid #e5e7eb',
-                    borderTop: '2px solid #3b82f6',
+                    borderTop: '2px solid #01bcc6',
                     borderRadius: '50%',
                     animation: 'spin 1s linear infinite',
                     marginRight: '8px'
@@ -207,15 +207,15 @@ const StaticHeader = memo(function StaticHeader() {
                   padding: '0',
                   fontSize: '20px',
                   fontWeight: 'bold',
-                  color: '#111827',
+                  color: '#005b7c',
                   textDecoration: 'none',
                   transition: 'color 0.2s ease-in-out',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#3b82f6';
+                  e.currentTarget.style.color = '#008eab';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#111827';
+                  e.currentTarget.style.color = '#005b7c';
                 }}
               >
                 Loan Officer Platform
@@ -278,12 +278,7 @@ const StaticHeader = memo(function StaticHeader() {
               style={{
                 ...dashboard.button.primary,
               }}
-              onMouseEnter={(e) => {
-                Object.assign(e.currentTarget.style, dashboard.button.primaryHover);
-              }}
-              onMouseLeave={(e) => {
-                Object.assign(e.currentTarget.style, dashboard.button.primary);
-              }}
+              className="btn-primary-solid"
             >
               Sign Out
             </button>

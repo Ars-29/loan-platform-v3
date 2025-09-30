@@ -119,6 +119,16 @@ select.text-white {
   }
 }
 
+/* Button hover effects */
+.btn-primary-solid {
+  background-color: #005b7c !important;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.btn-primary-solid:hover {
+  background-color: #01bcc6 !important;
+}
+
 /* Recent Activity animations */
 @keyframes fadeIn {
   from {
@@ -142,4 +152,14 @@ select.text-white {
   100% {
     transform: rotate(360deg);
   }
+}
+
+/* Button hover effects */
+.btn-primary-solid {
+  background-color: #005b7c !important;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.btn-primary-solid:hover {
+  background-color: #01bcc6 !important;
 }

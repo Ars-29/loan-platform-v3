@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/hooks/use-auth';
+import { supabase } from '@/lib/supabase/client';
 import { typography, colors, spacing, borderRadius } from '@/theme/theme';
 import { icons } from '@/components/ui/Icon';
 import Breadcrumb, { BreadcrumbItem } from '@/components/ui/Breadcrumb';
@@ -182,26 +183,50 @@ export default function LeadDetailsPage() {
     try {
       setSaving(true);
       
+      // Get fresh session to ensure we have a valid token
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session?.access_token) {
+        console.error('Session error:', sessionError);
+        throw new Error('Authentication failed. Please refresh the page and try again.');
+      }
+      
       const response = await fetch(`/api/leads/${lead.id}/analytics`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
+          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({ [editingField!]: tempValue }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update lead');
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('API Error:', response.status, errorData);
+        
+        if (response.status === 401) {
+          throw new Error('Authentication expired. Please refresh the page and try again.');
+        } else if (response.status === 403) {
+          throw new Error('You do not have permission to edit this lead.');
+        } else if (response.status === 404) {
+          throw new Error('Lead not found.');
+        } else {
+          throw new Error(`Failed to update lead: ${errorData.error || 'Unknown error'}`);
+        }
       }
 
+      const result = await response.json();
+      
       // Update local state
       setLead(prevLead => prevLead ? { ...prevLead, [editingField!]: tempValue } : null);
       setEditingField(null);
       setTempValue('');
+      
+      console.log('Lead updated successfully:', result);
     } catch (err) {
       console.error('Error updating lead:', err);
-      alert('Failed to update lead. Please try again.');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update lead. Please try again.';
+      alert(errorMessage);
     } finally {
       setSaving(false);
     }
@@ -291,7 +316,7 @@ export default function LeadDetailsPage() {
         <div className="flex justify-between items-center mb-6">
           <button
             onClick={() => router.push('/officers/dashboard')}
-            className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-lg border-0 flex items-center transition-all duration-200"
+            className="px-4 py-2 text-sm font-medium text-white bg-[#005b7c] hover:bg-[#01bcc6] rounded-lg border-0 flex items-center transition-all duration-200"
           >
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />

@@ -49,7 +49,7 @@ export const Input: React.FC<InputProps> = ({
   const variantClasses = {
     default: `
       border-gray-300 
-      focus:border-blue-500 focus:ring-blue-500
+      focus:border-[#01bcc6] focus:ring-[#01bcc6]
       placeholder-gray-400
     `,
     error: `
