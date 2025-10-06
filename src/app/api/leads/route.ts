@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
     console.log('🚀 POST /api/leads - Starting request');
     
     const body = await request.json();
-    const { firstName, lastName, email, phone, creditScore, loanDetails, userId, companyId } = body;
+    const { firstName, lastName, email, phone, creditScore, loanDetails, userId, companyId, source } = body;
 
     console.log('📝 Request body:', { firstName, lastName, email, phone: phone ? '***' : 'missing', creditScore, loanDetails: loanDetails ? 'present' : 'missing', userId, companyId });
 
@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
       phone: phone.trim(),
       companyId,
       officerId: userId,
-      source: 'rate_table',
+      source: source || 'rate_table', // Use provided source or default to 'rate_table'
       loanDetails: {
         productId: loanDetails.productId,
         lenderName: loanDetails.lenderName,

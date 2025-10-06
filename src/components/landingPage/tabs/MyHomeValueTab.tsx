@@ -86,18 +86,18 @@ export default function MyHomeValueTab({
   const defaultClasses = {
     button: {
       primary: selectedTemplate === 'template2' 
-        ? 'px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white'
-        : 'px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white',
-      secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium transition-all duration-200 border border-gray-300',
+        ? 'px-6 py-3 font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white'
+        : 'px-6 py-3 font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white',
+      secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 font-medium transition-all duration-200 border border-gray-300',
       outline: selectedTemplate === 'template2'
-        ? 'border-2 px-6 py-3 rounded-lg font-medium transition-all duration-200'
-        : 'border-2 px-6 py-3 rounded-lg font-medium transition-all duration-200',
+        ? 'border-2 px-6 py-3 font-medium transition-all duration-200'
+        : 'border-2 px-6 py-3 font-medium transition-all duration-200',
       ghost: selectedTemplate === 'template2'
-        ? 'px-4 py-2 rounded-lg font-medium transition-all duration-200'
-        : 'px-4 py-2 rounded-lg font-medium transition-all duration-200'
+        ? 'px-4 py-2 font-medium transition-all duration-200'
+        : 'px-4 py-2 font-medium transition-all duration-200'
     },
     card: {
-      container: 'bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200',
+      container: 'bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200',
       header: 'px-6 py-4 border-b border-gray-200',
       body: 'px-6 py-4',
       footer: 'px-6 py-4 border-t border-gray-200 bg-gray-50'
@@ -118,12 +118,12 @@ export default function MyHomeValueTab({
     },
     icon: {
       primary: selectedTemplate === 'template2' 
-        ? 'w-12 h-12 rounded-lg flex items-center justify-center mb-4'
-        : 'w-12 h-12 rounded-lg flex items-center justify-center mb-4',
-      secondary: 'w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mb-3',
+        ? 'w-12 h-12 flex items-center justify-center mb-4'
+        : 'w-12 h-12 flex items-center justify-center mb-4',
+      secondary: 'w-10 h-10 bg-gray-100 flex items-center justify-center mb-3',
       small: selectedTemplate === 'template2'
-        ? 'w-8 h-8 rounded-lg flex items-center justify-center'
-        : 'w-8 h-8 rounded-lg flex items-center justify-center'
+        ? 'w-8 h-8 flex items-center justify-center'
+        : 'w-8 h-8 flex items-center justify-center'
     },
     input: {
       base: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#01bcc6] focus:border-transparent',
@@ -207,7 +207,7 @@ button: {
         <>
           {/* Search Form */}
           <div 
-            className={`${classes.card.container} mb-8`}
+            className={`${classes.card.container} mb-8 mt-8`}
             style={{ 
               backgroundColor: colors.background,
               borderColor: colors.border,
@@ -236,34 +236,28 @@ button: {
               </div>
 
               <div 
-                className="flex flex-col sm:flex-row"
+                className="flex flex-col sm:flex-row gap-3 sm:gap-4"
                 style={{ gap: `${layout.padding.medium}px` }}
               >
                 <button
                   onClick={handleGetEstimate}
+                  className="flex items-center justify-center gap-3 px-8 py-4 font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: `${layout.spacing}px`,
-                    padding: `${layout.padding.medium}px ${layout.padding.large}px`,
-                    backgroundColor: `${colors.primary} !important`,
-                    color: `${colors.background} !important`,
-                    border: `none !important`,
+                    backgroundColor: colors.primary,
+                    color: colors.background,
+                    borderColor: colors.primary,
                     borderRadius: `${layout.borderRadius}px`,
+                    border: 'none',
+                    fontFamily: typography.fontFamily,
                     fontSize: getFontSize('base'),
-                    fontWeight: typography.fontWeight.medium,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+                    fontWeight: typography.fontWeight.semibold,
+                    minWidth: '180px'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = `${colors.primary}dd`;
-                    e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.15)';
+                    e.currentTarget.style.backgroundColor = colors.secondary;
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.backgroundColor = colors.primary;
-                    e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
                   }}
                 >
                   <Icon name="search" size={20} color={colors.background} />
@@ -272,29 +266,25 @@ button: {
                 
                 <button
                   onClick={() => setShowIframe(true)}
+                  className="flex items-center justify-center gap-3 px-8 py-4 font-semibold transition-all duration-300 transform hover:scale-105 border-2 hover:shadow-lg"
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: `${layout.spacing}px`,
-                    padding: `${layout.padding.medium}px ${layout.padding.large}px`,
-                    backgroundColor: `${colors.background} !important`,
-                    color: `${colors.text} !important`,
-                    border: `1px solid ${colors.border} !important`,
+                    backgroundColor: colors.background,
+                    color: colors.primary,
+                    borderColor: colors.primary,
                     borderRadius: `${layout.borderRadius}px`,
+                    fontFamily: typography.fontFamily,
                     fontSize: getFontSize('base'),
-                    fontWeight: typography.fontWeight.medium,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
+                    fontWeight: typography.fontWeight.semibold,
+                    minWidth: '180px'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = `${colors.border}20`;
+                    e.currentTarget.style.backgroundColor = colors.primary + '10';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.backgroundColor = colors.background;
                   }}
                 >
-                  <Icon name="externalLink" size={20} color={colors.text} />
+                  <Icon name="externalLink" size={20} color={colors.primary} />
                   <span>{content.ctaSecondary}</span>
                 </button>
               </div>
@@ -303,7 +293,7 @@ button: {
 
           {/* Features Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <div className={`${classes.card.container}`}>
+            <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
               <div className={`${classes.card.body}`}>
                 <div className={`${classes.icon.primary}`}>
                   <Icon name="home" size={24} color={colors.primary} />
@@ -317,7 +307,7 @@ button: {
               </div>
             </div>
 
-            <div className={`${classes.card.container}`}>
+            <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
               <div className={`${classes.card.body}`}>
                 <div className={`${classes.icon.primary}`}>
                   <Icon name="trendingUp" size={24} color={colors.primary} />
@@ -331,7 +321,7 @@ button: {
               </div>
             </div>
 
-            <div className={`${classes.card.container}`}>
+            <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
               <div className={`${classes.card.body}`}>
                 <div className={`${classes.icon.primary}`}>
                   <Icon name="mapPin" size={24} color={colors.primary} />
@@ -348,7 +338,7 @@ button: {
 
           {/* Information Cards */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className={`${classes.card.container}`}>
+            <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
               <div className={`${classes.card.header}`}>
                 <h3 className={`${classes.heading.h4}`}>
                   How It Works
@@ -387,7 +377,7 @@ button: {
               </div>
             </div>
 
-            <div className={`${classes.card.container}`}>
+            <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
               <div className={`${classes.card.header}`}>
                 <h3 className={`${classes.heading.h4}`}>
                   Important Notes
@@ -420,7 +410,7 @@ button: {
         </>
       ) : (
         /* Results View */
-        <div className={`${classes.card.container}`}>
+        <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
           <div className={`${classes.card.header}`}>
             <div className="flex items-center justify-between">
               <h3 className={`${classes.heading.h3}`}>
@@ -461,7 +451,7 @@ button: {
                   </p>
                 </div>
                 
-                <div className="bg-gray-100 rounded-lg p-6 mb-6">
+                <div className="bg-gray-100 p-6 mb-6">
                   <h5 className={`${classes.heading.h5} mb-4`}>
                     Property Details
                   </h5>
@@ -486,7 +476,7 @@ button: {
                 </div>
 
                 <div 
-                  className="flex flex-col sm:flex-row"
+                  className="flex flex-col sm:flex-row gap-3 sm:gap-4"
                   style={{ gap: `${layout.padding.medium}px` }}
                 >
                   <button 
@@ -504,6 +494,12 @@ button: {
                       fontWeight: typography.fontWeight.medium,
                       cursor: 'pointer',
                       transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = `${colors.secondary} !important`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = `${colors.primary} !important`;
                     }}
                   >
                     <Icon name="download" size={20} color={colors.background} />
@@ -524,6 +520,12 @@ button: {
                       fontWeight: typography.fontWeight.medium,
                       cursor: 'pointer',
                       transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = `${colors.primary}10 !important`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = `${colors.background} !important`;
                     }}
                   >
                     <Icon name="share" size={20} color={colors.primary} />
@@ -552,6 +554,12 @@ button: {
                     fontWeight: typography.fontWeight.medium,
                     cursor: 'pointer',
                     transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = `${colors.secondary} !important`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = `${colors.primary} !important`;
                   }}
                 >
                   Back to Search

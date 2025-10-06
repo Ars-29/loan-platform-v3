@@ -16,6 +16,7 @@ interface LoanOfficer {
   email: string;
   firstName: string;
   lastName: string;
+  nmlsNumber?: string;
   isActive: boolean;
   deactivated?: boolean;
   inviteStatus?: string;
@@ -31,6 +32,7 @@ interface CreateOfficerForm {
   email: string;
   firstName: string;
   lastName: string;
+  nmlsNumber: string;
 }
 
 export default function LoanOfficersPage() {
@@ -43,7 +45,8 @@ export default function LoanOfficersPage() {
   const [formData, setFormData] = useState<CreateOfficerForm>({
     email: '',
     firstName: '',
-    lastName: ''
+    lastName: '',
+    nmlsNumber: ''
   });
   const [isCreating, setIsCreating] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
@@ -115,6 +118,7 @@ export default function LoanOfficersPage() {
     if (!formData.email.trim()) errors.email = 'Email is required';
     if (!formData.firstName.trim()) errors.firstName = 'First name is required';
     if (!formData.lastName.trim()) errors.lastName = 'Last name is required';
+    if (!formData.nmlsNumber.trim()) errors.nmlsNumber = 'NMLS# is required';
     if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
       errors.email = 'Please enter a valid email address';
     }
@@ -136,6 +140,7 @@ export default function LoanOfficersPage() {
         email: formData.email,
         firstName: formData.firstName,
         lastName: formData.lastName,
+        nmlsNumber: formData.nmlsNumber,
         companyId: companyId
       });
 
@@ -145,7 +150,7 @@ export default function LoanOfficersPage() {
           title: 'Invite Sent Successfully!',
           message: `An invitation has been sent to ${formData.email}.`,
         });
-        setFormData({ email: '', firstName: '', lastName: '' });
+        setFormData({ email: '', firstName: '', lastName: '', nmlsNumber: '' });
         setShowCreateModal(false);
         fetchOfficers();
       } else {
@@ -336,6 +341,13 @@ export default function LoanOfficersPage() {
       required: true,
       placeholder: 'Doe',
     },
+    {
+      name: 'nmlsNumber',
+      label: 'NMLS#',
+      type: 'text',
+      required: true,
+      placeholder: '123456',
+    },
   ];
 
   const handleViewDetails = (officerSlug: string) => {
@@ -346,9 +358,9 @@ export default function LoanOfficersPage() {
     return (
       <RouteGuard allowedRoles={['super_admin', 'company_admin']}>
         <DashboardLayout 
-          title="Loan Officers" 
-          subtitle="Loading..."
-          showBackButton={true}
+          showBreadcrumb={true}
+        breadcrumbVariant="default"
+        breadcrumbSize="md"
         >
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -361,13 +373,13 @@ export default function LoanOfficersPage() {
   return (
     <RouteGuard allowedRoles={['super_admin', 'company_admin']}>
       <DashboardLayout 
-        title="Loan Officers" 
-        subtitle="Manage loan officers for your company"
-        showBackButton={true}
+        showBreadcrumb={true}
+        breadcrumbVariant="default"
+        breadcrumbSize="md"
       >
         <div className="space-y-6">
           {/* Header with Create Button */}
-          <div className="bg-[#F7F1E9]/30 rounded-lg shadow-sm border border-gray-200">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
             <div className="px-6 py-4 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-gray-900">Loan Officers</h2>
@@ -399,7 +411,7 @@ export default function LoanOfficersPage() {
           isOpen={showCreateModal}
           onClose={() => {
             setShowCreateModal(false);
-            setFormData({ email: '', firstName: '', lastName: '' });
+            setFormData({ email: '', firstName: '', lastName: '', nmlsNumber: '' });
             setValidationErrors({});
           }}
           title="Add New Loan Officer"

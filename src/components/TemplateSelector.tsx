@@ -184,7 +184,7 @@ export default function TemplateSelector({
                 }}
               />
               <span>
-                {template2Data?.template?.name || 'Purple Theme'}
+                {template2Data?.template?.name || 'Template2'}
               </span>
             </div>
           </button>
@@ -273,7 +273,7 @@ export default function TemplateSelector({
             <div className="flex-1 min-w-0">
               <div className="flex items-center space-x-2">
                 <h4 className="font-medium text-gray-900 truncate">
-                  {template2Data?.template?.name || 'Purple Theme'}
+                  {template2Data?.template?.name || 'Template2'}
                 </h4>
                 {selectedTemplate === 'template2' && (
                   <Icon name="check" size={16} className="text-green-600" />

@@ -11,7 +11,6 @@ import { dashboard } from '@/theme/theme';
 import { icons } from '@/components/ui/Icon';
 import { Button } from '@/components/ui/Button';
 import SpotlightCard from '@/components/ui/SpotlightCard';
-import RecentActivity from '@/components/analytics/RecentActivity';
 
 // Interfaces for Company Admin data
 interface CompanyStats {
@@ -214,8 +213,6 @@ export default function AdminDashboardPage() {
     return (
       <RouteGuard allowedRoles={['company_admin']}>
         <DashboardLayout 
-          title="Company Admin Dashboard" 
-          subtitle="Welcome to your company admin dashboard"
         >
           <DashboardLoadingState 
             text={authLoading ? 'Loading user data...' : 'Loading dashboard data...'} 
@@ -230,8 +227,6 @@ export default function AdminDashboardPage() {
     return (
       <RouteGuard allowedRoles={['company_admin']}>
         <DashboardLayout 
-          title="Company Admin Dashboard" 
-          subtitle="Welcome to your company admin dashboard"
         >
           <div style={{ 
             display: 'flex', 
@@ -276,90 +271,98 @@ export default function AdminDashboardPage() {
   return (
     <RouteGuard allowedRoles={['company_admin']}>
       <DashboardLayout 
-        title="Company Admin Dashboard" 
-        subtitle="Welcome to your company admin dashboard"
+        showBreadcrumb={true}
+        breadcrumbVariant="default"
+        breadcrumbSize="md"
+        customBreadcrumbItems={[
+          {
+            label: 'Dashboard',
+            href: '/admin/dashboard',
+            icon: 'home' as keyof typeof icons
+          }
+        ]}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           
 
           {/* Company Statistics */}
           <div style={dashboard.grid.cols4}>
-            <SpotlightCard variant="default" className="p-5">
+            <SpotlightCard variant="default" className="dashboard-card p-5 animate-card-stagger-1" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)', border: 'none' }}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ flexShrink: 0 }}>
                   <div style={{
                     ...dashboard.statsCardIcon,
-                    backgroundColor: 'rgba(1, 188, 198, 0.1)'
+                    backgroundColor: 'rgba(235, 219, 199, 0.2)'
                   }}>
                     {React.createElement(icons.profile, { 
                       size: 20, 
-                      style: { color: '#008eab' } 
+                      style: { color: 'white' } 
                     })}
                   </div>
                 </div>
                 <div style={dashboard.statsCardContent}>
-                  <p style={dashboard.statsCardLabel}>Loan Officers</p>
-                  <p style={dashboard.statsCardValue}>{companyStats.totalOfficers}</p>
+                  <p style={{ ...dashboard.statsCardLabel, color: 'white' }}>Loan Officers</p>
+                  <p style={{ ...dashboard.statsCardValue, color: 'white' }}>{companyStats.totalOfficers}</p>
                 </div>
               </div>
             </SpotlightCard>
 
-            <SpotlightCard variant="default" className="p-5">
+            <SpotlightCard variant="default" className="dashboard-card p-5 animate-card-stagger-1" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)', border: 'none' }}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ flexShrink: 0 }}>
                   <div style={{
                     ...dashboard.statsCardIcon,
-                    backgroundColor: 'rgba(1, 188, 198, 0.1)'
+                    backgroundColor: 'rgba(235, 219, 199, 0.2)'
                   }}>
                     {React.createElement(icons.document, { 
                       size: 20, 
-                      style: { color: '#008eab' } 
+                      style: { color: 'white' } 
                     })}
                   </div>
                 </div>
                 <div style={dashboard.statsCardContent}>
-                  <p style={dashboard.statsCardLabel}>Total Leads</p>
-                  <p style={dashboard.statsCardValue}>{companyStats.totalLeads}</p>
+                  <p style={{ ...dashboard.statsCardLabel, color: 'white' }}>Total Leads</p>
+                  <p style={{ ...dashboard.statsCardValue, color: 'white' }}>{companyStats.totalLeads}</p>
                 </div>
               </div>
             </SpotlightCard>
 
-            <SpotlightCard variant="default" className="p-5">
+            <SpotlightCard variant="default" className="dashboard-card p-5 animate-card-stagger-1" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)', border: 'none' }}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ flexShrink: 0 }}>
                   <div style={{
                     ...dashboard.statsCardIcon,
-                    backgroundColor: 'rgba(1, 188, 198, 0.1)'
+                    backgroundColor: 'rgba(235, 219, 199, 0.2)'
                   }}>
                     {React.createElement(icons.trendingUp, { 
                       size: 20, 
-                      style: { color: '#008eab' } 
+                      style: { color: 'white' } 
                     })}
                   </div>
                 </div>
                 <div style={dashboard.statsCardContent}>
-                  <p style={dashboard.statsCardLabel}>Conversion Rate</p>
-                  <p style={dashboard.statsCardValue}>{companyStats.conversionRate}%</p>
+                  <p style={{ ...dashboard.statsCardLabel, color: 'white' }}>Conversion Rate</p>
+                  <p style={{ ...dashboard.statsCardValue, color: 'white' }}>{companyStats.conversionRate}%</p>
                 </div>
               </div>
             </SpotlightCard>
 
-            <SpotlightCard variant="default" className="p-5">
+            <SpotlightCard variant="default" className="dashboard-card p-5 animate-card-stagger-1" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)', border: 'none' }}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ flexShrink: 0 }}>
                   <div style={{
                     ...dashboard.statsCardIcon,
-                    backgroundColor: 'rgba(1, 188, 198, 0.1)'
+                    backgroundColor: 'rgba(235, 219, 199, 0.2)'
                   }}>
                     {React.createElement(icons.clock, { 
                       size: 20, 
-                      style: { color: '#008eab' } 
+                      style: { color: 'white' } 
                     })}
                   </div>
                 </div>
                 <div style={dashboard.statsCardContent}>
-                  <p style={dashboard.statsCardLabel}>Avg Response</p>
-                  <p style={dashboard.statsCardValue}>{companyStats.averageResponseTime}h</p>
+                  <p style={{ ...dashboard.statsCardLabel, color: 'white' }}>Avg Response</p>
+                  <p style={{ ...dashboard.statsCardValue, color: 'white' }}>{companyStats.averageResponseTime}h</p>
                 </div>
               </div>
             </SpotlightCard>
@@ -367,62 +370,62 @@ export default function AdminDashboardPage() {
 
           {/* Performance Metrics */}
           <div style={dashboard.grid.cols3}>
-            <SpotlightCard variant="default" className="p-5">
+            <SpotlightCard variant="default" className="dashboard-card p-5 animate-card-stagger-1" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)', border: 'none' }}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ flexShrink: 0 }}>
                   <div style={{
                     ...dashboard.statsCardIcon,
-                    backgroundColor: 'rgba(1, 188, 198, 0.1)'
+                    backgroundColor: 'rgba(235, 219, 199, 0.2)'
                   }}>
                     {React.createElement(icons.star, { 
                       size: 20, 
-                      style: { color: '#008eab' } 
+                      style: { color: 'white' } 
                     })}
                   </div>
                 </div>
                 <div style={dashboard.statsCardContent}>
-                  <p style={dashboard.statsCardLabel}>Top Performer</p>
-                  <p style={dashboard.statsCardValue}>{companyStats.topPerformingOfficer}</p>
+                  <p style={{ ...dashboard.statsCardLabel, color: 'white' }}>Top Performer</p>
+                  <p style={{ ...dashboard.statsCardValue, color: 'white' }}>{companyStats.topPerformingOfficer}</p>
                 </div>
               </div>
             </SpotlightCard>
 
-            <SpotlightCard variant="default" className="p-5">
+            <SpotlightCard variant="default" className="dashboard-card p-5 animate-card-stagger-1" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)', border: 'none' }}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ flexShrink: 0 }}>
                   <div style={{
                     ...dashboard.statsCardIcon,
-                    backgroundColor: 'rgba(1, 188, 198, 0.1)'
+                    backgroundColor: 'rgba(235, 219, 199, 0.2)'
                   }}>
                     {React.createElement(icons.checkCircle, { 
                       size: 20, 
-                      style: { color: '#008eab' } 
+                      style: { color: 'white' } 
                     })}
                   </div>
                 </div>
                 <div style={dashboard.statsCardContent}>
-                  <p style={dashboard.statsCardLabel}>Active Officers</p>
-                  <p style={dashboard.statsCardValue}>{companyStats.activeOfficers}</p>
+                  <p style={{ ...dashboard.statsCardLabel, color: 'white' }}>Active Officers</p>
+                  <p style={{ ...dashboard.statsCardValue, color: 'white' }}>{companyStats.activeOfficers}</p>
                 </div>
               </div>
             </SpotlightCard>
 
-            <SpotlightCard variant="default" className="p-5">
+            <SpotlightCard variant="default" className="dashboard-card p-5 animate-card-stagger-1" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)', border: 'none' }}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ flexShrink: 0 }}>
                   <div style={{
                     ...dashboard.statsCardIcon,
-                    backgroundColor: 'rgba(1, 188, 198, 0.1)'
+                    backgroundColor: 'rgba(235, 219, 199, 0.2)'
                   }}>
                     {React.createElement(icons.calendar, { 
                       size: 20, 
-                      style: { color: '#008eab' } 
+                      style: { color: 'white' } 
                     })}
                   </div>
                 </div>
                 <div style={dashboard.statsCardContent}>
-                  <p style={dashboard.statsCardLabel}>This Week</p>
-                  <p style={dashboard.statsCardValue}>{companyStats.thisWeekLeads}</p>
+                  <p style={{ ...dashboard.statsCardLabel, color: 'white' }}>This Week</p>
+                  <p style={{ ...dashboard.statsCardValue, color: 'white' }}>{companyStats.thisWeekLeads}</p>
                 </div>
               </div>
             </SpotlightCard>
@@ -432,95 +435,209 @@ export default function AdminDashboardPage() {
           <SpotlightCard variant="default" className="p-6">
             <h3 style={{
               fontSize: '18px',
-              fontWeight: 'medium',
-              color: '#111827',
+              fontWeight: 'bold',
+              color: '#005b7c',
               marginBottom: '16px'
             }}>
               Quick Actions
             </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
-              <SpotlightCard 
-                variant="default" 
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <Button
+                variant="secondary"
+                size="md"
                 onClick={() => router.push('/admin/loanofficers')}
-                className="p-4 text-center cursor-pointer"
-                style={{ backgroundColor: 'white', border: '1px solid rgba(1, 188, 198, 0.2)' }}
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px',
+                  minWidth: '140px',
+                  padding: '12px 16px',
+                  backgroundColor: 'white',
+                  border: '1px solid rgba(1, 188, 198, 0.3)',
+                  color: '#008eab',
+                  fontWeight: '500',
+                  borderRadius: '16px', // CONSISTENT WITH ALL BUTTONS
+                  transition: 'all 0.2s ease-in-out',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(1, 188, 198, 0.05)';
+                  e.currentTarget.style.borderColor = 'rgba(1, 188, 198, 0.5)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(1, 188, 198, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'white';
+                  e.currentTarget.style.borderColor = 'rgba(1, 188, 198, 0.3)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               >
-                <div style={{
-                  ...dashboard.quickActionIcon,
-                  backgroundColor: 'rgba(1, 188, 198, 0.1)',
-                  margin: '0 auto 8px auto'
-                }}>
-                  {React.createElement(icons.profile, { 
-                    size: 20, 
-                    style: { color: '#008eab' } 
-                  })}
-                </div>
-                <p style={dashboard.quickActionTitle}>Loan Officers</p>
-              </SpotlightCard>
+                {React.createElement(icons.profile, { 
+                  size: 16, 
+                  style: { color: '#008eab' } 
+                })}
+                Loan Officers
+              </Button>
 
-              <SpotlightCard 
-                variant="default" 
+              <Button
+                variant="secondary"
+                size="md"
                 onClick={() => router.push('/admin/insights')}
-                className="p-4 text-center cursor-pointer"
-                style={{ backgroundColor: 'white', border: '1px solid rgba(1, 188, 198, 0.2)' }}
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px',
+                  minWidth: '140px',
+                  padding: '12px 16px',
+                  backgroundColor: 'white',
+                  border: '1px solid rgba(1, 188, 198, 0.3)',
+                  color: '#008eab',
+                  fontWeight: '500',
+                  borderRadius: '16px', // CONSISTENT WITH ALL BUTTONS
+                  transition: 'all 0.2s ease-in-out',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(1, 188, 198, 0.05)';
+                  e.currentTarget.style.borderColor = 'rgba(1, 188, 198, 0.5)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(1, 188, 198, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'white';
+                  e.currentTarget.style.borderColor = 'rgba(1, 188, 198, 0.3)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               >
-                <div style={{
-                  ...dashboard.quickActionIcon,
-                  backgroundColor: 'rgba(1, 188, 198, 0.1)',
-                  margin: '0 auto 8px auto'
-                }}>
-                  {React.createElement(icons.trendingUp, { 
-                    size: 20, 
-                    style: { color: '#008eab' } 
-                  })}
-                </div>
-                <p style={dashboard.quickActionTitle}>Leads Insights</p>
-              </SpotlightCard>
+                {React.createElement(icons.trendingUp, { 
+                  size: 16, 
+                  style: { color: '#008eab' } 
+                })}
+                Leads Insights
+              </Button>
 
-              <SpotlightCard 
-                variant="default" 
+              <Button
+                variant="secondary"
+                size="md"
                 onClick={() => router.push('/admin/stats')}
-                className="p-4 text-center cursor-pointer"
-                style={{ backgroundColor: 'white', border: '1px solid rgba(1, 188, 198, 0.2)' }}
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px',
+                  minWidth: '140px',
+                  padding: '12px 16px',
+                  backgroundColor: 'white',
+                  border: '1px solid rgba(1, 188, 198, 0.3)',
+                  color: '#008eab',
+                  fontWeight: '500',
+                  borderRadius: '16px', // CONSISTENT WITH ALL BUTTONS
+                  transition: 'all 0.2s ease-in-out',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(1, 188, 198, 0.05)';
+                  e.currentTarget.style.borderColor = 'rgba(1, 188, 198, 0.5)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(1, 188, 198, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'white';
+                  e.currentTarget.style.borderColor = 'rgba(1, 188, 198, 0.3)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               >
-                <div style={{
-                  ...dashboard.quickActionIcon,
-                  backgroundColor: 'rgba(1, 188, 198, 0.1)',
-                  margin: '0 auto 8px auto'
-                }}>
-                  {React.createElement(icons.calculator, { 
-                    size: 20, 
-                    style: { color: '#008eab' } 
-                  })}
-                </div>
-                <p style={dashboard.quickActionTitle}>Conversion Stats</p>
-              </SpotlightCard>
+                {React.createElement(icons.calculator, { 
+                  size: 16, 
+                  style: { color: '#008eab' } 
+                })}
+                Conversion Stats
+              </Button>
 
-              <SpotlightCard 
-                variant="default" 
+              <Button
+                variant="secondary"
+                size="md"
                 onClick={() => router.push('/admin/settings')}
-                className="p-4 text-center cursor-pointer"
-                style={{ backgroundColor: 'white', border: '1px solid rgba(1, 188, 198, 0.2)' }}
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px',
+                  minWidth: '140px',
+                  padding: '12px 16px',
+                  backgroundColor: 'white',
+                  border: '1px solid rgba(1, 188, 198, 0.3)',
+                  color: '#008eab',
+                  fontWeight: '500',
+                  borderRadius: '16px', // CONSISTENT WITH ALL BUTTONS
+                  transition: 'all 0.2s ease-in-out',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(1, 188, 198, 0.05)';
+                  e.currentTarget.style.borderColor = 'rgba(1, 188, 198, 0.5)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(1, 188, 198, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'white';
+                  e.currentTarget.style.borderColor = 'rgba(1, 188, 198, 0.3)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               >
-                <div style={{
-                  ...dashboard.quickActionIcon,
-                  backgroundColor: 'rgba(1, 188, 198, 0.1)',
-                  margin: '0 auto 8px auto'
-                }}>
-                  {React.createElement(icons.settings, { 
-                    size: 20, 
-                    style: { color: '#008eab' } 
-                  })}
-                </div>
-                <p style={dashboard.quickActionTitle}>Settings</p>
-              </SpotlightCard>
+                {React.createElement(icons.settings, { 
+                  size: 16, 
+                  style: { color: '#008eab' } 
+                })}
+                Settings
+              </Button>
+
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={() => router.push('/admin/activities')}
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px',
+                  minWidth: '140px',
+                  padding: '12px 16px',
+                  backgroundColor: 'white',
+                  border: '1px solid rgba(1, 188, 198, 0.3)',
+                  color: '#008eab',
+                  fontWeight: '500',
+                  borderRadius: '16px', // CONSISTENT WITH ALL BUTTONS
+                  transition: 'all 0.2s ease-in-out',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(1, 188, 198, 0.05)';
+                  e.currentTarget.style.borderColor = 'rgba(1, 188, 198, 0.5)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(1, 188, 198, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'white';
+                  e.currentTarget.style.borderColor = 'rgba(1, 188, 198, 0.3)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                {React.createElement(icons.activity, { 
+                  size: 16, 
+                  style: { color: '#008eab' } 
+                })}
+                Activities
+              </Button>
             </div>
           </SpotlightCard>
 
           {/* Team Management & Analytics */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             {/* Recent Officers */}
-            <SpotlightCard variant="default" className="p-6">
+            <SpotlightCard variant="default" className="dashboard-card p-6 animate-card-stagger-2">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <h3 style={{
                   fontSize: '18px',
@@ -531,9 +648,8 @@ export default function AdminDashboardPage() {
                 </h3>
                 <Button
                   variant="primary"
-                  size="sm"
                   onClick={() => router.push('/admin/loanofficers')}
-                  className="bg-[#01bcc6] hover:bg-[#008eab] text-white"
+                  className="bg-[#01bcc6] hover:bg-[#008eab] text-white btn-view-all"
                 >
                   View All
                 </Button>
@@ -548,7 +664,7 @@ export default function AdminDashboardPage() {
                         alignItems: 'center',
                         padding: '12px',
                         backgroundColor: 'white',
-                        borderRadius: '8px',
+                        borderRadius: '16px', // CONSISTENT WITH ALL BUTTONS
                         border: '1px solid rgba(1, 188, 198, 0.2)'
                       }}
                     >
@@ -585,7 +701,7 @@ export default function AdminDashboardPage() {
             </SpotlightCard>
 
             {/* Recent Leads */}
-            <SpotlightCard variant="default" className="p-6">
+            <SpotlightCard variant="default" className="dashboard-card p-6 animate-card-stagger-2">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <h3 style={{
                   fontSize: '18px',
@@ -596,9 +712,8 @@ export default function AdminDashboardPage() {
                 </h3>
                 <Button
                   variant="primary"
-                  size="sm"
                   onClick={() => router.push('/admin/insights')}
-                  className="bg-[#01bcc6] hover:bg-[#008eab] text-white"
+                  className="bg-[#01bcc6] hover:bg-[#008eab] text-white btn-view-all"
                 >
                   View All
                 </Button>
@@ -613,7 +728,7 @@ export default function AdminDashboardPage() {
                         alignItems: 'center',
                         padding: '12px',
                         backgroundColor: 'white',
-                        borderRadius: '8px',
+                        borderRadius: '16px', // CONSISTENT WITH ALL BUTTONS
                         border: '1px solid rgba(1, 188, 198, 0.2)'
                       }}
                     >
@@ -654,8 +769,6 @@ export default function AdminDashboardPage() {
             </SpotlightCard>
           </div>
 
-          {/* Recent Activity */}
-          <RecentActivity />
         </div>
       </DashboardLayout>
     </RouteGuard>

@@ -149,12 +149,14 @@ const CompanyStatsSelector: React.FC<CompanyStatsSelectorProps> = ({ onCompanySe
       key: 'actions',
       title: 'Actions',
       render: (value: any, record: Company) => (
-        <button
+        <Button
+          variant="primary"
+          size="sm"
           onClick={() => onCompanySelect(record.id, record.name)}
-          className="px-4 py-2 text-sm font-medium text-white bg-[#005b7c] hover:bg-[#01bcc6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#008eab] focus:ring-offset-2 transition-all duration-200"
+          className="bg-[#005b7c] hover:bg-[#01bcc6] text-white"
         >
           View Stats
-        </button>
+        </Button>
       ),
     },
   ];
@@ -188,26 +190,26 @@ const CompanyStatsSelector: React.FC<CompanyStatsSelectorProps> = ({ onCompanySe
       
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="p-6 rounded-lg shadow-sm border border-gray-200" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)' }}>
           <div className="flex items-center">
-            <div className="p-2 bg-[#01bcc6]/20 rounded-lg">
-              <Building2 className="w-6 h-6 text-[#008eab]" />
+            <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(235, 219, 199, 0.2)' }}>
+              <Building2 className="w-6 h-6" style={{ color: 'white' }} />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Companies</p>
-              <p className="text-2xl font-bold text-gray-900">{companies.length}</p>
+              <p className="text-sm font-medium text-white">Total Companies</p>
+              <p className="text-2xl font-bold text-white">{companies.length}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="p-6 rounded-lg shadow-sm border border-gray-200" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)' }}>
           <div className="flex items-center">
-            <div className="p-2 bg-[#01bcc6]/20 rounded-lg">
-              <TrendingUp className="w-6 h-6 text-[#008eab]" />
+            <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(235, 219, 199, 0.2)' }}>
+              <TrendingUp className="w-6 h-6" style={{ color: 'white' }} />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Avg Conversion</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-sm font-medium text-white">Avg Conversion</p>
+              <p className="text-2xl font-bold text-white">
                 {companies.length > 0 
                   ? (companies.reduce((sum, c) => sum + (c.conversionRate || 0), 0) / companies.length).toFixed(1)
                   : '0.0'
@@ -217,28 +219,28 @@ const CompanyStatsSelector: React.FC<CompanyStatsSelectorProps> = ({ onCompanySe
           </div>
         </div>
 
-        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="p-6 rounded-lg shadow-sm border border-gray-200" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)' }}>
           <div className="flex items-center">
-            <div className="p-2 bg-[#01bcc6]/20 rounded-lg">
-              <Users className="w-6 h-6 text-[#008eab]" />
+            <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(235, 219, 199, 0.2)' }}>
+              <Users className="w-6 h-6" style={{ color: 'white' }} />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Officers</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-sm font-medium text-white">Total Officers</p>
+              <p className="text-2xl font-bold text-white">
                 {companies.reduce((sum, c) => sum + c.totalOfficers, 0)}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="p-6 rounded-lg shadow-sm border border-gray-200" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)' }}>
           <div className="flex items-center">
-            <div className="p-2 bg-[#01bcc6]/20 rounded-lg">
-              <DollarSign className="w-6 h-6 text-[#008eab]" />
+            <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(235, 219, 199, 0.2)' }}>
+              <DollarSign className="w-6 h-6" style={{ color: 'white' }} />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-sm font-medium text-white">Total Revenue</p>
+              <p className="text-2xl font-bold text-white">
                 ${companies.reduce((sum, c) => sum + (c.totalRevenue || 0), 0).toLocaleString()}
               </p>
             </div>
@@ -247,7 +249,7 @@ const CompanyStatsSelector: React.FC<CompanyStatsSelectorProps> = ({ onCompanySe
       </div>
 
       {/* Companies Table */}
-      <div className="bg-[#F7F1E9]/30 rounded-lg shadow-sm border border-gray-200">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <DataTable
           data={companies}
           columns={columns}

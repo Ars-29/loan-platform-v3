@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import Image from 'next/image';
 import { supabase } from '@/lib/supabase/client';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
@@ -197,13 +198,17 @@ function AuthPageContent() {
       <LiquidChromeBackground />
       
       {/* Header */}
-      <header className="bg-[#F7F1E9]/95 backdrop-blur-xl shadow-lg border-b border-[#F7F1E9]/30 relative z-20">
+      <header className="bg-white/95 backdrop-blur-xl shadow-lg border-b border-[#F7F1E9]/30 relative z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-[#005b7c] to-[#01bcc6] bg-clip-text text-transparent">
-                Loan Officer Platform
-              </h1>
+              <Image
+                src="/images/logos/LoanOffD.png"
+                alt="Loan Officer Platform"
+                width={140}
+                height={28}
+                className="h-auto max-h-[28px] w-auto"
+              />
             </div>
             <div className="flex items-center space-x-4">
               <button
@@ -221,7 +226,7 @@ function AuthPageContent() {
       <main className="relative z-10 min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           {/* Login Card */}
-          <div className="bg-[#F7F1E9]/95 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-[#F7F1E9]/40">
+          <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-[#F7F1E9]/40">
             <div className="text-center mb-8">
               <h2 className="text-4xl font-bold text-[#005b7c] mb-4 drop-shadow-lg">
                 Welcome Back
@@ -303,7 +308,7 @@ function AuthPageContent() {
         isOpen={showForgotPasswordModal}
         onClose={() => setShowForgotPasswordModal(false)}
         title="Reset Password"
-        className="bg-[#F7F1E9]/95 backdrop-blur-xl border border-[#F7F1E9]/40"
+        className="bg-white/95 backdrop-blur-xl border border-[#F7F1E9]/40"
       >
         <div className="space-y-6">
           <div className="text-center mb-6">
@@ -333,7 +338,7 @@ function AuthPageContent() {
                 value={forgotPasswordEmail}
                 onChange={(e) => setForgotPasswordEmail(e.target.value)}
                 placeholder="Enter your email address"
-                className="w-full pl-12 pr-4 py-4 border-2 border-[#01bcc6]/20 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-[#01bcc6]/20 focus:border-[#01bcc6] transition-all duration-300 bg-[#F7F1E9]/50 backdrop-blur-sm text-[#005b7c] font-medium placeholder-[#005b7c]/50"
+                className="w-full pl-12 pr-4 py-4 border-2 border-[#01bcc6]/20 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-[#01bcc6]/20 focus:border-[#01bcc6] transition-all duration-300 bg-white/50 backdrop-blur-sm text-[#005b7c] font-medium placeholder-[#005b7c]/50"
                 disabled={forgotPasswordLoading}
               />
             </div>
@@ -375,7 +380,7 @@ function AuthPageContent() {
               onClick={() => setShowForgotPasswordModal(false)}
               variant="secondary"
               disabled={forgotPasswordLoading}
-              className="flex-1 bg-[#F7F1E9] text-[#005b7c] border-2 border-[#01bcc6]/30 hover:bg-[#01bcc6]/10 hover:border-[#01bcc6]/50 py-4 text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              className="flex-1 bg-white text-[#005b7c] border-2 border-[#01bcc6]/30 hover:bg-[#01bcc6]/10 hover:border-[#01bcc6]/50 py-4 text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
             >
               Cancel
             </Button>

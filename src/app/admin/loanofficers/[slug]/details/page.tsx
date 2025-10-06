@@ -131,9 +131,9 @@ export default function OfficerDetailsPage({ params }: { params: Promise<{ slug:
     return (
       <RouteGuard allowedRoles={['super_admin', 'company_admin']}>
         <DashboardLayout 
-          title="Officer Details" 
-          subtitle="Loading officer information..."
-          showBackButton={true}
+          showBreadcrumb={true}
+        breadcrumbVariant="elevated"
+        breadcrumbSize="md"
         >
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -147,9 +147,9 @@ export default function OfficerDetailsPage({ params }: { params: Promise<{ slug:
     return (
       <RouteGuard allowedRoles={['super_admin', 'company_admin']}>
         <DashboardLayout 
-          title="Officer Details" 
-          subtitle="Officer not found"
-          showBackButton={true}
+          showBreadcrumb={true}
+        breadcrumbVariant="elevated"
+        breadcrumbSize="md"
         >
           <div className="text-center py-12">
             <p className="text-gray-500">Officer not found or you don't have permission to view this officer.</p>
@@ -161,58 +161,56 @@ export default function OfficerDetailsPage({ params }: { params: Promise<{ slug:
 
   return (
     <RouteGuard allowedRoles={['super_admin', 'company_admin']}>
-      <DashboardLayout 
-        title={`${officerDetails.firstName} ${officerDetails.lastName}`}
-        subtitle="Officer Details"
-        showBackButton={true}
-      >
+      <DashboardLayout showBreadcrumb={true}
+        breadcrumbVariant="elevated"
+        breadcrumbSize="md">
         <div className="space-y-6">
           {/* Officer Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <SpotlightCard variant="primary" className="p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Icon name="user" className="h-8 w-8 text-blue-600" />
+            <SpotlightCard variant="primary" className="p-6 dashboard-card inner-page-card" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)', border: 'none' }}>
+              <div className="flex items-center space-x-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(235, 219, 199, 0.2)' }}>
+                  <Icon name="user" className="h-6 w-6 text-white" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Total Leads</p>
-                  <p className="text-2xl font-bold text-gray-900">{officerDetails.totalLeads}</p>
-                </div>
-              </div>
-            </SpotlightCard>
-
-            <SpotlightCard variant="primary" className="p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Icon name="alertTriangle" className="h-8 w-8 text-orange-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">High Priority</p>
-                  <p className="text-2xl font-bold text-gray-900">{officerDetails.highPriorityLeads}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white truncate">Total Leads</p>
+                  <p className="text-2xl font-bold text-white">{officerDetails.totalLeads}</p>
                 </div>
               </div>
             </SpotlightCard>
 
-            <SpotlightCard variant="primary" className="p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Icon name="alertCircle" className="h-8 w-8 text-red-600" />
+            <SpotlightCard variant="primary" className="p-6 dashboard-card inner-page-card" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)', border: 'none' }}>
+              <div className="flex items-center space-x-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(235, 219, 199, 0.2)' }}>
+                  <Icon name="alertTriangle" className="h-6 w-6 text-white" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Urgent Priority</p>
-                  <p className="text-2xl font-bold text-gray-900">{officerDetails.urgentPriorityLeads}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white truncate">High Priority</p>
+                  <p className="text-2xl font-bold text-white">{officerDetails.highPriorityLeads}</p>
                 </div>
               </div>
             </SpotlightCard>
 
-            <SpotlightCard variant="primary" className="p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Icon name="checkCircle" className="h-8 w-8 text-green-600" />
+            <SpotlightCard variant="primary" className="p-6 dashboard-card inner-page-card" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)', border: 'none' }}>
+              <div className="flex items-center space-x-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(235, 219, 199, 0.2)' }}>
+                  <Icon name="alertCircle" className="h-6 w-6 text-white" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Converted</p>
-                  <p className="text-2xl font-bold text-gray-900">{officerDetails.convertedLeads}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white truncate">Urgent Priority</p>
+                  <p className="text-2xl font-bold text-white">{officerDetails.urgentPriorityLeads}</p>
+                </div>
+              </div>
+            </SpotlightCard>
+
+            <SpotlightCard variant="primary" className="p-6 dashboard-card inner-page-card" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)', border: 'none' }}>
+              <div className="flex items-center space-x-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(235, 219, 199, 0.2)' }}>
+                  <Icon name="checkCircle" className="h-6 w-6 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white truncate">Converted</p>
+                  <p className="text-2xl font-bold text-white">{officerDetails.convertedLeads}</p>
                 </div>
               </div>
             </SpotlightCard>
@@ -221,7 +219,7 @@ export default function OfficerDetailsPage({ params }: { params: Promise<{ slug:
           {/* Officer Information */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Basic Information */}
-            <SpotlightCard variant="default" className="p-6">
+            <SpotlightCard variant="default" className="p-6 dashboard-card detail-card">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
               <div className="space-y-3">
                 <div className="flex justify-between">
@@ -262,7 +260,7 @@ export default function OfficerDetailsPage({ params }: { params: Promise<{ slug:
             </SpotlightCard>
 
             {/* Public Profile */}
-            <SpotlightCard variant="default" className="p-6">
+            <SpotlightCard variant="default" className="p-6 dashboard-card detail-card">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Public Profile</h3>
               <div className="space-y-3">
                 <div className="flex justify-between">
@@ -312,7 +310,7 @@ export default function OfficerDetailsPage({ params }: { params: Promise<{ slug:
               <h3 className="text-lg font-semibold text-gray-900">Recent Leads</h3>
               <button
                 onClick={() => router.push(`/admin/loanofficers/${slug}/leads`)}
-                className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-blue-600 bg-blue-100 hover:bg-blue-200"
+                className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-lg text-blue-600 bg-blue-100 hover:bg-blue-200"
               >
                 View All Leads
               </button>

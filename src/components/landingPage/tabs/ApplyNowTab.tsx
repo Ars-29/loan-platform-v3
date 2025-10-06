@@ -68,18 +68,18 @@ export default function ApplyNowTab({
   const defaultClasses = {
     button: {
       primary: selectedTemplate === 'template2' 
-        ? 'px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white'
-        : 'px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white',
-      secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium transition-all duration-200 border border-gray-300',
+        ? 'px-6 py-3 font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white'
+        : 'px-6 py-3 font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white',
+      secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 font-medium transition-all duration-200 border border-gray-300',
       outline: selectedTemplate === 'template2'
-        ? 'border-2 px-6 py-3 rounded-lg font-medium transition-all duration-200'
-        : 'border-2 px-6 py-3 rounded-lg font-medium transition-all duration-200',
+        ? 'border-2 px-6 py-3 font-medium transition-all duration-200'
+        : 'border-2 px-6 py-3 font-medium transition-all duration-200',
       ghost: selectedTemplate === 'template2'
-        ? 'px-4 py-2 rounded-lg font-medium transition-all duration-200'
-        : 'px-4 py-2 rounded-lg font-medium transition-all duration-200'
+        ? 'px-4 py-2 font-medium transition-all duration-200'
+        : 'px-4 py-2 font-medium transition-all duration-200'
     },
     card: {
-      container: 'bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200',
+      container: 'bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200',
       header: 'px-6 py-4 border-b border-gray-200',
       body: 'px-6 py-4',
       footer: 'px-6 py-4 border-t border-gray-200 bg-gray-50'
@@ -100,12 +100,12 @@ export default function ApplyNowTab({
     },
     icon: {
       primary: selectedTemplate === 'template2' 
-        ? 'w-12 h-12 rounded-lg flex items-center justify-center mb-4'
-        : 'w-12 h-12 rounded-lg flex items-center justify-center mb-4',
-      secondary: 'w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mb-3',
+        ? 'w-12 h-12 flex items-center justify-center mb-4'
+        : 'w-12 h-12 flex items-center justify-center mb-4',
+      secondary: 'w-10 h-10 bg-gray-100 flex items-center justify-center mb-3',
       small: selectedTemplate === 'template2'
-        ? 'w-8 h-8 rounded-lg flex items-center justify-center'
-        : 'w-8 h-8 rounded-lg flex items-center justify-center'
+        ? 'w-8 h-8 flex items-center justify-center'
+        : 'w-8 h-8 flex items-center justify-center'
     }
   };
   
@@ -164,75 +164,9 @@ export default function ApplyNowTab({
 
       {!showIframe ? (
         <>
-          {/* Application Type Selection */}
-          <div className={`${classes.card.container} mb-8`}>
-            <div className={`${classes.card.body}`}>
-              <h3 className={`${classes.heading.h4} mb-6`}>
-                Choose Your Application Type
-              </h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div
-                  className={`p-6 border-2 rounded-lg cursor-pointer transition-all ${
-                    applicationType === 'new'
-                      ? 'border-gray-200'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                  style={applicationType === 'new' ? {
-                    borderColor: colors.primary,
-                    backgroundColor: `${colors.primary}10`
-                  } : {}}
-                  onClick={() => setApplicationType('new')}
-                >
-                  <div className="flex items-center space-x-4">
-                    <div className={`${classes.icon.primary}`}>
-                      <Icon name="plus" size={24} color={colors.primary} />
-                    </div>
-                    <div>
-                      <h4 className={`${classes.heading.h6}`}>
-                        New Application
-                      </h4>
-                      <p className={`${classes.body.small}`}>
-                        Start a fresh loan application
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  className={`p-6 border-2 rounded-lg cursor-pointer transition-all ${
-                    applicationType === 'existing'
-                      ? 'border-gray-200'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                  style={applicationType === 'existing' ? {
-                    borderColor: colors.primary,
-                    backgroundColor: `${colors.primary}10`
-                  } : {}}
-                  onClick={() => setApplicationType('existing')}
-                >
-                  <div className="flex items-center space-x-4">
-                    <div className={`${classes.icon.primary}`}>
-                      <Icon name="document" size={24} color={colors.primary} />
-                    </div>
-                    <div>
-                      <h4 className={`${classes.heading.h6}`}>
-                        Continue Application
-                      </h4>
-                      <p className={`${classes.body.small}`}>
-                        Resume your existing application
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Application Options */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          
             {/* Online Application */}
-            <div className={`${classes.card.container}`}>
+            <div className={`${classes.card.container}mb-8 mt-8`} style={{ borderRadius: `${layout.borderRadius}px` }}>
               <div className={`${classes.card.body}`}>
                 <div className={`${classes.icon.primary}`}>
                   <Icon name="target" size={24} color={colors.primary} />
@@ -245,11 +179,19 @@ export default function ApplyNowTab({
                 </p>
                 <button
                   onClick={handleStartApplication}
-                  className={`${classes.button.primary} w-full flex items-center justify-center space-x-2`}
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors"
                   style={{
                     backgroundColor: colors.primary,
                     color: colors.background,
-                    borderColor: colors.primary
+                    borderColor: colors.primary,
+                    borderRadius: `${layout.borderRadius}px`,
+                    border: 'none'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.secondary;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.primary;
                   }}
                 >
                   <Icon name="arrowRight" size={20} color={colors.background} />
@@ -257,37 +199,10 @@ export default function ApplyNowTab({
                 </button>
               </div>
             </div>
-
-            {/* External Application */}
-            <div className={`${classes.card.container}`}>
-              <div className={`${classes.card.body}`}>
-                <div className={`${classes.icon.primary}`}>
-                  <Icon name="externalLink" size={24} color={colors.primary} />
-                </div>
-                <h3 className={`${classes.heading.h5}`}>
-                  External Platform
-                </h3>
-                <p className={`${classes.body.small} mb-4`}>
-                  Apply through our integrated loan origination system
-                </p>
-                <button
-                  onClick={handleExternalRedirect}
-                  className={`${classes.button.outline} w-full flex items-center justify-center space-x-2`}
-                  style={{
-                    backgroundColor: colors.background,
-                    borderColor: colors.primary,
-                    color: colors.primary
-                  }}
-                >
-                  <Icon name="externalLink" size={20} color={colors.primary} />
-                  <span>Go to External Platform</span>
-                </button>
-              </div>
-            </div>
-          </div>
+          
 
           {/* Requirements Section */}
-          <div className={`${classes.card.container}`}>
+          <div className={`${classes.card.container}mb-8 mt-8`} style={{ borderRadius: `${layout.borderRadius}px` }}>
             <div className={`${classes.card.header}`}>
               <h3 className={`${classes.heading.h4}`}>
                 Application Requirements
@@ -355,7 +270,7 @@ export default function ApplyNowTab({
         </>
       ) : (
         /* Application Iframe */
-        <div className={`${classes.card.container}`}>
+        <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
           <div className={`${classes.card.header}`}>
             <div className="flex items-center justify-between">
               <h3 className={`${classes.heading.h3}`}>
@@ -363,7 +278,19 @@ export default function ApplyNowTab({
               </h3>
               <button
                 onClick={() => setShowIframe(false)}
-                className={`${classes.button.ghost}`}
+                className="flex items-center justify-center px-4 py-2 font-medium transition-colors"
+                style={{
+                  backgroundColor: 'transparent',
+                  color: colors.textSecondary,
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.border;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
               >
                 <Icon name="close" size={20} />
               </button>
@@ -381,11 +308,19 @@ export default function ApplyNowTab({
               </p>
               <button
                 onClick={() => setShowIframe(false)}
-                className={`${classes.button.primary}`}
+                className="flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors"
                 style={{
                   backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderColor: colors.primary,
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
                 Back to Application Options

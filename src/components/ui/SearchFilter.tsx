@@ -49,7 +49,7 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
 
   return (
     <div 
-      className={`bg-[#F7F1E9]/30 rounded-lg border border-gray-200 p-4 ${className}`}
+      className={`bg-white rounded-lg border border-gray-200 p-4 ${className}`}
       style={{
         borderRadius: borderRadius.lg,
         border: `1px solid ${colors.gray[200]}`,

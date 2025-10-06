@@ -231,7 +231,7 @@ function EmailConfirmationContent() {
         <LiquidChromeBackground />
         
         {/* Header */}
-        <header className="bg-[#F7F1E9]/95 backdrop-blur-xl shadow-lg border-b border-[#F7F1E9]/30 relative z-20">
+        <header className="bg-white/95 backdrop-blur-xl shadow-lg border-b border-[#F7F1E9]/30 relative z-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-4">
               <div className="flex items-center">
@@ -246,7 +246,7 @@ function EmailConfirmationContent() {
         {/* Main Content */}
         <main className="relative z-10 min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
           <div className="max-w-md w-full">
-            <div className="bg-[#F7F1E9]/95 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-[#F7F1E9]/40">
+            <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-[#F7F1E9]/40">
               <div className="text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-[#01bcc6] to-[#008eab] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
@@ -266,7 +266,7 @@ function EmailConfirmationContent() {
       <LiquidChromeBackground />
       
       {/* Header */}
-      <header className="bg-[#F7F1E9]/95 backdrop-blur-xl shadow-lg border-b border-[#F7F1E9]/30 relative z-20">
+      <header className="bg-white/95 backdrop-blur-xl shadow-lg border-b border-[#F7F1E9]/30 relative z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
@@ -289,7 +289,7 @@ function EmailConfirmationContent() {
       {/* Main Content */}
       <main className="relative z-10 min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full">
-          <div className="bg-[#F7F1E9]/95 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-[#F7F1E9]/40">
+          <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-[#F7F1E9]/40">
             {status === 'success' && (
               <div className="text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
@@ -329,7 +329,7 @@ function EmailConfirmationContent() {
                   </button>
                   <button
                     onClick={() => router.push('/officers/dashboard')}
-                    className="w-full bg-[#F7F1E9] text-[#005b7c] border-2 border-[#01bcc6]/30 hover:bg-[#01bcc6]/10 hover:border-[#01bcc6]/50 py-3 px-6 text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                    className="w-full bg-white text-[#005b7c] border-2 border-[#01bcc6]/30 hover:bg-[#01bcc6]/10 hover:border-[#01bcc6]/50 py-3 px-6 text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                   >
                     Go to Dashboard
                   </button>

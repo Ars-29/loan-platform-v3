@@ -7,9 +7,9 @@ export default function AdminInsightsPage() {
   return (
     <RouteGuard allowedRoles={['company_admin']}>
       <DashboardLayout 
-        title="Leads" 
-        subtitle="Manage your leads"
-        showBackButton={true}
+        showBreadcrumb={true}
+        breadcrumbVariant="default"
+        breadcrumbSize="md"
       >
         <AdminLeadsView 
           isSuperAdmin={false}

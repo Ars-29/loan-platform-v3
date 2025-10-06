@@ -29,13 +29,17 @@ interface QuestionnaireProps {
   // NEW: Public mode props
   isPublic?: boolean;
   publicTemplateData?: any;
+  // Completion callback to trigger rate results
+  onComplete?: (answers: Record<string, any>) => void;
 }
 
 function Questionnaire({ 
   template = 'template1',
   // NEW: Public mode props
   isPublic = false,
-  publicTemplateData
+  publicTemplateData,
+  // Completion callback
+  onComplete
 }: QuestionnaireProps) {
   const { getTemplateSync } = useEfficientTemplates();
   
@@ -52,6 +56,13 @@ function Questionnaire({
     border: '#e5e7eb'
   };
   
+  const layout = templateData?.template?.layout || {
+    alignment: 'center',
+    spacing: 18,
+    borderRadius: 8,
+    padding: { small: 8, medium: 16, large: 24, xlarge: 32 }
+  };
+  
   // Debug logging for template colors
   console.log('🔍 Questionnaire Debug:', {
     template,
@@ -64,6 +75,7 @@ function Questionnaire({
   const [currentStep, setCurrentStep] = useState('landing');
   const [stepHistory, setStepHistory] = useState<string[]>(['landing']);
   const [isFinalized, setIsFinalized] = useState(false);
+  const [questionnaireAnswers, setQuestionnaireAnswers] = useState<Record<string, any>>({});
 
   // Memoized handlers to prevent unnecessary re-renders
   const handleStepChange = useCallback((step: string) => {
@@ -82,13 +94,26 @@ function Questionnaire({
 
   const handleFinalize = useCallback(() => {
     setIsFinalized(true);
-    // You can add additional logic here like analytics tracking, etc.
+    
+    // Collect final answers based on the current step (final recommendation)
+    const finalAnswers = {
+      ...questionnaireAnswers,
+      finalRecommendation: currentStep,
+      stepHistory: stepHistory
+    };
+    
     console.log('Questionnaire finalized!', {
       currentStep,
       stepHistory,
-      finalRecommendation: currentStep
+      finalRecommendation: currentStep,
+      allAnswers: finalAnswers
     });
-  }, [currentStep, stepHistory]);
+    
+    // Call completion callback if provided
+    if (onComplete) {
+      onComplete(finalAnswers);
+    }
+  }, [currentStep, stepHistory, questionnaireAnswers, onComplete]);
 
   // Memoized calculations
   const stepNumber = useMemo(() => {
@@ -152,25 +177,41 @@ function Questionnaire({
             }}>
               <button 
                 onClick={() => handleStepChange('purchase-credit-score')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
                 <icons.homePurchase size={20} color={colors.background} />
-                Home Purchase
+                <span>Home Purchase</span>
               </button>
               <button 
                 onClick={() => handleStepChange('refinance-veteran')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
                 <icons.homeRefinance size={20} color={colors.background} />
-                Home Refinance
+                <span>Home Refinance</span>
               </button>
             </div>
           </div>
@@ -206,47 +247,79 @@ function Questionnaire({
             }}>
               <button 
                 onClick={() => handleStepChange('fha-loan')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
                 <icons.rates size={20} color={colors.background} />
-                Below 580
+                <span>Below 580</span>
               </button>
               <button 
                 onClick={() => handleStepChange('purchase-down-payment-low')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
                 <icons.calculators size={20} color={colors.background} />
-                580-619
+                <span>580-619</span>
               </button>
               <button 
                 onClick={() => handleStepChange('purchase-down-payment-mid')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
                 <icons.trendingUp size={20} color={colors.background} />
-                620-639
+                <span>620-639</span>
               </button>
               <button 
                 onClick={() => handleStepChange('purchase-military')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
                 <icons.star size={20} color={colors.background} />
-                640 or higher
+                <span>640 or higher</span>
               </button>
             </div>
           </div>
@@ -282,25 +355,41 @@ function Questionnaire({
             }}>
               <button 
                 onClick={() => handleStepChange('fha-loan')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
                 <icons.calculators size={20} color={colors.background} />
-                Less than 3.5%
+                <span>Less than 3.5%</span>
               </button>
               <button 
                 onClick={() => handleStepChange('dpa-loan')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
                 <icons.calculators size={20} color={colors.background} />
-                3.5% or more
+                <span>3.5% or more</span>
               </button>
             </div>
           </div>
@@ -329,33 +418,57 @@ function Questionnaire({
             }}>
               <button 
                 onClick={() => handleStepChange('dpa-loan')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
-                Less than 3%
+                <span>Less than 3%</span>
               </button>
               <button 
                 onClick={() => handleStepChange('fha-loan')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
-                3-5%
+                <span>3-5%</span>
               </button>
               <button 
                 onClick={() => handleStepChange('conventional-loan')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
-                5% or more
+                <span>5% or more</span>
               </button>
             </div>
           </div>
@@ -391,25 +504,41 @@ function Questionnaire({
             }}>
               <button 
                 onClick={() => handleStepChange('va-loan')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
                 <icons.star size={20} color={colors.background} />
-                Yes
+                <span>Yes</span>
               </button>
               <button 
                 onClick={() => handleStepChange('purchase-rural')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
                 <icons.cancel size={20} color={colors.background} />
-                No
+                <span>No</span>
               </button>
             </div>
           </div>
@@ -438,23 +567,39 @@ function Questionnaire({
             }}>
               <button 
                 onClick={() => handleStepChange('usda-loan')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
-                Yes
+                <span>Yes</span>
               </button>
               <button 
                 onClick={() => handleStepChange('purchase-construction')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
-                No
+                <span>No</span>
               </button>
             </div>
           </div>
@@ -483,23 +628,39 @@ function Questionnaire({
             }}>
               <button 
                 onClick={() => handleStepChange('construction-loan')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
-                Yes
+                <span>Yes</span>
               </button>
               <button 
                 onClick={() => handleStepChange('purchase-selling-home')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
-                No
+                <span>No</span>
               </button>
             </div>
           </div>
@@ -528,23 +689,39 @@ function Questionnaire({
             }}>
               <button 
                 onClick={() => handleStepChange('bridge-loan')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
-                Yes
+                <span>Yes</span>
               </button>
               <button 
                 onClick={() => handleStepChange('conventional-loan')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
-                No
+                <span>No</span>
               </button>
             </div>
           </div>
@@ -580,25 +757,41 @@ function Questionnaire({
             }}>
               <button 
                 onClick={() => handleStepChange('refinance-veteran-purpose')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
                 <icons.star size={20} color={colors.background} />
-                Yes
+                <span>Yes</span>
               </button>
               <button 
                 onClick={() => handleStepChange('refinance-non-veteran-purpose')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
                 <icons.cancel size={20} color={colors.background} />
-                No
+                <span>No</span>
               </button>
             </div>
           </div>
@@ -627,23 +820,39 @@ function Questionnaire({
             }}>
               <button 
                 onClick={() => handleStepChange('refinance-veteran-equity')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
-                Access Equity
+                <span>Access Equity</span>
               </button>
               <button 
                 onClick={() => handleStepChange('va-irrrl')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
-                Lower Rate
+                <span>Lower Rate</span>
               </button>
             </div>
           </div>
@@ -672,23 +881,39 @@ function Questionnaire({
             }}>
               <button 
                 onClick={() => handleStepChange('heloc')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
-                Open Line of Credit
+                <span>Open Line of Credit</span>
               </button>
               <button 
                 onClick={() => handleStepChange('cash-out-refinance')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
-                Cash Out Equity
+                <span>Cash Out Equity</span>
               </button>
             </div>
           </div>
@@ -717,23 +942,39 @@ function Questionnaire({
             }}>
               <button 
                 onClick={() => handleStepChange('refinance-non-veteran-equity')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
-                Access Equity
+                <span>Access Equity</span>
               </button>
               <button 
                 onClick={() => handleStepChange('refinance-lower-rate')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
-                Lower Rate
+                <span>Lower Rate</span>
               </button>
             </div>
           </div>
@@ -762,23 +1003,39 @@ function Questionnaire({
             }}>
               <button 
                 onClick={() => handleStepChange('heloc')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
-                Open Line of Credit
+                <span>Open Line of Credit</span>
               </button>
               <button 
                 onClick={() => handleStepChange('cash-out-refinance')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
-                Cash Out Equity
+                <span>Cash Out Equity</span>
               </button>
             </div>
           </div>
@@ -807,40 +1064,72 @@ function Questionnaire({
             }}>
               <button 
                 onClick={() => handleStepChange('fha-streamline')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
-                FHA
+                <span>FHA</span>
               </button>
               <button 
                 onClick={() => handleStepChange('usda-streamline')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
-                USDA
+                <span>USDA</span>
               </button>
               <button 
                 onClick={() => handleStepChange('conventional-streamline')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
-                Conventional
+                <span>Conventional</span>
               </button>
               <button 
                 onClick={() => handleStepChange('rate-term-refinance')}
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
                 Other/Not Sure
@@ -884,10 +1173,18 @@ function Questionnaire({
             }}>
               <Link 
                 href="/?loanType=Conventional" 
+                className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor:colors.primary,
+                  backgroundColor: colors.primary,
                   color: colors.background,
-                  borderColor: colors.primary
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
                 <icons.applyNow size={20} color={colors.background} />
@@ -1432,9 +1729,26 @@ function Questionnaire({
         <div className="mb-6">
           <button 
             onClick={handleBack}
-            className="back-button"
+            className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
+            style={{
+              backgroundColor: colors.background,
+              color: colors.primary,
+              border: `1px solid ${colors.primary}`,
+              borderRadius: `${layout.borderRadius}px`
+            }}
+            onMouseEnter={(e) => {
+              // Convert hex to rgba for hover effect
+              const hex = colors.primary.replace('#', '');
+              const r = parseInt(hex.substr(0, 2), 16);
+              const g = parseInt(hex.substr(2, 2), 16);
+              const b = parseInt(hex.substr(4, 2), 16);
+              e.currentTarget.style.backgroundColor = `rgba(${r}, ${g}, ${b}, 0.1)`;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = colors.background;
+            }}
           >
-            ← Back
+            <span>← Back</span>
           </button>
         </div>
       )}
@@ -1446,20 +1760,19 @@ function Questionnaire({
         <div style={{ marginTop: spacing[8], textAlign: 'center' }}>
           <button 
             onClick={handleFinalize}
+            className="flex items-center space-x-2 px-8 py-3 text-lg font-semibold transition-colors"
             style={{
-              backgroundColor: `${colors.primary} !important`,
-              color: `${colors.background} !important`,
-              padding: `${spacing[3]} ${spacing[8]}`,
-              borderRadius: borderRadius.lg,
-              fontSize: typography.fontSize.lg,
-              fontWeight: typography.fontWeight.semibold,
-              border: 'none !important',
-              cursor: 'pointer',
-              boxShadow: shadows.lg,
-              transition: 'all 0.2s ease-in-out',
-              display: 'flex',
-              alignItems: 'center',
-              gap: spacing[2]
+              backgroundColor: colors.primary,
+              color: colors.background,
+              borderRadius: `${layout.borderRadius}px`,
+              border: 'none',
+              boxShadow: shadows.lg
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = colors.secondary;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = colors.primary;
             }}
           >
             <icons.success size={20} color={colors.background} />
@@ -1489,15 +1802,27 @@ function Questionnaire({
             Your recommendation has been finalized.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link 
-              href="/?loanType=Conventional" 
-              className="text-white px-6 py-2 rounded-lg font-medium transition-colors"
+            <button 
+              onClick={() => {
+                // If onComplete callback is provided, call it to show rate results
+                if (onComplete) {
+                  const finalAnswers = {
+                    ...questionnaireAnswers,
+                    finalRecommendation: currentStep,
+                    stepHistory: stepHistory
+                  };
+                  onComplete(finalAnswers);
+                } else {
+                  // Fallback to redirect if no callback provided
+                  window.location.href = '/?loanType=Conventional';
+                }
+              }}
+              className="flex items-center space-x-2 px-6 py-2 text-white font-medium transition-colors"
               style={{ 
                 backgroundColor: colors.primary,
                 color: colors.background,
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: spacing[2]
+                borderRadius: `${layout.borderRadius}px`,
+                border: 'none'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = colors.secondary;
@@ -1508,26 +1833,25 @@ function Questionnaire({
             >
               <icons.applyNow size={20} color={colors.background} />
               Get My Rates
-            </Link>
+            </button>
             <button 
               onClick={() => {
                 setIsFinalized(false);
                 setCurrentStep('landing');
                 setStepHistory(['landing']);
               }}
+              className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
               style={{
-                backgroundColor: `${colors.textSecondary} !important`,
-                color: `${colors.background} !important`,
-                padding: `${spacing.md} ${spacing.lg}`,
-                borderRadius: borderRadius.md,
-                fontSize: typography.fontSize.base,
-                fontWeight: typography.fontWeight.medium,
-                border: 'none !important',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: spacing.sm
+                backgroundColor: colors.textSecondary,
+                color: colors.background,
+                borderRadius: `${layout.borderRadius}px`,
+                border: 'none'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = colors.border;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = colors.textSecondary;
               }}
             >
               <icons.homeRefinance size={20} color={colors.background} />

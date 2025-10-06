@@ -74,14 +74,16 @@ export async function GET(request: NextRequest) {
       ...template,
       headerModifications: template.header_modifications || {},
       bodyModifications: template.body_modifications || {},
-      rightSidebarModifications: template.right_sidebar_modifications || {}
+      rightSidebarModifications: template.right_sidebar_modifications || {},
+      layoutConfig: template.layout_config || {}
     }));
 
     const transformedDefaultTemplates = defaultTemplates.map(template => ({
       ...template,
       headerModifications: template.header_modifications || {},
       bodyModifications: template.body_modifications || {},
-      rightSidebarModifications: template.right_sidebar_modifications || {}
+      rightSidebarModifications: template.right_sidebar_modifications || {},
+      layoutConfig: template.layout_config || {}
     }));
 
     console.log('✅ Templates User API: Retrieved templates:', {
@@ -255,7 +257,8 @@ export async function POST(request: NextRequest) {
       classes: { ...baseTemplate.classes, ...customSettings.classes },
       header_modifications: customSettings.headerModifications || {},
       body_modifications: customSettings.bodyModifications || {},
-      right_sidebar_modifications: customSettings.rightSidebarModifications || {}
+      right_sidebar_modifications: customSettings.rightSidebarModifications || {},
+      layout_config: customSettings.layoutConfig || baseTemplate.layout_config || {}
     };
 
     console.log('🔍 Templates User API: Template data prepared:', {

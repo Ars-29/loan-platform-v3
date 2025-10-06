@@ -106,11 +106,11 @@ export default function LeadCaptureModal({
   
   const defaultClasses = {
     button: {
-      primary: 'px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white',
-      secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium transition-all duration-200 border border-gray-300'
+      primary: 'px-6 py-3 font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white',
+      secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 font-medium transition-all duration-200 border border-gray-300'
     },
     card: {
-      container: 'bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200',
+      container: 'bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200',
       header: 'px-6 py-4 border-b border-gray-200',
       body: 'px-6 py-4'
     },
@@ -129,7 +129,7 @@ export default function LeadCaptureModal({
       xs: 'text-xs text-gray-500 leading-normal'
     },
     input: {
-      base: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6] transition-all duration-200',
+      base: 'w-full px-4 py-3 border border-gray-300 focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6] transition-all duration-200',
       error: 'border-red-300 focus:ring-red-500 focus:border-red-500'
     }
   };
@@ -308,10 +308,11 @@ button: {
                 <button
                   onClick={handleClose}
                   disabled={isSubmitting}
-                  className="p-2 rounded-md transition-colors hover:bg-gray-100"
+                  className="p-2 transition-colors hover:bg-gray-100"
                   style={{ 
                     color: colors.textSecondary,
-                    cursor: isSubmitting ? 'not-allowed' : 'pointer'
+                    cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                    borderRadius: `${layout.borderRadius}px`
                   }}
                 >
                   {React.createElement(icons.close, { size: 20 })}
@@ -384,6 +385,7 @@ button: {
                       error={errors.firstName || undefined}
                       disabled={isSubmitting}
                       className={errors.firstName ? classes.input.error : classes.input.base}
+                      style={{ borderRadius: `${layout.borderRadius}px` }}
                     />
                     {errors.firstName && (
                       <p className={`${classes.body.xs} mt-1`} style={{ color: colors.primary }}>
@@ -405,6 +407,7 @@ button: {
                       error={errors.lastName || undefined}
                       disabled={isSubmitting}
                       className={errors.lastName ? classes.input.error : classes.input.base}
+                      style={{ borderRadius: `${layout.borderRadius}px` }}
                     />
                     {errors.lastName && (
                       <p className={`${classes.body.xs} mt-1`} style={{ color: colors.primary }}>
@@ -427,6 +430,7 @@ button: {
                     error={errors.email || undefined}
                     disabled={isSubmitting}
                     className={errors.email ? classes.input.error : classes.input.base}
+                    style={{ borderRadius: `${layout.borderRadius}px` }}
                   />
                   {errors.email && (
                     <p className={`${classes.body.xs} mt-1`} style={{ color: colors.primary }}>
@@ -448,6 +452,7 @@ button: {
                     error={errors.phone || undefined}
                     disabled={isSubmitting}
                     className={errors.phone ? classes.input.error : classes.input.base}
+                    style={{ borderRadius: `${layout.borderRadius}px` }}
                   />
                   {errors.phone && (
                     <p className={`${classes.body.xs} mt-1`} style={{ color: colors.primary }}>
@@ -470,6 +475,7 @@ button: {
                   error={errors.creditScore || undefined}
                   disabled={isSubmitting}
                   className={errors.creditScore ? classes.input.error : classes.input.base}
+                  style={{ borderRadius: `${layout.borderRadius}px` }}
                 />
                 {errors.creditScore && (
                   <p className={`${classes.body.xs} mt-1`} style={{ color: colors.primary }}>
@@ -480,7 +486,7 @@ button: {
 
               {errors.submit && (
                 <div 
-                  className="p-3 rounded-md mb-4"
+                  className="p-3 mb-4"
                   style={{
                     backgroundColor: `${colors.primary}10`,
                     border: `1px solid ${colors.primary}20`,
@@ -495,24 +501,53 @@ button: {
 
               {/* Submit Button */}
               <div className="flex justify-end gap-3">
-                <Button
+                <button
                   type="button"
-                  variant="secondary"
                   onClick={handleClose}
                   disabled={isSubmitting}
-                  className={classes.button.secondary}
+                  className="flex items-center justify-center px-6 py-3 text-base font-medium transition-colors w-full border"
+                  style={{
+                    backgroundColor: colors.background,
+                    color: colors.text,
+                    borderColor: colors.border,
+                    borderRadius: `${layout.borderRadius}px`
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isSubmitting) {
+                      e.currentTarget.style.backgroundColor = colors.backgroundSecondary || '#f9fafb';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isSubmitting) {
+                      e.currentTarget.style.backgroundColor = colors.background;
+                    }
+                  }}
                 >
                   {content.ctaSecondary}
-                </Button>
-                <Button
+                </button>
+                <button
                   type="submit"
-                  variant="primary"
                   disabled={isSubmitting}
-                  className={classes.button.primary}
-                  style={{ backgroundColor: colors.primary }}
+                  className="flex items-center justify-center px-6 py-3 text-base font-medium transition-colors w-full"
+                  style={{
+                    backgroundColor: colors.primary,
+                    color: colors.background,
+                    borderRadius: `${layout.borderRadius}px`,
+                    border: 'none'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isSubmitting) {
+                      e.currentTarget.style.backgroundColor = colors.secondary;
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isSubmitting) {
+                      e.currentTarget.style.backgroundColor = colors.primary;
+                    }
+                  }}
                 >
                   {isSubmitting ? 'Submitting...' : content.ctaText}
-                </Button>
+                </button>
               </div>
             </form>
           </div>

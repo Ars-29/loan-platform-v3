@@ -99,18 +99,18 @@ export default function DocumentChecklistTab({
   const defaultClasses = {
     button: {
       primary: selectedTemplate === 'template2' 
-        ? 'px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white'
-        : 'px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white',
-      secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium transition-all duration-200 border border-gray-300',
+        ? 'px-6 py-3 font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white'
+        : 'px-6 py-3 font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white',
+      secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 font-medium transition-all duration-200 border border-gray-300',
       outline: selectedTemplate === 'template2'
-        ? 'border-2 px-6 py-3 rounded-lg font-medium transition-all duration-200'
-        : 'border-2 px-6 py-3 rounded-lg font-medium transition-all duration-200',
+        ? 'border-2 px-6 py-3 font-medium transition-all duration-200'
+        : 'border-2 px-6 py-3 font-medium transition-all duration-200',
       ghost: selectedTemplate === 'template2'
-        ? 'px-4 py-2 rounded-lg font-medium transition-all duration-200'
-        : 'px-4 py-2 rounded-lg font-medium transition-all duration-200'
+        ? 'px-4 py-2 font-medium transition-all duration-200'
+        : 'px-4 py-2 font-medium transition-all duration-200'
     },
     card: {
-      container: 'bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200',
+      container: 'bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200',
       header: 'px-6 py-4 border-b border-gray-200',
       body: 'px-6 py-4',
       footer: 'px-6 py-4 border-t border-gray-200 bg-gray-50'
@@ -131,16 +131,16 @@ export default function DocumentChecklistTab({
     },
     icon: {
       primary: selectedTemplate === 'template2' 
-        ? 'w-12 h-12 rounded-lg flex items-center justify-center mb-4'
-        : 'w-12 h-12 rounded-lg flex items-center justify-center mb-4',
-      secondary: 'w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mb-3',
+        ? 'w-12 h-12 flex items-center justify-center mb-4'
+        : 'w-12 h-12 flex items-center justify-center mb-4',
+      secondary: 'w-10 h-10 bg-gray-100 flex items-center justify-center mb-3',
       small: selectedTemplate === 'template2'
-        ? 'w-8 h-8 rounded-lg flex items-center justify-center'
-        : 'w-8 h-8 rounded-lg flex items-center justify-center'
+        ? 'w-8 h-8 flex items-center justify-center'
+        : 'w-8 h-8 flex items-center justify-center'
     },
     select: {
-      base: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#01bcc6] focus:border-transparent bg-white',
-      error: 'w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white'
+      base: 'w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#01bcc6] focus:border-transparent bg-white',
+      error: 'w-full px-3 py-2 border border-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white'
     }
   };
   const templateClasses = templateData?.template?.classes;
@@ -229,6 +229,11 @@ button: {
       default:
         return true;
     }
+  };
+
+  // Check if current slide is valid
+  const isCurrentSlideValid = () => {
+    return validateSlide(currentSlide);
   };
 
   const nextSlide = () => {
@@ -337,6 +342,157 @@ button: {
     setSummary(docs.join('\n• '));
   };
 
+  const downloadChecklist = () => {
+    const docs = summary.split('\n• ').filter(doc => doc.trim());
+    const checklistContent = `LOAN DOCUMENT CHECKLIST
+Generated on: ${new Date().toLocaleDateString()}
+
+REQUIRED DOCUMENTS:
+${docs.map((doc, index) => `${index + 1}. ${doc.replace('• ', '')}`).join('\n')}
+
+---
+This checklist was generated based on your loan application responses.
+Please gather all required documents before submitting your loan application.`;
+
+    const blob = new Blob([checklistContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `loan-document-checklist-${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
+  const printChecklist = () => {
+    const docs = summary.split('\n• ').filter(doc => doc.trim());
+    
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Loan Document Checklist</title>
+          <style>
+            @media print {
+              body { margin: 0; padding: 20px; font-family: ${typography.fontFamily}, sans-serif; }
+              .no-print { display: none !important; }
+            }
+            body {
+              font-family: ${typography.fontFamily}, sans-serif;
+              line-height: 1.6;
+              color: #333;
+              max-width: 800px;
+              margin: 0 auto;
+              padding: 20px;
+            }
+            .header {
+              text-align: center;
+              margin-bottom: 30px;
+              border-bottom: 3px solid ${colors.primary};
+              padding-bottom: 20px;
+            }
+            .title {
+              font-size: 28px;
+              font-weight: bold;
+              color: ${colors.text};
+              margin-bottom: 10px;
+            }
+            .subtitle {
+              font-size: 16px;
+              color: ${colors.textSecondary};
+              margin-bottom: 20px;
+            }
+            .date {
+              font-size: 14px;
+              color: ${colors.textSecondary};
+            }
+            .checklist {
+              margin-top: 30px;
+            }
+            .checklist-title {
+              font-size: 20px;
+              font-weight: bold;
+              color: ${colors.text};
+              margin-bottom: 20px;
+              text-align: center;
+            }
+            .document-item {
+              display: flex;
+              align-items: flex-start;
+              margin-bottom: 12px;
+              padding: 8px 0;
+              border-bottom: 1px solid #eee;
+            }
+            .document-number {
+              background: ${colors.primary};
+              color: white;
+              width: 24px;
+              height: 24px;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 12px;
+              font-weight: bold;
+              margin-right: 15px;
+              flex-shrink: 0;
+            }
+            .document-text {
+              flex: 1;
+              font-size: 14px;
+              line-height: 1.5;
+            }
+            .footer {
+              margin-top: 40px;
+              text-align: center;
+              font-size: 12px;
+              color: ${colors.textSecondary};
+              border-top: 1px solid #eee;
+              padding-top: 20px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="title">Loan Document Checklist</div>
+            <div class="subtitle">Complete this step-by-step checklist to determine all required documents for your loan application</div>
+            <div class="date">Generated on: ${new Date().toLocaleDateString()}</div>
+          </div>
+          
+          <div class="checklist">
+            <div class="checklist-title">Your Required Documents Checklist</div>
+            ${docs.map((doc, index) => `
+              <div class="document-item">
+                <div class="document-number">${index + 1}</div>
+                <div class="document-text">${doc.replace('• ', '')}</div>
+              </div>
+            `).join('')}
+          </div>
+          
+          <div class="footer">
+            <p>This checklist was generated based on your loan application responses.</p>
+            <p>Please gather all required documents before submitting your loan application.</p>
+          </div>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    
+    // Wait for content to load, then print
+    printWindow.onload = () => {
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
+    };
+  };
+
   const renderSlide = () => {
     switch (currentSlide) {
       case 0: // Identification & Bankruptcy
@@ -370,7 +526,7 @@ button: {
                 Have you filed for Bankruptcy? <span style={{ color: '#ef4444' }}>*</span>
               </label>
               <div className="space-y-2">
-                <label className="flex items-center space-x-3">
+                <label className="flex items-center space-x-3 cursor-pointer">
                   <input
                     type="radio"
                     name="bankruptcy"
@@ -378,10 +534,13 @@ button: {
                     checked={formData.bankruptcy === 'Yes'}
                     onChange={(e) => updateFormData('bankruptcy', e.target.value)}
                     className="w-4 h-4"
+                    style={{
+                      accentColor: colors.primary
+                    }}
                   />
                   <span className={`${classes.body.base}`}>Yes</span>
                 </label>
-                <label className="flex items-center space-x-3">
+                <label className="flex items-center space-x-3 cursor-pointer">
                   <input
                     type="radio"
                     name="bankruptcy"
@@ -389,6 +548,9 @@ button: {
                     checked={formData.bankruptcy === 'No'}
                     onChange={(e) => updateFormData('bankruptcy', e.target.value)}
                     className="w-4 h-4"
+                    style={{
+                      accentColor: colors.primary
+                    }}
                   />
                   <span className={`${classes.body.base}`}>No</span>
                 </label>
@@ -396,7 +558,7 @@ button: {
             </div>
 
             {formData.bankruptcy === 'Yes' && (
-              <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80` }}>
+              <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80`, borderRadius: `${layout.borderRadius}px` }}>
                 <div className={`${classes.card.body}`}>
                   <label className={`${classes.heading.h6} mb-3 block`}>
                     Please attach the following bankruptcy documents:
@@ -441,7 +603,7 @@ button: {
                 What Best Describes Your Employment? <span style={{ color: '#ef4444' }}>*</span>
               </label>
               <div className="space-y-2">
-                <label className="flex items-center space-x-3">
+                <label className="flex items-center space-x-3 cursor-pointer">
                   <input
                     type="radio"
                     name="employment"
@@ -449,10 +611,13 @@ button: {
                     checked={formData.employment === 'Wage Earner'}
                     onChange={(e) => updateFormData('employment', e.target.value)}
                     className="w-4 h-4"
+                    style={{
+                      accentColor: colors.primary
+                    }}
                   />
                   <span className={`${classes.body.base}`}>Wage Earner</span>
                 </label>
-                <label className="flex items-center space-x-3">
+                <label className="flex items-center space-x-3 cursor-pointer">
                   <input
                     type="radio"
                     name="employment"
@@ -460,6 +625,9 @@ button: {
                     checked={formData.employment === 'Self Employed / 1099 Contractor'}
                     onChange={(e) => updateFormData('employment', e.target.value)}
                     className="w-4 h-4"
+                    style={{
+                      accentColor: colors.primary
+                    }}
                   />
                   <span className={`${classes.body.base}`}>Self Employed / 1099 Contractor</span>
                 </label>
@@ -467,7 +635,7 @@ button: {
             </div>
 
             {formData.employment === 'Wage Earner' && (
-              <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80` }}>
+              <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80`, borderRadius: `${layout.borderRadius}px` }}>
                 <div className={`${classes.card.body}`}>
                   <label className={`${classes.heading.h6} mb-3 block`}>
                     Please provide ALL of the following:
@@ -488,7 +656,7 @@ button: {
 
             {formData.employment === 'Self Employed / 1099 Contractor' && (
               <>
-                <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80` }}>
+                <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80`, borderRadius: `${layout.borderRadius}px` }}>
                   <div className={`${classes.card.body}`}>
                     <label className={`${classes.heading.h6} mb-3 block`}>
                       Please provide ALL of the following:
@@ -522,6 +690,10 @@ button: {
                     value={formData.missingTaxReturn}
                     onChange={(e) => updateFormData('missingTaxReturn', e.target.value)}
                     className={`${classes.select.base}`}
+                    style={{ 
+                      borderRadius: `${layout.borderRadius}px`,
+                      borderColor: colors.border
+                    }}
                   >
                     <option value="" disabled>Select</option>
                     <option value="Yes">Yes</option>
@@ -530,7 +702,7 @@ button: {
                 </div>
 
                 {formData.missingTaxReturn === 'Yes' && (
-                  <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80` }}>
+                  <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80`, borderRadius: `${layout.borderRadius}px` }}>
                     <div className={`${classes.card.body}`}>
                       <label className={`${classes.heading.h6} mb-3 block`}>
                         Please provide ALL of the following:
@@ -568,6 +740,10 @@ button: {
                 value={formData.ownHome}
                 onChange={(e) => updateFormData('ownHome', e.target.value)}
                 className={`${classes.select.base}`}
+                style={{ 
+                  borderRadius: `${layout.borderRadius}px`,
+                  borderColor: colors.border
+                }}
               >
                 <option value="" disabled>Select</option>
                 <option value="Yes">Yes</option>
@@ -576,7 +752,7 @@ button: {
             </div>
 
             {formData.ownHome === 'Yes' && (
-              <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80` }}>
+              <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80`, borderRadius: `${layout.borderRadius}px` }}>
                 <div className={`${classes.card.body}`}>
                   <label className={`${classes.heading.h6} mb-3 block`}>
                     Please provide ALL of the following:
@@ -608,6 +784,10 @@ button: {
                 value={formData.payingRent}
                 onChange={(e) => updateFormData('payingRent', e.target.value)}
                 className={`${classes.select.base}`}
+                style={{ 
+                  borderRadius: `${layout.borderRadius}px`,
+                  borderColor: colors.border
+                }}
               >
                 <option value="" disabled>Select</option>
                 <option value="Yes">Yes</option>
@@ -616,7 +796,7 @@ button: {
             </div>
 
             {formData.payingRent === 'Yes' && (
-              <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80` }}>
+              <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80`, borderRadius: `${layout.borderRadius}px` }}>
                 <div className={`${classes.card.body}`}>
                   <label className={`${classes.heading.h6} mb-3 block`}>
                     Please provide ALL of the following:
@@ -636,7 +816,7 @@ button: {
             )}
 
             {formData.payingRent === 'No' && (
-              <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80` }}>
+              <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80`, borderRadius: `${layout.borderRadius}px` }}>
                 <div className={`${classes.card.body}`}>
                   <label className={`${classes.heading.h6} mb-3 block`}>
                     Required document:
@@ -668,6 +848,10 @@ button: {
                 value={formData.secondHome}
                 onChange={(e) => updateFormData('secondHome', e.target.value)}
                 className={`${classes.select.base}`}
+                style={{ 
+                  borderRadius: `${layout.borderRadius}px`,
+                  borderColor: colors.border
+                }}
               >
                 <option value="" disabled>Select</option>
                 <option value="Yes">Yes</option>
@@ -676,7 +860,7 @@ button: {
             </div>
 
             {formData.secondHome === 'Yes' && (
-              <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80` }}>
+              <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80`, borderRadius: `${layout.borderRadius}px` }}>
                 <div className={`${classes.card.body}`}>
                   <label className={`${classes.heading.h6} mb-3 block`}>
                     Please provide ALL of the following:
@@ -708,6 +892,10 @@ button: {
                 value={formData.rentalIncome}
                 onChange={(e) => updateFormData('rentalIncome', e.target.value)}
                 className={`${classes.select.base}`}
+                style={{ 
+                  borderRadius: `${layout.borderRadius}px`,
+                  borderColor: colors.border
+                }}
               >
                 <option value="" disabled>Select</option>
                 <option value="Yes">Yes</option>
@@ -716,7 +904,7 @@ button: {
             </div>
 
             {formData.rentalIncome === 'Yes' && (
-              <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80` }}>
+              <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80`, borderRadius: `${layout.borderRadius}px` }}>
                 <div className={`${classes.card.body}`}>
                   <label className={`${classes.heading.h6} mb-3 block`}>
                     Please provide ALL of the following:
@@ -748,6 +936,10 @@ button: {
                 value={formData.useForLoan}
                 onChange={(e) => updateFormData('useForLoan', e.target.value)}
                 className={`${classes.select.base}`}
+                style={{ 
+                  borderRadius: `${layout.borderRadius}px`,
+                  borderColor: colors.border
+                }}
               >
                 <option value="" disabled>Select</option>
                 <option value="Yes">Yes</option>
@@ -756,7 +948,7 @@ button: {
             </div>
 
             {formData.useForLoan === 'Yes' && (
-              <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80` }}>
+              <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80`, borderRadius: `${layout.borderRadius}px` }}>
                 <div className={`${classes.card.body}`}>
                   <label className={`${classes.heading.h6} mb-3 block`}>
                     Please provide ALL of the following:
@@ -788,6 +980,10 @@ button: {
                 value={formData.giftFunds}
                 onChange={(e) => updateFormData('giftFunds', e.target.value)}
                 className={`${classes.select.base}`}
+                style={{ 
+                  borderRadius: `${layout.borderRadius}px`,
+                  borderColor: colors.border
+                }}
               >
                 <option value="" disabled>Select</option>
                 <option value="Yes">Yes</option>
@@ -796,7 +992,7 @@ button: {
             </div>
 
             {formData.giftFunds === 'Yes' && (
-              <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80` }}>
+              <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80`, borderRadius: `${layout.borderRadius}px` }}>
                 <div className={`${classes.card.body}`}>
                   <label className={`${classes.heading.h6} mb-3 block`}>
                     Please provide ALL of the following:
@@ -828,6 +1024,10 @@ button: {
                 value={formData.divorced}
                 onChange={(e) => updateFormData('divorced', e.target.value)}
                 className={`${classes.select.base}`}
+                style={{ 
+                  borderRadius: `${layout.borderRadius}px`,
+                  borderColor: colors.border
+                }}
               >
                 <option value="" disabled>Select</option>
                 <option value="Yes">Yes</option>
@@ -836,7 +1036,7 @@ button: {
             </div>
 
             {formData.divorced === 'Yes' && (
-              <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80` }}>
+              <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80`, borderRadius: `${layout.borderRadius}px` }}>
                 <div className={`${classes.card.body}`}>
                   <label className={`${classes.heading.h6} mb-3 block`}>
                     Please provide the following Divorce Documentation
@@ -864,6 +1064,10 @@ button: {
                 value={formData.childSupport}
                 onChange={(e) => updateFormData('childSupport', e.target.value)}
                 className={`${classes.select.base}`}
+                style={{ 
+                  borderRadius: `${layout.borderRadius}px`,
+                  borderColor: colors.border
+                }}
               >
                 <option value="" disabled>Select</option>
                 <option value="Yes">Yes</option>
@@ -872,7 +1076,7 @@ button: {
             </div>
 
             {formData.childSupport === 'Yes' && (
-              <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80` }}>
+              <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80`, borderRadius: `${layout.borderRadius}px` }}>
                 <div className={`${classes.card.body}`}>
                   <label className={`${classes.heading.h6} mb-3 block`}>
                     Please provide documentation of the child support agreement
@@ -900,6 +1104,10 @@ button: {
                 value={formData.irsRepay}
                 onChange={(e) => updateFormData('irsRepay', e.target.value)}
                 className={`${classes.select.base}`}
+                style={{ 
+                  borderRadius: `${layout.borderRadius}px`,
+                  borderColor: colors.border
+                }}
               >
                 <option value="" disabled>Select</option>
                 <option value="Yes">Yes</option>
@@ -908,7 +1116,7 @@ button: {
             </div>
 
             {formData.irsRepay === 'Yes' && (
-              <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80` }}>
+              <div className={`${classes.card.container}`} style={{ backgroundColor: `${colors.background}80`, borderRadius: `${layout.borderRadius}px` }}>
                 <div className={`${classes.card.body}`}>
                   <label className={`${classes.heading.h6} mb-3 block`}>
                     Please provide a copy of your IRS Repayment Agreement
@@ -927,22 +1135,192 @@ button: {
 
       case 12: // Summary
         return (
-          <div className="space-y-6">
-            <div className={`${classes.card.container} bg-[#01bcc6]/10`}>
-              <div className={`${classes.card.body}`}>
-                <h3 className={`${classes.heading.h4} mb-4`}>
-                  Your Required Documents Checklist
-                </h3>
-                <div className="bg-white p-4 rounded-lg border">
-                  <pre className={`${classes.body.base} whitespace-pre-wrap`}>
-                    • {summary}
-                  </pre>
-                </div>
-                <button
-                  onClick={() => window.print()}
-                  className={`${classes.button.primary} mt-4`}
+          <div className="w-full max-w-4xl mx-auto">
+            {/* Header Section */}
+            <div className="text-center mb-8">
+              <h2 
+                className="text-3xl font-bold mb-2"
+                style={{ 
+                  color: colors.text,
+                  fontFamily: typography.fontFamily,
+                  fontSize: '2rem',
+                  fontWeight: typography.fontWeight.bold
+                }}
+              >
+                Loan Document Checklist
+              </h2>
+              <p 
+                className="text-lg opacity-80"
+                style={{ 
+                  color: colors.textSecondary,
+                  fontFamily: typography.fontFamily,
+                  fontSize: '1.125rem',
+                  fontWeight: typography.fontWeight.normal
+                }}
+              >
+                Complete this step-by-step checklist to determine all required documents for your loan application
+              </p>
+            </div>
+
+            {/* Progress Indicator */}
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <div 
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold"
+                  style={{ 
+                    backgroundColor: colors.primary,
+                    fontFamily: typography.fontFamily,
+                    fontSize: '1.125rem',
+                    fontWeight: typography.fontWeight.bold
+                  }}
                 >
-                  Print / Save Checklist
+                  N
+                </div>
+                <span 
+                  className="text-lg font-medium"
+                  style={{ 
+                    color: colors.text,
+                    fontFamily: typography.fontFamily,
+                    fontWeight: typography.fontWeight.medium
+                  }}
+                >
+                  Step 13 of 13
+                </span>
+              </div>
+              <div 
+                className="text-lg font-semibold"
+                style={{ 
+                  color: colors.primary,
+                  fontFamily: typography.fontFamily,
+                  fontWeight: typography.fontWeight.semibold
+                }}
+              >
+                100% Complete
+              </div>
+            </div>
+
+            {/* Progress Bar */}
+            <div 
+              className="w-full h-2 rounded-full mb-8"
+              style={{ backgroundColor: colors.border }}
+            >
+              <div 
+                className="h-full rounded-full transition-all duration-500"
+                style={{ 
+                  backgroundColor: colors.primary,
+                  width: '100%'
+                }}
+              />
+            </div>
+
+            {/* Summary Content */}
+            <div className="bg-white rounded-2xl shadow-lg border-2 p-8" style={{ 
+              borderColor: colors.border,
+              borderRadius: `${layout.borderRadius}px`
+            }}>
+              <h3 
+                className="text-2xl font-bold mb-6 text-center"
+                style={{ 
+                  color: colors.text,
+                  fontFamily: typography.fontFamily,
+                  fontSize: '1.5rem',
+                  fontWeight: typography.fontWeight.bold
+                }}
+              >
+                Summary
+              </h3>
+              
+              <div className="mb-6">
+                <h4 
+                  className="text-xl font-semibold mb-4"
+                  style={{ 
+                    color: colors.text,
+                    fontFamily: typography.fontFamily,
+                    fontSize: '1.25rem',
+                    fontWeight: typography.fontWeight.semibold
+                  }}
+                >
+                  Your Required Documents Checklist
+                </h4>
+                
+                <div className="space-y-3">
+                  {summary.split('\n• ').map((doc, index) => (
+                    doc.trim() && (
+                      <div 
+                        key={index}
+                        className="flex items-start gap-3 p-3 rounded-lg transition-colors hover:bg-gray-50"
+                        style={{ 
+                          backgroundColor: index % 2 === 0 ? `${colors.primary}05` : 'transparent',
+                          borderRadius: `${layout.borderRadius}px`
+                        }}
+                      >
+                        <div 
+                          className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
+                          style={{ backgroundColor: colors.primary }}
+                        />
+                        <span 
+                          className="text-base leading-relaxed"
+                          style={{ 
+                            color: colors.text,
+                            fontFamily: typography.fontFamily,
+                            fontSize: '1rem',
+                            fontWeight: typography.fontWeight.normal
+                          }}
+                        >
+                          {doc.replace('• ', '')}
+                        </span>
+                      </div>
+                    )
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <button
+                  onClick={downloadChecklist}
+                  className="flex items-center justify-center gap-3 px-8 py-4 font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  style={{
+                    backgroundColor: colors.primary,
+                    color: colors.background,
+                    borderRadius: `${layout.borderRadius}px`,
+                    fontFamily: typography.fontFamily,
+                    fontSize: '1rem',
+                    fontWeight: typography.fontWeight.semibold,
+                    border: 'none'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.secondary;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.primary;
+                  }}
+                >
+                  <Icon name="download" size={20} color={colors.background} />
+                  Download Checklist
+                </button>
+                
+                <button
+                  onClick={printChecklist}
+                  className="flex items-center justify-center gap-3 px-8 py-4 font-semibold transition-all duration-300 transform hover:scale-105 border-2 hover:shadow-lg"
+                  style={{
+                    backgroundColor: colors.background,
+                    color: colors.primary,
+                    borderColor: colors.primary,
+                    borderRadius: `${layout.borderRadius}px`,
+                    fontFamily: typography.fontFamily,
+                    fontSize: '1rem',
+                    fontWeight: typography.fontWeight.semibold
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = `${colors.primary}10`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.background;
+                  }}
+                >
+                  <Icon name="fileText" size={20} color={colors.primary} />
+                  Print Checklist
                 </button>
               </div>
             </div>
@@ -967,8 +1345,8 @@ button: {
       </div>
 
       {/* Progress Indicator */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-2">
+      <div className="mb-6 mt-8">
+        <div className="flex items-center justify-between mb-4">
           <span className={`${classes.body.small}`} style={{ color: colors.textSecondary }}>
             Step {currentSlide + 1} of {slides.length}
           </span>
@@ -976,19 +1354,20 @@ button: {
             {Math.round(((currentSlide + 1) / slides.length) * 100)}% Complete
           </span>
         </div>
-        <div className="w-full rounded-full h-2" style={{ backgroundColor: colors.border }}>
+        <div className="w-full h-2" style={{ backgroundColor: colors.border, borderRadius: `${layout.borderRadius}px` }}>
           <div 
-            className="h-2 rounded-full transition-all duration-300"
+            className="h-2 transition-all duration-300"
             style={{ 
               width: `${((currentSlide + 1) / slides.length) * 100}%`,
-              backgroundColor: colors.primary
+              backgroundColor: colors.primary,
+              borderRadius: `${layout.borderRadius}px`
             }}
           />
         </div>
       </div>
 
       {/* Current Slide */}
-      <div className={`${classes.card.container} mb-6`}>
+      <div className={`${classes.card.container} mb-6`} style={{ borderRadius: `${layout.borderRadius}px` }}>
         <div className={`${classes.card.body}`}>
           <h3 className={`${classes.heading.h4} mb-6`}>
             {slides[currentSlide].title}
@@ -998,46 +1377,143 @@ button: {
       </div>
 
       {/* Navigation */}
-      <div className="flex justify-between">
-        <button
-          onClick={prevSlide}
-          disabled={currentSlide === 0}
-          className={`${classes.button.secondary} ${
-            currentSlide === 0 ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
-          style={{
-            backgroundColor: currentSlide === 0 ? `${colors.border}50` : colors.background,
-            borderColor: colors.border,
-            color: currentSlide === 0 ? `${colors.textSecondary}50` : colors.text
-          }}
-        >
-          <Icon 
-            name="chevronLeft" 
-            size={20} 
-            className="mr-2" 
-            color={currentSlide === 0 ? `${colors.textSecondary}50` : colors.text}
-          />
-          Previous
-        </button>
+      <div className="flex justify-between items-center">
+        {/* Left Side - Previous Button */}
+        <div>
+          {currentSlide > 0 ? (
+             <button
+               onClick={prevSlide}
+               className="flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors"
+               style={{
+                 backgroundColor: colors.primary,
+                 color: colors.background,
+                 borderColor: colors.primary,
+                 borderRadius: `${layout.borderRadius}px`,
+                 border: 'none',
+                 minWidth: '120px'
+               }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = colors.secondary;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = colors.primary;
+              }}
+            >
+              <Icon 
+                name="chevronLeft" 
+                size={16} 
+                color={colors.background}
+              />
+              <span>Previous</span>
+            </button>
+          ) : (
+            <div style={{ minWidth: '120px' }}></div>
+          )}
+        </div>
         
-        <button
-          onClick={nextSlide}
-          className={`${classes.button.primary}`}
-          style={{
-            backgroundColor: colors.primary,
-            color: colors.background,
-            borderColor: colors.primary
-          }}
-        >
-          {currentSlide < slides.length - 2 ? 'Next' : 
-           currentSlide === slides.length - 2 ? 'Generate Summary' : 'Start Over'}
-          <Icon 
-            name="chevronRight" 
-            size={20} 
-            className="ml-2" 
-            color={colors.background}
-          />
-        </button>
+        {/* Right Side - Next/Generate Summary/Start Over Button */}
+        <div>
+          {/* Next Button */}
+          {currentSlide < slides.length - 2 && (
+            <button
+              onClick={nextSlide}
+              disabled={!isCurrentSlideValid()}
+              className={`flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors ${
+                !isCurrentSlideValid() ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+              }`}
+              style={{
+                backgroundColor: isCurrentSlideValid() ? colors.primary : colors.border,
+                color: isCurrentSlideValid() ? colors.background : colors.textSecondary,
+                borderColor: colors.primary,
+                borderRadius: `${layout.borderRadius}px`,
+                border: 'none',
+                minWidth: '120px'
+              }}
+              onMouseEnter={(e) => {
+                if (isCurrentSlideValid()) {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (isCurrentSlideValid()) {
+                  e.currentTarget.style.backgroundColor = colors.primary;
+                }
+              }}
+            >
+              <span>Next</span>
+              <Icon 
+                name="chevronRight" 
+                size={16} 
+                color={isCurrentSlideValid() ? colors.background : colors.textSecondary}
+              />
+            </button>
+          )}
+          
+          {/* Generate Summary Button */}
+          {currentSlide === slides.length - 2 && (
+            <button
+              onClick={nextSlide}
+              disabled={!isCurrentSlideValid()}
+              className={`flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors ${
+                !isCurrentSlideValid() ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+              }`}
+              style={{
+                backgroundColor: isCurrentSlideValid() ? colors.primary : colors.border,
+                color: isCurrentSlideValid() ? colors.background : colors.textSecondary,
+                borderColor: colors.primary,
+                borderRadius: `${layout.borderRadius}px`,
+                border: 'none',
+                minWidth: '160px'
+              }}
+              onMouseEnter={(e) => {
+                if (isCurrentSlideValid()) {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (isCurrentSlideValid()) {
+                  e.currentTarget.style.backgroundColor = colors.primary;
+                }
+              }}
+            >
+              <Icon 
+                name="fileText" 
+                size={16} 
+                color={isCurrentSlideValid() ? colors.background : colors.textSecondary}
+              />
+              <span>Generate Summary</span>
+            </button>
+          )}
+          
+          {/* Start Over Button */}
+          {currentSlide === slides.length - 1 && (
+            <button
+              onClick={nextSlide}
+              className="flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors"
+              style={{
+                backgroundColor: colors.primary,
+                color: colors.background,
+                borderColor: colors.primary,
+                borderRadius: `${layout.borderRadius}px`,
+                border: 'none',
+                minWidth: '140px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = colors.secondary;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = colors.primary;
+              }}
+            >
+              <Icon 
+                name="refresh" 
+                size={16} 
+                color={colors.background}
+              />
+              <span>Start Over</span>
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

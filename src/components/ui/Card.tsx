@@ -1,5 +1,5 @@
 import React from 'react';
-import { theme } from '@/theme/theme';
+import { theme, borderRadius, animationClasses } from '@/theme/theme';
 
 export interface CardProps {
   children: React.ReactNode;
@@ -61,15 +61,24 @@ export const Card: React.FC<CardProps> = ({
 
   // Base card classes
   const baseClasses = `
-    bg-[#F7F1E9]/30 rounded-lg
+    bg-white ${animationClasses.card.base}
+    ${animationClasses.card.landingHover}
+    ${animationClasses.card.borderGlow}
     ${border ? 'border border-gray-200' : ''}
     ${shadowClasses[shadow]}
     ${paddingClasses[padding]}
-    ${hover ? 'hover:shadow-lg transition-shadow duration-200' : ''}
   `;
 
   return (
-    <div className={`${baseClasses} ${className}`.trim()}>
+    <div 
+      className={`${baseClasses} ${className}`.trim()}
+      style={{ borderRadius: borderRadius.lg }} // 16px - CONSISTENT WITH ALL CARDS
+    >
+      {/* Landing page style gradient overlay */}
+      <div 
+        className={animationClasses.card.gradientOverlay}
+        style={{ borderRadius: borderRadius.lg }}
+      />
       {children}
     </div>
   );

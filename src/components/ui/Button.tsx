@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { theme, RoleType, colors, spacing, borderRadius, typography } from '@/theme/theme';
+import { theme, RoleType, colors, spacing, borderRadius, typography, animationClasses } from '@/theme/theme';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'white' | 'outline-white';
@@ -131,12 +131,32 @@ export const Button: React.FC<ButtonProps> = ({
 
   return (
     <button
-      className={`inline-flex items-center justify-center font-medium transition-colors duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${variant === 'primary' ? 'btn-primary-solid' : ''} ${className}`.trim()}
+      className={`
+        inline-flex items-center justify-center font-medium 
+        ${animationClasses.button.base}
+        ${animationClasses.button.landingHover}
+        ${animationClasses.button.active}
+        ${animationClasses.button.focus}
+        disabled:opacity-50 disabled:cursor-not-allowed
+        ${variant === 'primary' ? 'btn-primary-solid' : ''} 
+        ${className}
+      `.trim()}
       disabled={isDisabled}
       style={{
-        borderRadius: borderRadius.md as unknown as number,
+        borderRadius: borderRadius.md, // 12px - LESS ROUNDED
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
         ...sizeStyle[size],
         ...variantStyle[variant],
+      }}
+      onMouseEnter={(e) => {
+        if (!isDisabled) {
+          e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.25)'; // EXACT landing page shadow-3xl
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!isDisabled) {
+          e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
+        }
       }}
       {...props}
     >

@@ -420,6 +420,16 @@ export const OfficerTable: React.FC<Omit<DataTableProps, 'role' | 'columns'> & {
       ),
     },
     {
+      key: 'nmlsNumber',
+      title: 'NMLS#',
+      dataIndex: 'nmlsNumber',
+      render: (value) => (
+        <div className="text-sm text-gray-900 font-medium">
+          {value ? `NMLS# ${value}` : '-'}
+        </div>
+      ),
+    },
+    {
       key: 'status',
       title: 'Status',
       dataIndex: 'isActive',

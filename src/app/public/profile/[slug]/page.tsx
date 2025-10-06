@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import Icon, { icons } from '@/components/ui/Icon';
 
 // Lazy load unified components (same as internal profile)
 const UnifiedHeroSection = lazy(() => import('@/components/landingPage/UnifiedHeroSection'));
@@ -20,6 +21,7 @@ interface PublicProfileData {
     lastName: string;
     email: string;
     phone: string;
+    nmlsNumber?: string;
     avatar?: string;
     role: string;
     isActive: boolean;
@@ -32,6 +34,14 @@ interface PublicProfileData {
     address?: any;
     phone?: string;
     email?: string;
+    license_number?: string;
+    company_nmls_number?: string;
+    company_social_media?: {
+      facebook?: string;
+      twitter?: string;
+      linkedin?: string;
+      instagram?: string;
+    };
   };
   publicLink: {
     id: string;
@@ -120,7 +130,6 @@ export default function PublicProfilePage() {
   const [templateData, setTemplateData] = useState<PublicTemplateData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [applying, setApplying] = useState(false);
   
   // Tab state (template is determined by the fetched data)
   const [activeTab, setActiveTab] = useState<TabId>('todays-rates');
@@ -238,28 +247,6 @@ export default function PublicProfilePage() {
     }
   };
 
-  const handleApplyNow = async () => {
-    if (!profileData) return;
-
-    try {
-      setApplying(true);
-      
-      // Here you would typically redirect to an application form
-      // or open a modal with application details
-      // For now, we'll just show a success message
-      
-      // You could redirect to a contact form or application page
-      const subject = encodeURIComponent('Loan Application Inquiry');
-      const body = encodeURIComponent(`Hi ${profileData.user.firstName}, I'm interested in your loan services. Please contact me to discuss my application.`);
-      
-      window.location.href = `mailto:${profileData.user.email}?subject=${subject}&body=${body}`;
-      
-    } catch (err) {
-      console.error('Error applying:', err);
-    } finally {
-      setApplying(false);
-    }
-  };
 
   // Get the selected template from the fetched data
   const selectedTemplate = templateData?.template?.slug === 'template2' ? 'template2' : 'template1';
@@ -337,41 +324,179 @@ export default function PublicProfilePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Apply Now Button */}
-      <div className="fixed top-4 right-4 z-50">
-        <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-2">
-          <Button 
-            onClick={handleApplyNow}
-            disabled={applying}
-            variant="primary"
-            size="sm"
-          >
-            {applying ? 'Processing...' : 'Apply Now'}
-          </Button>
-        </div>
-      </div>
-
+      {/* Scroll bar styling with template border radius */}
+      <style jsx global>{`
+        ::-webkit-scrollbar {
+          width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: ${templateData?.template?.layout?.borderRadius || 8}px;
+        }
+        ::-webkit-scrollbar-thumb {
+          background: ${templateData?.template?.colors?.primary || '#ec4899'};
+          border-radius: ${templateData?.template?.layout?.borderRadius || 8}px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: ${templateData?.template?.colors?.secondary || '#01bcc6'};
+        }
+      `}</style>
       {/* Unified Template Rendering with Suspense - PUBLIC MODE */}
       <Suspense fallback={<SkeletonLoader />}>
-        {/* Unified Hero Section - PUBLIC MODE */}
+        {/* Main Content Area (container that wraps hero, content, footer) */}
+        <div className="w-full px-4 py-4 lg:px-6 lg:py-6">
+          <div 
+            className="overflow-hidden"
+            style={{ 
+              borderRadius: `${templateData?.template?.layout?.borderRadius || 8}px`
+            }}
+          >
+            {/* Hero Section - rounded top corners */}
+            <div 
+              className="overflow-hidden"
+              style={{ 
+                borderTopLeftRadius: `${templateData?.template?.layout?.borderRadius || 8}px`,
+                borderTopRightRadius: `${templateData?.template?.layout?.borderRadius || 8}px`
+              }}
+            >
         <UnifiedHeroSection
           isPublic={true}
           publicUserData={{
             name: officerInfo.officerName,
             email: officerInfo.email,
             phone: officerInfo.phone || undefined,
+            nmlsNumber: profileData.user.nmlsNumber,
             avatar: profileData.user.avatar
           }}
           publicTemplateData={templateData}
           template={selectedTemplate}
           templateCustomization={profileData.template}
-        />
+                companyData={{
+                  id: profileData.company.id,
+                  name: profileData.company.name,
+                  logo: profileData.company.logo,
+                  phone: profileData.company.phone,
+                  email: profileData.company.email,
+                  address: profileData.company.address,
+                  website: profileData.company.website,
+                  license_number: profileData.company.license_number,
+                  company_nmls_number: profileData.company.company_nmls_number,
+                  company_social_media: profileData.company.company_social_media
+                }}
+              />
+            </div>
 
-        {/* Main Content Area */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Content - Takes up 2/3 of the width */}
-            <div className="lg:col-span-2">
+            {/* Content Area - reduced padding and visible side borders */}
+            <div 
+              className="p-3 border-x"
+              style={{ borderColor: templateData?.template?.colors?.border || '#e5e7eb' }}
+            >
+            {(() => {
+            // Get layout configuration
+            const layoutConfig = templateData?.template?.layoutConfig;
+            const isSidebarLayout = layoutConfig?.mainContentLayout?.type === 'sidebar';
+            
+            if (isSidebarLayout) {
+              // Sidebar Layout (Template2) - Left sidebar with tabs list, right content area
+              return (
+                <div className="flex gap-6 lg:gap-4">
+                  {/* Left Sidebar - Tabs List */}
+                  <div className="w-64 flex-shrink-0">
+                    <div className="sticky top-6 lg:top-8">
+                      <div 
+                        className="rounded-lg shadow-sm border p-4"
+                        style={{
+                          backgroundColor: templateData?.template?.colors?.background || '#ffffff',
+                          borderColor: templateData?.template?.colors?.border || '#e5e7eb',
+                          borderRadius: `${templateData?.template?.layout?.borderRadius || 8}px`
+                        }}
+                      >
+                        <h3 
+                          className="text-lg font-semibold mb-4"
+                          style={{
+                            color: templateData?.template?.colors?.text || '#111827',
+                            fontFamily: (templateData?.template?.typography?.fontFamily && (templateData?.template?.typography?.fontFamily.body || templateData?.template?.typography?.fontFamily)) || undefined
+                          }}
+                        >
+                          Navigation
+                        </h3>
+                        <nav className="space-y-1">
+                          {[
+                            { id: 'todays-rates', label: "Today's Rates", icon: 'rates' },
+                            { id: 'get-custom-rate', label: 'Get My Custom Rate', icon: 'custom' },
+                            { id: 'document-checklist', label: 'Document Checklist', icon: 'document' },
+                            { id: 'apply-now', label: 'Apply Now', icon: 'applyNow' },
+                            { id: 'my-home-value', label: 'My Home Value', icon: 'home' },
+                            { id: 'find-my-home', label: 'Find My Home', icon: 'home' },
+                            { id: 'learning-center', label: 'Learning Center', icon: 'about' }
+                          ].map((tab) => (
+                            <button
+                              key={tab.id}
+                              onClick={() => setActiveTab(tab.id as TabId)}
+                              className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 flex items-center ${
+                                activeTab === tab.id
+                                  ? 'shadow-sm'
+                                  : 'hover:bg-gray-50'
+                              }`}
+                              style={{
+                                backgroundColor: activeTab === tab.id 
+                                  ? (selectedTemplate === 'template2' 
+                                      ? templateData?.template?.colors?.primary || '#3b82f6'
+                                      : `${templateData?.template?.colors?.primary || '#3b82f6'}25`)
+                                  : 'transparent',
+                                color: activeTab === tab.id 
+                                  ? (selectedTemplate === 'template2' 
+                                      ? templateData?.template?.colors?.background || '#ffffff'
+                                      : templateData?.template?.colors?.primary || '#3b82f6')
+                                  : templateData?.template?.colors?.textSecondary || '#6b7280',
+                                border: activeTab === tab.id 
+                                  ? (selectedTemplate === 'template2' 
+                                      ? `1px solid ${templateData?.template?.colors?.primary || '#3b82f6'}`
+                                      : `1px solid ${templateData?.template?.colors?.primary || '#3b82f6'}50`)
+                                  : '1px solid transparent',
+                                borderRadius: `${templateData?.template?.layout?.borderRadius || 8}px`,
+                                fontFamily: (templateData?.template?.typography?.fontFamily && (templateData?.template?.typography?.fontFamily.body || templateData?.template?.typography?.fontFamily)) || undefined
+                              }}
+                            >
+                              <Icon 
+                                name={tab.icon as keyof typeof icons} 
+                                className={`w-4 h-4 mr-3`}
+                                color={activeTab === tab.id 
+                                  ? (selectedTemplate === 'template2' 
+                                      ? templateData?.template?.colors?.background || '#ffffff'
+                                      : templateData?.template?.colors?.primary || '#3b82f6')
+                                  : templateData?.template?.colors?.textSecondary || '#6b7280'
+                                }
+                              />
+                              {tab.label}
+                            </button>
+                          ))}
+                        </nav>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Right Content Area - Selected Tab Details */}
+                  <div className="flex-1">
+                    <LandingPageTabs
+                      isPublic={true}
+                      publicTemplateData={templateData}
+                      activeTab={activeTab}
+                      onTabChange={handleTabChange}
+                      selectedTemplate={selectedTemplate}
+                      templateCustomization={profileData.template}
+                      userId={profileData.user.id}
+                      companyId={profileData.company.id}
+                      hideTabNavigation={true} // Hide the tab navigation since we have sidebar
+                    />
+                  </div>
+                </div>
+              );
+            } else {
+              // Grid Layout (Template1) - Current layout
+              return (
+                <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+                  <div className="xl:col-span-3">
               <LandingPageTabs
                 isPublic={true}
                 publicTemplateData={templateData}
@@ -383,10 +508,8 @@ export default function PublicProfilePage() {
                 companyId={profileData.company.id}
               />
             </div>
-
-            {/* Right Sidebar - Takes up 1/3 of the width */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-8">
+                  <div className="xl:col-span-1">
+                    <div className="sticky top-6 lg:top-8">
                 <UnifiedRightSidebar 
                   isPublic={true}
                   publicCompanyData={{
@@ -395,20 +518,44 @@ export default function PublicProfilePage() {
                     phone: profileData.company.phone,
                     email: profileData.company.email,
                     address: profileData.company.address,
-                    website: profileData.company.website
+                          website: profileData.company.website,
+                          license_number: profileData.company.license_number,
+                          company_nmls_number: profileData.company.company_nmls_number,
+                          company_social_media: profileData.company.company_social_media
                   }}
                   publicTemplateData={templateData}
                   template={selectedTemplate} 
                   templateCustomization={profileData.template}
+                        companyData={{
+                          id: profileData.company.id,
+                          name: profileData.company.name,
+                          logo: profileData.company.logo,
+                          phone: profileData.company.phone,
+                          email: profileData.company.email,
+                          address: profileData.company.address,
+                          website: profileData.company.website,
+                          license_number: profileData.company.license_number,
+                          company_nmls_number: profileData.company.company_nmls_number,
+                          company_social_media: profileData.company.company_social_media
+                        }}
                 />
               </div>
             </div>
           </div>
+              );
+            }
+          })()}
         </div>
 
-        {/* Footer */}
-        <footer className="bg-gray-900 text-white py-8 mt-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Footer - rounded bottom corners */}
+            <div 
+              className="overflow-hidden"
+              style={{ 
+                borderBottomLeftRadius: `${templateData?.template?.layout?.borderRadius || 8}px`,
+                borderBottomRightRadius: `${templateData?.template?.layout?.borderRadius || 8}px`
+              }}
+            >
+              <footer className="bg-gray-900 text-white py-8">
             <div className="text-center">
               <p className="text-white opacity-90">
                 © 2024 {profileData.company.name}™. All rights reserved. | NMLS Consumer Access
@@ -421,9 +568,11 @@ export default function PublicProfilePage() {
                   Profile views: {profileData.publicLink.currentUses} / {profileData.publicLink.maxUses}
                 </p>
               )}
+                </div>
+              </footer>
             </div>
           </div>
-        </footer>
+        </div>
       </Suspense>
     </div>
   );

@@ -30,6 +30,12 @@ export default function UnifiedHeader({
   const templateData = isPublic && publicTemplateData 
     ? publicTemplateData 
     : getTemplateSync(template);
+  // Get layout data for border radius
+  const templateLayout = templateData?.template?.layout || {
+    borderRadius: 8,
+    padding: { small: 8, medium: 16, large: 24 },
+    spacing: 16
+  };
   
   // Debug logging
   console.log('🔍 UnifiedHeader Debug:', {

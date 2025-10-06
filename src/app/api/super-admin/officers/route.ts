@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
-    // Get all loan officers with their company information
+    // Get all loan officers (employees only) with their company information
     const { data: officersData, error: officersError } = await supabase
       .from('user_companies')
       .select(`
@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
         company_id,
         is_active,
         joined_at,
+        role,
         users!inner (
           id,
           email,
@@ -35,6 +36,7 @@ export async function GET(request: NextRequest) {
           deactivated
         )
       `)
+      .eq('role', 'employee')
       .order('joined_at', { ascending: false });
 
     if (officersError) {
@@ -85,7 +87,7 @@ export async function GET(request: NextRequest) {
       ).values()
     ).sort((a, b) => a.name.localeCompare(b.name));
 
-    console.log(`👥 Found ${officers.length} officers across ${companies.length} companies`);
+    console.log(`👥 Found ${officers.length} employees (loan officers) across ${companies.length} companies`);
 
     return NextResponse.json({ 
       success: true, 

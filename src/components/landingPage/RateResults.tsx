@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useMemo, useCallback, memo } from 'react';
+import React, { useState, useMemo, useCallback, memo } from 'react';
 import { spacing, borderRadius, shadows, typography } from '@/theme/theme';
 import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
-import Icon from '@/components/ui/Icon';
+import Icon, { icons } from '@/components/ui/Icon';
 import LeadCaptureModal, { type LeadData } from './LeadCaptureModal';
+import { useNotification } from '@/components/ui/Notification';
 
 interface RateProduct {
   id: string;
@@ -54,6 +55,8 @@ interface RateResultsProps {
   // User context props for lead submission
   userId?: string;
   companyId?: string;
+  // Filter for today's rates only
+  showTodaysRatesOnly?: boolean;
 }
 
 function RateResults({ 
@@ -68,9 +71,12 @@ function RateResults({
   publicTemplateData,
   // User context props
   userId,
-  companyId
+  companyId,
+  // Filter for today's rates only
+  showTodaysRatesOnly = false
 }: RateResultsProps) {
   const { getTemplateSync } = useEfficientTemplates();
+  const { showNotification } = useNotification();
   
   // Template data fetching - support both public and auth modes
   const templateData = isPublic && publicTemplateData 
@@ -175,6 +181,7 @@ function RateResults({
         credentials: 'include', // Include cookies for authentication
         body: JSON.stringify({
           ...leadData,
+          source: "Rate Results Table", // Set source for Rate Results
           userId: leadUserId,
           companyId: leadCompanyId
         }),
@@ -191,8 +198,13 @@ function RateResults({
       const result = await response.json();
       console.log('✅ Lead submitted successfully:', result);
       
-      // Show success message or redirect
-      alert('Thank you! Your information has been submitted successfully. A loan officer will contact you soon.');
+      // Show success notification
+      showNotification({
+        type: 'success',
+        title: 'Lead Submitted Successfully!',
+        message: 'Thank you for your interest. We\'ll contact you soon about your loan application.',
+        duration: 5000
+      });
       
     } catch (error) {
       console.error('Error submitting lead:', error);
@@ -204,10 +216,34 @@ function RateResults({
   const filteredAndSortedProducts = useMemo(() => {
     let filtered = products;
     
+    // Filter for today's rates only when showTodaysRatesOnly is true
+    if (showTodaysRatesOnly) {
+      filtered = products.filter(product => {
+        // Only show products from "Today's Rates" lender
+        return product.lenderName === 'Today\'s Rates';
+      });
+    }
+    
     // Filter by term if not 'all'
     if (selectedTerm !== 'all') {
       filtered = products.filter(product => {
         const termStr = product.loanTerm.toString();
+        
+        // Handle different loan term filter options
+        if (selectedTerm === '30') {
+          return termStr === '30' || termStr.includes('Thirty');
+        } else if (selectedTerm === '20') {
+          return termStr === '20' || termStr.includes('Twenty');
+        } else if (selectedTerm === '15') {
+          return termStr === '15' || termStr.includes('Fifteen');
+        } else if (selectedTerm === '10') {
+          return termStr === '10' || termStr.includes('10/1');
+        } else if (selectedTerm === '7') {
+          return termStr === '7' || termStr.includes('7/1');
+        } else if (selectedTerm === '5') {
+          return termStr === '5' || termStr.includes('5/1');
+        }
+        
         return termStr === selectedTerm;
       });
     }
@@ -225,13 +261,14 @@ function RateResults({
           return 0;
       }
     });
-  }, [products, selectedTerm, sortBy]);
+  }, [products, selectedTerm, sortBy, showTodaysRatesOnly]);
 
   // Memoized unique terms
-  const uniqueTerms = useMemo(() => {
-    const terms = products.map(p => p.loanTerm.toString());
-    return ['all', ...Array.from(new Set(terms))];
-  }, [products]);
+  // No longer needed since we have fixed filter buttons
+  // const uniqueTerms = useMemo(() => {
+  //   const terms = products.map(p => p.loanTerm.toString());
+  //   return ['all', ...Array.from(new Set(terms))];
+  // }, [products]);
 
   // Use memoized filtered and sorted products
 
@@ -309,7 +346,7 @@ function RateResults({
   return (
     <div style={{
       backgroundColor: '#ffffff',
-      borderRadius: borderRadius.lg,
+      borderRadius: `${layout.borderRadius}px`,
       boxShadow: shadows.lg
     }}>
       {/* Mock Data Warning Banner */}
@@ -318,7 +355,7 @@ function RateResults({
           backgroundColor: '#fef3c7', // Yellow background
           borderBottom: `1px solid #f59e0b`, // Yellow border
           padding: spacing[3],
-          borderRadius: `${borderRadius.lg} ${borderRadius.lg} 0 0`
+          borderRadius: `${layout.borderRadius}px ${layout.borderRadius}px 0 0`
         }}>
           <div style={{
             display: 'flex',
@@ -374,17 +411,92 @@ function RateResults({
               })}
             </p>
           </div>
-          <div className="flex items-center gap-4">
+        </div>
+      </div>
+
+      {/* Loan Term Filter and Sort Controls */}
+      <div className="p-4 border-b" style={{ borderBottomColor: colors.border }}>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          {/* Loan Term Filter Buttons */}
+          <div className="flex flex-wrap gap-2">
+            {[
+              { id: 'all', label: 'All' },
+              { id: '30', label: '30yr Fixed' },
+              { id: '20', label: '20yr Fixed' },
+              { id: '15', label: '15yr Fixed' },
+              { id: '10', label: '10y/6m ARM' },
+              { id: '7', label: '7y/6m ARM' },
+              { id: '5', label: '5y/6m ARM' }
+            ].map((term) => (
+              <button
+                key={term.id}
+                onClick={() => handleTermChange(term.id)}
+                className={`px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg ${
+                  selectedTerm === term.id
+                    ? 'text-white shadow-md'
+                    : 'text-gray-700 bg-gray-100 hover:bg-gray-200'
+                }`}
+                style={{
+                  backgroundColor: selectedTerm === term.id ? colors.primary : undefined,
+                  color: selectedTerm === term.id ? colors.background : colors.text,
+                  borderRadius: `${layout.borderRadius}px`
+                }}
+                onMouseEnter={(e) => {
+                  if (selectedTerm !== term.id) {
+                    e.currentTarget.style.backgroundColor = colors.border;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (selectedTerm !== term.id) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
+              >
+                {term.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Sort Controls */}
+          <div className="flex items-center gap-3">
+            {/* Settings Button */}
+            <button
+              className="w-10 h-10 flex items-center justify-center border transition-colors"
+              style={{
+                borderColor: colors.border,
+                borderRadius: `${layout.borderRadius}px`
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = colors.border;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              </svg>
+            </button>
+
+            {/* Sort Dropdown */}
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Sort By:</span>
+              <span 
+                className="text-sm font-medium"
+                style={{ color: colors.primary }}
+              >
+                Sort By:
+              </span>
               <select
                 value={sortBy}
                 onChange={(e) => handleSortChange(e.target.value as 'rate' | 'payment' | 'fees')}
-                className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none"
-                style={{ 
-                  '--tw-ring-color': colors.primary,
-                  '--tw-ring-opacity': '1'
-                } as React.CSSProperties}
+                className="px-3 py-2 text-sm border focus:outline-none focus:ring-2"
+                style={{
+                  borderColor: colors.border,
+                  borderRadius: `${layout.borderRadius}px`,
+                  backgroundColor: colors.background,
+                  color: colors.text
+                }}
               >
                 <option value="rate">Low Rate</option>
                 <option value="payment">Low Payment</option>
@@ -395,100 +507,107 @@ function RateResults({
         </div>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="px-6 py-4 border-b border-gray-200">
-        <div className="flex flex-wrap gap-2">
-          {uniqueTerms.map((term) => (
-            <button
-              key={term}
-              onClick={() => handleTermChange(term)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                selectedTerm === term
-                  ? 'border'
-                  : 'bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200'
-              }`}
-              style={selectedTerm === term ? {
-                backgroundColor: `${colors.primary}20`,
-                color: colors.primary,
-                borderColor: colors.primary,
-              } : {}}
-            >
-              {term === 'all' ? 'All' : `${term}yr Fixed`}
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* Results */}
       <div className="p-6">
-        <div className="space-y-4">
-          {filteredAndSortedProducts.map((product, index) => (
-            <div
-              key={`${product.id}-${index}-${product.interestRate}-${product.apr}`}
-              className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead 
+              className="border-b"
+              style={{ 
+                backgroundColor: `${colors.primary}10`,
+                borderColor: colors.border 
+              }}
             >
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                {/* Rate and APR */}
-                <div className="lg:col-span-1">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-gray-900 mb-1">
+              <tr>
+                <th 
+                  className="px-4 py-4 text-left text-sm font-semibold"
+                  style={{ color: colors.primary }}
+                >
+                  Loan Type
+                </th>
+                <th 
+                  className="px-4 py-4 text-left text-sm font-semibold"
+                  style={{ color: colors.primary }}
+                >
+                  Interest Rate
+                </th>
+                <th 
+                  className="px-4 py-4 text-left text-sm font-semibold"
+                  style={{ color: colors.primary }}
+                >
+                  APR
+                </th>
+                <th 
+                  className="px-4 py-4 text-left text-sm font-semibold"
+                  style={{ color: colors.primary }}
+                >
+                  Points
+                </th>
+                <th 
+                  className="px-4 py-4 text-left text-sm font-semibold"
+                  style={{ color: colors.primary }}
+                >
+                  Monthly Payment*
+                </th>
+                <th 
+                  className="px-4 py-4 text-left text-sm font-semibold"
+                  style={{ color: colors.primary }}
+                >
+                  Action
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y"
+                   style={{ borderColor: colors.border }}>
+              {filteredAndSortedProducts.map((product, index) => (
+                <tr key={`${product.id}-${index}-${product.interestRate}-${product.apr}`} 
+                    className="transition-colors hover:opacity-90">
+                  <td className="px-4 py-4">
+                    <div className="flex items-center space-x-2">
+                      {React.createElement(icons.document, { 
+                        size: 16, 
+                        color: colors.primary 
+                      })}
+                      <span className="text-sm font-medium"
+                            style={{ color: colors.text }}>
+                        {product.loanTerm}-Year Fixed
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-4">
+                    <span className="text-sm font-semibold"
+                          style={{ color: colors.text }}>
                       {formatRate(product.interestRate)}
-                    </div>
-                    <div className="text-sm text-gray-600 mb-2">
-                      {formatRate(product.apr)} APR
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {product.loanTerm}yr {product.loanType}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Fees and Points */}
-                <div className="lg:col-span-1">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-gray-900 mb-1">
-                      {formatCurrency(product.fees)}
-                    </div>
-                    <div className="text-sm text-gray-600 mb-2">
+                    </span>
+                  </td>
+                  <td className="px-4 py-4">
+                    <span className="text-sm"
+                          style={{ color: colors.textSecondary }}>
+                      {formatRate(product.apr)}
+                    </span>
+                  </td>
+                  <td className="px-4 py-4">
+                    <span className="text-sm"
+                          style={{ color: colors.textSecondary }}>
                       {formatPoints(product.points)}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      Upfront costs
-                    </div>
-                  </div>
-                </div>
-
-                {/* Monthly Payment */}
-                <div className="lg:col-span-1">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-gray-900 mb-1">
-                      {formatCurrency(product.monthlyPayment)}/mo
-                    </div>
-                    <div className="text-sm text-gray-600 mb-2">
-                      Principal & Interest
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {product.lockPeriod} day lock
-                    </div>
-                  </div>
-                </div>
-
-                {/* Lender Info and Actions */}
-                <div className="lg:col-span-1">
-                  <div className="text-center">
-                    <div className="text-sm font-medium text-gray-900 mb-2">
-                      {product.lenderName}
-                    </div>
-                    <div className="text-xs text-gray-500 mb-4">
-                      {product.loanProgram}
-                    </div>
-                    <div className="space-y-2">
-                      <button 
+                    </span>
+                  </td>
+                  <td className="px-4 py-4">
+                    <span className="text-sm font-semibold"
+                          style={{ color: colors.text }}>
+                      {formatCurrency(product.monthlyPayment)}
+                    </span>
+                  </td>
+                  <td className="px-4 py-4">
+                    <div className="flex flex-col space-y-2">
+                      <button
                         onClick={() => handleGetStarted(product)}
-                        className="w-full text-white py-2 px-4 rounded-md text-sm font-medium transition-colors"
-                        style={{ 
+                        className="flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium transition-colors w-full"
+                        style={{
                           backgroundColor: colors.primary,
                           color: colors.background,
+                          borderRadius: `${layout.borderRadius}px`,
+                          border: 'none'
                         }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.backgroundColor = colors.secondary;
@@ -497,20 +616,33 @@ function RateResults({
                           e.currentTarget.style.backgroundColor = colors.primary;
                         }}
                       >
-                        Get Started
+                        {React.createElement(icons.arrowRight, { size: 16, color: colors.background })}
+                        <span>Get Started</span>
                       </button>
                       <button 
                         onClick={() => handleViewDetails(product)}
-                        className="w-full border border-gray-300 text-gray-700 py-2 px-4 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors"
+                        className="flex items-center justify-center px-4 py-2 text-sm font-medium transition-colors w-full"
+                        style={{
+                          backgroundColor: colors.background,
+                          color: colors.text,
+                          border: `1px solid ${colors.border}`,
+                          borderRadius: `${layout.borderRadius}px`
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = colors.backgroundSecondary || '#f9fafb';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = colors.background;
+                        }}
                       >
                         View Details
                       </button>
                     </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
 
         {/* Footer */}
@@ -536,7 +668,7 @@ function RateResults({
       {/* Product Details Modal */}
       {isModalOpen && selectedProduct && (
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white max-w-4xl w-full max-h-[90vh] overflow-y-auto" style={{ borderRadius: `${layout.borderRadius}px` }}>
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <h3 className="text-xl font-semibold text-gray-900">
@@ -650,7 +782,7 @@ function RateResults({
               {/* Request Information Section */}
               <div className="mt-8 pt-6 border-t border-gray-200">
                 <h4 className="text-lg font-semibold text-gray-900 mb-4">Request Information</h4>
-                <div className="bg-gray-50 rounded-lg p-4">
+                <div className="bg-gray-50 p-4" style={{ borderRadius: `${layout.borderRadius}px` }}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <h5 className="font-medium text-gray-900 mb-2">Loan Request Details</h5>
@@ -704,10 +836,11 @@ function RateResults({
               <div className="mt-8 pt-6 border-t border-gray-200 flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={() => handleGetStarted(selectedProduct)}
-                  className="flex-1 text-white py-3 px-6 rounded-md font-medium transition-colors"
+                  className="flex-1 flex items-center justify-center text-white py-3 px-6 font-medium transition-colors"
                   style={{ 
                     backgroundColor: colors.primary,
                     color: colors.background,
+                    borderRadius: `${layout.borderRadius}px`
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = colors.secondary;
@@ -720,7 +853,8 @@ function RateResults({
                 </button>
                 <button
                   onClick={handleCloseModal}
-                  className="flex-1 border border-gray-300 text-gray-700 py-3 px-6 rounded-md font-medium hover:bg-gray-50 transition-colors"
+                  className="flex-1 flex items-center justify-center border border-gray-300 text-gray-700 py-3 px-6 font-medium hover:bg-gray-50 transition-colors"
+                  style={{ borderRadius: `${layout.borderRadius}px` }}
                 >
                   Close
                 </button>

@@ -12,6 +12,7 @@ import SpotlightCard from '@/components/ui/SpotlightCard';
 import { useNotification } from '@/components/ui/Notification';
 import { supabase } from '@/lib/supabase/client';
 import { PageLoadingState } from '@/components/ui/LoadingState';
+import { dashboard } from '@/theme/theme';
 import { 
   User, 
   Mail, 
@@ -74,6 +75,31 @@ export default function SuperAdminSettingsPage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [activeTab, setActiveTab] = useState<'personal' | 'email' | 'password' | 'avatar'>('personal');
+  const [previousTab, setPreviousTab] = useState<'personal' | 'email' | 'password' | 'avatar' | null>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  // Handle tab change with sliding animation
+  const handleTabChange = (newTab: 'personal' | 'email' | 'password' | 'avatar') => {
+    if (newTab === activeTab || isAnimating) return;
+    
+    setPreviousTab(activeTab);
+    setIsAnimating(true);
+    
+    // Determine slide direction based on tab order
+    const tabOrder = ['personal', 'email', 'password', 'avatar'];
+    const currentIndex = tabOrder.indexOf(activeTab);
+    const newIndex = tabOrder.indexOf(newTab);
+    const slideDirection = newIndex > currentIndex ? 'slide-right' : 'slide-left';
+    
+    // Set the new active tab
+    setActiveTab(newTab);
+    
+    // Reset animation after transition completes
+    setTimeout(() => {
+      setIsAnimating(false);
+      setPreviousTab(null);
+    }, 300);
+  };
 
   // Fetch user profile
   useEffect(() => {
@@ -337,35 +363,47 @@ export default function SuperAdminSettingsPage() {
   }
 
   return (
-    <DashboardLayout title="Settings" showBackButton={true}>
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Tab Navigation */}
+    <DashboardLayout 
+      showBreadcrumb={true}
+      breadcrumbVariant="default"
+      breadcrumbSize="md"
+    >
+      <div style={dashboard.card}>
+        {/* Tab Navigation - Modern Dark Design */}
         <div className="mb-8">
-          <nav className="flex space-x-8">
+          <nav className="inline-flex modern-tab-nav rounded-xl p-1">
             {[
-              { id: 'personal', label: 'Personal Info', icon: User },
-              { id: 'email', label: 'Email', icon: Mail },
-              { id: 'password', label: 'Password', icon: Lock },
-              { id: 'avatar', label: 'Avatar', icon: Camera }
+              { id: 'personal', label: 'Personal Info', icon: User, badge: null },
+              { id: 'email', label: 'Email', icon: Mail, badge: null },
+              { id: 'password', label: 'Password', icon: Lock, badge: null },
+              { id: 'avatar', label: 'Avatar', icon: Camera, badge: null }
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center space-x-2 px-1 py-4 text-sm font-medium border-b-2 transition-colors ${
+                onClick={() => handleTabChange(tab.id as any)}
+                className={`tab-button flex items-center justify-center space-x-2 text-white font-medium rounded-lg ${
                   activeTab === tab.id
-                    ? 'border-[#005b7c] text-[#005b7c]'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'active'
+                    : ''
                 }`}
               >
                 <tab.icon className="h-4 w-4" />
                 <span>{tab.label}</span>
+                {tab.badge && (
+                  <span className="ml-2 bg-[#005b7c] text-white text-xs px-2 py-1 rounded-full">
+                    {tab.badge}
+                  </span>
+                )}
               </button>
             ))}
           </nav>
         </div>
 
-        {/* Personal Info Tab */}
-        {activeTab === 'personal' && (
+        {/* Tab Content with Sliding Animation */}
+        <div className="tab-content-container">
+          {/* Personal Info Tab */}
+          <div className={`tab-content ${activeTab === 'personal' ? 'active' : ''}`}>
+            {activeTab === 'personal' && (
           <SpotlightCard variant="default" className="p-6">
             <CardHeader>
               <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
@@ -427,10 +465,12 @@ export default function SuperAdminSettingsPage() {
               </form>
             </CardBody>
           </SpotlightCard>
-        )}
+            )}
+          </div>
 
-        {/* Email Tab */}
-        {activeTab === 'email' && (
+          {/* Email Tab */}
+          <div className={`tab-content ${activeTab === 'email' ? 'active' : ''}`}>
+            {activeTab === 'email' && (
           <SpotlightCard variant="default" className="p-6">
             <CardHeader>
               <h3 className="text-lg font-semibold text-gray-900">Change Email</h3>
@@ -505,10 +545,12 @@ export default function SuperAdminSettingsPage() {
               </form>
             </CardBody>
           </SpotlightCard>
-        )}
+            )}
+          </div>
 
-        {/* Password Tab */}
-        {activeTab === 'password' && (
+          {/* Password Tab */}
+          <div className={`tab-content ${activeTab === 'password' ? 'active' : ''}`}>
+            {activeTab === 'password' && (
           <SpotlightCard variant="default" className="p-6">
             <CardHeader>
               <h3 className="text-lg font-semibold text-gray-900">Change Password</h3>
@@ -549,10 +591,12 @@ export default function SuperAdminSettingsPage() {
               </div>
             </CardBody>
           </SpotlightCard>
-        )}
+            )}
+          </div>
 
-        {/* Avatar Tab */}
-        {activeTab === 'avatar' && (
+          {/* Avatar Tab */}
+          <div className={`tab-content ${activeTab === 'avatar' ? 'active' : ''}`}>
+            {activeTab === 'avatar' && (
           <SpotlightCard variant="default" className="p-6">
             <CardHeader>
               <h3 className="text-lg font-semibold text-gray-900">Profile Picture</h3>
@@ -608,7 +652,9 @@ export default function SuperAdminSettingsPage() {
               </form>
             </CardBody>
           </SpotlightCard>
-        )}
+            )}
+          </div>
+        </div>
       </div>
     </DashboardLayout>
   );

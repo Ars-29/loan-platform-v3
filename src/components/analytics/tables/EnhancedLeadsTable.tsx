@@ -6,6 +6,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { format } from 'date-fns';
+import { borderRadius } from '@/theme/theme';
 
 interface EnhancedLead {
   id: string;
@@ -360,7 +361,10 @@ const EnhancedLeadsTable: React.FC<EnhancedLeadsTableProps> = ({
   const validLeads = leads.filter(lead => lead != null);
 
   return (
-    <div className="bg-[#F7F1E9]/30 rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div 
+      className="bg-white shadow-sm border border-gray-200 overflow-hidden"
+      style={{ borderRadius: borderRadius.lg }}
+    >
       <div className="px-6 py-4 border-b border-gray-200">
         <h3 className="text-lg font-semibold text-gray-900">Enhanced Leads Management</h3>
         <p className="text-sm text-gray-600 mt-1">

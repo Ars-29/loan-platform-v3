@@ -7,6 +7,7 @@ export const users = pgTable('users', {
   firstName: text('first_name'),
   lastName: text('last_name'),
   phone: text('phone'),
+  nmlsNumber: text('nmls_number'), // NMLS# for loan officers
   avatar: text('avatar'),
   role: text('role').notNull().default('employee'), // super_admin, company_admin, employee
   isActive: boolean('is_active').default(true),
@@ -18,37 +19,94 @@ export const users = pgTable('users', {
   lastLoginAt: timestamp('last_login_at'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
-});
+}, (table) => ({
+  emailIdx: index('users_email_idx').on(table.email),
+  nmlsNumberIdx: index('users_nmls_number_idx').on(table.nmlsNumber),
+}));
 
-// Companies table
+// Companies table - Enhanced with comprehensive company profile fields
 export const companies = pgTable('companies', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: text('name').notNull(),
   slug: text('slug').notNull().unique(),
+  
+  // Legacy fields (kept for backward compatibility)
   logo: text('logo'),
   website: text('website'),
   licenseNumber: text('license_number'),
   address: jsonb('address'), // { street, city, state, zip, country }
   phone: text('phone'),
   email: text('email'),
+  
+  // Admin fields
   adminEmail: text('admin_email'), // Email for company admin
   adminEmailVerified: boolean('admin_email_verified').default(false),
   adminUserId: uuid('admin_user_id'), // Reference to admin user once created
+  
+  // Invite fields
   inviteStatus: text('invite_status').default('pending'), // pending, sent, accepted, expired
   inviteSentAt: timestamp('invite_sent_at'), // When invite was sent
   inviteExpiresAt: timestamp('invite_expires_at'), // When invite expires (24 hours)
   inviteToken: text('invite_token'), // Supabase invite token
+  
+  // Subscription fields
   subscription: text('subscription').default('basic'), // basic, pro, enterprise
   subscriptionExpiresAt: timestamp('subscription_expires_at'),
+  
+  // Status fields
   isActive: boolean('is_active').default(true),
   deactivated: boolean('deactivated').default(false), // For deactivation control
+  
+  // Enhanced company profile fields (non-redundant)
+  companyTagline: text('company_tagline'),
+  companyDescription: text('company_description'),
+  companyNmlsNumber: text('company_nmls_number'),
+  companyEstablishedYear: integer('company_established_year'),
+  companyTeamSize: text('company_team_size'),
+  companySpecialties: jsonb('company_specialties').default('[]'),
+  companyAwards: jsonb('company_awards').default('[]'),
+  companyTestimonials: jsonb('company_testimonials').default('[]'),
+  companySocialMedia: jsonb('company_social_media').default('{}'),
+  companyBranding: jsonb('company_branding').default('{}'),
+  companyContactInfo: jsonb('company_contact_info').default('{}'),
+  companyBusinessHours: jsonb('company_business_hours').default('{}'),
+  companyServiceAreas: jsonb('company_service_areas').default('[]'),
+  companyLanguages: jsonb('company_languages').default('[]'),
+  companyCertifications: jsonb('company_certifications').default('[]'),
+  companyInsuranceInfo: jsonb('company_insurance_info').default('{}'),
+  companyFinancialInfo: jsonb('company_financial_info').default('{}'),
+  companyMarketingInfo: jsonb('company_marketing_info').default('{}'),
+  companyPrivacySettings: jsonb('company_privacy_settings').default('{}'),
+  companySeoSettings: jsonb('company_seo_settings').default('{}'),
+  companyAnalyticsSettings: jsonb('company_analytics_settings').default('{}'),
+  companyIntegrationSettings: jsonb('company_integration_settings').default('{}'),
+  companyNotificationSettings: jsonb('company_notification_settings').default('{}'),
+  companyBackupSettings: jsonb('company_backup_settings').default('{}'),
+  companySecuritySettings: jsonb('company_security_settings').default('{}'),
+  companyComplianceSettings: jsonb('company_compliance_settings').default('{}'),
+  companyCustomFields: jsonb('company_custom_fields').default('{}'),
+  companyMetadata: jsonb('company_metadata').default('{}'),
+  companyVersion: integer('company_version').default(1),
+  companyLastUpdatedBy: uuid('company_last_updated_by'),
+  companyApprovalStatus: text('company_approval_status').default('pending'),
+  companyApprovalNotes: text('company_approval_notes'),
+  companyApprovalDate: timestamp('company_approval_date'),
+  companyApprovalBy: uuid('company_approval_by'),
+  
+  // Legacy settings (kept for backward compatibility)
   settings: jsonb('settings').default('{}'), // Company-wide settings
+  
+  // Timestamps
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 }, (table) => ({
   slugIdx: index('company_slug_idx').on(table.slug),
   isActiveIdx: index('company_active_idx').on(table.isActive),
   adminEmailIdx: index('company_admin_email_idx').on(table.adminEmail),
+  nmlsNumberIdx: index('companies_nmls_number_idx').on(table.companyNmlsNumber),
+  licenseNumberIdx: index('companies_license_number_idx').on(table.licenseNumber),
+  approvalStatusIdx: index('companies_approval_status_idx').on(table.companyApprovalStatus),
+  versionIdx: index('companies_version_idx').on(table.companyVersion),
 }));
 
 // User-Company relationships
@@ -90,6 +148,9 @@ export const templates = pgTable('templates', {
   headerModifications: jsonb('header_modifications').default('{}'), // { officerName, avatar, phone, email, applyNowLink, personalInfo }
   bodyModifications: jsonb('body_modifications').default('{}'), // { activeTab, enabledTabs, tabOrder, tabSettings }
   rightSidebarModifications: jsonb('right_sidebar_modifications').default('{}'), // { socialMedia, companyName, logo, contactInfo, reviews }
+  
+  // Layout configuration for different template layouts
+  layoutConfig: jsonb('layout_config').default('{}'), // { headerLayout, mainContentLayout }
   
   // Public profile template selection
   isSelected: boolean('is_selected').default(false), // true if this template is selected for public profile

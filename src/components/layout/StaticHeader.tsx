@@ -123,13 +123,17 @@ const StaticHeader = memo(function StaticHeader() {
           <div style={dashboard.navInner}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <div style={{ flexShrink: 0 }}>
-                <h1 style={{ 
-                  fontSize: '20px', 
-                  fontWeight: 'bold', 
-                  color: '#005b7c' 
-                }}>
-                  Loan Officer Platform
-                </h1>
+                <Image
+                  src="/images/logos/LoanOffW.png"
+                  alt="Loan Officer Platform"
+                  width={100}
+                  height={20}
+                  style={{
+                    height: 'auto',
+                    maxHeight: '20px',
+                    width: 'auto'
+                  }}
+                />
               </div>
             </div>
             <div style={dashboard.userInfo}>
@@ -205,20 +209,26 @@ const StaticHeader = memo(function StaticHeader() {
                   border: 'none',
                   cursor: 'pointer',
                   padding: '0',
-                  fontSize: '20px',
-                  fontWeight: 'bold',
-                  color: '#005b7c',
-                  textDecoration: 'none',
-                  transition: 'color 0.2s ease-in-out',
+                  transition: 'opacity 0.2s ease-in-out',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#008eab';
+                  e.currentTarget.style.opacity = '0.8'; /* Semi-transparent on hover */
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#005b7c';
+                  e.currentTarget.style.opacity = '1'; /* Back to full opacity */
                 }}
               >
-                Loan Officer Platform
+                <Image
+                  src="/images/logos/LoanOffW.png"
+                  alt="Loan Officer Platform"
+                  width={100}
+                  height={20}
+                  style={{
+                    height: 'auto',
+                    maxHeight: '20px',
+                    width: 'auto'
+                  }}
+                />
               </button>
             </div>
           </div>
@@ -231,18 +241,22 @@ const StaticHeader = memo(function StaticHeader() {
                 background: 'transparent',
                 border: 'none',
                 cursor: 'pointer',
-                padding: '8px',
-                borderRadius: '8px',
-                transition: 'background-color 0.2s ease-in-out',
+                padding: '0.5rem 1rem', /* Match breadcrumb button padding */
+                borderRadius: '0.75rem', /* 12px - match breadcrumb buttons */
+                transition: 'all 0.2s ease', /* Smooth transitions for all properties */
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#f3f4f6';
+                e.currentTarget.style.backgroundColor = '#0177a385'; /* Same hover color as breadcrumb */
+                e.currentTarget.style.transform = 'translateY(-1px)'; /* Lift effect */
+                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)'; /* Subtle shadow */
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.transform = 'translateY(0)'; /* Reset position */
+                e.currentTarget.style.boxShadow = 'none'; /* Remove shadow */
               }}
             >
               <div style={dashboard.userDetails}>
@@ -276,9 +290,25 @@ const StaticHeader = memo(function StaticHeader() {
             <button
               onClick={handleSignOut}
               style={{
-                ...dashboard.button.primary,
+                background: 'linear-gradient(135deg, #01bcc6 0%, #008eab 100%)', /* Same as Settings button */
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.75rem', /* 12px - matches breadcrumb buttons */
+                padding: '0.5rem 1rem',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 8px rgba(1, 188, 198, 0.3)', /* Same shadow as Settings button */
               }}
-              className="btn-primary-solid"
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(1, 188, 198, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(1, 188, 198, 0.3)';
+              }}
             >
               Sign Out
             </button>

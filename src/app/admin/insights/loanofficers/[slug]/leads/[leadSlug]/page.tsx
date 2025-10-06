@@ -6,7 +6,6 @@ import { RouteGuard } from '@/components/auth/RouteGuard';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/Button';
-import Breadcrumb, { BreadcrumbItem } from '@/components/ui/Breadcrumb';
 
 interface Lead {
   id: string;
@@ -54,11 +53,6 @@ export default function LeadDetailsPage() {
   const leadSlug = params.leadSlug as string;
 
   // Updated breadcrumb items for new structure
-  const breadcrumbItems: BreadcrumbItem[] = [
-    { label: 'Leads Insights', href: '/admin/insights', icon: 'home' },
-    { label: officerInfo ? `${officerInfo.firstName} ${officerInfo.lastName}` : 'Loading...', href: `/admin/insights/loanofficers/${officerSlug}/leads`, icon: 'user' },
-    { label: lead ? `${lead.firstName} ${lead.lastName}` : 'Loading...', icon: 'profile' }
-  ];
 
   useEffect(() => {
     if (accessToken && officerSlug && leadSlug) {
@@ -170,7 +164,7 @@ export default function LeadDetailsPage() {
 
   if (loading) {
     return (
-      <DashboardLayout title="Lead Details" subtitle="Loading lead details...">
+      <DashboardLayout>
         <div className="flex justify-center items-center min-h-[400px]">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mr-4"></div>
           Loading lead details...
@@ -181,7 +175,7 @@ export default function LeadDetailsPage() {
 
   if (error) {
     return (
-      <DashboardLayout title="Lead Details" subtitle="Error loading lead details">
+      <DashboardLayout>
         <div className="bg-red-50 border border-red-200 rounded-md p-4">
           <h3 className="text-lg font-semibold text-red-600 mb-2">Error Loading Lead Details</h3>
           <p className="text-red-600 mb-4">{error}</p>
@@ -195,7 +189,7 @@ export default function LeadDetailsPage() {
 
   if (!lead) {
     return (
-      <DashboardLayout title="Lead Details" subtitle="Lead not found">
+      <DashboardLayout>
         <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
           <h3 className="text-lg font-semibold text-yellow-600 mb-2">Lead Not Found</h3>
           <p className="text-yellow-600 mb-4">The requested lead could not be found.</p>
@@ -208,14 +202,12 @@ export default function LeadDetailsPage() {
   }
 
   return (
-      <DashboardLayout 
-        title={`${lead.firstName} ${lead.lastName}`}
-        subtitle="Lead Details"
-        showBackButton={true}
-      >
+      <DashboardLayout showBreadcrumb={true}
+        breadcrumbVariant="elevated"
+        breadcrumbSize="md">
       <div className="space-y-6">
         {/* Breadcrumb Navigation */}
-        <Breadcrumb items={breadcrumbItems} />
+        
 
         {/* Header with actions */}
         <div className="flex justify-between items-center">

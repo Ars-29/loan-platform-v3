@@ -11,6 +11,7 @@ export interface LoanOfficerInviteData {
   email: string;
   firstName: string;
   lastName: string;
+  nmlsNumber: string;
   companyId: string;
 }
 
@@ -22,10 +23,10 @@ export interface LoanOfficerInviteResult {
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, firstName, lastName, companyId }: LoanOfficerInviteData = await request.json();
+    const { email, firstName, lastName, nmlsNumber, companyId }: LoanOfficerInviteData = await request.json();
 
     // Validate required fields
-    if (!email || !firstName || !lastName || !companyId) {
+    if (!email || !firstName || !lastName || !nmlsNumber || !companyId) {
       return NextResponse.json({
         success: false,
         message: 'All fields are required.'
@@ -103,6 +104,7 @@ export async function POST(request: NextRequest) {
             email: email,
             first_name: firstName,
             last_name: lastName,
+            nmls_number: nmlsNumber,
             role: 'employee',
             is_active: false, // Will be activated when they accept the invite
             deactivated: false, // Reset deactivation status
@@ -122,6 +124,7 @@ export async function POST(request: NextRequest) {
             email: email,
             first_name: firstName,
             last_name: lastName,
+            nmls_number: nmlsNumber,
             role: 'employee',
             is_active: false, // Will be activated when they accept the invite
             invite_status: 'sent',

@@ -83,13 +83,13 @@ export default function LearningCenterTab({
   
   const defaultClasses = {
     button: {
-      primary: 'px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white',
-      secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium transition-all duration-200 border border-gray-300',
-      outline: 'border-2 px-6 py-3 rounded-lg font-medium transition-all duration-200',
-      ghost: 'px-4 py-2 rounded-lg font-medium transition-all duration-200'
+      primary: 'px-6 py-3 font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white',
+      secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 font-medium transition-all duration-200 border border-gray-300',
+      outline: 'border-2 px-6 py-3 font-medium transition-all duration-200',
+      ghost: 'px-4 py-2 font-medium transition-all duration-200'
     },
     card: {
-      container: 'bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200',
+      container: 'bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200',
       header: 'px-6 py-4 border-b border-gray-200',
       body: 'px-6 py-4',
       footer: 'px-6 py-4 border-t border-gray-200 bg-gray-50'
@@ -110,18 +110,18 @@ export default function LearningCenterTab({
     },
     icon: {
       primary: selectedTemplate === 'template2' 
-        ? 'w-12 h-12 rounded-lg flex items-center justify-center mb-4'
-        : 'w-12 h-12 rounded-lg flex items-center justify-center mb-4',
-      secondary: 'w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mb-3',
+        ? 'w-12 h-12 flex items-center justify-center mb-4'
+        : 'w-12 h-12 flex items-center justify-center mb-4',
+      secondary: 'w-10 h-10 bg-gray-100 flex items-center justify-center mb-3',
       small: selectedTemplate === 'template2'
-        ? 'w-8 h-8 rounded-lg flex items-center justify-center'
-        : 'w-8 h-8 rounded-lg flex items-center justify-center'
+        ? 'w-8 h-8 flex items-center justify-center'
+        : 'w-8 h-8 flex items-center justify-center'
     },
     status: {
-      success: 'text-green-600 bg-green-50 px-2 py-1 rounded text-sm',
-      warning: 'text-yellow-600 bg-yellow-50 px-2 py-1 rounded text-sm',
-      error: 'text-red-600 bg-red-50 px-2 py-1 rounded text-sm',
-      info: 'text-[#01bcc6] bg-[#01bcc6]/10 px-2 py-1 rounded text-sm'
+      success: 'text-green-600 bg-green-50 px-2 py-1 text-sm',
+      warning: 'text-yellow-600 bg-yellow-50 px-2 py-1 text-sm',
+      error: 'text-red-600 bg-red-50 px-2 py-1 text-sm',
+      info: 'text-[#01bcc6] bg-[#01bcc6]/10 px-2 py-1 text-sm'
     }
   };
   const templateClasses = templateData?.template?.classes;
@@ -251,8 +251,8 @@ button: {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="mb-8">
-        <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+      <div className="mb-8 mt-8">
+        <div className="flex space-x-1 bg-gray-100 p-1" style={{ borderRadius: `${layout.borderRadius}px` }}>
           {[
             { id: 'videos', label: 'Videos', icon: 'play' },
             { id: 'faq', label: 'FAQ', icon: 'help-circle' },
@@ -261,15 +261,18 @@ button: {
             <button
               key={section.id}
               onClick={() => setActiveSection(section.id as any)}
-              className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-md font-medium transition-all duration-200 ${
+              className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 font-medium transition-all duration-200 ${
                 activeSection === section.id
                   ? 'shadow-sm'
                   : 'text-gray-600 hover:text-gray-800 hover:bg-white'
               }`}
               style={activeSection === section.id ? {
                 backgroundColor: colors.primary,
-                color: colors.background
-              } : {}}
+                color: colors.background,
+                borderRadius: `${layout.borderRadius}px`
+              } : {
+                borderRadius: `${layout.borderRadius}px`
+              }}
             >
               <Icon name={section.icon as any} size={20} />
               <span>{section.label}</span>
@@ -285,7 +288,7 @@ button: {
             <button
               key={category.id}
               onClick={() => setSelectedCategory(category.id)}
-              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+              className={`px-4 py-2 font-medium transition-all duration-200 ${
                 selectedCategory === category.id
                   ? 'border'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -293,8 +296,11 @@ button: {
               style={selectedCategory === category.id ? {
                 backgroundColor: `${colors.primary}20`,
                 color: colors.primary,
-                borderColor: colors.primary
-              } : {}}
+                borderColor: colors.primary,
+                borderRadius: `${layout.borderRadius}px`
+              } : {
+                borderRadius: `${layout.borderRadius}px`
+              }}
             >
               {category.name}
             </button>
@@ -306,13 +312,13 @@ button: {
       {activeSection === 'videos' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredVideos.map((video) => (
-            <div key={video.id} className={`${classes.card.container}`}>
+            <div key={video.id} className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
               <div className={`${classes.card.body}`}>
                 <div className="relative mb-4">
-                  <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
+                  <div className="aspect-video bg-gray-200 flex items-center justify-center" style={{ borderRadius: `${layout.borderRadius}px` }}>
                     <Icon name="play" size={48} color={colors.textSecondary} />
                   </div>
-                  <div className={`absolute bottom-2 right-2 ${classes.status.info}`}>
+                  <div className={`absolute bottom-2 right-2 ${classes.status.info}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
                     {video.duration}
                   </div>
                 </div>
@@ -323,11 +329,19 @@ button: {
                   {video.description}
                 </p>
                 <button 
-                  className={`${classes.button.primary} w-full flex items-center justify-center space-x-2`}
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors"
                   style={{
                     backgroundColor: colors.primary,
                     color: colors.background,
-                    borderColor: colors.primary
+                    borderColor: colors.primary,
+                    borderRadius: `${layout.borderRadius}px`,
+                    border: 'none'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.secondary;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.primary;
                   }}
                 >
                   <Icon name="play" size={16} color={colors.background} />
@@ -342,7 +356,7 @@ button: {
       {activeSection === 'faq' && (
         <div className="space-y-4">
           {filteredFAQs.map((faq) => (
-            <div key={faq.id} className={`${classes.card.container}`}>
+            <div key={faq.id} className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
               <div className={`${classes.card.body}`}>
                 <button
                   onClick={() => setExpandedFAQ(expandedFAQ === faq.id ? null : faq.id)}
@@ -372,7 +386,7 @@ button: {
 
       {activeSection === 'guides' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className={`${classes.card.container}`}>
+          <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
             <div className={`${classes.card.body}`}>
               <div className={`${classes.icon.primary}`}>
                   <Icon name="book" size={24} color={colors.primary} />
@@ -384,11 +398,18 @@ button: {
                 Complete step-by-step guide for first-time home buyers
               </p>
               <button 
-                className={`${classes.button.outline} w-full`}
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors border-2"
                 style={{
                   backgroundColor: colors.background,
                   borderColor: colors.primary,
-                  color: colors.primary
+                  color: colors.primary,
+                  borderRadius: `${layout.borderRadius}px`
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary + '10';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.background;
                 }}
               >
                 Download Guide
@@ -396,7 +417,7 @@ button: {
             </div>
           </div>
 
-          <div className={`${classes.card.container}`}>
+          <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
             <div className={`${classes.card.body}`}>
               <div className={`${classes.icon.primary}`}>
                   <Icon name="calculator" size={24} color={colors.primary} />
@@ -408,11 +429,18 @@ button: {
                 Learn how to calculate your monthly payments and affordability
               </p>
               <button 
-                className={`${classes.button.outline} w-full`}
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors border-2"
                 style={{
                   backgroundColor: colors.background,
                   borderColor: colors.primary,
-                  color: colors.primary
+                  color: colors.primary,
+                  borderRadius: `${layout.borderRadius}px`
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary + '10';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.background;
                 }}
               >
                 Download Guide
@@ -420,7 +448,7 @@ button: {
             </div>
           </div>
 
-          <div className={`${classes.card.container}`}>
+          <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
             <div className={`${classes.card.body}`}>
               <div className={`${classes.icon.primary}`}>
                 <Icon name="shield" size={24} color={colors.primary} />
@@ -432,11 +460,18 @@ button: {
                 Tips and strategies to improve your credit score
               </p>
               <button 
-                className={`${classes.button.outline} w-full`}
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors border-2"
                 style={{
                   backgroundColor: colors.background,
                   borderColor: colors.primary,
-                  color: colors.primary
+                  color: colors.primary,
+                  borderRadius: `${layout.borderRadius}px`
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary + '10';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.background;
                 }}
               >
                 Download Guide
@@ -444,7 +479,7 @@ button: {
             </div>
           </div>
 
-          <div className={`${classes.card.container}`}>
+          <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
             <div className={`${classes.card.body}`}>
               <div className={`${classes.icon.primary}`}>
                   <Icon name="fileText" size={24} color={colors.primary} />
@@ -456,11 +491,18 @@ button: {
                 Complete list of documents needed for your mortgage application
               </p>
               <button 
-                className={`${classes.button.outline} w-full`}
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors border-2"
                 style={{
                   backgroundColor: colors.background,
                   borderColor: colors.primary,
-                  color: colors.primary
+                  color: colors.primary,
+                  borderRadius: `${layout.borderRadius}px`
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary + '10';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.background;
                 }}
               >
                 Download Guide
@@ -471,7 +513,7 @@ button: {
       )}
 
       {/* Call to Action */}
-      <div className={`${classes.card.container} mt-8`}>
+      <div className={`${classes.card.container} mt-6`} style={{ borderRadius: `${layout.borderRadius}px` }}>
         <div className={`${classes.card.body} text-center`}>
           <h3 className={`${classes.heading.h4} mb-2`}>
             Need Personalized Help?
@@ -481,22 +523,37 @@ button: {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button 
-              className={`${classes.button.primary} flex items-center justify-center space-x-2`}
+              className="flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors"
               style={{
                 backgroundColor: colors.primary,
                 color: colors.background,
-                borderColor: colors.primary
+                borderColor: colors.primary,
+                borderRadius: `${layout.borderRadius}px`,
+                border: 'none'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = colors.secondary;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = colors.primary;
               }}
             >
               <Icon name="phone" size={20} color={colors.background} />
               <span>Call Now</span>
             </button>
             <button 
-              className={`${classes.button.outline} flex items-center justify-center space-x-2`}
+              className="flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors border-2"
               style={{
                 backgroundColor: colors.background,
                 borderColor: colors.primary,
-                color: colors.primary
+                color: colors.primary,
+                borderRadius: `${layout.borderRadius}px`
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = colors.primary + '10';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = colors.background;
               }}
             >
               <Icon name="mail" size={20} color={colors.primary} />

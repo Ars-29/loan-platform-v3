@@ -9,6 +9,7 @@ import SimpleTrendChart from './charts/SimpleTrendChart';
 import CleanBarChart from './charts/CleanBarChart';
 import DateRangeFilter from './filters/DateRangeFilter';
 import { TableLoadingState } from '@/components/ui/LoadingState';
+import { Button } from '@/components/ui/Button';
 
 interface ConversionStatsData {
   totalLeads: number;
@@ -56,14 +57,18 @@ interface ConversionStatsDashboardProps {
   companyId?: string;
   isSuperAdmin?: boolean;
   selectedCompanyName?: string;
-  onBackToCompanies?: () => void;
+  customBreadcrumbItems?: Array<{
+    label: string;
+    href?: string;
+    icon?: string;
+    isLoading?: boolean;
+  }>;
 }
 
 const ConversionStatsDashboard: React.FC<ConversionStatsDashboardProps> = ({
   companyId,
   isSuperAdmin = false,
-  selectedCompanyName,
-  onBackToCompanies
+  selectedCompanyName
 }) => {
   const { accessToken } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -155,12 +160,14 @@ const ConversionStatsDashboard: React.FC<ConversionStatsDashboardProps> = ({
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-4">
         <p className="text-red-800">{error}</p>
-        <button
+        <Button
+          variant="danger"
+          size="sm"
           onClick={fetchData}
-          className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          className="mt-2"
         >
           Retry
-        </button>
+        </Button>
       </div>
     );
   }
@@ -187,18 +194,7 @@ const ConversionStatsDashboard: React.FC<ConversionStatsDashboardProps> = ({
       {/* Header with Filters */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          {isSuperAdmin && onBackToCompanies && (
-            <button
-              onClick={onBackToCompanies}
-              className="mb-2 px-4 py-2 text-sm font-medium text-white bg-[#005b7c] hover:bg-[#01bcc6] rounded-lg border-0 flex items-center transition-all duration-200"
-            >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back to Companies
-            </button>
-          )}
-          
+          {/* Back to Companies button removed - use breadcrumb navigation instead */}
         </div>
         <div className="flex flex-wrap gap-3">
           <DateRangeFilter
@@ -210,56 +206,56 @@ const ConversionStatsDashboard: React.FC<ConversionStatsDashboardProps> = ({
 
       {/* Key Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="p-6 rounded-lg shadow-sm border border-gray-200" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)' }}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Overall Conversion</p>
-              <p className="text-2xl font-bold text-[#01bcc6]">{conversionStats.conversionRate.toFixed(3)}%</p>
+              <p className="text-sm font-medium text-white">Overall Conversion</p>
+              <p className="text-2xl font-bold text-white">{conversionStats.conversionRate.toFixed(3)}%</p>
             </div>
-            <div className="w-12 h-12 bg-[#01bcc6]/10 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-[#01bcc6]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(235, 219, 199, 0.2)' }}>
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="p-6 rounded-lg shadow-sm border border-gray-200" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)' }}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Closed Deals</p>
-              <p className="text-2xl font-bold text-[#008eab]">{conversionStats.closings.toLocaleString()}</p>
+              <p className="text-sm font-medium text-white">Closed Deals</p>
+              <p className="text-2xl font-bold text-white">{conversionStats.closings.toLocaleString()}</p>
             </div>
-            <div className="w-12 h-12 bg-[#008eab]/10 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-[#008eab]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(235, 219, 199, 0.2)' }}>
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="p-6 rounded-lg shadow-sm border border-gray-200" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)' }}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Avg Loan Amount</p>
-              <p className="text-2xl font-bold text-[#005b7c]">${metrics.avgLoanAmount.toLocaleString()}</p>
+              <p className="text-sm font-medium text-white">Avg Loan Amount</p>
+              <p className="text-2xl font-bold text-white">${metrics.avgLoanAmount.toLocaleString()}</p>
             </div>
-            <div className="w-12 h-12 bg-[#005b7c]/10 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-[#005b7c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(235, 219, 199, 0.2)' }}>
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="p-6 rounded-lg shadow-sm border border-gray-200" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)' }}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-              <p className="text-2xl font-bold text-[#008eab]">${conversionStats.totalCommission.toLocaleString()}</p>
+              <p className="text-sm font-medium text-white">Total Revenue</p>
+              <p className="text-2xl font-bold text-white">${conversionStats.totalCommission.toLocaleString()}</p>
             </div>
-            <div className="w-12 h-12 bg-[#008eab]/10 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-[#008eab]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(235, 219, 199, 0.2)' }}>
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
               </svg>
             </div>
@@ -269,21 +265,21 @@ const ConversionStatsDashboard: React.FC<ConversionStatsDashboardProps> = ({
 
       {/* Conversion Rate Breakdown */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="text-center">
             <p className="text-sm font-medium text-gray-600">Lead → Application</p>
             <p className="text-3xl font-bold text-[#005b7c]">{metrics.leadToApplicationRate.toFixed(1)}%</p>
             <p className="text-xs text-gray-500 mt-1">{conversionStats.applications} applications</p>
           </div>
         </div>
-        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="text-center">
             <p className="text-sm font-medium text-gray-600">Application → Approval</p>
             <p className="text-3xl font-bold text-[#008eab]">{metrics.applicationToApprovalRate.toFixed(1)}%</p>
             <p className="text-xs text-gray-500 mt-1">{conversionStats.approvals} approvals</p>
           </div>
         </div>
-        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="text-center">
             <p className="text-sm font-medium text-gray-600">Approval → Closing</p>
             <p className="text-3xl font-bold text-[#01bcc6]">{metrics.approvalToClosingRate.toFixed(1)}%</p>
@@ -358,7 +354,7 @@ const ConversionStatsDashboard: React.FC<ConversionStatsDashboardProps> = ({
       />
 
       {/* Metric Selector for Officer Performance */}
-      <div className="bg-[#F7F1E9]/30 p-4 rounded-lg shadow-sm border border-gray-200">
+      <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
         <h3 className="text-sm font-semibold text-gray-900 mb-3">Performance Metric</h3>
         <div className="flex flex-wrap gap-2">
           {[
@@ -410,23 +406,27 @@ const ConversionStatsDashboard: React.FC<ConversionStatsDashboardProps> = ({
               </div>
               {!isSuperAdmin && (
                 <div className="flex space-x-2">
-                  <button
+                  <Button
+                    variant="primary"
+                    size="sm"
                     onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                     disabled={currentPage === 1 || paginationLoading}
-                    className="px-3 py-1 text-sm bg-[#01bcc6] text-white rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#008eab] disabled:bg-gray-300 disabled:text-gray-500"
+                    className="bg-[#01bcc6] hover:bg-[#008eab] text-white"
                   >
                     {paginationLoading ? '...' : 'Previous'}
-                  </button>
+                  </Button>
                   <span className="px-3 py-1 text-sm bg-[#01bcc6]/10 text-[#01bcc6] rounded">
                     {currentPage} of {totalPages}
                   </span>
-                  <button
+                  <Button
+                    variant="primary"
+                    size="sm"
                     onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                     disabled={currentPage === totalPages || paginationLoading}
-                    className="px-3 py-1 text-sm bg-[#01bcc6] text-white rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#008eab] disabled:bg-gray-300 disabled:text-gray-500"
+                    className="bg-[#01bcc6] hover:bg-[#008eab] text-white"
                   >
                     {paginationLoading ? '...' : 'Next'}
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
@@ -436,7 +436,7 @@ const ConversionStatsDashboard: React.FC<ConversionStatsDashboardProps> = ({
 
       {/* Loan Officer Comparison (Super Admin only) */}
       {isSuperAdmin && companyComparison && (
-        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Loan Officer Comparison</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -449,7 +449,7 @@ const ConversionStatsDashboard: React.FC<ConversionStatsDashboardProps> = ({
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Revenue</th>
                 </tr>
               </thead>
-              <tbody className="bg-[#F7F1E9]/30 divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-gray-200">
                 {companyComparison.slice(0, 10).map((officer) => (
                   <tr key={`${officer.companyId}-${officer.officerId}`}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">

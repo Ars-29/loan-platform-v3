@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
 
     console.log(`🔄 Fetching company details for: ${companyId}`);
 
-    // Get company basic info
+    // Get company comprehensive info including new profile fields
     const { data: companyData, error: companyError } = await supabase
       .from('companies')
       .select(`
@@ -36,7 +36,46 @@ export async function GET(req: NextRequest) {
         is_active,
         deactivated,
         created_at,
-        updated_at
+        updated_at,
+        logo,
+        website,
+        license_number,
+        address,
+        phone,
+        company_tagline,
+        company_description,
+        company_nmls_number,
+        company_established_year,
+        company_team_size,
+        company_specialties,
+        company_awards,
+        company_testimonials,
+        company_social_media,
+        company_branding,
+        company_contact_info,
+        company_business_hours,
+        company_service_areas,
+        company_languages,
+        company_certifications,
+        company_insurance_info,
+        company_financial_info,
+        company_marketing_info,
+        company_privacy_settings,
+        company_seo_settings,
+        company_analytics_settings,
+        company_integration_settings,
+        company_notification_settings,
+        company_backup_settings,
+        company_security_settings,
+        company_compliance_settings,
+        company_custom_fields,
+        company_metadata,
+        company_version,
+        company_last_updated_by,
+        company_approval_status,
+        company_approval_notes,
+        company_approval_date,
+        company_approval_by
       `)
       .eq('id', companyId)
       .single();

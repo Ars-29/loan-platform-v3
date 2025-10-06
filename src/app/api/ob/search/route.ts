@@ -218,6 +218,10 @@ export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as SearchBody;
     
+    console.log('🔍 OB API: Request received');
+    console.log('🔍 OB API: Body keys:', Object.keys(body));
+    console.log('🔍 OB API: Loan terms in body:', body.loanTerms);
+    
     if (DEBUG_OB) {
       console.log('=== INCOMING REQUEST TO API ROUTE ===');
       console.log('Request URL:', request.url);
@@ -255,8 +259,8 @@ export async function POST(request: NextRequest) {
       loanInformation: {
         loanPurpose: body.loanPurpose || "Purchase",
         lienType: body.lienType || "First",
-        amortizationTypes: body.amortizationTypes || ["Fixed"],
-        armFixedTerms: body.armFixedTerms || ["FiveYear"],
+        amortizationTypes: body.amortizationTypes || ["Fixed", "ARM"],
+        armFixedTerms: body.armFixedTerms || ["ThreeYear", "FiveYear", "SevenYear", "TenYear"],
         automatedUnderwritingSystem: "NotSpecified",
         borrowerPaidMI: body.borrowerPaidMI || "Yes",
         buydown: "None",
@@ -271,7 +275,7 @@ export async function POST(request: NextRequest) {
         secondLienAmount: 0,
         helocDrawnAmount: 0,
         helocLineAmount: 0,
-        loanTerms: body.loanTerms || ["ThirtyYear", "TwentyFiveYear"],
+        loanTerms: body.loanTerms || ["ThirtyYear", "TwentyYear", "TwentyFiveYear", "FifteenYear", "TenYear"],
         loanType: body.loanType || "Conventional",
         prepaymentPenalty: "None",
         exemptFromVAFundingFee: false,
@@ -319,7 +323,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Call Optimal Blue Best Execution Search API
+    console.log('🔍 OB API: About to call Optimal Blue API');
+    console.log('🔍 OB API: Loan terms being sent:', apiRequestBody.loanInformation.loanTerms);
+    console.log('🔍 OB API: ARM terms being sent:', apiRequestBody.loanInformation.armFixedTerms);
     const searchResponse = await postBestExecutionSearch(apiRequestBody);
+    console.log('🔍 OB API: Response received:', searchResponse);
     
     if (DEBUG_OB) {
       console.log('=== OPTIMAL BLUE API RESPONSE DEBUG ===');
@@ -382,10 +390,15 @@ export async function POST(request: NextRequest) {
     );
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unexpected error";
+    console.error('❌ OB API Error:', error);
+    console.error('❌ Error message:', message);
+    console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    
     return new Response(
       JSON.stringify({ 
         success: false, 
         message,
+        error: error instanceof Error ? error.message : String(error),
         timestamp: new Date().toISOString()
       }),
       { status: 500, headers: { "Content-Type": "application/json" } }

@@ -30,7 +30,7 @@ export type TabId =
 // Loading component for heavy tabs
 const TabLoadingSkeleton = React.memo(({ selectedTemplate }: { selectedTemplate: 'template1' | 'template2' }) => {
   return (
-    <div className={`bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 min-h-[600px] flex flex-col gap-4`}>
+    <div className={`bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 min-h-[600px] flex flex-col gap-4`}>
       <div className={`h-8 bg-gray-200 rounded-lg animate-pulse`} />
       <div className={`h-24 bg-gray-200 rounded-lg animate-pulse`} />
       <div className={`h-16 bg-gray-200 rounded-lg animate-pulse`} />
@@ -66,6 +66,8 @@ interface LandingPageTabsProps {
   // User context props for lead submission
   userId?: string;
   companyId?: string;
+  // Layout props
+  hideTabNavigation?: boolean; // Hide the tab navigation (for sidebar layout)
 }
 
 const tabs: Tab[] = [
@@ -124,7 +126,9 @@ export default function LandingPageTabs({
   publicTemplateData,
   // User context props
   userId,
-  companyId
+  companyId,
+  // Layout props
+  hideTabNavigation = false
 }: LandingPageTabsProps) {
   const { user } = useAuth();
   const { getTemplateSync } = useEfficientTemplates();
@@ -189,16 +193,16 @@ export default function LandingPageTabs({
   
   const classes = templateData?.template?.classes || {
     button: {
-      primary: 'px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white',
-      secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium transition-all duration-200 border border-gray-300'
+      primary: 'px-6 py-3 font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white',
+      secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 font-medium transition-all duration-200 border border-gray-300'
     },
     card: {
-      container: 'bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200'
+      container: 'bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200'
     },
     navigation: {
       container: 'flex flex-wrap gap-2 p-4',
       tab: {
-        base: 'px-4 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer',
+        base: 'px-4 py-2 font-medium transition-all duration-200 cursor-pointer',
         inactive: 'text-gray-600 hover:text-gray-800 hover:bg-gray-100',
         active: 'text-white shadow-md',
         hover: 'hover:bg-opacity-10'
@@ -213,6 +217,8 @@ export default function LandingPageTabs({
           selectedTemplate={selectedTemplate} 
           isPublic={isPublic}
           publicTemplateData={publicTemplateData}
+          userId={userId}
+          companyId={companyId}
         />;
       
       case 'get-custom-rate':
@@ -271,6 +277,8 @@ export default function LandingPageTabs({
           selectedTemplate={selectedTemplate} 
           isPublic={isPublic}
           publicTemplateData={publicTemplateData}
+          userId={userId}
+          companyId={companyId}
         />;
     }
   };
@@ -282,27 +290,32 @@ export default function LandingPageTabs({
         fontFamily: typography.fontFamily
       }}
     >
-      {/* Modern Tab Navigation */}
-      <div className="relative">
+      {/* Modern Tab Navigation - Only show if not hidden */}
+      {!hideTabNavigation && (
+        <div className="relative">
         {/* Enhanced background using template colors */}
         <div 
-          className="absolute inset-0 rounded-t-2xl shadow-inner max-w-7xl mx-auto"
+          className="absolute inset-0 shadow-inner max-w-7xl mx-auto"
           style={{
             background: `linear-gradient(to right, ${colors.primary}10, ${colors.primary}05, ${colors.primary}10)`,
             paddingLeft: '1rem',
-            paddingRight: '1rem'
+            paddingRight: '1rem',
+            borderTopLeftRadius: `${layout.borderRadius}px`,
+            borderTopRightRadius: `${layout.borderRadius}px`
           }}
         />
         
         {/* Subtle pattern overlay */}
         <div 
-          className="absolute inset-0 opacity-5 rounded-t-2xl max-w-7xl mx-auto" 
+          className="absolute inset-0 opacity-5 max-w-7xl mx-auto" 
           style={{
             backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
             backgroundSize: '20px 20px',
             color: colors.border,
             paddingLeft: '1rem',
-            paddingRight: '1rem'
+            paddingRight: '1rem',
+            borderTopLeftRadius: `${layout.borderRadius}px`,
+            borderTopRightRadius: `${layout.borderRadius}px`
           }}
         />
         
@@ -410,7 +423,7 @@ export default function LandingPageTabs({
                   
                   {/* Subtle border glow for active tab */}
                   {isActive && (
-                    <div className="absolute inset-0 rounded-xl border-2 animate-pulse" style={{ borderColor: `${colors.primary}50` }} />
+                    <div className="absolute inset-0 border-2 animate-pulse" style={{ borderColor: `${colors.primary}50` }} />
                   )}
                 </button>
               );
@@ -420,18 +433,21 @@ export default function LandingPageTabs({
         </div>
         
         
-      </div>
+        </div>
+      )}
 
       {/* Tab Content */}
       <div className="max-w-7xl mx-auto">
         <div 
-          className="bg-white rounded-b-2xl shadow-xl border border-t-0 overflow-hidden"
+          className={`bg-white shadow-xl border overflow-hidden ${hideTabNavigation ? 'rounded-2xl' : 'rounded-b-2xl border-t-0'}`}
           style={{ 
             backgroundColor: colors.background,
             borderColor: colors.border,
-            borderRadius: `0 0 ${layout.borderRadius * 2}px ${layout.borderRadius * 2}px`,
+            borderRadius: hideTabNavigation 
+              ? `${layout.borderRadius}px` 
+              : `0 0 ${layout.borderRadius}px ${layout.borderRadius}px`,
             
-            minHeight: '600px',
+            minHeight: '800px',
             boxShadow: `0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)`
           }}
         >

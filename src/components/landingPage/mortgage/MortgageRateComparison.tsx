@@ -38,6 +38,10 @@ interface SearchFormData {
   baseLoanAmount: number;
   loanLevelDebtToIncomeRatio: number;
   totalMonthlyQualifyingIncome: number;
+  // ARM Loan Configuration
+  amortizationTypes?: string[];
+  armFixedTerms?: string[];
+  loanTerms?: string[];
 }
 
 interface RateProduct {
@@ -287,9 +291,9 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
           if (formData.creditScore === '640+') return 750; // Legacy fallback
           return 750; // default fallback
         })(),
-        loanTerms: [formData.loanTerm || "ThirtyYear"],
-        amortizationTypes: ["Fixed"],
-        armFixedTerms: ["FiveYear"]
+        loanTerms: ["ThirtyYear", "TwentyYear", "TwentyFiveYear", "FifteenYear", "TenYear"],
+        amortizationTypes: formData.amortizationTypes || ["Fixed", "ARM"],
+        armFixedTerms: formData.armFixedTerms || ["ThreeYear", "FiveYear", "SevenYear", "TenYear"]
       };
 
       console.log('=== API REQUEST DEBUG ===');
@@ -485,10 +489,17 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
     textSecondary: '#6b7280',
     border: '#e5e7eb'
   };
+  
+  const layout = templateData?.template?.layout || {
+    alignment: 'center',
+    spacing: 18,
+    borderRadius: 8,
+    padding: { small: 8, medium: 16, large: 24, xlarge: 32 }
+  };
   const unifiedStyles = {
     button: {
-      primary: templateData?.template?.classes?.button?.primary || 'px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white',
-      secondary: templateData?.template?.classes?.button?.secondary || 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium transition-all duration-200 border border-gray-300'
+      primary: templateData?.template?.classes?.button?.primary || 'px-6 py-3 font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white',
+      secondary: templateData?.template?.classes?.button?.secondary || 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 font-medium transition-all duration-200 border border-gray-300'
     }
   };
   
@@ -516,17 +527,35 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
     if (buttonType === 'primary') {
       return {
         variant: 'primary' as const,
-        className: `${unifiedStyles.button.primary} h-16 text-base px-8 py-4 text-lg font-semibold`,
-        style: { backgroundColor: colors.primary }
+        className: 'flex items-center space-x-2 px-6 py-4 text-base font-medium transition-colors',
+        style: { 
+          backgroundColor: colors.primary,
+          color: colors.background,
+          borderRadius: `${layout.borderRadius}px`,
+          border: 'none'
+        },
+        onMouseEnter: (e: React.MouseEvent<HTMLButtonElement>) => {
+          e.currentTarget.style.backgroundColor = colors.secondary;
+        },
+        onMouseLeave: (e: React.MouseEvent<HTMLButtonElement>) => {
+          e.currentTarget.style.backgroundColor = colors.primary;
+        }
       };
     } else {
       return {
         variant: 'secondary' as const,
-        className: `${unifiedStyles.button.secondary} h-16 text-base px-8 py-4 text-lg font-semibold`,
+        className: 'flex items-center space-x-2 px-6 py-4 text-base font-medium transition-colors',
         style: { 
-          backgroundColor: colors.background,
-          borderColor: colors.primary,
-          color: colors.primary
+          backgroundColor: colors.primary,
+          color: colors.background,
+          borderRadius: `${layout.borderRadius}px`,
+          border: 'none'
+        },
+        onMouseEnter: (e: React.MouseEvent<HTMLButtonElement>) => {
+          e.currentTarget.style.backgroundColor = colors.secondary;
+        },
+        onMouseLeave: (e: React.MouseEvent<HTMLButtonElement>) => {
+          e.currentTarget.style.backgroundColor = colors.primary;
         }
       };
     }
@@ -537,7 +566,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
     switch (currentStep) {
       case 'landing':
         return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="bg-white shadow-sm border border-gray-200 p-6 mb-6" style={{ borderRadius: `${layout.borderRadius}px` }}>
             <h3 className="text-xl font-semibold text-black mb-2 text-center">Select Your Loan Purpose</h3>
             <p className="mb-6 text-center" style={{ color: colors.text }}>Choose the option that best describes your situation</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -545,15 +574,19 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
                 onClick={() => handleQuestionnaireStepChange('purchase-credit-score', { loanPurpose: 'Purchase' })}
                 {...getTemplateButtonStyles('secondary')}
               >
-                {React.createElement(icons.homePurchase, { size: 20 })}
-                Home Purchase
+                <div className="flex items-center space-x-3">
+                  {React.createElement(icons.homePurchase, { size: 20, color: colors.background })}
+                  <span>Home Purchase</span>
+                </div>
               </Button>
               <Button 
                 onClick={() => handleQuestionnaireStepChange('refinance-veteran', { loanPurpose: 'Refinance' })}
                 {...getTemplateButtonStyles('secondary')}
               >
-                {React.createElement(icons.homeRefinance, { size: 20 })}
-                Home Refinance
+                <div className="flex items-center space-x-3">
+                  {React.createElement(icons.homeRefinance, { size: 20, color: colors.background })}
+                  <span>Home Refinance</span>
+                </div>
               </Button>
             </div>
           </div>
@@ -561,7 +594,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
 
       case 'purchase-credit-score':
         return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="bg-white shadow-sm border border-gray-200 p-6 mb-6" style={{ borderRadius: `${layout.borderRadius}px` }}>
             <h3 className="text-xl font-semibold text-black mb-2 text-center">What's Your Credit Score?</h3>
             <p className="mb-6 text-center" style={{ color: colors.text }}>Your credit score helps determine which loan options are available to you</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -569,29 +602,37 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
                 onClick={() => handleQuestionnaireStepChange('fha-loan', { creditScore: 'Below 580', loanType: 'FHA' })}
                 {...getTemplateButtonStyles('secondary')}
               >
-                {React.createElement(icons.rates, { size: 20 })}
-                Below 580
+                <div className="flex items-center space-x-3">
+                  {React.createElement(icons.rates, { size: 20, color: colors.background })}
+                  <span>Below 580</span>
+                </div>
               </Button>
               <Button 
                 onClick={() => handleQuestionnaireStepChange('purchase-down-payment-low', { creditScore: '580-619' })}
                 {...getTemplateButtonStyles('secondary')}
               >
-                {React.createElement(icons.calculators, { size: 20 })}
-                580-619
+                <div className="flex items-center space-x-3">
+                  {React.createElement(icons.calculators, { size: 20, color: colors.background })}
+                  <span>580-619</span>
+                </div>
               </Button>
               <Button 
                 onClick={() => handleQuestionnaireStepChange('purchase-down-payment-mid', { creditScore: '620-639' })}
                 {...getTemplateButtonStyles('secondary')}
               >
-                {React.createElement(icons.trendingUp, { size: 20 })}
-                620-639
+                <div className="flex items-center space-x-3">
+                  {React.createElement(icons.trendingUp, { size: 20, color: colors.background })}
+                  <span>620-639</span>
+                </div>
               </Button>
               <Button 
                 onClick={() => handleQuestionnaireStepChange('purchase-military', { creditScore: '640+' })}
                 {...getTemplateButtonStyles('secondary')}
               >
-                {React.createElement(icons.star, { size: 20 })}
-                640 or higher
+                <div className="flex items-center space-x-3">
+                  {React.createElement(icons.star, { size: 20, color: colors.background })}
+                  <span>640 or higher</span>
+                </div>
               </Button>
             </div>
           </div>
@@ -599,7 +640,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
 
       case 'purchase-military':
         return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="bg-white shadow-sm border border-gray-200 p-6 mb-6" style={{ borderRadius: `${layout.borderRadius}px` }}>
             <h3 className="text-xl font-semibold text-black mb-2 text-center">Are You a Veteran or Active Military?</h3>
             <p className="mb-6 text-center" style={{ color: colors.text }}>VA loans offer excellent benefits including no down payment requirements</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -607,15 +648,19 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
                 onClick={() => handleQuestionnaireComplete({ loanType: 'VA', vaFirstTimeUse: true })}
                 {...getTemplateButtonStyles('secondary')}
               >
-                {React.createElement(icons.star, { size: 20 })}
-                Yes
+                <div className="flex items-center space-x-3">
+                  {React.createElement(icons.star, { size: 20, color: colors.background })}
+                  <span>Yes</span>
+                </div>
               </Button>
               <Button 
                 onClick={() => handleQuestionnaireStepChange('purchase-rural', { loanType: 'Conventional' })}
                 {...getTemplateButtonStyles('secondary')}
               >
-                {React.createElement(icons.cancel, { size: 20 })}
-                No
+                <div className="flex items-center space-x-3">
+                  {React.createElement(icons.cancel, { size: 20, color: colors.background })}
+                  <span>No</span>
+                </div>
               </Button>
             </div>
           </div>
@@ -623,17 +668,16 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
 
       case 'purchase-rural':
         return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="bg-white shadow-sm border border-gray-200 p-6 mb-6" style={{ borderRadius: `${layout.borderRadius}px` }}>
             <h3 className="text-xl font-semibold text-black mb-2 text-center">Is the Property in a Rural Area?</h3>
             <p className="mb-6 text-center" style={{ color: colors.text }}>USDA loans are available for properties in eligible rural areas</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Button 
                 onClick={() => handleQuestionnaireComplete({ loanType: 'USDA' })}
-                variant="secondary"
-                size="lg"
-                className="h-16 text-base"
+                {...getTemplateButtonStyles('secondary')}
               >
-                🌾 Yes
+                {React.createElement(icons.check, { size: 20 })}
+                <span>Yes</span>
               </Button>
               <Button 
                 onClick={() => handleQuestionnaireComplete({ loanType: 'Conventional' })}
@@ -648,7 +692,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
 
       case 'purchase-down-payment-low':
         return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="bg-white shadow-sm border border-gray-200 p-6 mb-6" style={{ borderRadius: `${layout.borderRadius}px` }}>
             <h3 className="text-xl font-semibold text-black mb-2 text-center">How Much Can You Put Down?</h3>
             <p className="mb-6 text-center" style={{ color: colors.text }}>Your down payment amount affects your loan options and monthly payments</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -656,15 +700,19 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
                 onClick={() => handleQuestionnaireComplete({ loanType: 'FHA' })}
                 {...getTemplateButtonStyles('secondary')}
               >
-                {React.createElement(icons.calculators, { size: 20 })}
-                Less than 3.5%
+                <div className="flex items-center space-x-3">
+                  {React.createElement(icons.calculators, { size: 20, color: colors.background })}
+                  <span>Less than 3.5%</span>
+                </div>
               </Button>
               <Button 
                 onClick={() => handleQuestionnaireComplete({ loanType: 'Conventional', dpa: true })}
                 {...getTemplateButtonStyles('secondary')}
               >
-                {React.createElement(icons.calculators, { size: 20 })}
-                3.5% or more
+                <div className="flex items-center space-x-3">
+                  {React.createElement(icons.calculators, { size: 20, color: colors.background })}
+                  <span>3.5% or more</span>
+                </div>
               </Button>
             </div>
           </div>
@@ -672,7 +720,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
 
       case 'purchase-down-payment-mid':
         return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="bg-white shadow-sm border border-gray-200 p-6 mb-6" style={{ borderRadius: `${layout.borderRadius}px` }}>
             <h3 className="text-xl font-semibold text-black mb-2 text-center">How Much Can You Put Down?</h3>
             <p className="mb-6 text-center" style={{ color: colors.text }}>Your down payment amount affects your loan options and monthly payments</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -680,22 +728,28 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
                 onClick={() => handleQuestionnaireComplete({ loanType: 'Conventional', dpa: true })}
                 {...getTemplateButtonStyles('secondary')}
               >
-                {React.createElement(icons.calculators, { size: 20 })}
-                Less than 3%
+                <div className="flex items-center space-x-3">
+                  {React.createElement(icons.calculators, { size: 20, color: colors.background })}
+                  <span>Less than 3%</span>
+                </div>
               </Button>
               <Button 
                 onClick={() => handleQuestionnaireComplete({ loanType: 'FHA' })}
                 {...getTemplateButtonStyles('secondary')}
               >
-                {React.createElement(icons.calculators, { size: 20 })}
-                3-5%
+                <div className="flex items-center space-x-3">
+                  {React.createElement(icons.calculators, { size: 20, color: colors.background })}
+                  <span>3-5%</span>
+                </div>
               </Button>
               <Button 
                 onClick={() => handleQuestionnaireComplete({ loanType: 'Conventional' })}
                 {...getTemplateButtonStyles('secondary')}
               >
-                {React.createElement(icons.calculators, { size: 20 })}
-                5% or more
+                <div className="flex items-center space-x-3">
+                  {React.createElement(icons.calculators, { size: 20, color: colors.background })}
+                  <span>5% or more</span>
+                </div>
               </Button>
             </div>
           </div>
@@ -703,7 +757,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
 
       case 'refinance-veteran':
         return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="bg-white shadow-sm border border-gray-200 p-6 mb-6" style={{ borderRadius: `${layout.borderRadius}px` }}>
             <h3 className="text-xl font-semibold text-black mb-2 text-center">Are You a Veteran?</h3>
             <p className="mb-6 text-center" style={{ color: colors.text }}>Veterans have access to special refinance programs with great benefits</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -727,7 +781,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
 
       case 'refinance-veteran-purpose':
         return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="bg-white shadow-sm border border-gray-200 p-6 mb-6" style={{ borderRadius: `${layout.borderRadius}px` }}>
             <h3 className="text-xl font-semibold text-black mb-2 text-center">What's Your Refinance Goal?</h3>
             <p className="mb-6 text-center" style={{ color: colors.text }}>Choose your primary refinance objective</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -735,17 +789,19 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
                 onClick={() => handleQuestionnaireComplete({ loanType: 'VA', cashOut: true })}
                 {...getTemplateButtonStyles('secondary')}
               >
-                {React.createElement(icons.calculators, { size: 20 })}
-                Access Equity
+                <div className="flex items-center space-x-3">
+                  {React.createElement(icons.calculators, { size: 20, color: colors.background })}
+                  <span>Access Equity</span>
+                </div>
               </Button>
               <Button 
                 onClick={() => handleQuestionnaireComplete({ loanType: 'VA', irrrl: true })}
-                variant="secondary"
-                size="lg"
-                className="h-16 text-base"
+                {...getTemplateButtonStyles('secondary')}
               >
-                {React.createElement(icons.rates, { size: 20 })}
-                Lower Rate
+                <div className="flex items-center space-x-3">
+                  {React.createElement(icons.rates, { size: 20, color: colors.background })}
+                  <span>Lower Rate</span>
+                </div>
               </Button>
             </div>
           </div>
@@ -753,7 +809,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
 
       case 'refinance-non-veteran-purpose':
         return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="bg-white shadow-sm border border-gray-200 p-6 mb-6" style={{ borderRadius: `${layout.borderRadius}px` }}>
             <h3 className="text-xl font-semibold text-black mb-2 text-center">What's Your Refinance Goal?</h3>
             <p className="mb-6 text-center" style={{ color: colors.text }}>Choose your primary refinance objective</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -761,17 +817,19 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
                 onClick={() => handleQuestionnaireComplete({ loanType: 'Conventional', cashOut: true })}
                 {...getTemplateButtonStyles('secondary')}
               >
-                {React.createElement(icons.calculators, { size: 20 })}
-                Access Equity
+                <div className="flex items-center space-x-3">
+                  {React.createElement(icons.calculators, { size: 20, color: colors.background })}
+                  <span>Access Equity</span>
+                </div>
               </Button>
               <Button 
                 onClick={() => handleQuestionnaireComplete({ loanType: 'Conventional', refinance: true })}
-                variant="secondary"
-                size="lg"
-                className="h-16 text-base"
+                {...getTemplateButtonStyles('secondary')}
               >
-                {React.createElement(icons.rates, { size: 20 })}
-                Lower Rate
+                <div className="flex items-center space-x-3">
+                  {React.createElement(icons.rates, { size: 20, color: colors.background })}
+                  <span>Lower Rate</span>
+                </div>
               </Button>
             </div>
           </div>
@@ -779,7 +837,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
 
       case 'fha-loan':
         return (
-          <div className={`${template === 'template1' ? 'bg-gradient-to-br from-[#01bcc6]/10 to-[#01bcc6]/20 border-[#01bcc6]/20' : 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'} rounded-lg shadow-sm border-2 p-6 mb-6`}>
+          <div className="bg-white shadow-sm border border-gray-200 p-6 mb-6" style={{ borderRadius: `${layout.borderRadius}px` }}>
             <h3 className="text-xl font-semibold mb-2 text-center" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: colors.text }}>
               {React.createElement(icons.target, { size: 24 })}
               Recommended: FHA Loan
@@ -788,11 +846,13 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
             <div className="flex justify-center">
               <Button 
                 onClick={() => handleQuestionnaireComplete({ loanType: 'FHA' })}
-                {...getTemplateButtonStyles('primary')}
+                {...getTemplateButtonStyles('secondary')}
                 className="h-16 text-base px-8"
               >
-                {React.createElement(icons.custom, { size: 20 })}
-                {getTemplateContent().primaryButton}
+                <div className="flex items-center space-x-3">
+                  {React.createElement(icons.custom, { size: 20, color: colors.background })}
+                  <span>Get My Custom Rate</span>
+                </div>
               </Button>
             </div>
           </div>
@@ -800,7 +860,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
 
       default:
         return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="bg-white shadow-sm border border-gray-200 p-6 mb-6" style={{ borderRadius: `${layout.borderRadius}px` }}>
             <h3 className="text-xl font-semibold text-black mb-2 text-center">Select Your Loan Purpose</h3>
             <p className="mb-6 text-center" style={{ color: colors.text }}>Choose the option that best describes your situation</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -808,15 +868,19 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
                 onClick={() => handleQuestionnaireStepChange('purchase-credit-score', { loanPurpose: 'Purchase' })}
                 {...getTemplateButtonStyles('secondary')}
               >
-                {React.createElement(icons.homePurchase, { size: 20 })}
-                Home Purchase
+                <div className="flex items-center space-x-3">
+                  {React.createElement(icons.homePurchase, { size: 20, color: colors.background })}
+                  <span> Home Purchase</span>
+                </div>
               </Button>
               <Button 
                 onClick={() => handleQuestionnaireStepChange('refinance-veteran', { loanPurpose: 'Refinance' })}
                 {...getTemplateButtonStyles('secondary')}
               >
-                {React.createElement(icons.homeRefinance, { size: 20 })}
-                Home Refinance
+                <div className="flex items-center space-x-3">
+                  {React.createElement(icons.homeRefinance, { size: 20, color: colors.background })}
+                  <span> Home Refinance</span>
+                </div>
               </Button>
             </div>
           </div>
@@ -845,11 +909,11 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
         {/* Hero Section */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-black mb-6">
+            <h1 className="text-2xl font-bold text-black mb-6">
               {getTemplateContent().title}
               <span style={{ color: colors.primary }}> Mortgage</span>
             </h1>
-            <p className="text-xl mb-8 max-w-3xl mx-auto" style={{ color: colors.text }}>
+            <p className="text-base mb-8 max-w-3xl mx-auto" style={{ color: colors.text }}>
               {getTemplateContent().description}
             </p>
             
@@ -859,10 +923,12 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
                   setShowLanding(false);
                   setShowQuestionnaire(true);
                 }}
-                className="text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors shadow-lg"
+                className="flex items-center space-x-2 px-8 py-4 text-lg font-semibold transition-colors shadow-lg"
                 style={{ 
                   backgroundColor: colors.primary,
                   color: colors.background,
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = colors.secondary;
@@ -871,24 +937,27 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
                   e.currentTarget.style.backgroundColor = colors.primary;
                 }}
               >
-                {getTemplateContent().primaryButton}
+                {React.createElement(icons.target, { size: 20, color: colors.background })}
+                <span>{getTemplateContent().primaryButton}</span>
               </button>
               <button 
                 onClick={() => setShowLanding(false)}
-                className="bg-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors border-2"
+                className="flex items-center space-x-2 px-8 py-4 text-lg font-semibold transition-colors border-2"
                 style={{ 
-                  backgroundColor: colors.secondary,
-                  color: colors.background,
-                  borderColor: colors.secondary,
+                  backgroundColor: colors.background,
+                  color: colors.primary,
+                  borderColor: colors.primary,
+                  borderRadius: `${layout.borderRadius}px`
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = colors.primary;
+                  e.currentTarget.style.backgroundColor = colors.primary + '10';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = colors.secondary;
+                  e.currentTarget.style.backgroundColor = colors.background;
                 }}
               >
-                {getTemplateContent().secondaryButton}
+                {React.createElement(icons.rates, { size: 20, color: colors.primary })}
+                <span>{getTemplateContent().secondaryButton}</span>
               </button>
             </div>
           </div>
@@ -925,18 +994,26 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
                       setShowQuestionnaire(false);
                       setShowLanding(true);
                     }}
-                    className="font-medium transition-colors duration-200"
-                    style={{ 
+                    className="flex items-center space-x-3 px-4 py-2 text-sm font-medium transition-colors"
+                    style={{
+                      backgroundColor: colors.background,
                       color: colors.primary,
+                      border: `1px solid ${colors.primary}`,
+                      borderRadius: `${layout.borderRadius}px`
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.color = colors.secondary;
+                      // Convert hex to rgba for hover effect
+                      const hex = colors.primary.replace('#', '');
+                      const r = parseInt(hex.substr(0, 2), 16);
+                      const g = parseInt(hex.substr(2, 2), 16);
+                      const b = parseInt(hex.substr(4, 2), 16);
+                      e.currentTarget.style.backgroundColor = `rgba(${r}, ${g}, ${b}, 0.1)`;
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.color = colors.primary;
+                      e.currentTarget.style.backgroundColor = colors.background;
                     }}
                   >
-                    ← Back to Home
+                    <span>← Back to Home</span>
                   </button>
                 </div>
                 <div className="text-sm" style={{ color: colors.text }}>Powered by Optimal Blue</div>
@@ -958,15 +1035,19 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
                     onClick={() => setShowQuestionnaire(true)}
                     {...getTemplateButtonStyles('primary')}
                   >
-                    {React.createElement(icons.custom, { size: 20 })}
-                    {getTemplateContent().primaryButton}
+                    <div className="flex items-center space-x-3">
+                      {React.createElement(icons.custom, { size: 20, color: colors.background })}
+                      <span>{getTemplateContent().primaryButton}</span>
+                    </div>
                   </Button>
                   <Button
                     onClick={() => setShowLanding(false)}
                     {...getTemplateButtonStyles('secondary')}
                   >
-                    {React.createElement(icons.rates, { size: 20 })}
-                    {getTemplateContent().secondaryButton}
+                    <div className="flex items-center space-x-3">
+                      {React.createElement(icons.rates, { size: 20, color: colors.primary })}
+                      <span>{getTemplateContent().secondaryButton}</span>
+                    </div>
                   </Button>
                 </div>
               </div>
@@ -988,7 +1069,10 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
                     color: colors.primary,
                   }}
                 >
-                  ← Back
+                  <div className="flex items-center space-x-1">
+                    {React.createElement(icons.chevronLeft, { size: 20, color: colors.primary })}
+                    <span>Back</span>
+                  </div>
                 </Button>
               </div>
             )}
@@ -997,7 +1081,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
             {renderQuestionnaireStep()}
             
             {/* Debug Info */}
-            <div className="mt-8 p-4 bg-gray-100 rounded-lg text-sm">
+            <div className="mt-8 p-4 bg-gray-100 text-sm" style={{ borderRadius: `${layout.borderRadius}px` }}>
               <h4 className="font-semibold mb-2 text-black">Debug Info:</h4>
               <p style={{ color: colors.text }}><strong>Current Step:</strong> {currentStep}</p>
               <p style={{ color: colors.text }}><strong>Answers:</strong> {JSON.stringify(questionnaireAnswers, null, 2)}</p>
@@ -1061,7 +1145,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-8">
+          <div className="bg-red-50 border border-red-200 p-4 mb-8" style={{ borderRadius: `${layout.borderRadius}px` }}>
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">

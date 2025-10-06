@@ -7,9 +7,9 @@ export default function AdminStatsPage() {
   return (
     <RouteGuard allowedRoles={['company_admin']}>
       <DashboardLayout 
-        title="Conversion Statistics" 
-        subtitle="Detailed analytics and conversion metrics for your loan officers"
-        showBackButton={true}
+        showBreadcrumb={true}
+        breadcrumbVariant="default"
+        breadcrumbSize="md"
       >
         <ConversionStatsDashboard />
       </DashboardLayout>

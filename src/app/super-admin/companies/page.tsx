@@ -376,7 +376,7 @@ export default function CompaniesPage() {
           <p className="text-gray-600">Please sign in to access this page.</p>
           <button 
             onClick={() => window.location.href = '/auth'}
-            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
           >
             Go to Login
           </button>
@@ -412,13 +412,13 @@ export default function CompaniesPage() {
   return (
     <RouteGuard allowedRoles={['super_admin']}>
       <DashboardLayout 
-        title="Company Management" 
-        subtitle="Manage companies and their administrators"
-        showBackButton={true}
+        showBreadcrumb={true}
+        breadcrumbVariant="default"
+        breadcrumbSize="md"
       >
         <div className="space-y-6">
           {/* Header with Create Button */}
-          <div className="bg-[#F7F1E9]/30 rounded-lg shadow-sm border border-gray-200">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
             <div className="px-6 py-4 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-gray-900">Companies</h2>

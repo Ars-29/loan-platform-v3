@@ -8,7 +8,6 @@ import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/Button';
 import { DataTable } from '@/components/ui/DataTable';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
-import Breadcrumb, { BreadcrumbItem } from '@/components/ui/Breadcrumb';
 import Pagination from '@/components/ui/Pagination';
 import SearchFilter, { FilterOption } from '@/components/ui/SearchFilter';
 
@@ -105,11 +104,6 @@ export default function OfficerLeadsPage() {
   );
 
   // Updated breadcrumb items for new structure
-  const breadcrumbItems: BreadcrumbItem[] = [
-    { label: 'Leads Insights', href: '/admin/insights', icon: 'home' },
-    { label: officerInfo ? `${officerInfo.firstName} ${officerInfo.lastName}` : 'Loading...', icon: 'user' },
-    { label: 'Leads', icon: 'profile' }
-  ];
 
   useEffect(() => {
     if (accessToken && officerSlug) {
@@ -308,7 +302,7 @@ export default function OfficerLeadsPage() {
 
   if (loading) {
     return (
-      <DashboardLayout title="Officer Leads" subtitle="Loading leads...">
+      <DashboardLayout>
         <div className="flex justify-center items-center min-h-[400px]">
           <LoadingSpinner size="lg" />
         </div>
@@ -318,7 +312,7 @@ export default function OfficerLeadsPage() {
 
   if (error) {
     return (
-      <DashboardLayout title="Officer Leads" subtitle="Error loading leads">
+      <DashboardLayout>
         <div className="bg-red-50 border border-red-200 rounded-md p-4">
           <h3 className="text-lg font-semibold text-red-600 mb-2">Error Loading Leads</h3>
           <p className="text-red-600 mb-4">{error}</p>
@@ -334,41 +328,43 @@ export default function OfficerLeadsPage() {
     <DashboardLayout 
       title={`${officerInfo ? `${officerInfo.firstName} ${officerInfo.lastName}` : 'Officer'} Leads`}
       subtitle={`Manage leads for ${officerInfo ? `${officerInfo.firstName} ${officerInfo.lastName}` : 'this officer'}`}
-      showBackButton={true}
+      showBreadcrumb={true}
+        breadcrumbVariant="elevated"
+        breadcrumbSize="md"
     >
       <div className="space-y-6">
         {/* Breadcrumb Navigation */}
-        <Breadcrumb items={breadcrumbItems} />
+        
 
 
         {/* Header with stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-            <div className="text-2xl font-bold text-blue-600">{filteredLeads.length}</div>
-            <div className="text-sm text-gray-600">
+          <div className="p-4 rounded-lg shadow-sm border border-gray-200" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)' }}>
+            <div className="text-2xl font-bold text-white">{filteredLeads.length}</div>
+            <div className="text-sm text-white">
               {searchQuery || statusFilter || stageFilter || priorityFilter ? 'Filtered' : 'Total'} Leads
             </div>
           </div>
           
-          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-            <div className="text-2xl font-bold text-green-600">
+          <div className="p-4 rounded-lg shadow-sm border border-gray-200" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)' }}>
+            <div className="text-2xl font-bold text-white">
               {filteredLeads.filter(lead => lead.status === 'new').length}
             </div>
-            <div className="text-sm text-gray-600">New Leads</div>
+            <div className="text-sm text-white">New Leads</div>
           </div>
           
-          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-            <div className="text-2xl font-bold text-purple-600">
+          <div className="p-4 rounded-lg shadow-sm border border-gray-200" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)' }}>
+            <div className="text-2xl font-bold text-white">
               {filteredLeads.filter(lead => lead.status === 'converted').length}
             </div>
-            <div className="text-sm text-gray-600">Converted</div>
+            <div className="text-sm text-white">Converted</div>
           </div>
           
-          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-            <div className="text-2xl font-bold text-blue-600">
+          <div className="p-4 rounded-lg shadow-sm border border-gray-200" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)' }}>
+            <div className="text-2xl font-bold text-white">
               {filteredLeads.length > 0 ? Math.round((filteredLeads.filter(lead => lead.status === 'converted').length / filteredLeads.length) * 100) : 0}%
             </div>
-            <div className="text-sm text-gray-600">Conversion Rate</div>
+            <div className="text-sm text-white">Conversion Rate</div>
           </div>
         </div>
 

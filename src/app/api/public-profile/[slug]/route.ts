@@ -120,6 +120,7 @@ export async function GET(
           lastName: users.lastName,
           email: users.email,
           phone: users.phone,
+          nmlsNumber: users.nmlsNumber,
           avatar: users.avatar,
           role: users.role,
           isActive: users.isActive,
@@ -137,6 +138,9 @@ export async function GET(
           address: companies.address,
           phone: companies.phone,
           email: companies.email,
+          license_number: companies.licenseNumber,
+          company_nmls_number: companies.companyNmlsNumber,
+          company_social_media: companies.companySocialMedia,
         })
         .from(companies)
         .where(eq(companies.id, link.companyId))

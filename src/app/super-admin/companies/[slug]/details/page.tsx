@@ -146,9 +146,9 @@ export default function CompanyDetailsPage({ params }: { params: Promise<{ slug:
     return (
       <RouteGuard allowedRoles={['super_admin']}>
         <DashboardLayout 
-          title="Company Details" 
-          subtitle="Loading company information..."
-          showBackButton={true}
+          showBreadcrumb={true}
+        breadcrumbVariant="elevated"
+        breadcrumbSize="md"
         >
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -162,9 +162,9 @@ export default function CompanyDetailsPage({ params }: { params: Promise<{ slug:
     return (
       <RouteGuard allowedRoles={['super_admin']}>
         <DashboardLayout 
-          title="Company Details" 
-          subtitle="Company not found"
-          showBackButton={true}
+          showBreadcrumb={true}
+        breadcrumbVariant="elevated"
+        breadcrumbSize="md"
         >
           <div className="text-center py-12">
             <Icon name="error" className="w-12 h-12 text-red-500 mx-auto mb-4" />
@@ -172,7 +172,7 @@ export default function CompanyDetailsPage({ params }: { params: Promise<{ slug:
             <p className="text-gray-600 mb-4">The company you're looking for doesn't exist or you don't have permission to view it.</p>
             <button
               onClick={() => router.push('/super-admin/companies')}
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
             >
               Back to Companies
             </button>
@@ -184,77 +184,75 @@ export default function CompanyDetailsPage({ params }: { params: Promise<{ slug:
 
   return (
     <RouteGuard allowedRoles={['super_admin']}>
-      <DashboardLayout 
-        title="Company Details" 
-        subtitle={`${companyDetails.name} - Complete Overview`}
-        showBackButton={true}
-      >
+      <DashboardLayout showBreadcrumb={true}
+        breadcrumbVariant="elevated"
+        breadcrumbSize="md">
         <div className="space-y-6">
           {/* Company Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-            <SpotlightCard variant="primary" className="p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Icon name="user" className="w-6 h-6 text-blue-600" />
+            <SpotlightCard variant="primary" className="p-6 dashboard-card inner-page-card" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)', border: 'none' }}>
+              <div className="flex items-center space-x-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(235, 219, 199, 0.2)' }}>
+                  <Icon name="user" className="w-6 h-6 text-white" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Officers</p>
-                  <p className="text-2xl font-bold text-gray-900">{companyDetails.totalOfficers}</p>
-                </div>
-              </div>
-            </SpotlightCard>
-
-            <SpotlightCard variant="secondary" className="p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-yellow-100 rounded-lg">
-                  <Icon name="alertTriangle" className="w-6 h-6 text-yellow-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">High Priority Leads</p>
-                  <p className="text-2xl font-bold text-gray-900">{companyDetails.highPriorityLeads}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white truncate">Total Officers</p>
+                  <p className="text-2xl font-bold text-white">{companyDetails.totalOfficers}</p>
                 </div>
               </div>
             </SpotlightCard>
 
-            <SpotlightCard variant="secondary" className="p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <Icon name="alertCircle" className="w-6 h-6 text-red-600" />
+            <SpotlightCard variant="secondary" className="p-6 dashboard-card inner-page-card" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)', border: 'none' }}>
+              <div className="flex items-center space-x-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(235, 219, 199, 0.2)' }}>
+                  <Icon name="alertTriangle" className="w-6 h-6 text-white" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Urgent Priority Leads</p>
-                  <p className="text-2xl font-bold text-gray-900">{companyDetails.urgentPriorityLeads}</p>
-                </div>
-              </div>
-            </SpotlightCard>
-
-            <SpotlightCard variant="primary" className="p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <Icon name="checkCircle" className="w-6 h-6 text-green-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Converted</p>
-                  <p className="text-2xl font-bold text-gray-900">{companyDetails.convertedLeads}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white truncate">High Priority Leads</p>
+                  <p className="text-2xl font-bold text-white">{companyDetails.highPriorityLeads}</p>
                 </div>
               </div>
             </SpotlightCard>
 
-            <SpotlightCard variant="primary" className="p-6">
-              <div className="flex items-center">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Icon name="link" className="w-6 h-6 text-blue-600" />
+            <SpotlightCard variant="secondary" className="p-6 dashboard-card inner-page-card" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)', border: 'none' }}>
+              <div className="flex items-center space-x-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(235, 219, 199, 0.2)' }}>
+                  <Icon name="alertCircle" className="w-6 h-6 text-white" />
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Active Public Links</p>
-                  <p className="text-2xl font-bold text-gray-900">{companyDetails.activePublicLinks}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white truncate">Urgent Priority Leads</p>
+                  <p className="text-2xl font-bold text-white">{companyDetails.urgentPriorityLeads}</p>
+                </div>
+              </div>
+            </SpotlightCard>
+
+            <SpotlightCard variant="primary" className="p-6 dashboard-card inner-page-card" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)', border: 'none' }}>
+              <div className="flex items-center space-x-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(235, 219, 199, 0.2)' }}>
+                  <Icon name="checkCircle" className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white truncate">Converted</p>
+                  <p className="text-2xl font-bold text-white">{companyDetails.convertedLeads}</p>
+                </div>
+              </div>
+            </SpotlightCard>
+
+            <SpotlightCard variant="primary" className="p-6 dashboard-card inner-page-card" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)', border: 'none' }}>
+              <div className="flex items-center space-x-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(235, 219, 199, 0.2)' }}>
+                  <Icon name="link" className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white truncate">Active Public Links</p>
+                  <p className="text-2xl font-bold text-white">{companyDetails.activePublicLinks}</p>
                 </div>
               </div>
             </SpotlightCard>
           </div>
 
           {/* Company Information */}
-          <SpotlightCard variant="default" className="p-6">
+            <SpotlightCard variant="default" className="p-6 dashboard-card detail-card">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Company Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -326,7 +324,7 @@ export default function CompanyDetailsPage({ params }: { params: Promise<{ slug:
               <h3 className="text-lg font-semibold text-gray-900">Loan Officers</h3>
               <button
                 onClick={() => router.push(`/super-admin/officers?company=${companyDetails.slug}`)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm"
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm"
               >
                 View All Officers
               </button>
@@ -369,12 +367,12 @@ export default function CompanyDetailsPage({ params }: { params: Promise<{ slug:
           </SpotlightCard>
 
           {/* Recent Leads Section */}
-          <SpotlightCard variant="default" className="p-6">
+            <SpotlightCard variant="default" className="p-6 dashboard-card detail-card">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">Recent Leads</h3>
               <button
                 onClick={() => router.push(`/super-admin/insights?company=${companyDetails.slug}`)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm"
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm"
               >
                 View All Leads
               </button>

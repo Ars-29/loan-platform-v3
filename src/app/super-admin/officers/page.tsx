@@ -42,14 +42,14 @@ export default function SuperAdminOfficersPage() {
   return (
     <RouteGuard allowedRoles={['super_admin']}>
       <DashboardLayout 
-        title="Loan Officers" 
-        subtitle="Manage all loan officers across companies"
-        showBackButton={true}
+        showBreadcrumb={true}
+        breadcrumbVariant="default"
+        breadcrumbSize="md"
       >
         <Suspense fallback={
           <div className="flex items-center justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="ml-2 text-gray-600">Loading officers...</span>
+            <span className="ml-2 text-gray-600">Loading loan officers...</span>
           </div>
         }>
           <SuperAdminOfficersContent />
@@ -212,7 +212,7 @@ function SuperAdminOfficersContent() {
       <div className="flex items-center justify-center h-64">
         <div className="flex items-center space-x-2">
           <Icon name="refresh" className="w-6 h-6 animate-spin text-blue-600" />
-          <span className="text-gray-600">Loading officers...</span>
+          <span className="text-gray-600">Loading loan officers...</span>
         </div>
       </div>
     );
@@ -221,7 +221,7 @@ function SuperAdminOfficersContent() {
   return (
     <div className="space-y-6">
           {/* Filters */}
-          <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border">
+          <SpotlightCard variant="default" className="p-6">
             <div className="space-y-4">
               {/* Search Bar */}
               <div>
@@ -268,13 +268,13 @@ function SuperAdminOfficersContent() {
                 </div>
               </div>
             </div>
-          </div>
+          </SpotlightCard>
 
           {/* Officers Table */}
           <SpotlightCard variant="default" className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">
-                Officers ({filteredOfficers.length})
+                Loan Officers ({filteredOfficers.length})
               </h3>
               <Button
                 variant="primary"
@@ -293,8 +293,8 @@ function SuperAdminOfficersContent() {
                 <Icon name="user" className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-500">
                   {filteredOfficers.length === 0 && officers.length === 0
-                    ? 'No officers found.'
-                    : 'No officers match your current filters.'}
+                    ? 'No loan officers found.'
+                    : 'No loan officers match your current filters.'}
                 </p>
               </div>
             ) : (
@@ -320,7 +320,7 @@ function SuperAdminOfficersContent() {
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-[#F7F1E9]/30 divide-y divide-gray-200">
+                    <tbody className="bg-white divide-y divide-gray-200">
                       {paginatedOfficers.map((officer) => (
                         <tr key={officer.id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap">

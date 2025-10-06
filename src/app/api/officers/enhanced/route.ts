@@ -32,6 +32,7 @@ export async function GET(req: NextRequest) {
           email,
           first_name,
           last_name,
+          nmls_number,
           is_active
         )
       `)
@@ -122,6 +123,7 @@ export async function GET(req: NextRequest) {
         email: user.email,
         firstName: user.first_name || '',
         lastName: user.last_name || '',
+        nmlsNumber: user.nmls_number || null,
         isActive: user.is_active && officerCompany.is_active,
         createdAt: officerCompany.joined_at || user.created_at,
         totalLeads: leadsCount[officerId] || 0,

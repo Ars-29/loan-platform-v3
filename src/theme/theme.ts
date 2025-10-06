@@ -8,7 +8,7 @@
 
 // Color Palette - Final Theme Colors
 export const colors = {
-  // Primary Colors - Final Theme (#005b7c #008eab #01bcc6 #EBDBC7 #F7F1E9)
+  // Primary Colors - Final Theme ( #005b7c #008eab #01bcc6 #EBDBC7 #F7F1E9)
   primary: {
     50: '#F7F1E9',   // Light background
     100: '#EBDBC7',  // Light accent
@@ -358,16 +358,16 @@ export const breakpoints = {
   '2xl': '1536px',
 } as const;
 
-// Border Radius
+// Border Radius - Standardized for consistency
 export const borderRadius = {
   none: '0',
-  sm: '0.125rem',   // 2px
-  base: '0.25rem',  // 4px
-  md: '0.375rem',   // 6px
-  lg: '0.5rem',     // 8px
-  xl: '0.75rem',    // 12px
-  '2xl': '1rem',    // 16px
-  '3xl': '1.5rem',  // 24px
+  sm: '0.375rem',   // 6px - Badges only
+  base: '0.5rem',   // 8px - Small elements
+  md: '0.75rem',    // 12px - Inputs, small cards
+  lg: '1rem',       // 16px - ALL BUTTONS, main cards, containers
+  xl: '1.25rem',    // 20px - Large containers
+  '2xl': '1.5rem',  // 24px - Hero sections
+  '3xl': '2rem',    // 32px - Special large elements
   full: '9999px',
 } as const;
 
@@ -476,6 +476,50 @@ export const animations = {
   fast: '150ms',
   normal: '200ms',
   slow: '300ms',
+  slower: '500ms',
+} as const;
+
+// Standardized animation classes for consistency
+export const animationClasses = {
+  // Card animations - Ultra subtle
+  card: {
+    base: 'transition-all duration-200 ease-out relative overflow-hidden',
+    hover: 'hover:shadow-sm hover:shadow-gray-200/5',
+    active: 'active:scale-[0.995] active:transition-transform active:duration-75',
+    // Subtle page load animations
+    entrance: 'animate-in fade-in-0 slide-in-from-bottom-2 duration-700',
+    stagger: {
+      '1': 'animate-in fade-in-0 slide-in-from-bottom-2 duration-700',
+      '2': 'animate-in fade-in-0 slide-in-from-bottom-2 duration-700 delay-100',
+      '3': 'animate-in fade-in-0 slide-in-from-bottom-2 duration-700 delay-200',
+      '4': 'animate-in fade-in-0 slide-in-from-bottom-2 duration-700 delay-300',
+      '5': 'animate-in fade-in-0 slide-in-from-bottom-2 duration-700 delay-400',
+      '6': 'animate-in fade-in-0 slide-in-from-bottom-2 duration-700 delay-500',
+    },
+    // Ultra subtle hover effects
+    landingHover: 'hover:shadow-sm hover:shadow-gray-200/5',
+    gradientOverlay: 'absolute inset-0 bg-gradient-to-br from-[#01bcc6]/3 to-[#008eab]/3 opacity-0 hover:opacity-100 transition-opacity duration-200 pointer-events-none',
+    borderGlow: 'hover:border-[#01bcc6]/20',
+  },
+  // Button animations - Ultra subtle
+  button: {
+    base: 'transition-all duration-200 ease-out',
+    hover: 'hover:shadow-sm',
+    active: 'active:scale-[0.995]',
+    focus: 'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#01bcc6]',
+    // Ultra subtle button effects
+    landingHover: 'hover:shadow-sm hover:bg-gradient-to-r hover:from-[#01bcc6] hover:to-[#008eab]',
+  },
+  // Input animations
+  input: {
+    base: 'transition-all duration-200 ease-out',
+    focus: 'focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]',
+  },
+  // Badge animations
+  badge: {
+    base: 'transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1)',
+    hover: 'hover:scale-105 hover:shadow-md',
+  }
 } as const;
 
 // Z-index scale
@@ -494,7 +538,8 @@ export const dashboard = {
   // Layout containers
   container: {
     minHeight: '100vh',
-    backgroundColor: colors.gray[50],
+    backgroundColor: '#f8fafc', // Lighter, more modern background
+    background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)', // Subtle gradient
   },
   mainContent: {
     maxWidth: '1280px', // max-w-7xl
@@ -537,11 +582,11 @@ export const dashboard = {
     height: '64px', // h-16
   },
   
-  // Navigation styles - Solid background
+  // Navigation styles - Dark background like breadcrumb
   nav: {
-    background: '#F7F1E9',
-    boxShadow: shadows.sm,
-    borderBottom: `1px solid ${colors.gray[200]}`,
+    background: '#005b7c', /* Same dark teal as breadcrumb */
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+    borderBottom: '1px solid #374151',
   },
   navContent: {
     maxWidth: '1280px',
@@ -580,7 +625,7 @@ export const dashboard = {
   
   // Card styles - Solid background with transparency
     card: {
-      background: 'rgba(247, 241, 233, 0.3)', // #F7F1E9 with 30% opacity
+      background: 'white',
       borderRadius: borderRadius.lg,
       boxShadow: shadows.sm,
       border: `1px solid ${colors.gray[200]}`,
@@ -593,7 +638,7 @@ export const dashboard = {
   
   // Stats card styles - Solid background with transparency
   statsCard: {
-    background: 'rgba(247, 241, 233, 0.3)',
+    background: 'white',
     borderRadius: borderRadius.lg,
     boxShadow: shadows.sm,
     border: `1px solid ${colors.gray[200]}`,
@@ -617,7 +662,7 @@ export const dashboard = {
   statsCardLabel: {
     fontSize: typography.fontSize.sm,
     fontWeight: typography.fontWeight.medium,
-    color: colors.gray[500],
+    color: 'rgb(17, 24, 39)',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
@@ -625,12 +670,12 @@ export const dashboard = {
   statsCardValue: {
     fontSize: typography.fontSize.lg,
     fontWeight: typography.fontWeight.medium,
-    color: colors.gray[900],
+    color: 'rgb(17, 24, 39)',
   },
   
   // Quick action styles - Solid background with transparency
   quickActionCard: {
-    background: 'rgba(247, 241, 233, 0.3)',
+    background: 'white',
     padding: spacing[6],
     borderRadius: borderRadius.lg,
     boxShadow: shadows.sm,
@@ -667,7 +712,7 @@ export const dashboard = {
       background: '#005b7c',
       color: '#ffffff',
       padding: `${spacing[2]} ${spacing[4]}`,
-      borderRadius: borderRadius.md,
+      borderRadius: borderRadius.md, // 12px - LESS ROUNDED
       fontSize: typography.fontSize.sm,
       fontWeight: typography.fontWeight.medium,
       border: 'none',
@@ -681,7 +726,7 @@ export const dashboard = {
       backgroundColor: '#ffffff',
       color: colors.gray[700],
       padding: `${spacing[2]} ${spacing[4]}`,
-      borderRadius: borderRadius.md,
+      borderRadius: borderRadius.md, // 12px - LESS ROUNDED
       fontSize: typography.fontSize.sm,
       fontWeight: typography.fontWeight.medium,
       border: `1px solid ${colors.gray[300]}`,
@@ -703,7 +748,7 @@ export const dashboard = {
   userAvatar: {
     width: '32px',
     height: '32px',
-    backgroundColor: 'rgba(1, 188, 198, 0.1)', // #01bcc6 with 10% opacity - much more transparent
+    backgroundColor: 'rgba(255, 255, 255, 0.1)', // White with 10% opacity for dark background
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
@@ -713,7 +758,7 @@ export const dashboard = {
   userAvatarText: {
     fontSize: typography.fontSize.sm,
     fontWeight: typography.fontWeight.medium,
-    color: '#008eab', // New icon color
+    color: 'white', // White text for dark background
   },
   userDetails: {
     textAlign: 'right',
@@ -721,11 +766,11 @@ export const dashboard = {
   userEmail: {
     fontSize: typography.fontSize.sm,
     fontWeight: typography.fontWeight.medium,
-    color: colors.gray[900],
+    color: 'white', /* White text for dark background */
   },
   userRole: {
     fontSize: typography.fontSize.xs,
-    color: colors.gray[500],
+    color: 'rgba(255, 255, 255, 0.8)', /* Semi-transparent white for role */
   },
   
   // Grid layouts
@@ -1057,6 +1102,7 @@ export interface Template {
     text: string;
     textSecondary: string;
     border: string;
+    backgroundType?: 'solid' | 'gradient'; // New option for background type
   };
   typography: {
     fontFamily: string;
@@ -1156,6 +1202,28 @@ export interface Template {
         background: string;
         text: string;
       };
+    };
+  };
+  // Layout configuration for different template layouts
+  layoutConfig?: {
+    headerLayout: {
+      type: 'centered' | 'horizontal';
+      avatarPosition: 'center' | 'left';
+      avatarSize: 'medium' | 'large';
+      officerInfoPosition: 'center' | 'left';
+      companyInfoPosition: 'center' | 'right';
+      buttonsPosition: 'center' | 'right';
+      spacing: {
+        avatarToOfficer: number;
+        officerToCompany: number;
+        companyToButtons: number;
+      };
+    };
+    mainContentLayout: {
+      type: 'grid' | 'sidebar';
+      sidebarPosition: 'right' | 'left';
+      sidebarWidth: 'narrow' | 'wide';
+      contentAreaWidth: 'full' | 'reduced';
     };
   };
 }

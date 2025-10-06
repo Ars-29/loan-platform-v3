@@ -201,7 +201,8 @@ export async function GET(
       ...finalTemplate,
       headerModifications: finalTemplate.header_modifications || {},
       bodyModifications: finalTemplate.body_modifications || {},
-      rightSidebarModifications: finalTemplate.right_sidebar_modifications || {}
+      rightSidebarModifications: finalTemplate.right_sidebar_modifications || {},
+      layoutConfig: finalTemplate.layout_config || {}
     };
 
     console.log('🔍 User Template API: Final template modification fields:', {

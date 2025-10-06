@@ -8,7 +8,7 @@ import { useTemplateSelection, useTemplate, useGlobalTemplates, TemplateProvider
 import { supabase } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import Icon from '@/components/ui/Icon';
+import Icon, { icons } from '@/components/ui/Icon';
 import Image from 'next/image';
 
 // Define Template type for customizer
@@ -22,6 +22,7 @@ interface Template {
   layout?: any;
   advanced?: any;
   classes?: any;
+  layoutConfig?: any; // Layout configuration for different template layouts
   headerModifications?: {
     officerName?: string;
     phone?: string;
@@ -66,7 +67,6 @@ const LandingPageTabs = React.lazy(() => import('@/components/landingPage/Landin
 
 interface CustomizerState {
   selectedTemplate: string;
-  publicProfileTemplate: string;
   customSettings: Partial<Template>;
   isPreviewMode: boolean;
   activeSection: 'general' | 'header' | 'body' | 'rightSidebar';
@@ -74,14 +74,13 @@ interface CustomizerState {
 }
 
 export default function CustomizerPage() {
-  const { user, userRole, loading: authLoading } = useAuth();
+  const { user, userRole, companyId, loading: authLoading } = useAuth();
   const { selectedTemplate, setSelectedTemplate, isLoading: templateSelectionLoading } = useTemplateSelection();
   const { templateData, isLoading: templateLoading, isFallback } = useTemplate(selectedTemplate);
   const { refreshTemplate } = useGlobalTemplates();
   
   const [customizerState, setCustomizerState] = useState<CustomizerState>({
     selectedTemplate: selectedTemplate, // Use global selection
-    publicProfileTemplate: 'template1', // Default public profile template
     customSettings: {},
     isPreviewMode: false,
     activeSection: 'general',
@@ -91,6 +90,38 @@ export default function CustomizerPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const loadedTemplateRef = useRef<string | null>(null);
+
+  // Company data state
+  const [companyData, setCompanyData] = useState<any>(null);
+  const [companyLoading, setCompanyLoading] = useState(false);
+  
+  // User NMLS# state
+  const [userNmlsNumber, setUserNmlsNumber] = useState<string | null>(null);
+
+  // Fetch user NMLS#
+  const fetchUserNmlsNumber = React.useCallback(async () => {
+    if (!user) return;
+    
+    try {
+      console.log('🔍 Customizer: Fetching user NMLS# for userId:', user.id);
+      
+      const response = await fetch(`/api/users/${user.id}/nmls`);
+      const result = await response.json();
+      
+      console.log('🔍 Customizer: User NMLS# API response:', result);
+      
+      if (result.success) {
+        console.log('✅ Customizer: User NMLS# fetched:', result.data.nmlsNumber);
+        setUserNmlsNumber(result.data.nmlsNumber);
+      } else {
+        console.log('❌ Customizer: Failed to fetch user NMLS#:', result.error || result.message);
+        setUserNmlsNumber(null);
+      }
+    } catch (error) {
+      console.error('❌ Customizer: Error fetching user NMLS#:', error);
+      setUserNmlsNumber(null);
+    }
+  }, [user]);
 
   // Get officer information from user data
   const officerInfo = React.useMemo(() => {
@@ -118,57 +149,6 @@ export default function CustomizerPage() {
     }));
   }, [selectedTemplate]);
 
-  // Load public profile template from database on mount
-  React.useEffect(() => {
-    const loadPublicProfileTemplate = async () => {
-      try {
-        // Get the current session token
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session?.access_token) {
-          console.log('⚠️ No session token available, using localStorage fallback');
-          // Fallback to localStorage if no session
-          const savedPublicProfileTemplate = localStorage.getItem('publicProfileTemplate');
-          if (savedPublicProfileTemplate) {
-            setCustomizerState(prev => ({
-              ...prev,
-              publicProfileTemplate: savedPublicProfileTemplate
-            }));
-          }
-          return;
-        }
-        
-        const response = await fetch('/api/templates/get-public-profile-template', {
-          headers: {
-            'Authorization': `Bearer ${session.access_token}`,
-          },
-        });
-        
-        if (response.ok) {
-          const result = await response.json();
-          if (result.success && result.templateSlug) {
-            setCustomizerState(prev => ({
-              ...prev,
-              publicProfileTemplate: result.templateSlug
-            }));
-            // Also save to localStorage for immediate UI feedback
-            localStorage.setItem('publicProfileTemplate', result.templateSlug);
-          }
-        }
-      } catch (error) {
-        console.error('Error loading public profile template:', error);
-        // Fallback to localStorage if database fails
-        const savedPublicProfileTemplate = localStorage.getItem('publicProfileTemplate');
-        if (savedPublicProfileTemplate) {
-          setCustomizerState(prev => ({
-            ...prev,
-            publicProfileTemplate: savedPublicProfileTemplate
-          }));
-        }
-      }
-    };
-
-    loadPublicProfileTemplate();
-  }, []);
 
   // No need for profile fetching - using user data directly
 
@@ -325,6 +305,162 @@ export default function CustomizerPage() {
     }
   }, [templateData?.template?.id, templateData?.metadata?.isCustomized, isFallback, templateLoading]); // Use stable identifiers instead of the whole object
 
+  // Debug company data changes
+  useEffect(() => {
+    console.log('🔍 Customizer: Company data changed:', companyData);
+    if (companyData) {
+      console.log('🔍 Customizer: Company data keys:', Object.keys(companyData));
+      console.log('🔍 Customizer: Company name:', companyData.name);
+      console.log('🔍 Customizer: Company logo:', companyData.logo);
+      console.log('🔍 Customizer: Company phone:', companyData.phone);
+      console.log('🔍 Customizer: Company email:', companyData.email);
+      console.log('🔍 Customizer: Company license_number:', companyData.license_number);
+      console.log('🔍 Customizer: Company company_nmls_number:', companyData.company_nmls_number);
+      console.log('🔍 Customizer: Company company_social_media:', companyData.company_social_media);
+    }
+  }, [companyData]);
+
+  // Debug typography changes
+  useEffect(() => {
+    console.log('🔍 Customizer: Typography changed:', mergedTemplate?.typography);
+    if (mergedTemplate?.typography) {
+      console.log('🔍 Customizer: Font Family:', mergedTemplate.typography.fontFamily);
+      console.log('🔍 Customizer: Font Size:', mergedTemplate.typography.fontSize);
+      console.log('🔍 Customizer: Font Weight:', mergedTemplate.typography.fontWeight);
+    }
+  }, [mergedTemplate?.typography]);
+
+  // Fetch user NMLS#
+  useEffect(() => {
+    if (user) {
+      fetchUserNmlsNumber();
+    }
+  }, [user, fetchUserNmlsNumber]);
+
+  // Fetch company data for the logged-in user
+  useEffect(() => {
+    const fetchCompanyData = async () => {
+      if (!user?.id) {
+        console.log('⚠️ Customizer: No user ID available');
+        return;
+      }
+
+      // Check if user has the right role
+      if (!userRole || !['employee', 'company_admin', 'super_admin'].includes(userRole.role)) {
+        console.log('⚠️ Customizer: User does not have permission to access customizer:', {
+          userRole: userRole?.role,
+          allowedRoles: ['employee', 'company_admin', 'super_admin']
+        });
+        setCompanyData(null);
+        return;
+      }
+
+      console.log('🔍 Customizer: Starting company data fetch for user:', {
+        userId: user.id,
+        userEmail: user.email,
+        userRole: userRole,
+        companyId: companyId,
+        hasCompanyId: !!companyId
+      });
+
+      setCompanyLoading(true);
+      try {
+        let companyIdToUse = null;
+
+        // First try to get company ID from auth context
+        if (companyId) {
+          console.log('✅ Customizer: Using companyId from auth context:', companyId);
+          companyIdToUse = companyId;
+        } else {
+          // Fallback: Get user's company ID from user_companies table
+          console.log('🔍 Customizer: Fetching company ID from user_companies table for user:', user.id);
+          
+          try {
+            // First, let's check if the user_companies table is accessible
+            console.log('🔍 Customizer: Testing user_companies table access...');
+            const { data: userCompany, error: userCompanyError } = await supabase
+              .from('user_companies')
+              .select('company_id')
+              .eq('user_id', user.id)
+              .single();
+
+            if (userCompanyError) {
+              console.error('❌ Customizer: Error fetching user company:', {
+                error: userCompanyError,
+                message: userCompanyError.message,
+                details: userCompanyError.details,
+                hint: userCompanyError.hint,
+                code: userCompanyError.code,
+                fullError: JSON.stringify(userCompanyError, null, 2)
+              });
+              
+              // Don't return early, try to continue with empty company data
+              console.log('⚠️ Customizer: Continuing without company data due to user_companies error');
+              setCompanyData(null);
+        return;
+      }
+      
+            if (!userCompany?.company_id) {
+              console.log('⚠️ Customizer: User has no associated company in user_companies table');
+              console.log('🔍 Customizer: User company data:', userCompany);
+              
+              // For new users, we might need to create a company association
+              // For now, just continue without company data
+              setCompanyData(null);
+              return;
+            }
+
+            companyIdToUse = userCompany.company_id;
+          } catch (supabaseError) {
+            console.error('❌ Customizer: Supabase query error:', {
+              error: supabaseError,
+              message: supabaseError instanceof Error ? supabaseError.message : 'Unknown error',
+              stack: supabaseError instanceof Error ? supabaseError.stack : undefined
+            });
+            console.log('⚠️ Customizer: Continuing without company data due to Supabase error');
+            setCompanyData(null);
+            return;
+          }
+        }
+
+        if (!companyIdToUse) {
+          console.log('⚠️ Customizer: No company ID available');
+          setCompanyData(null);
+          return;
+        }
+
+        // Fetch company details
+        const response = await fetch(`/api/companies/details?companyId=${companyIdToUse}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch company details');
+        }
+
+        const result = await response.json();
+        console.log('✅ Customizer: Fetched company data:', result);
+        if (result.success && result.data) {
+          console.log('✅ Customizer: Setting company data:', result.data);
+          console.log('✅ Customizer: Company data keys:', Object.keys(result.data));
+          console.log('✅ Customizer: Company name:', result.data.name);
+          console.log('✅ Customizer: Company logo:', result.data.logo);
+          console.log('✅ Customizer: Company phone:', result.data.phone);
+          console.log('✅ Customizer: Company email:', result.data.email);
+          console.log('✅ Customizer: Company license_number:', result.data.license_number);
+          console.log('✅ Customizer: Company company_nmls_number:', result.data.company_nmls_number);
+          console.log('✅ Customizer: Company company_social_media:', result.data.company_social_media);
+          setCompanyData(result.data);
+      } else {
+          console.error('❌ Customizer: Company data fetch failed:', result.error);
+      }
+    } catch (error) {
+        console.error('❌ Customizer: Error fetching company data:', error);
+      } finally {
+        setCompanyLoading(false);
+      }
+    };
+
+    fetchCompanyData();
+  }, [user?.id, companyId]);
+
   // Handle template selection
   const handleTemplateSelect = useCallback(async (templateSlug: string) => {
     // Update global template selection
@@ -343,53 +479,6 @@ export default function CustomizerPage() {
     console.log('🔄 Customizer: Template selected:', templateSlug);
   }, [setSelectedTemplate]);
 
-  // Handle public profile template selection
-  const handlePublicProfileTemplateSelect = useCallback(async (templateSlug: string) => {
-    setCustomizerState(prev => ({
-      ...prev,
-      publicProfileTemplate: templateSlug
-    }));
-    
-    // Save the public profile template selection to localStorage
-    localStorage.setItem('publicProfileTemplate', templateSlug);
-    
-    // Also save to database
-    try {
-      console.log('🔄 Attempting to save public profile template to database:', templateSlug);
-      
-      // Get the current session token
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) {
-        console.error('❌ No session token available');
-        return;
-      }
-      
-      const response = await fetch('/api/templates/update-public-profile-template', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          templateSlug: templateSlug
-        }),
-      });
-      
-      console.log('📡 API Response status:', response.status);
-      
-      if (response.ok) {
-        const result = await response.json();
-        console.log('✅ Public profile template saved to database:', result);
-      } else {
-        const errorResult = await response.json();
-        console.error('❌ Failed to save public profile template to database:', errorResult);
-      }
-    } catch (error) {
-      console.error('❌ Error saving public profile template to database:', error);
-    }
-    
-    console.log('🔄 Customizer: Public profile template selected:', templateSlug);
-  }, []);
 
   // Handle section change
   const handleSectionChange = useCallback((section: CustomizerState['activeSection']) => {
@@ -571,12 +660,13 @@ export default function CustomizerPage() {
   return (
     <RouteGuard allowedRoles={['employee']}>
       <DashboardLayout 
-        title="Template Customizer" 
-        showBackButton={true}
+        showBreadcrumb={true}
+        breadcrumbVariant="default"
+        breadcrumbSize="md"
       >
         <div className="h-screen flex flex-col bg-gray-50">
           {/* Header Controls */}
-          <div className="bg-[#F7F1E9] border-b border-gray-200 px-6 py-4 flex-shrink-0">
+          <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <h1 className="text-2xl font-bold text-gray-900">Template Customizer</h1>
@@ -588,7 +678,7 @@ export default function CustomizerPage() {
                     className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
                   >
                     {['template1', 'template2'].map(templateSlug => {
-                      const templateName = templateSlug === 'template1' ? 'Red Theme' : 'Purple Theme';
+                      const templateName = templateSlug === 'template1' ? 'Template1' : 'Template2';
                       
                       return (
                         <option key={templateSlug} value={templateSlug}>
@@ -599,24 +689,6 @@ export default function CustomizerPage() {
                   </select>
                 </div>
                 
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-500">Public Profile:</span>
-                  <select
-                    value={customizerState.publicProfileTemplate || 'template1'}
-                    onChange={(e) => handlePublicProfileTemplateSelect(e.target.value)}
-                    className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
-                  >
-                    {['template1', 'template2'].map(templateSlug => {
-                      const templateName = templateSlug === 'template1' ? 'Red Theme' : 'Purple Theme';
-                      
-                      return (
-                        <option key={templateSlug} value={templateSlug}>
-                          {templateName}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
               </div>
               
               <div className="flex items-center space-x-3">
@@ -654,7 +726,7 @@ export default function CustomizerPage() {
           {/* Main Content - Takes remaining height */}
           <div className="flex flex-1 min-h-0">
             {/* Left Sidebar - Sections or Section Details */}
-            <div className={`w-80 bg-[#F7F1E9]/30 border-r border-gray-200 transition-all duration-300 flex-shrink-0 ${
+            <div className={`w-80 bg-white border-r border-gray-200 transition-all duration-300 flex-shrink-0 ${
               customizerState.isPreviewMode ? '-ml-80' : 'ml-0'
             }`}>
               {!customizerState.showSectionDetails ? (
@@ -756,7 +828,12 @@ export default function CustomizerPage() {
             <div className="flex-1 bg-gray-100 overflow-hidden">
               <div className="h-full overflow-auto overflow-x-auto">
                 <div className="p-6">
-                  <div className="bg-[#F7F1E9]/30 rounded-lg shadow-sm border border-gray-200 min-h-full w-full min-w-max">
+                  <div 
+                    className="bg-white rounded-lg shadow-sm border border-gray-200 min-h-full w-full min-w-max"
+                    style={{
+                      fontFamily: mergedTemplate?.typography?.fontFamily || 'Inter'
+                    }}
+                  >
                     <TemplateProvider
                       templateData={mergedTemplate}
                       isCustomizerMode={true}
@@ -775,10 +852,143 @@ export default function CustomizerPage() {
                           email={officerInfo.email}
                           template={customizerState.selectedTemplate as 'template1' | 'template2'}
                           templateCustomization={mergedTemplate}
+                          publicUserData={{
+                            name: officerInfo.officerName,
+                            email: officerInfo.email,
+                            phone: officerInfo.phone || undefined,
+                            nmlsNumber: userNmlsNumber || undefined,
+                            avatar: undefined
+                          }}
+                          companyData={companyData ? {
+                            id: companyData.id,
+                            name: companyData.name,
+                            logo: companyData.logo,
+                            website: companyData.website,
+                            phone: companyData.phone || companyData.admin_email,
+                            email: companyData.email || companyData.admin_email,
+                            license_number: companyData.license_number,
+                            company_nmls_number: companyData.company_nmls_number,
+                            company_social_media: companyData.company_social_media
+                          } : undefined}
                         />
                         
-                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-                          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 lg:gap-8">
+                        <div 
+                          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8"
+                          style={{
+                            fontFamily: mergedTemplate?.typography?.fontFamily || 'Inter'
+                          }}
+                        >
+                          {(() => {
+                            // Get layout configuration
+                            const layoutConfig = mergedTemplate?.layoutConfig;
+                            const isSidebarLayout = layoutConfig?.mainContentLayout?.type === 'sidebar';
+                            
+                            if (isSidebarLayout) {
+                              // Sidebar Layout (Template2) - Left sidebar with tabs list, right content area
+                              return (
+                                <div className="flex gap-6 lg:gap-8">
+                                  {/* Left Sidebar - Tabs List */}
+                                  <div className="w-64 flex-shrink-0">
+                                    <div className="sticky top-6 lg:top-8">
+                                      <div 
+                                        className="rounded-lg shadow-sm border p-4"
+                                        style={{
+                                          backgroundColor: mergedTemplate?.colors?.background || '#ffffff',
+                                          borderColor: mergedTemplate?.colors?.border || '#e5e7eb',
+                                          borderRadius: `${mergedTemplate?.layout?.borderRadius || 8}px`
+                                        }}
+                                      >
+                                        <h3 
+                                          className="text-lg font-semibold mb-4"
+                                          style={{
+                                            color: mergedTemplate?.colors?.text || '#111827',
+                                            fontFamily: mergedTemplate?.typography?.fontFamily || 'Inter'
+                                          }}
+                                        >
+                                          Navigation
+                                        </h3>
+                                        <nav className="space-y-1">
+                                          {[
+                                            { id: 'todays-rates', label: "Today's Rates", icon: 'rates' },
+                                            { id: 'get-custom-rate', label: 'Get My Custom Rate', icon: 'custom' },
+                                            { id: 'document-checklist', label: 'Document Checklist', icon: 'document' },
+                                            { id: 'apply-now', label: 'Apply Now', icon: 'applyNow' },
+                                            { id: 'my-home-value', label: 'My Home Value', icon: 'home' },
+                                            { id: 'find-my-home', label: 'Find My Home', icon: 'home' },
+                                            { id: 'learning-center', label: 'Learning Center', icon: 'about' }
+                                          ].map((tab) => (
+                                            <button
+                                              key={tab.id}
+                                              className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 flex items-center ${
+                                                tab.id === 'todays-rates'
+                                                  ? 'shadow-sm'
+                                                  : 'hover:bg-gray-50'
+                                              }`}
+                                              style={{
+                                                backgroundColor: tab.id === 'todays-rates' 
+                                                  ? (customizerState.selectedTemplate === 'template2' 
+                                                      ? mergedTemplate?.colors?.primary || '#3b82f6'
+                                                      : `${mergedTemplate?.colors?.primary || '#3b82f6'}25`)
+                                                  : 'transparent',
+                                                color: tab.id === 'todays-rates' 
+                                                  ? (customizerState.selectedTemplate === 'template2' 
+                                                      ? mergedTemplate?.colors?.background || '#ffffff'
+                                                      : mergedTemplate?.colors?.primary || '#3b82f6')
+                                                  : mergedTemplate?.colors?.textSecondary || '#6b7280',
+                                                border: tab.id === 'todays-rates' 
+                                                  ? (customizerState.selectedTemplate === 'template2' 
+                                                      ? `1px solid ${mergedTemplate?.colors?.primary || '#3b82f6'}`
+                                                      : `1px solid ${mergedTemplate?.colors?.primary || '#3b82f6'}50`)
+                                                  : '1px solid transparent',
+                                                borderRadius: `${mergedTemplate?.layout?.borderRadius || 8}px`,
+                                                fontFamily: mergedTemplate?.typography?.fontFamily || 'Inter'
+                                              }}
+                                            >
+                                              <Icon 
+                                                name={tab.icon as keyof typeof icons} 
+                                                className={`w-4 h-4 mr-3`}
+                                                color={tab.id === 'todays-rates' 
+                                                  ? (customizerState.selectedTemplate === 'template2' 
+                                                      ? mergedTemplate?.colors?.background || '#ffffff'
+                                                      : mergedTemplate?.colors?.primary || '#3b82f6')
+                                                  : mergedTemplate?.colors?.textSecondary || '#6b7280'
+                                                }
+                                              />
+                                              {tab.label}
+                                            </button>
+                                          ))}
+                                        </nav>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Right Content Area - Selected Tab Details */}
+                                  <div 
+                                    className="flex-1"
+                                    style={{
+                                      fontFamily: mergedTemplate?.typography?.fontFamily || 'Inter'
+                                    }}
+                                  >
+                                    <LandingPageTabs
+                                      activeTab="todays-rates"
+                                      onTabChange={() => {}}
+                                      selectedTemplate={customizerState.selectedTemplate as 'template1' | 'template2'}
+                                      className="w-full"
+                                      templateCustomization={mergedTemplate}
+                                      hideTabNavigation={true} // Hide the tab navigation since we have sidebar
+                                    />
+                                  </div>
+                                </div>
+                              );
+                            } else {
+                              // Grid Layout (Template1) - Current layout
+                              return (
+                                <div 
+                                  className="grid grid-cols-1 xl:grid-cols-4 gap-6"
+                                  style={{
+                                    fontFamily: mergedTemplate?.typography?.fontFamily || 'Inter'
+                                  }}
+                                >
                             <div className="xl:col-span-3">
                               <LandingPageTabs
                                 activeTab="todays-rates"
@@ -793,10 +1003,39 @@ export default function CustomizerPage() {
                                 <UnifiedRightSidebar 
                                   template={customizerState.selectedTemplate as 'template1' | 'template2'} 
                                   templateCustomization={mergedTemplate}
+                                  isPublic={false}
+                                  publicCompanyData={companyData ? {
+                                    name: companyData.name,
+                                    logo: companyData.logo,
+                                    phone: companyData.phone,
+                                    email: companyData.email,
+                                    address: companyData.address,
+                                    website: companyData.website,
+                                    license_number: companyData.license_number,
+                                    company_nmls_number: companyData.company_nmls_number,
+                                    company_social_media: companyData.company_social_media
+                                  } : undefined}
+                                  publicTemplateData={{
+                                    template: mergedTemplate
+                                  }}
+                                  companyData={companyData ? {
+                                    id: companyData.id,
+                                    name: companyData.name,
+                                    logo: companyData.logo,
+                                    website: companyData.website,
+                                    phone: companyData.phone || companyData.admin_email,
+                                    email: companyData.email || companyData.admin_email,
+                                    license_number: companyData.license_number,
+                                    company_nmls_number: companyData.company_nmls_number,
+                                    company_social_media: companyData.company_social_media
+                                  } : undefined}
                                 />
                               </div>
                             </div>
                           </div>
+                              );
+                            }
+                          })()}
                         </div>
                       </React.Suspense>
                     </TemplateProvider>
@@ -1344,7 +1583,8 @@ function ColorsSettings({ template, onChange }: SettingsProps) {
     background: template.colors?.background || '#ffffff',
     text: template.colors?.text || '#111827',
     textSecondary: template.colors?.textSecondary || '#6b7280',
-    border: template.colors?.border || '#e5e7eb'
+    border: template.colors?.border || '#e5e7eb',
+    backgroundType: template.colors?.backgroundType || 'gradient'
   };
 
   return (
@@ -1404,6 +1644,39 @@ function ColorsSettings({ template, onChange }: SettingsProps) {
       </div>
 
       <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Background Type</label>
+        <div className="flex items-center space-x-4">
+          <label className="flex items-center">
+            <input
+              type="radio"
+              name="backgroundType"
+              value="gradient"
+              checked={colors.backgroundType === 'gradient'}
+              onChange={(e) => onChange('backgroundType', e.target.value)}
+              className="mr-2 text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-sm text-gray-700">Gradient</span>
+          </label>
+          <label className="flex items-center">
+            <input
+              type="radio"
+              name="backgroundType"
+              value="solid"
+              checked={colors.backgroundType === 'solid'}
+              onChange={(e) => onChange('backgroundType', e.target.value)}
+              className="mr-2 text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-sm text-gray-700">Solid Color</span>
+          </label>
+        </div>
+        <p className="text-xs text-gray-500 mt-1">
+          {colors.backgroundType === 'gradient' 
+            ? 'Uses gradient from primary to secondary color with liquid animations' 
+            : 'Uses solid secondary color background with liquid animations'}
+        </p>
+      </div>
+
+      <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">Text Color</label>
         <div className="flex items-center space-x-3">
           <input
@@ -1454,6 +1727,31 @@ function TypographySettings({ template, onChange }: SettingsProps) {
           <option value="Open Sans">Open Sans</option>
           <option value="Lato">Lato</option>
           <option value="Poppins">Poppins</option>
+          <option value="Times New Roman">Times New Roman</option>
+          <option value="Arial">Arial</option>
+          <option value="Helvetica">Helvetica</option>
+          <option value="Georgia">Georgia</option>
+          <option value="Verdana">Verdana</option>
+          <option value="Trebuchet MS">Trebuchet MS</option>
+          <option value="Courier New">Courier New</option>
+          <option value="Impact">Impact</option>
+          <option value="Comic Sans MS">Comic Sans MS</option>
+          <option value="Tahoma">Tahoma</option>
+          <option value="Calibri">Calibri</option>
+          <option value="Segoe UI">Segoe UI</option>
+          <option value="Montserrat">Montserrat</option>
+          <option value="Source Sans Pro">Source Sans Pro</option>
+          <option value="Nunito">Nunito</option>
+          <option value="Raleway">Raleway</option>
+          <option value="Ubuntu">Ubuntu</option>
+          <option value="Playfair Display">Playfair Display</option>
+          <option value="Merriweather">Merriweather</option>
+          <option value="Crimson Text">Crimson Text</option>
+          <option value="Libre Baskerville">Libre Baskerville</option>
+          <option value="PT Serif">PT Serif</option>
+          <option value="PT Sans">PT Sans</option>
+          <option value="Droid Sans">Droid Sans</option>
+          <option value="Droid Serif">Droid Serif</option>
         </select>
       </div>
 

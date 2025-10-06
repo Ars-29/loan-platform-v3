@@ -18,6 +18,14 @@ interface UnifiedRightSidebarProps {
     email?: string;
     address?: any;
     website?: string;
+    license_number?: string;
+    company_nmls_number?: string;
+    company_social_media?: {
+      facebook?: string;
+      twitter?: string;
+      linkedin?: string;
+      instagram?: string;
+    };
   };
   publicTemplateData?: any;
   // Template customization data
@@ -34,6 +42,24 @@ interface UnifiedRightSidebarProps {
       instagram?: string;
     };
   };
+  // NEW: Company data props for both public and private modes
+  companyData?: {
+    id: string;
+    name: string;
+    logo?: string;
+    website?: string;
+    address?: any;
+    phone?: string;
+    email?: string;
+    license_number?: string;
+    company_nmls_number?: string;
+    company_social_media?: {
+      facebook?: string;
+      twitter?: string;
+      linkedin?: string;
+      instagram?: string;
+    };
+  };
 }
 
 export default function UnifiedRightSidebar({
@@ -42,11 +68,25 @@ export default function UnifiedRightSidebar({
   isPublic = false,
   publicCompanyData,
   publicTemplateData,
-  templateCustomization
+  templateCustomization,
+  companyData
 }: UnifiedRightSidebarProps) {
   const { user } = useAuth();
   const { getTemplateSync } = useEfficientTemplates();
-  const templateData = isPublic && publicTemplateData ? publicTemplateData : getTemplateSync(template);
+  const templateData = publicTemplateData || getTemplateSync(template);
+
+  // Debug template data
+  React.useEffect(() => {
+    console.log('🔄 UnifiedRightSidebar: Template data updated:', {
+      isPublic,
+      hasPublicTemplateData: !!publicTemplateData,
+      hasTemplateData: !!templateData,
+      templateDataStructure: templateData ? Object.keys(templateData) : null,
+      templateColors: templateData?.template?.colors,
+      templateLayout: templateData?.template?.layout,
+      timestamp: new Date().toISOString()
+    });
+  }, [templateData, publicTemplateData, isPublic]);
 
   // Debug when templateCustomization changes
   React.useEffect(() => {
@@ -57,122 +97,182 @@ export default function UnifiedRightSidebar({
     });
   }, [templateCustomization]);
 
-  // Get customization data from template or props
+  // Get company data - prioritize actual company data over template customizations
   const getCompanyName = () => {
-    if (isPublic && publicTemplateData) {
-      console.log('🔍 UnifiedRightSidebar: Public mode - checking template data:', {
-        publicTemplateData,
-        template: publicTemplateData.template,
-        rightSidebarModifications: publicTemplateData.template?.rightSidebarModifications,
-        companyName: publicTemplateData.template?.rightSidebarModifications?.companyName
-      });
-      return publicTemplateData.template?.rightSidebarModifications?.companyName || 'Your Company';
+    // First priority: Actual company data (from database)
+    if (companyData?.name) {
+      console.log('✅ UnifiedRightSidebar: Using company data name:', companyData.name);
+      return companyData.name;
     }
-    console.log('🔄 UnifiedRightSidebar: Getting company name:', {
-      templateCustomization,
-      rightSidebarModifications: templateCustomization?.rightSidebarModifications,
-      companyName: templateCustomization?.rightSidebarModifications?.companyName
-    });
     
-    if (templateCustomization?.rightSidebarModifications?.companyName) {
-      console.log('✅ UnifiedRightSidebar: Using customized company name:', templateCustomization.rightSidebarModifications.companyName);
-      return templateCustomization.rightSidebarModifications.companyName;
+    // Second priority: Public company data
+    if (isPublic && publicCompanyData?.name) {
+      console.log('✅ UnifiedRightSidebar: Using public company data name:', publicCompanyData.name);
+      return publicCompanyData.name;
     }
+    
+    // Fallback: Default company name (no more template customization)
     console.log('⚠️ UnifiedRightSidebar: Using default company name');
-    return 'Your Brand™';
+    return 'Your Company';
   };
 
   const getCompanyLogo = () => {
-    if (isPublic && publicTemplateData) {
-      return publicTemplateData.template?.rightSidebarModifications?.logo || null;
+    // First priority: Actual company data
+    if (companyData?.logo) {
+      console.log('✅ UnifiedRightSidebar: Using company data logo:', companyData.logo);
+      return companyData.logo;
     }
-    console.log('🔄 UnifiedRightSidebar: Getting company logo:', {
-      logo: templateCustomization?.rightSidebarModifications?.logo
-    });
     
-    if (templateCustomization?.rightSidebarModifications?.logo) {
-      console.log('✅ UnifiedRightSidebar: Using customized logo');
-      return templateCustomization.rightSidebarModifications.logo;
+    // Second priority: Public company data
+    if (isPublic && publicCompanyData?.logo) {
+      console.log('✅ UnifiedRightSidebar: Using public company data logo:', publicCompanyData.logo);
+      return publicCompanyData.logo;
     }
-    console.log('⚠️ UnifiedRightSidebar: Using default initials');
-    return null; // Use default initials
+    
+    // Fallback: No logo (no more template customization)
+    console.log('⚠️ UnifiedRightSidebar: No logo found');
+    return null;
   };
 
   const getPhone = () => {
-    if (isPublic && publicTemplateData) {
-      return publicTemplateData.template?.rightSidebarModifications?.phone || '(555) 123-4567';
+    // First priority: Actual company data
+    if (companyData?.phone) {
+      console.log('✅ UnifiedRightSidebar: Using company data phone:', companyData.phone);
+      return companyData.phone;
     }
-    console.log('🔄 UnifiedRightSidebar: Getting phone:', {
-      phone: templateCustomization?.rightSidebarModifications?.phone
-    });
     
-    if (templateCustomization?.rightSidebarModifications?.phone) {
-      console.log('✅ UnifiedRightSidebar: Using customized phone:', templateCustomization.rightSidebarModifications.phone);
-      return templateCustomization.rightSidebarModifications.phone;
+    // Second priority: Public company data
+    if (isPublic && publicCompanyData?.phone) {
+      console.log('✅ UnifiedRightSidebar: Using public company data phone:', publicCompanyData.phone);
+      return publicCompanyData.phone;
     }
-    console.log('⚠️ UnifiedRightSidebar: Using default phone');
-    return '(555) 123-4567';
+    
+    // No fallback - return null if no data exists
+    console.log('⚠️ UnifiedRightSidebar: No phone data found');
+    return null;
   };
 
   const getEmail = () => {
-    if (isPublic && publicTemplateData) {
-      return publicTemplateData.template?.rightSidebarModifications?.email || 'info@yourbrand.com';
+    // First priority: Actual company data
+    if (companyData?.email) {
+      console.log('✅ UnifiedRightSidebar: Using company data email:', companyData.email);
+      return companyData.email;
     }
-    console.log('🔄 UnifiedRightSidebar: Getting email:', {
-      email: templateCustomization?.rightSidebarModifications?.email
-    });
     
-    if (templateCustomization?.rightSidebarModifications?.email) {
-      console.log('✅ UnifiedRightSidebar: Using customized email:', templateCustomization.rightSidebarModifications.email);
-      return templateCustomization.rightSidebarModifications.email;
+    // Second priority: Public company data
+    if (isPublic && publicCompanyData?.email) {
+      console.log('✅ UnifiedRightSidebar: Using public company data email:', publicCompanyData.email);
+      return publicCompanyData.email;
     }
-    console.log('⚠️ UnifiedRightSidebar: Using default email');
-    return 'info@yourbrand.com';
+    
+    // No fallback - return null if no data exists
+    console.log('⚠️ UnifiedRightSidebar: No email data found');
+    return null;
   };
 
   const getAddress = () => {
-    if (isPublic && publicTemplateData) {
-      return publicTemplateData.template?.rightSidebarModifications?.address || '123 Main St, City, State 12345';
+    // First priority: Actual company data
+    if (companyData?.address) {
+      console.log('✅ UnifiedRightSidebar: Using company data address:', companyData.address);
+      return companyData.address;
     }
-    console.log('🔄 UnifiedRightSidebar: Getting address:', {
-      address: templateCustomization?.rightSidebarModifications?.address
-    });
     
-    if (templateCustomization?.rightSidebarModifications?.address && 
-        templateCustomization.rightSidebarModifications.address.trim() !== '') {
-      console.log('✅ UnifiedRightSidebar: Using customized address:', templateCustomization.rightSidebarModifications.address);
-      return templateCustomization.rightSidebarModifications.address;
+    // Second priority: Public company data
+    if (isPublic && publicCompanyData?.address) {
+      console.log('✅ UnifiedRightSidebar: Using public company data address:', publicCompanyData.address);
+      return publicCompanyData.address;
     }
-    console.log('⚠️ UnifiedRightSidebar: Using default address');
-    return '123 Main St, City, State 12345';
+    
+    // No fallback - return null if no data exists
+    console.log('⚠️ UnifiedRightSidebar: No address data found');
+    return null;
+  };
+
+  const getWebsite = () => {
+    // First priority: Actual company data
+    if (companyData?.website) {
+      console.log('✅ UnifiedRightSidebar: Using company data website:', companyData.website);
+      return companyData.website;
+    }
+    
+    // Second priority: Public company data
+    if (isPublic && publicCompanyData?.website) {
+      console.log('✅ UnifiedRightSidebar: Using public company data website:', publicCompanyData.website);
+      return publicCompanyData.website;
+    }
+    
+    // Fallback: Default website
+    console.log('⚠️ UnifiedRightSidebar: Using default website');
+    return 'https://yourcompany.com';
+  };
+
+  const getLicenseNumber = () => {
+    // First priority: Actual company data
+    if (companyData?.license_number) {
+      console.log('✅ UnifiedRightSidebar: Using company data license number:', companyData.license_number);
+      return companyData.license_number;
+    }
+    
+    // Second priority: Public company data
+    if (isPublic && publicCompanyData?.license_number) {
+      console.log('✅ UnifiedRightSidebar: Using public company data license number:', publicCompanyData.license_number);
+      return publicCompanyData.license_number;
+    }
+    
+    // No fallback - return null if no data exists
+    console.log('⚠️ UnifiedRightSidebar: No license number found');
+    return null;
+  };
+
+  const getNmlsNumber = () => {
+    // First priority: Actual company data
+    if (companyData?.company_nmls_number) {
+      console.log('✅ UnifiedRightSidebar: Using company data NMLS number:', companyData.company_nmls_number);
+      return companyData.company_nmls_number;
+    }
+    
+    // Second priority: Public company data
+    if (isPublic && publicCompanyData?.company_nmls_number) {
+      console.log('✅ UnifiedRightSidebar: Using public company data NMLS number:', publicCompanyData.company_nmls_number);
+      return publicCompanyData.company_nmls_number;
+    }
+    
+    // No fallback - return null if no data exists
+    console.log('⚠️ UnifiedRightSidebar: No NMLS number found');
+    return null;
   };
 
   // Memoize social links to avoid multiple calls
   const socialLinks = React.useMemo(() => {
-    let socialMods: {
-      facebook?: string;
-      twitter?: string;
-      linkedin?: string;
-      instagram?: string;
-    } = {};
-    
-    if (isPublic && publicTemplateData) {
-      // In public mode, get social links from template data
-      socialMods = publicTemplateData.template?.rightSidebarModifications || {};
-    } else {
-      // In internal mode, get from templateCustomization
-      socialMods = templateCustomization?.rightSidebarModifications || {};
+    // First priority: Actual company data
+    if (companyData?.company_social_media) {
+      console.log('✅ UnifiedRightSidebar: Using company data social media:', companyData.company_social_media);
+      return {
+        facebook: companyData.company_social_media.facebook || '',
+        twitter: companyData.company_social_media.twitter || '',
+        linkedin: companyData.company_social_media.linkedin || '',
+        instagram: companyData.company_social_media.instagram || ''
+      };
     }
     
-    console.log('🔄 UnifiedRightSidebar: Getting social links:', socialMods);
-    console.log('🔄 UnifiedRightSidebar: isPublic:', isPublic);
-    console.log('🔄 UnifiedRightSidebar: publicTemplateData:', publicTemplateData);
+    // Second priority: Public company data
+    if (isPublic && publicCompanyData?.company_social_media) {
+      console.log('✅ UnifiedRightSidebar: Using public company data social media:', publicCompanyData.company_social_media);
+      return {
+        facebook: publicCompanyData.company_social_media.facebook || '',
+        twitter: publicCompanyData.company_social_media.twitter || '',
+        linkedin: publicCompanyData.company_social_media.linkedin || '',
+        instagram: publicCompanyData.company_social_media.instagram || ''
+      };
+    }
     
+    // Fallback: Empty social links (no more template customization)
+    console.log('⚠️ UnifiedRightSidebar: No social media links found');
     const links = {
-      facebook: socialMods.facebook || '',
-      twitter: socialMods.twitter || '',
-      linkedin: socialMods.linkedin || '',
-      instagram: socialMods.instagram || ''
+      facebook: '',
+      twitter: '',
+      linkedin: '',
+      instagram: ''
     };
     
     console.log('✅ UnifiedRightSidebar: Social links:', links);
@@ -212,12 +312,7 @@ export default function UnifiedRightSidebar({
     }
   };
   
-  const layout = templateData?.template?.layout || {
-    alignment: 'center',
-    spacing: 18,
-    borderRadius: 8,
-    padding: { small: 8, medium: 16, large: 24, xlarge: 32 }
-  };
+  // Layout data removed - using hardcoded Tailwind classes for consistent spacing
   
   // Helper function to get font size
   const getFontSize = (size: 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl') => {
@@ -264,73 +359,72 @@ export default function UnifiedRightSidebar({
 
   return (
     <div 
-      className={`rounded-lg border shadow-sm p-4 md:p-6 lg:p-4 min-h-screen md:min-h-[700px] sm:min-h-[700px] flex flex-col relative overflow-hidden w-full max-w-full ${className}`}
+      className={`rounded-lg border shadow-lg p-6 flex flex-col relative w-full max-w-full ${className}`}
       style={{
         backgroundColor: colors.background,
         borderColor: colors.border,
-        borderRadius: `${layout.borderRadius}px`,
+        borderRadius: `${templateData?.template?.layout?.borderRadius || 8}px`,
         fontFamily: typography.fontFamily,
-        boxShadow: `0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)`
+        boxShadow: `0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)`
       }}
     >
       {/* Content wrapper */}
-      <div className="relative z-10" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '100%' }}>
-        {/* Brand Section - Minimal Design */}
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: `${layout.padding.medium}px`,
-          marginBottom: `${layout.padding.large}px`,
-          paddingBottom: `${layout.padding.medium}px`,
-          borderBottom: `1px solid ${colors.border}`
+      <div className="relative z-10 flex flex-col">
+        {/* Brand Section - Enhanced Design */}
+        <div className="flex items-center gap-5 mb-8 pb-6 border-b" style={{ 
+          borderBottomColor: colors.border,
+          borderBottomWidth: '2px'
         }}>
-          {/* Brand logo - minimal circular design */}
-          {getCompanyLogo() ? (
-            <Image 
-              src={getCompanyLogo()!} 
-              alt={getCompanyName()}
-              width={40}
-              height={40}
-              style={{ 
-                borderRadius: '50%',
-                objectFit: 'cover',
-                border: `1px solid ${colors.border}`,
-                backgroundColor: colors.background
-              }}
-            />
-          ) : (
-            <div 
-              style={{ 
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: colors.primary,
-                color: colors.background
-              }}
-            >
+          {/* Brand logo - perfect circular design with primary border */}
+          <div 
+            className="flex-shrink-0 overflow-hidden"
+            style={{ 
+              width: '60px',
+              height: '60px',
+              borderRadius: '50%',
+              border: `3px solid ${colors.primary}`,
+              backgroundColor: colors.background,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: `0 4px 12px ${colors.primary}20`
+            }}
+          >
+            {getCompanyLogo() ? (
+              <Image 
+                src={getCompanyLogo()!} 
+                alt={getCompanyName()}
+                width={50}
+                height={50}
+                className="w-full h-full"
+                style={{ 
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                  objectPosition: 'center'
+                }}
+              />
+            ) : (
               <span 
                 style={{ 
-                  color: colors.background,
-                  fontSize: getFontSize('base'),
+                  color: colors.primary,
+                  fontSize: getFontSize('xl'),
                   fontWeight: typography.fontWeight.bold
                 }}
               >
                 {getCompanyName().charAt(0)}
               </span>
-            </div>
-          )}
+            )}
+          </div>
           <div>
             <h3 style={{ 
               color: colors.text,
-              fontSize: getFontSize('lg'),
-              fontWeight: typography.fontWeight.semibold,
+              fontSize: getFontSize('2xl'),
+              fontWeight: typography.fontWeight.bold,
               marginTop: 0,
               marginRight: 0,
               marginLeft: 0,
-              marginBottom: '4px'
+              marginBottom: '8px',
+              lineHeight: '1.2'
             }}>
               {getCompanyName()}
             </h3>
@@ -370,7 +464,7 @@ export default function UnifiedRightSidebar({
                   justifyContent: 'space-between',
                   padding: `${layout.padding.small}px`,
                   backgroundColor: `${colors.primary}08`,
-                  borderRadius: `${layout.borderRadius}px`,
+                  borderRadius: `${templateData?.template?.layout?.borderRadius || 8}px`,
                   border: `1px solid ${colors.border}`
                 }}
               >
@@ -401,123 +495,205 @@ export default function UnifiedRightSidebar({
         </div>
         */}
 
-        {/* Contact Information Section - Expanded Design */}
-        <div style={{ 
-          marginBottom: `${layout.padding.large}px`,
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column'
-        }}>
-          <h4 style={{ 
-            color: colors.text,
-            fontSize: getFontSize('lg'),
-            fontWeight: typography.fontWeight.semibold,
-            marginTop: 0,
-            marginRight: 0,
-            marginLeft: 0,
-            marginBottom: `${layout.padding.large}px`
-          }}>
-            Contact Information
-          </h4>
-          <div style={{ 
-            display: 'flex',
-            flexDirection: 'column',
-            gap: `${layout.padding.small}px`,
-            flex: 1,
-            justifyContent: 'space-around'
-          }}>
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: `${layout.padding.small}px`,
-              padding: `${layout.padding.small}px`,
-              backgroundColor: 'transparent',
-              borderRadius: `${layout.borderRadius}px`,
-              border: 'none'
-            }}>
+        {/* Contact Information Section - Enhanced Design */}
+        <div className="mb-6 flex flex-col">
+          <div className="flex flex-col gap-3">
+            {getPhone() && (
               <div 
+                className="flex items-center gap-3 p-3 rounded-lg"
                 style={{ 
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: colors.primary
+                  backgroundColor: `${colors.primary}10`,
+                  borderRadius: `${templateData?.template?.layout?.borderRadius || 8}px`
                 }}
               >
-                {React.createElement(icons.phone, { size: 16, color: colors.background })}
+                <div 
+                  style={{ 
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: colors.primary
+                  }}
+                >
+                  {React.createElement(icons.phone, { size: 18, color: colors.background })}
+                </div>
+                <span style={{ 
+                  color: colors.text,
+                  fontSize: getFontSize('base'),
+                  fontWeight: typography.fontWeight.medium
+                }}>
+                  {getPhone()}
+                </span>
               </div>
-              <span style={{ 
-                color: colors.text,
-                fontSize: getFontSize('sm'),
-                fontWeight: typography.fontWeight.normal
-              }}>
-                {getPhone()}
-              </span>
-            </div>
+            )}
             
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: `${layout.padding.small}px`,
-              padding: `${layout.padding.small}px`,
-              backgroundColor: 'transparent',
-              borderRadius: `${layout.borderRadius}px`,
-              border: 'none'
-            }}>
+            {getEmail() && (
               <div 
+                className="flex items-center gap-3 p-3 rounded-lg"
                 style={{ 
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: colors.primary
+                  backgroundColor: `${colors.primary}10`,
+                  borderRadius: `${templateData?.template?.layout?.borderRadius || 8}px`
                 }}
               >
-                {React.createElement(icons.email, { size: 16, color: colors.background })}
+                <div 
+                  style={{ 
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: colors.primary
+                  }}
+                >
+                  {React.createElement(icons.email, { size: 18, color: colors.background })}
+                </div>
+                <span style={{ 
+                  color: colors.text,
+                  fontSize: getFontSize('base'),
+                  fontWeight: typography.fontWeight.medium
+                }}>
+                  {getEmail()}
+                </span>
               </div>
-              <span style={{ 
-                color: colors.text,
-                fontSize: getFontSize('sm'),
-                fontWeight: typography.fontWeight.normal
-              }}>
-                {getEmail()}
-              </span>
-            </div>
+            )}
             
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: `${layout.padding.small}px`,
-              padding: `${layout.padding.small}px`,
-              backgroundColor: 'transparent',
-              borderRadius: `${layout.borderRadius}px`,
-              border: 'none'
-            }}>
+            {getAddress() && (
               <div 
+                className="flex items-center gap-3 p-3 rounded-lg"
                 style={{ 
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: colors.primary
+                  backgroundColor: `${colors.primary}10`,
+                  borderRadius: `${templateData?.template?.layout?.borderRadius || 8}px`
                 }}
               >
-                {React.createElement(icons.location, { size: 16, color: colors.background })}
+                <div 
+                  style={{ 
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: colors.primary
+                  }}
+                >
+                  {React.createElement(icons.location, { size: 18, color: colors.background })}
+                </div>
+                <span style={{ 
+                  color: colors.text,
+                  fontSize: getFontSize('base'),
+                  fontWeight: typography.fontWeight.medium
+                }}>
+                  {getAddress()}
+                </span>
               </div>
-              <span style={{ 
-                color: colors.text,
-                fontSize: getFontSize('sm'),
-                fontWeight: typography.fontWeight.normal
-              }}>
-                {getAddress()}
-              </span>
-            </div>
+            )}
+
+            {/* Website */}
+            {getWebsite() && (
+              <div 
+                className="flex items-center gap-3 p-3 rounded-lg"
+                style={{ 
+                  backgroundColor: `${colors.primary}10`,
+                  borderRadius: `${templateData?.template?.layout?.borderRadius || 8}px`
+                }}
+              >
+                <div 
+                  style={{ 
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: colors.primary
+                  }}
+                >
+                  {React.createElement(icons.externalLink, { size: 18, color: colors.background })}
+                </div>
+                <a 
+                  href={getWebsite().startsWith('http') ? getWebsite() : `https://${getWebsite()}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ 
+                    color: colors.primary,
+                    fontSize: getFontSize('base'),
+                    fontWeight: typography.fontWeight.medium,
+                    textDecoration: 'none'
+                  }}
+                  onMouseEnter={(e) => (e.target as HTMLElement).style.textDecoration = 'underline'}
+                  onMouseLeave={(e) => (e.target as HTMLElement).style.textDecoration = 'none'}
+                >
+                  Visit Website
+                </a>
+              </div>
+            )}
+
+            {/* License Number */}
+            {getLicenseNumber() && (
+              <div 
+                className="flex items-center gap-3 p-3 rounded-lg"
+                style={{ 
+                  backgroundColor: `${colors.primary}10`,
+                  borderRadius: `${templateData?.template?.layout?.borderRadius || 8}px`
+                }}
+              >
+                <div 
+                  style={{ 
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: colors.primary
+                  }}
+                >
+                  {React.createElement(icons.shield, { size: 18, color: colors.background })}
+                </div>
+                <span style={{ 
+                  color: colors.text,
+                  fontSize: getFontSize('base'),
+                  fontWeight: typography.fontWeight.medium
+                }}>
+                  {getLicenseNumber()}
+                </span>
+              </div>
+            )}
+
+            {/* NMLS Number */}
+            {getNmlsNumber() && (
+              <div 
+                className="flex items-center gap-3 p-3 rounded-lg"
+                style={{ 
+                  backgroundColor: `${colors.primary}10`,
+                  borderRadius: `${templateData?.template?.layout?.borderRadius || 8}px`
+                }}
+              >
+                <div 
+                  style={{ 
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: colors.primary
+                  }}
+                >
+                  {React.createElement(icons.building, { size: 18, color: colors.background })}
+                </div>
+                <span style={{ 
+                  color: colors.text,
+                  fontSize: getFontSize('base'),
+                  fontWeight: typography.fontWeight.medium
+                }}>
+                  {getNmlsNumber()}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -533,44 +709,32 @@ export default function UnifiedRightSidebar({
         }}>
         </div>
 
-        {/* Follow Us Section - Absolute Bottom Design */}
-        <div style={{ 
-          paddingTop: `${layout.padding.medium}px`, 
-          paddingBottom: `${layout.padding.large}px`,
+        {/* Follow Us Section - Enhanced Design */}
+        <div className="pt-6 pb-4 bg-white flex-shrink-0 flex flex-col justify-center border-t" style={{ 
           backgroundColor: colors.background,
-          flexShrink: 0,
-          minHeight: '100px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          borderTop: `1px solid ${colors.border}`,
-
+          borderTopColor: colors.border,
+          borderTopWidth: '2px'
         }}>
-          <h4 style={{ 
+          <h4 className="text-lg font-semibold mb-4 text-center" style={{ 
             color: colors.text,
-            fontSize: getFontSize('sm'),
-            fontWeight: typography.fontWeight.semibold,
-            marginTop: 0,
-            marginRight: 0,
-            marginLeft: 0,
-            marginBottom: `${layout.padding.small}px`,
-            textAlign: 'center'
+            fontSize: getFontSize('lg'),
+            fontWeight: typography.fontWeight.semibold
           }}>
             Follow Us
           </h4>
-          <div className="flex gap-2 justify-center flex-wrap">
+          <div className="flex gap-3 justify-center flex-wrap">
           {socialLinks.facebook && (
             <a 
               href={socialLinks.facebook}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ease-in-out hover:scale-110"
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ease-in-out hover:scale-110"
               style={{
                 backgroundColor: colors.primary,
-                boxShadow: `0 1px 3px ${colors.primary}30`
+                boxShadow: `0 4px 12px ${colors.primary}30`
               }}
             >
-              {React.createElement(icons.facebook, { size: 16, color: colors.background })}
+              {React.createElement(icons.facebook, { size: 18, color: colors.background })}
             </a>
           )}
           {socialLinks.twitter && (
@@ -578,13 +742,13 @@ export default function UnifiedRightSidebar({
               href={socialLinks.twitter}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ease-in-out hover:scale-110"
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ease-in-out hover:scale-110"
               style={{
                 backgroundColor: colors.primary,
-                boxShadow: `0 1px 3px ${colors.primary}30`
+                boxShadow: `0 4px 12px ${colors.primary}30`
               }}
             >
-              {React.createElement(icons.twitter, { size: 16, color: colors.background })}
+              {React.createElement(icons.twitter, { size: 18, color: colors.background })}
             </a>
           )}
           {socialLinks.linkedin && (
@@ -592,13 +756,13 @@ export default function UnifiedRightSidebar({
               href={socialLinks.linkedin}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ease-in-out hover:scale-110"
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ease-in-out hover:scale-110"
               style={{
                 backgroundColor: colors.primary,
-                boxShadow: `0 1px 3px ${colors.primary}30`
+                boxShadow: `0 4px 12px ${colors.primary}30`
               }}
             >
-              {React.createElement(icons.linkedin, { size: 16, color: colors.background })}
+              {React.createElement(icons.linkedin, { size: 18, color: colors.background })}
             </a>
           )}
           {socialLinks.instagram && (
@@ -606,13 +770,13 @@ export default function UnifiedRightSidebar({
               href={socialLinks.instagram}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ease-in-out hover:scale-110"
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ease-in-out hover:scale-110"
               style={{
                 backgroundColor: colors.primary,
-                boxShadow: `0 1px 3px ${colors.primary}30`
+                boxShadow: `0 4px 12px ${colors.primary}30`
               }}
             >
-              {React.createElement(icons.instagram, { size: 16, color: colors.background })}
+              {React.createElement(icons.instagram, { size: 18, color: colors.background })}
             </a>
           )}
         </div>

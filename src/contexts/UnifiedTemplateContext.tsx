@@ -20,6 +20,7 @@ interface TemplateData {
     headerModifications?: any;
     bodyModifications?: any;
     rightSidebarModifications?: any;
+    layoutConfig?: any; // Layout configuration for different template layouts
   };
   userInfo: {
     userId: string;

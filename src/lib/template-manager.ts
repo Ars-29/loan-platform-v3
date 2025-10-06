@@ -17,6 +17,7 @@ interface Template {
   layout: any;
   advanced: any;
   classes: any;
+  layout_config?: any; // Layout configuration for different template layouts
   created_at: string;
   updated_at: string;
 }

@@ -463,22 +463,25 @@ export default function AdminLeadsView({
     <div className="space-y-6">
       {/* Summary Cards - Exact same as loan officers page */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border">
-          <div className="text-sm font-medium text-gray-500">Total Leads</div>
-          <div className="text-2xl font-bold text-[#005b7c]">{filteredLeads.length}</div>
+        <div className="p-6 rounded-xl shadow-sm border" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)' }}>
+          <div className="text-sm font-medium text-white">Total Leads</div>
+          <div className="text-2xl font-bold text-white">{filteredLeads.length}</div>
         </div>
-        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border">
-          <div className="text-sm font-medium text-gray-500">New Leads</div>
-          <div className="text-2xl font-bold text-[#008eab]">{newLeads}</div>
+        <div className="p-6 rounded-xl shadow-sm border" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)' }}>
+          <div className="text-sm font-medium text-white">New Leads</div>
+          <div className="text-2xl font-bold text-white">{newLeads}</div>
         </div>
-        <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border">
-          <div className="text-sm font-medium text-gray-500">Converted</div>
-          <div className="text-2xl font-bold text-[#01bcc6]">{convertedLeads}</div>
+        <div className="p-6 rounded-xl shadow-sm border" style={{ background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)' }}>
+          <div className="text-sm font-medium text-white">Converted</div>
+          <div className="text-2xl font-bold text-white">{convertedLeads}</div>
         </div>
       </div>
 
       {/* Search and Filters - Enhanced with admin filters */}
-      <div className="bg-[#F7F1E9]/30 p-6 rounded-lg shadow-sm border">
+      <div 
+        className="bg-white p-6 shadow-sm border"
+        style={{ borderRadius: borderRadius.lg }}
+      >
         <div className="space-y-4">
           {/* Search Bar */}
           <div>
@@ -629,7 +632,10 @@ export default function AdminLeadsView({
       </div>
 
       {/* Leads Table */}
-      <div className="bg-[#F7F1E9]/30 rounded-lg shadow-sm border">
+      <div 
+        className="bg-white shadow-sm border"
+        style={{ borderRadius: borderRadius.lg }}
+      >
         <EnhancedLeadsTable
           leads={paginatedLeads}
           loading={loading}

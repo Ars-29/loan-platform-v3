@@ -45,6 +45,12 @@ export default function UnifiedNavigationTabs({
   const templateData = isPublic && publicTemplateData 
     ? publicTemplateData 
     : getTemplateSync(template);
+  // Get layout data for border radius
+  const templateLayout = templateData?.template?.layout || {
+    borderRadius: 8,
+    padding: { small: 8, medium: 16, large: 24 },
+    spacing: 16
+  };
   const colors = templateData?.template?.colors || {
     primary: '#ec4899',
     secondary: '#01bcc6',
@@ -66,7 +72,7 @@ export default function UnifiedNavigationTabs({
           {defaultTabs.map((tab) => {
             const isActive = currentTab === tab.id;
             const navStyles = templateData?.template?.classes?.navigation?.tab || {
-              base: 'px-4 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer',
+              base: 'px-4 py-2 font-medium transition-all duration-200 cursor-pointer',
               inactive: 'text-gray-600 hover:text-gray-800 hover:bg-gray-100',
               active: 'text-white shadow-md',
               hover: 'hover:bg-opacity-10'

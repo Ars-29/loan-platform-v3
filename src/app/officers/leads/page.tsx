@@ -461,7 +461,9 @@ export default function LeadsPage() {
 
   if (loading) {
     return (
-      <DashboardLayout title="Leads" subtitle="Manage your leads" showBackButton={true}>
+      <DashboardLayout showBreadcrumb={true}
+        breadcrumbVariant="default"
+        breadcrumbSize="md">
         <div style={{
           display: 'flex',
           justifyContent: 'center',
@@ -478,7 +480,9 @@ export default function LeadsPage() {
 
   if (error) {
     return (
-      <DashboardLayout title="Leads" subtitle="Manage your leads" showBackButton={true}>
+      <DashboardLayout showBreadcrumb={true}
+        breadcrumbVariant="default"
+        breadcrumbSize="md">
         <div style={{
           padding: spacing[6],
           backgroundColor: colors.red[50],
@@ -499,10 +503,12 @@ export default function LeadsPage() {
   }
 
   return (
-    <DashboardLayout title="Leads" subtitle="Manage your leads" showBackButton={true}>
+    <DashboardLayout 
+      showBreadcrumb={true}
+      breadcrumbVariant="default"
+      breadcrumbSize="md"
+    >
       <div style={{ padding: spacing[6] }}>
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb items={breadcrumbItems} />
 
         {/* Header with stats - Updated to use filtered data */}
         <div style={{
@@ -513,42 +519,42 @@ export default function LeadsPage() {
         }}>
           <div style={{
             padding: spacing[4],
-            backgroundColor: 'rgba(247, 241, 233, 0.3)',
+            background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)',
             borderRadius: borderRadius.lg,
-            border: `1px solid ${colors.gray[200]}`
+            border: 'none'
           }}>
-            <div style={{ fontSize: typography.fontSize['2xl'], fontWeight: typography.fontWeight.bold, color: '#005b7c' }}>
+            <div style={{ fontSize: typography.fontSize['2xl'], fontWeight: typography.fontWeight.bold, color: 'white' }}>
               {filteredLeads.length}
             </div>
-            <div style={{ fontSize: typography.fontSize.sm, color: '#005b7c' }}>
+            <div style={{ fontSize: typography.fontSize.sm, color: 'white' }}>
               {searchQuery || statusFilter || stageFilter || priorityFilter || sourceFilter ? 'Filtered' : 'Total'} Leads
             </div>
           </div>
           
           <div style={{
             padding: spacing[4],
-            backgroundColor: 'rgba(247, 241, 233, 0.3)',
+            background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)',
             borderRadius: borderRadius.lg,
-            border: `1px solid ${colors.gray[200]}`
+            border: 'none'
           }}>
-            <div style={{ fontSize: typography.fontSize['2xl'], fontWeight: typography.fontWeight.bold, color: '#008eab' }}>
+            <div style={{ fontSize: typography.fontSize['2xl'], fontWeight: typography.fontWeight.bold, color: 'white' }}>
               {filteredLeads.filter(lead => lead.status === 'new').length}
             </div>
-            <div style={{ fontSize: typography.fontSize.sm, color: '#008eab' }}>
+            <div style={{ fontSize: typography.fontSize.sm, color: 'white' }}>
               New Leads
             </div>
           </div>
           
           <div style={{
             padding: spacing[4],
-            backgroundColor: 'rgba(247, 241, 233, 0.3)',
+            background: 'linear-gradient(135deg, #005b7c 0%, #007a9a 100%)',
             borderRadius: borderRadius.lg,
-            border: `1px solid ${colors.gray[200]}`
+            border: 'none'
           }}>
-            <div style={{ fontSize: typography.fontSize['2xl'], fontWeight: typography.fontWeight.bold, color: '#01bcc6' }}>
+            <div style={{ fontSize: typography.fontSize['2xl'], fontWeight: typography.fontWeight.bold, color: 'white' }}>
               {filteredLeads.filter(lead => lead.status === 'converted').length}
             </div>
-            <div style={{ fontSize: typography.fontSize.sm, color: '#01bcc6' }}>
+            <div style={{ fontSize: typography.fontSize.sm, color: 'white' }}>
               Converted
             </div>
           </div>

@@ -7,9 +7,9 @@ export default function SuperAdminInsightsPage() {
   return (
     <RouteGuard allowedRoles={['super_admin']}>
       <DashboardLayout 
-        title="Leads" 
-        subtitle="Manage your leads"
-        showBackButton={true}
+        showBreadcrumb={true}
+        breadcrumbVariant="default"
+        breadcrumbSize="md"
       >
         <Suspense fallback={
           <div className="flex items-center justify-center py-8">
