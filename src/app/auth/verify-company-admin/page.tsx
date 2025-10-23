@@ -78,7 +78,7 @@ function VerifyCompanyAdminPageContent() {
 
   if (!companyId || !token) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#EBDBC7] to-[#F7F1E9]">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
           <div className="text-center">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -95,11 +95,11 @@ function VerifyCompanyAdminPageContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-100">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#EBDBC7] to-[#F7F1E9]">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-16 h-16 bg-[#01bcc6]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-[#01bcc6]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
@@ -137,7 +137,7 @@ function VerifyCompanyAdminPageContent() {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01bcc6] focus:border-transparent"
               placeholder="Enter your password"
               required
               minLength={8}
@@ -155,7 +155,7 @@ function VerifyCompanyAdminPageContent() {
               id="confirmPassword"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01bcc6] focus:border-transparent"
               placeholder="Confirm your password"
               required
               minLength={8}
@@ -166,7 +166,7 @@ function VerifyCompanyAdminPageContent() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-pink-600 text-white py-3 px-6 rounded-lg hover:bg-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+            className="w-full bg-[#01bcc6] text-white py-3 px-6 rounded-lg hover:bg-[#008eab] disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
           >
             {loading ? 'Verifying...' : 'Complete Setup'}
           </button>
@@ -175,7 +175,7 @@ function VerifyCompanyAdminPageContent() {
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
             Need help?{' '}
-            <a href="mailto:support@loanplatform.com" className="text-pink-600 hover:underline">
+            <a href="mailto:support@loanplatform.com" className="text-[#01bcc6] hover:underline">
               Contact Support
             </a>
           </p>
@@ -189,7 +189,7 @@ export default function VerifyCompanyAdminPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-pink-600"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#01bcc6]"></div>
       </div>
     }>
       <VerifyCompanyAdminPageContent />

@@ -7,6 +7,7 @@ export const users = pgTable('users', {
   firstName: text('first_name'),
   lastName: text('last_name'),
   phone: text('phone'),
+  nmlsNumber: text('nmls_number'), // NMLS# for loan officers
   avatar: text('avatar'),
   role: text('role').notNull().default('employee'), // super_admin, company_admin, employee
   isActive: boolean('is_active').default(true),
@@ -18,37 +19,94 @@ export const users = pgTable('users', {
   lastLoginAt: timestamp('last_login_at'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
-});
+}, (table) => ({
+  emailIdx: index('users_email_idx').on(table.email),
+  nmlsNumberIdx: index('users_nmls_number_idx').on(table.nmlsNumber),
+}));
 
-// Companies table
+// Companies table - Enhanced with comprehensive company profile fields
 export const companies = pgTable('companies', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: text('name').notNull(),
   slug: text('slug').notNull().unique(),
+  
+  // Legacy fields (kept for backward compatibility)
   logo: text('logo'),
   website: text('website'),
   licenseNumber: text('license_number'),
   address: jsonb('address'), // { street, city, state, zip, country }
   phone: text('phone'),
   email: text('email'),
+  
+  // Admin fields
   adminEmail: text('admin_email'), // Email for company admin
   adminEmailVerified: boolean('admin_email_verified').default(false),
   adminUserId: uuid('admin_user_id'), // Reference to admin user once created
+  
+  // Invite fields
   inviteStatus: text('invite_status').default('pending'), // pending, sent, accepted, expired
   inviteSentAt: timestamp('invite_sent_at'), // When invite was sent
   inviteExpiresAt: timestamp('invite_expires_at'), // When invite expires (24 hours)
   inviteToken: text('invite_token'), // Supabase invite token
+  
+  // Subscription fields
   subscription: text('subscription').default('basic'), // basic, pro, enterprise
   subscriptionExpiresAt: timestamp('subscription_expires_at'),
+  
+  // Status fields
   isActive: boolean('is_active').default(true),
   deactivated: boolean('deactivated').default(false), // For deactivation control
+  
+  // Enhanced company profile fields (non-redundant)
+  companyTagline: text('company_tagline'),
+  companyDescription: text('company_description'),
+  companyNmlsNumber: text('company_nmls_number'),
+  companyEstablishedYear: integer('company_established_year'),
+  companyTeamSize: text('company_team_size'),
+  companySpecialties: jsonb('company_specialties').default('[]'),
+  companyAwards: jsonb('company_awards').default('[]'),
+  companyTestimonials: jsonb('company_testimonials').default('[]'),
+  companySocialMedia: jsonb('company_social_media').default('{}'),
+  companyBranding: jsonb('company_branding').default('{}'),
+  companyContactInfo: jsonb('company_contact_info').default('{}'),
+  companyBusinessHours: jsonb('company_business_hours').default('{}'),
+  companyServiceAreas: jsonb('company_service_areas').default('[]'),
+  companyLanguages: jsonb('company_languages').default('[]'),
+  companyCertifications: jsonb('company_certifications').default('[]'),
+  companyInsuranceInfo: jsonb('company_insurance_info').default('{}'),
+  companyFinancialInfo: jsonb('company_financial_info').default('{}'),
+  companyMarketingInfo: jsonb('company_marketing_info').default('{}'),
+  companyPrivacySettings: jsonb('company_privacy_settings').default('{}'),
+  companySeoSettings: jsonb('company_seo_settings').default('{}'),
+  companyAnalyticsSettings: jsonb('company_analytics_settings').default('{}'),
+  companyIntegrationSettings: jsonb('company_integration_settings').default('{}'),
+  companyNotificationSettings: jsonb('company_notification_settings').default('{}'),
+  companyBackupSettings: jsonb('company_backup_settings').default('{}'),
+  companySecuritySettings: jsonb('company_security_settings').default('{}'),
+  companyComplianceSettings: jsonb('company_compliance_settings').default('{}'),
+  companyCustomFields: jsonb('company_custom_fields').default('{}'),
+  companyMetadata: jsonb('company_metadata').default('{}'),
+  companyVersion: integer('company_version').default(1),
+  companyLastUpdatedBy: uuid('company_last_updated_by'),
+  companyApprovalStatus: text('company_approval_status').default('pending'),
+  companyApprovalNotes: text('company_approval_notes'),
+  companyApprovalDate: timestamp('company_approval_date'),
+  companyApprovalBy: uuid('company_approval_by'),
+  
+  // Legacy settings (kept for backward compatibility)
   settings: jsonb('settings').default('{}'), // Company-wide settings
+  
+  // Timestamps
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 }, (table) => ({
   slugIdx: index('company_slug_idx').on(table.slug),
   isActiveIdx: index('company_active_idx').on(table.isActive),
   adminEmailIdx: index('company_admin_email_idx').on(table.adminEmail),
+  nmlsNumberIdx: index('companies_nmls_number_idx').on(table.companyNmlsNumber),
+  licenseNumberIdx: index('companies_license_number_idx').on(table.licenseNumber),
+  approvalStatusIdx: index('companies_approval_status_idx').on(table.companyApprovalStatus),
+  versionIdx: index('companies_version_idx').on(table.companyVersion),
 }));
 
 // User-Company relationships
@@ -66,24 +124,45 @@ export const userCompanies = pgTable('user_companies', {
   userCompanyIdx: index('user_company_unique_idx').on(table.userId, table.companyId),
 }));
 
-// Templates table
+// Templates table - Updated to match theme.ts structure with user ownership
 export const templates = pgTable('templates', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: text('name').notNull(),
-  slug: text('slug').notNull().unique(),
+  slug: text('slug').notNull(),
   description: text('description'),
   previewImage: text('preview_image'),
-  category: text('category').notNull(), // standard, alternative, custom
   isActive: boolean('is_active').default(true),
   isPremium: boolean('is_premium').default(false),
-  config: jsonb('config').notNull().default('{}'), // Template configuration
-  sections: jsonb('sections').notNull().default('[]'), // Available sections
+  isDefault: boolean('is_default').default(false), // true for default templates, false for user customizations
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }), // null for default templates, user ID for customizations
+  
+  // Template structure matching theme.ts
+  colors: jsonb('colors').notNull().default('{}'), // { primary, secondary, background, text, textSecondary, border }
+  typography: jsonb('typography').notNull().default('{}'), // { fontFamily, fontSize, fontWeight }
+  content: jsonb('content').notNull().default('{}'), // { headline, subheadline, ctaText, ctaSecondary, companyName, tagline }
+  layout: jsonb('layout').notNull().default('{}'), // { alignment, spacing, borderRadius, padding }
+  advanced: jsonb('advanced').notNull().default('{}'), // { customCSS, accessibility }
+  classes: jsonb('classes').notNull().default('{}'), // Generated CSS classes
+  
+  // New customization sections
+  headerModifications: jsonb('header_modifications').default('{}'), // { officerName, avatar, phone, email, applyNowLink, personalInfo }
+  bodyModifications: jsonb('body_modifications').default('{}'), // { activeTab, enabledTabs, tabOrder, tabSettings }
+  rightSidebarModifications: jsonb('right_sidebar_modifications').default('{}'), // { socialMedia, companyName, logo, contactInfo, reviews }
+  
+  // Layout configuration for different template layouts
+  layoutConfig: jsonb('layout_config').default('{}'), // { headerLayout, mainContentLayout }
+  
+  // Public profile template selection
+  isSelected: boolean('is_selected').default(false), // true if this template is selected for public profile
+  
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 }, (table) => ({
   slugIdx: index('template_slug_idx').on(table.slug),
-  categoryIdx: index('template_category_idx').on(table.category),
   isActiveIdx: index('template_active_idx').on(table.isActive),
+  isDefaultIdx: index('template_default_idx').on(table.isDefault),
+  userIdIdx: index('template_user_idx').on(table.userId),
+  userSlugIdx: index('template_user_slug_idx').on(table.userId, table.slug),
 }));
 
 // Page Settings table
@@ -143,6 +222,21 @@ export const leads = pgTable('leads', {
   notes: text('notes'),
   tags: jsonb('tags').default('[]'), // Array of tags
   customFields: jsonb('custom_fields').default('{}'), // Custom form fields
+  
+  // Analytics columns
+  conversionStage: text('conversion_stage').default('lead'), // lead, application, approval, closing
+  conversionDate: timestamp('conversion_date'),
+  applicationDate: timestamp('application_date'),
+  approvalDate: timestamp('approval_date'),
+  closingDate: timestamp('closing_date'),
+  loanAmountClosed: decimal('loan_amount_closed', { precision: 15, scale: 2 }),
+  commissionEarned: decimal('commission_earned', { precision: 10, scale: 2 }),
+  responseTimeHours: integer('response_time_hours'), // hours to first response
+  lastContactDate: timestamp('last_contact_date'),
+  contactCount: integer('contact_count').default(0),
+  leadQualityScore: integer('lead_quality_score'), // 1-10 rating
+  geographicLocation: text('geographic_location'), // city, state for mapping
+  
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 }, (table) => ({
@@ -151,6 +245,13 @@ export const leads = pgTable('leads', {
   statusIdx: index('leads_status_idx').on(table.status),
   emailIdx: index('leads_email_idx').on(table.email),
   createdAtIdx: index('leads_created_at_idx').on(table.createdAt),
+  // Analytics indexes
+  conversionStageIdx: index('leads_conversion_stage_idx').on(table.conversionStage),
+  conversionDateIdx: index('leads_conversion_date_idx').on(table.conversionDate),
+  closingDateIdx: index('leads_closing_date_idx').on(table.closingDate),
+  responseTimeIdx: index('leads_response_time_idx').on(table.responseTimeHours),
+  qualityScoreIdx: index('leads_quality_score_idx').on(table.leadQualityScore),
+  locationIdx: index('leads_location_idx').on(table.geographicLocation),
 }));
 
 // Rate Data table (from Optimal Blue API)
@@ -214,6 +315,38 @@ export const analytics = pgTable('analytics', {
   createdAtIdx: index('analytics_created_at_idx').on(table.createdAt),
 }));
 
+// Loan Officer Public Links table
+export const loanOfficerPublicLinks = pgTable('loan_officer_public_links', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  companyId: uuid('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
+  publicSlug: text('public_slug').notNull().unique(),
+  isActive: boolean('is_active').default(true).notNull(),
+  expiresAt: timestamp('expires_at'),
+  maxUses: integer('max_uses'),
+  currentUses: integer('current_uses').default(0).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index('user_link_idx').on(table.userId),
+  companyIdx: index('company_link_idx').on(table.companyId),
+  publicSlugIdx: index('public_slug_idx').on(table.publicSlug),
+  isActiveIdx: index('public_link_active_idx').on(table.isActive),
+}));
+
+// Public Link Usage table for analytics
+export const publicLinkUsage = pgTable('public_link_usage', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  linkId: uuid('link_id').notNull().references(() => loanOfficerPublicLinks.id, { onDelete: 'cascade' }),
+  ipAddress: text('ip_address'),
+  userAgent: text('user_agent'),
+  referrer: text('referrer'),
+  accessedAt: timestamp('accessed_at').defaultNow().notNull(),
+}, (table) => ({
+  linkIdx: index('link_usage_idx').on(table.linkId),
+  accessedAtIdx: index('access_time_idx').on(table.accessedAt),
+}));
+
 // Type exports
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -235,3 +368,7 @@ export type ApiKey = typeof apiKeys.$inferSelect;
 export type NewApiKey = typeof apiKeys.$inferInsert;
 export type Analytics = typeof analytics.$inferSelect;
 export type NewAnalytics = typeof analytics.$inferInsert;
+export type LoanOfficerPublicLink = typeof loanOfficerPublicLinks.$inferSelect;
+export type NewLoanOfficerPublicLink = typeof loanOfficerPublicLinks.$inferInsert;
+export type PublicLinkUsage = typeof publicLinkUsage.$inferSelect;
+export type NewPublicLinkUsage = typeof publicLinkUsage.$inferInsert;

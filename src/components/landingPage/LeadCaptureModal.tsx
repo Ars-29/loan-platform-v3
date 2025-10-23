@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { typography, colors, spacing, borderRadius, shadows } from '@/theme/theme';
+import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
 import { icons } from '@/components/ui/Icon';
 
 interface LeadCaptureModalProps {
@@ -24,6 +24,10 @@ interface LeadCaptureModalProps {
     lockPeriod: number;
   };
   onSubmit: (leadData: LeadData) => Promise<void>;
+  template?: 'template1' | 'template2';
+  // NEW: Public mode props
+  isPublic?: boolean;
+  publicTemplateData?: any;
 }
 
 export interface LeadData {
@@ -48,12 +52,113 @@ export interface LeadData {
   };
 }
 
-export default function LeadCaptureModal({ 
-  isOpen, 
-  onClose, 
-  loanProduct, 
-  onSubmit 
+export default function LeadCaptureModal({
+  isOpen,
+  onClose,
+  loanProduct,
+  onSubmit,
+  template = 'template1',
+  // NEW: Public mode props
+  isPublic = false,
+  publicTemplateData
 }: LeadCaptureModalProps) {
+  const { getTemplateSync } = useEfficientTemplates();
+  
+  // Template data fetching - support both public and auth modes
+  const templateData = isPublic && publicTemplateData 
+    ? publicTemplateData 
+    : getTemplateSync(template);
+  
+  // Comprehensive template data usage
+  const colors = templateData?.template?.colors || {
+    primary: '#ec4899',
+    secondary: '#01bcc6',
+    background: '#ffffff',
+    text: '#111827',
+    textSecondary: '#6b7280',
+    border: '#e5e7eb'
+  };
+  
+  const typography = templateData?.template?.typography || {
+    fontFamily: 'Inter',
+    fontSize: 16,
+    fontWeight: {
+      normal: 400,
+      medium: 500,
+      semibold: 600,
+      bold: 700
+    }
+  };
+  
+  const content = templateData?.template?.content || {
+    headline: 'Get Started',
+    subheadline: 'Complete your information to get started with this loan',
+    ctaText: 'Get Started',
+    ctaSecondary: 'Cancel'
+  };
+  
+  const layout = templateData?.template?.layout || {
+    alignment: 'center',
+    spacing: 18,
+    borderRadius: 8,
+    padding: { small: 8, medium: 16, large: 24, xlarge: 32 }
+  };
+  
+  const defaultClasses = {
+    button: {
+      primary: 'px-6 py-3 font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white',
+      secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 font-medium transition-all duration-200 border border-gray-300'
+    },
+    card: {
+      container: 'bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200',
+      header: 'px-6 py-4 border-b border-gray-200',
+      body: 'px-6 py-4'
+    },
+    heading: {
+      h1: 'text-3xl font-bold text-gray-900 mb-4',
+      h2: 'text-2xl font-bold text-gray-900 mb-3',
+      h3: 'text-xl font-semibold text-gray-900 mb-2',
+      h4: 'text-lg font-semibold text-gray-900 mb-2',
+      h5: 'text-base font-semibold text-gray-900 mb-2',
+      h6: 'text-sm font-semibold text-gray-900 mb-1'
+    },
+    body: {
+      large: 'text-lg text-gray-700 leading-relaxed',
+      base: 'text-base text-gray-700 leading-relaxed',
+      small: 'text-sm text-gray-600 leading-relaxed',
+      xs: 'text-xs text-gray-500 leading-normal'
+    },
+    input: {
+      base: 'w-full px-4 py-3 border border-gray-300 focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6] transition-all duration-200',
+      error: 'border-red-300 focus:ring-red-500 focus:border-red-500'
+    }
+  };
+  const templateClasses = templateData?.template?.classes;
+  const safeTemplateClasses = templateClasses && typeof templateClasses === 'object' ? templateClasses : {};
+  const classes = {
+    ...defaultClasses,
+    ...safeTemplateClasses,
+button: { 
+      ...defaultClasses.button, 
+      ...(safeTemplateClasses?.button || {}) 
+    },
+    card: { 
+      ...defaultClasses.card, 
+      ...(safeTemplateClasses?.card || {}) 
+    },
+    heading: { 
+      ...defaultClasses.heading, 
+      ...(safeTemplateClasses?.heading || {}) 
+    },
+    body: { 
+      ...defaultClasses.body, 
+      ...(safeTemplateClasses?.body || {}) 
+    },
+    input: { 
+      ...defaultClasses.input, 
+      ...(safeTemplateClasses?.input || {}) 
+    }
+  };
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -178,65 +283,36 @@ export default function LeadCaptureModal({
   return (
     <>
       {isOpen && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          padding: spacing[4]
-        }}>
-          <div style={{
-            backgroundColor: colors.white,
-            borderRadius: borderRadius.lg,
-            boxShadow: shadows.xl,
-            maxWidth: '500px',
-            width: '100%',
-            maxHeight: '90vh',
-            overflowY: 'auto'
-          }}>
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          style={{ fontFamily: typography.fontFamily }}
+        >
+          <div 
+            className={`${classes.card.container} max-w-lg w-full max-h-[90vh] overflow-y-auto`}
+            style={{ 
+              backgroundColor: colors.background,
+              borderRadius: `${layout.borderRadius}px`
+            }}
+          >
             {/* Header */}
-            <div style={{
-              padding: spacing[6],
-              borderBottom: `1px solid ${colors.gray[200]}`
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}>
+            <div className={`${classes.card.header}`} style={{ borderBottomColor: colors.border }}>
+              <div className="flex items-center justify-between">
                 <div>
-                  <h2 style={{
-                    fontSize: typography.fontSize['2xl'],
-                    fontWeight: typography.fontWeight.bold,
-                    color: colors.gray[900],
-                    marginBottom: spacing[1]
-                  }}>
-                    Get Started
+                  <h2 className={`${classes.heading.h2}`} style={{ color: colors.text }}>
+                    {content.headline}
                   </h2>
-                  <p style={{
-                    fontSize: typography.fontSize.sm,
-                    color: colors.gray[600]
-                  }}>
-                    Complete your information to get started with this loan
+                  <p className={`${classes.body.small}`} style={{ color: colors.textSecondary }}>
+                    {content.subheadline}
                   </p>
                 </div>
                 <button
                   onClick={handleClose}
                   disabled={isSubmitting}
-                  style={{
-                    background: 'none',
-                    border: 'none',
+                  className="p-2 transition-colors hover:bg-gray-100"
+                  style={{ 
+                    color: colors.textSecondary,
                     cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                    padding: spacing[2],
-                    borderRadius: borderRadius.md,
-                    color: colors.gray[400],
-                    fontSize: '20px'
+                    borderRadius: `${layout.borderRadius}px`
                   }}
                 >
                   {React.createElement(icons.close, { size: 20 })}
@@ -245,46 +321,39 @@ export default function LeadCaptureModal({
             </div>
 
             {/* Loan Product Summary */}
-            <div style={{
-              padding: spacing[4],
-              backgroundColor: colors.blue[50],
-              borderBottom: `1px solid ${colors.gray[200]}`
-            }}>
-              <h3 style={{
-                fontSize: typography.fontSize.lg,
-                fontWeight: typography.fontWeight.semibold,
-                color: colors.gray[900],
-                marginBottom: spacing[2]
-              }}>
+            <div 
+              className="p-4 border-b"
+              style={{ 
+                backgroundColor: `${colors.primary}10`,
+                borderBottomColor: colors.border,
+                padding: `${layout.padding.medium}px`
+              }}
+            >
+              <h3 className={`${classes.heading.h5}`} style={{ color: colors.text }}>
                 Selected Loan Product
               </h3>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: spacing[2],
-                fontSize: typography.fontSize.sm
-              }}>
-                <div>
-                  <span style={{ color: colors.gray[600] }}>Lender:</span>
-                  <span style={{ color: colors.gray[900], fontWeight: typography.fontWeight.medium, marginLeft: spacing[1] }}>
+              <div className="grid grid-cols-2 gap-2">
+                <div className={`${classes.body.small}`}>
+                  <span style={{ color: colors.textSecondary }}>Lender:</span>
+                  <span className="ml-1 font-medium" style={{ color: colors.text }}>
                     {loanProduct.lenderName}
                   </span>
                 </div>
-                <div>
-                  <span style={{ color: colors.gray[600] }}>Program:</span>
-                  <span style={{ color: colors.gray[900], fontWeight: typography.fontWeight.medium, marginLeft: spacing[1] }}>
+                <div className={`${classes.body.small}`}>
+                  <span style={{ color: colors.textSecondary }}>Program:</span>
+                  <span className="ml-1 font-medium" style={{ color: colors.text }}>
                     {loanProduct.loanProgram}
                   </span>
                 </div>
-                <div>
-                  <span style={{ color: colors.gray[600] }}>Rate:</span>
-                  <span style={{ color: colors.gray[900], fontWeight: typography.fontWeight.medium, marginLeft: spacing[1] }}>
+                <div className={`${classes.body.small}`}>
+                  <span style={{ color: colors.textSecondary }}>Rate:</span>
+                  <span className="ml-1 font-medium" style={{ color: colors.text }}>
                     {loanProduct.interestRate.toFixed(3)}%
                   </span>
                 </div>
-                <div>
-                  <span style={{ color: colors.gray[600] }}>Monthly Payment:</span>
-                  <span style={{ color: colors.gray[900], fontWeight: typography.fontWeight.medium, marginLeft: spacing[1] }}>
+                <div className={`${classes.body.small}`}>
+                  <span style={{ color: colors.textSecondary }}>Monthly Payment:</span>
+                  <span className="ml-1 font-medium" style={{ color: colors.text }}>
                     ${loanProduct.monthlyPayment.toLocaleString()}
                   </span>
                 </div>
@@ -292,31 +361,19 @@ export default function LeadCaptureModal({
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} style={{ padding: spacing[6] }}>
-              <div style={{ marginBottom: spacing[6] }}>
-                <h3 style={{
-                  fontSize: typography.fontSize.lg,
-                  fontWeight: typography.fontWeight.semibold,
-                  color: colors.gray[900],
-                  marginBottom: spacing[4]
-                }}>
+            <form 
+              onSubmit={handleSubmit} 
+              className={`${classes.card.body}`}
+              style={{ padding: `${layout.padding.large}px` }}
+            >
+              <div className="mb-6">
+                <h3 className={`${classes.heading.h5} mb-4`} style={{ color: colors.text }}>
                   Your Information
                 </h3>
                 
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 1fr',
-                  gap: spacing[4],
-                  marginBottom: spacing[4]
-                }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label style={{
-                      display: 'block',
-                      fontSize: typography.fontSize.sm,
-                      fontWeight: typography.fontWeight.medium,
-                      color: colors.gray[700],
-                      marginBottom: spacing[1]
-                    }}>
+                    <label className={`${classes.body.small} font-medium block mb-1`} style={{ color: colors.text }}>
                       First Name *
                     </label>
                     <Input
@@ -327,26 +384,18 @@ export default function LeadCaptureModal({
                       placeholder="Enter your first name"
                       error={errors.firstName || undefined}
                       disabled={isSubmitting}
+                      className={errors.firstName ? classes.input.error : classes.input.base}
+                      style={{ borderRadius: `${layout.borderRadius}px` }}
                     />
                     {errors.firstName && (
-                      <p style={{
-                        fontSize: typography.fontSize.xs,
-                        color: colors.red[600],
-                        marginTop: spacing[1]
-                      }}>
+                      <p className={`${classes.body.xs} mt-1`} style={{ color: colors.primary }}>
                         {errors.firstName}
                       </p>
                     )}
                   </div>
                   
                   <div>
-                    <label style={{
-                      display: 'block',
-                      fontSize: typography.fontSize.sm,
-                      fontWeight: typography.fontWeight.medium,
-                      color: colors.gray[700],
-                      marginBottom: spacing[1]
-                    }}>
+                    <label className={`${classes.body.small} font-medium block mb-1`} style={{ color: colors.text }}>
                       Last Name *
                     </label>
                     <Input
@@ -357,27 +406,19 @@ export default function LeadCaptureModal({
                       placeholder="Enter your last name"
                       error={errors.lastName || undefined}
                       disabled={isSubmitting}
+                      className={errors.lastName ? classes.input.error : classes.input.base}
+                      style={{ borderRadius: `${layout.borderRadius}px` }}
                     />
                     {errors.lastName && (
-                      <p style={{
-                        fontSize: typography.fontSize.xs,
-                        color: colors.red[600],
-                        marginTop: spacing[1]
-                      }}>
+                      <p className={`${classes.body.xs} mt-1`} style={{ color: colors.primary }}>
                         {errors.lastName}
                       </p>
                     )}
                   </div>
                 </div>
                 
-                <div style={{ marginBottom: spacing[4] }}>
-                  <label style={{
-                    display: 'block',
-                    fontSize: typography.fontSize.sm,
-                    fontWeight: typography.fontWeight.medium,
-                    color: colors.gray[700],
-                    marginBottom: spacing[1]
-                  }}>
+                <div className="mb-4">
+                  <label className={`${classes.body.small} font-medium block mb-1`} style={{ color: colors.text }}>
                     Email Address *
                   </label>
                   <Input
@@ -388,26 +429,18 @@ export default function LeadCaptureModal({
                     placeholder="Enter your email address"
                     error={errors.email || undefined}
                     disabled={isSubmitting}
+                    className={errors.email ? classes.input.error : classes.input.base}
+                    style={{ borderRadius: `${layout.borderRadius}px` }}
                   />
                   {errors.email && (
-                    <p style={{
-                      fontSize: typography.fontSize.xs,
-                      color: colors.red[600],
-                      marginTop: spacing[1]
-                    }}>
+                    <p className={`${classes.body.xs} mt-1`} style={{ color: colors.primary }}>
                       {errors.email}
                     </p>
                   )}
                 </div>
                 
-                <div>
-                  <label style={{
-                    display: 'block',
-                    fontSize: typography.fontSize.sm,
-                    fontWeight: typography.fontWeight.medium,
-                    color: colors.gray[700],
-                    marginBottom: spacing[1]
-                  }}>
+                <div className="mb-4">
+                  <label className={`${classes.body.small} font-medium block mb-1`} style={{ color: colors.text }}>
                     Phone Number *
                   </label>
                   <Input
@@ -418,27 +451,19 @@ export default function LeadCaptureModal({
                     placeholder="Enter your phone number"
                     error={errors.phone || undefined}
                     disabled={isSubmitting}
+                    className={errors.phone ? classes.input.error : classes.input.base}
+                    style={{ borderRadius: `${layout.borderRadius}px` }}
                   />
                   {errors.phone && (
-                    <p style={{
-                      fontSize: typography.fontSize.xs,
-                      color: colors.red[600],
-                      marginTop: spacing[1]
-                    }}>
+                    <p className={`${classes.body.xs} mt-1`} style={{ color: colors.primary }}>
                       {errors.phone}
                     </p>
                   )}
                 </div>
               </div>
               
-              <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: typography.fontSize.sm,
-                  fontWeight: typography.fontWeight.medium,
-                  color: colors.gray[700],
-                  marginBottom: spacing[1]
-                }}>
+              <div className="mb-4">
+                <label className={`${classes.body.small} font-medium block mb-1`} style={{ color: colors.text }}>
                   Credit Score (Optional)
                 </label>
                 <Input
@@ -449,56 +474,80 @@ export default function LeadCaptureModal({
                   placeholder="e.g., 750 or 700-750"
                   error={errors.creditScore || undefined}
                   disabled={isSubmitting}
+                  className={errors.creditScore ? classes.input.error : classes.input.base}
+                  style={{ borderRadius: `${layout.borderRadius}px` }}
                 />
                 {errors.creditScore && (
-                  <p style={{
-                    fontSize: typography.fontSize.xs,
-                    color: colors.red[600],
-                    marginTop: spacing[1]
-                  }}>
+                  <p className={`${classes.body.xs} mt-1`} style={{ color: colors.primary }}>
                     {errors.creditScore}
                   </p>
                 )}
               </div>
 
               {errors.submit && (
-                <div style={{
-                  padding: spacing[3],
-                  backgroundColor: colors.red[50],
-                  border: `1px solid ${colors.red[200]}`,
-                  borderRadius: borderRadius.md,
-                  marginBottom: spacing[4]
-                }}>
-                  <p style={{
-                    fontSize: typography.fontSize.sm,
-                    color: colors.red[600]
-                  }}>
+                <div 
+                  className="p-3 mb-4"
+                  style={{
+                    backgroundColor: `${colors.primary}10`,
+                    border: `1px solid ${colors.primary}20`,
+                    borderRadius: `${layout.borderRadius}px`
+                  }}
+                >
+                  <p className={`${classes.body.small}`} style={{ color: colors.primary }}>
                     {errors.submit}
                   </p>
                 </div>
               )}
 
               {/* Submit Button */}
-              <div style={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                gap: spacing[3]
-              }}>
-                <Button
+              <div className="flex justify-end gap-3">
+                <button
                   type="button"
-                  variant="secondary"
                   onClick={handleClose}
                   disabled={isSubmitting}
+                  className="flex items-center justify-center px-6 py-3 text-base font-medium transition-colors w-full border"
+                  style={{
+                    backgroundColor: colors.background,
+                    color: colors.text,
+                    borderColor: colors.border,
+                    borderRadius: `${layout.borderRadius}px`
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isSubmitting) {
+                      e.currentTarget.style.backgroundColor = colors.backgroundSecondary || '#f9fafb';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isSubmitting) {
+                      e.currentTarget.style.backgroundColor = colors.background;
+                    }
+                  }}
                 >
-                  Cancel
-                </Button>
-                <Button
+                  {content.ctaSecondary}
+                </button>
+                <button
                   type="submit"
-                  variant="primary"
                   disabled={isSubmitting}
+                  className="flex items-center justify-center px-6 py-3 text-base font-medium transition-colors w-full"
+                  style={{
+                    backgroundColor: colors.primary,
+                    color: colors.background,
+                    borderRadius: `${layout.borderRadius}px`,
+                    border: 'none'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isSubmitting) {
+                      e.currentTarget.style.backgroundColor = colors.secondary;
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isSubmitting) {
+                      e.currentTarget.style.backgroundColor = colors.primary;
+                    }
+                  }}
                 >
-                  {isSubmitting ? 'Submitting...' : 'Get Started'}
-                </Button>
+                  {isSubmitting ? 'Submitting...' : content.ctaText}
+                </button>
               </div>
             </form>
           </div>

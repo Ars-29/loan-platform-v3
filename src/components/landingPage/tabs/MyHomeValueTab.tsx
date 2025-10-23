@@ -1,43 +1,168 @@
 'use client';
 
-import React, { useState } from 'react';
-import { typography } from '@/theme/theme';
+import React, { useState, useEffect } from 'react';
+import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
+import { useAuth } from '@/hooks/use-auth';
 import Icon from '@/components/ui/Icon';
 
 interface MyHomeValueTabProps {
   selectedTemplate: 'template1' | 'template2';
   className?: string;
+  // NEW: Public mode props
+  isPublic?: boolean;
+  publicTemplateData?: any;
 }
 
 export default function MyHomeValueTab({
   selectedTemplate,
-  className = ''
+  className = '',
+  // NEW: Public mode props
+  isPublic = false,
+  publicTemplateData
 }: MyHomeValueTabProps) {
+  const { user } = useAuth();
+  const { getTemplateSync } = useEfficientTemplates();
+  
+  // Template data fetching - support both public and auth modes
+  const templateData = isPublic && publicTemplateData 
+    ? publicTemplateData 
+    : getTemplateSync(selectedTemplate);
+
+  
+  // Comprehensive template data usage
+  const colors = templateData?.template?.colors || {
+    primary: '#ec4899',
+    secondary: '#01bcc6',
+    background: '#ffffff',
+    text: '#111827',
+    textSecondary: '#6b7280',
+    border: '#e5e7eb'
+  };
+  
+  const typography = templateData?.template?.typography || {
+    fontFamily: 'Inter',
+    fontSize: {
+      xs: 12,
+      sm: 14,
+      base: 16,
+      lg: 18,
+      xl: 20,
+      '2xl': 24
+    },
+    fontWeight: {
+      normal: 400,
+      medium: 500,
+      semibold: 600,
+      bold: 700
+    }
+  };
+  
+  // Helper function to get font size
+  const getFontSize = (size: 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl') => {
+    if (typeof typography.fontSize === 'object') {
+      return typography.fontSize[size];
+    }
+    // Fallback sizes if fontSize is a number
+    const fallbackSizes = {
+      xs: 12, sm: 14, base: 16, lg: 18, xl: 20, '2xl': 24
+    };
+    return fallbackSizes[size];
+  };
+  
+  const content = templateData?.template?.content || {
+    headline: 'My Home Value',
+    subheadline: 'Get an instant estimate of your home\'s current market value',
+    ctaText: 'Get Home Value',
+    ctaSecondary: 'Advanced Search'
+  };
+  
+  const layout = templateData?.template?.layout || {
+    alignment: 'center',
+    spacing: 18,
+    borderRadius: 8,
+    padding: { small: 8, medium: 16, large: 24, xlarge: 32 }
+  };
+  
+  const defaultClasses = {
+    button: {
+      primary: selectedTemplate === 'template2' 
+        ? 'px-6 py-3 font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white'
+        : 'px-6 py-3 font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white',
+      secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 font-medium transition-all duration-200 border border-gray-300',
+      outline: selectedTemplate === 'template2'
+        ? 'border-2 px-6 py-3 font-medium transition-all duration-200'
+        : 'border-2 px-6 py-3 font-medium transition-all duration-200',
+      ghost: selectedTemplate === 'template2'
+        ? 'px-4 py-2 font-medium transition-all duration-200'
+        : 'px-4 py-2 font-medium transition-all duration-200'
+    },
+    card: {
+      container: 'bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200',
+      header: 'px-6 py-4 border-b border-gray-200',
+      body: 'px-6 py-4',
+      footer: 'px-6 py-4 border-t border-gray-200 bg-gray-50'
+    },
+    heading: {
+      h1: 'text-3xl font-bold text-gray-900 mb-4',
+      h2: 'text-2xl font-bold text-gray-900 mb-3',
+      h3: 'text-xl font-semibold text-gray-900 mb-2',
+      h4: 'text-lg font-semibold text-gray-900 mb-2',
+      h5: 'text-base font-semibold text-gray-900 mb-2',
+      h6: 'text-sm font-semibold text-gray-900 mb-1'
+    },
+    body: {
+      large: 'text-lg text-gray-700 leading-relaxed',
+      base: 'text-base text-gray-700 leading-relaxed',
+      small: 'text-sm text-gray-600 leading-relaxed',
+      xs: 'text-xs text-gray-500 leading-normal'
+    },
+    icon: {
+      primary: selectedTemplate === 'template2' 
+        ? 'w-12 h-12 flex items-center justify-center mb-4'
+        : 'w-12 h-12 flex items-center justify-center mb-4',
+      secondary: 'w-10 h-10 bg-gray-100 flex items-center justify-center mb-3',
+      small: selectedTemplate === 'template2'
+        ? 'w-8 h-8 flex items-center justify-center'
+        : 'w-8 h-8 flex items-center justify-center'
+    },
+    input: {
+      base: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#01bcc6] focus:border-transparent',
+      error: 'w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent'
+    }
+  };
+  const templateClasses = templateData?.template?.classes;
+  const safeTemplateClasses = templateClasses && typeof templateClasses === 'object' ? templateClasses : {};
+  const classes = {
+    ...defaultClasses,
+    ...safeTemplateClasses,
+button: { 
+      ...defaultClasses.button, 
+      ...(safeTemplateClasses?.button || {}) 
+    },
+    card: { 
+      ...defaultClasses.card, 
+      ...(safeTemplateClasses?.card || {}) 
+    },
+    heading: { 
+      ...defaultClasses.heading, 
+      ...(safeTemplateClasses?.heading || {}) 
+    },
+    body: { 
+      ...defaultClasses.body, 
+      ...(safeTemplateClasses?.body || {}) 
+    },
+    icon: { 
+      ...defaultClasses.icon, 
+      ...(safeTemplateClasses?.icon || {}) 
+    },
+    input: { 
+      ...defaultClasses.input, 
+      ...(safeTemplateClasses?.input || {}) 
+    }
+  };
   const [address, setAddress] = useState('');
   const [showIframe, setShowIframe] = useState(false);
   const [estimatedValue, setEstimatedValue] = useState<number | null>(null);
-
-  const getThemeColors = () => {
-    return selectedTemplate === 'template1' 
-      ? {
-          primary: 'pink',
-          primaryBg: 'bg-pink-50',
-          primaryText: 'text-pink-600',
-          primaryBorder: 'border-pink-200',
-          primaryHover: 'hover:bg-pink-100',
-          primaryButton: 'bg-pink-600 hover:bg-pink-700'
-        }
-      : {
-          primary: 'purple',
-          primaryBg: 'bg-purple-50',
-          primaryText: 'text-purple-600',
-          primaryBorder: 'border-purple-200',
-          primaryHover: 'hover:bg-purple-100',
-          primaryButton: 'bg-purple-600 hover:bg-purple-700'
-        };
-  };
-
-  const theme = getThemeColors();
 
   const handleGetEstimate = () => {
     // Simulate getting an estimate
@@ -55,247 +180,392 @@ export default function MyHomeValueTab({
   };
 
   return (
-    <div className={`w-full ${className}`}>
+    <div 
+      className={`w-full ${className}`}
+      style={{ fontFamily: typography.fontFamily }}
+    >
       {/* Header */}
-      <div className="mb-8">
-        <h2 className={typography.headings.h4}>
-          My Home Value
+      <div 
+        className={`${classes.card.header}`}
+        style={{ borderBottomColor: colors.border }}
+      >
+        <h2 
+          className={`${classes.heading.h2}`}
+          style={{ color: colors.text }}
+        >
+          {content.headline}
         </h2>
-        <p className={`${typography.body.base} text-gray-600 mt-2`}>
-          Get an instant estimate of your property's current market value
+        <p 
+          className={`${classes.body.base}`}
+          style={{ color: colors.textSecondary }}
+        >
+          {content.subheadline}
         </p>
       </div>
 
       {!showIframe ? (
         <>
-          {/* Address Input */}
-          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-8 mb-8">
-            <h3 className={`${typography.headings.h5} mb-6`}>
-              Enter Your Property Address
-            </h3>
-            
-            <div className="max-w-2xl">
-              <div className="mb-4">
-                <label htmlFor="address" className={`block ${typography.body.small} font-medium text-gray-700 mb-2`}>
+          {/* Search Form */}
+          <div 
+            className={`${classes.card.container} mb-8 mt-8`}
+            style={{ 
+              backgroundColor: colors.background,
+              borderColor: colors.border,
+              borderRadius: `${layout.borderRadius}px`
+            }}
+          >
+            <div className={`${classes.card.body}`}>
+              <div className="mb-6">
+                <label 
+                  className={`${classes.body.small} font-medium block mb-2`}
+                  style={{ color: colors.text }}
+                >
                   Property Address
                 </label>
                 <input
                   type="text"
-                  id="address"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  placeholder="Enter your full address..."
-                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-${theme.primary}-500 focus:border-transparent`}
+                  placeholder="Enter your property address"
+                  className={`${classes.input.base}`}
+                  style={{ 
+                    borderColor: colors.border,
+                    borderRadius: `${layout.borderRadius}px`
+                  }}
                 />
               </div>
-              
-              <button
-                onClick={handleGetEstimate}
-                disabled={!address.trim()}
-                className={`${theme.primaryButton} text-white py-3 px-6 rounded-lg transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed`}
+
+              <div 
+                className="flex flex-col sm:flex-row gap-3 sm:gap-4"
+                style={{ gap: `${layout.padding.medium}px` }}
               >
-                <Icon name="search" size={20} />
-                <span>Get Home Value Estimate</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Features */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className={`w-12 h-12 ${theme.primaryBg} rounded-full flex items-center justify-center`}>
-                  <Icon name="zap" size={24} className={theme.primaryText} />
-                </div>
-                <div>
-                  <h3 className={`${typography.body.small} font-semibold text-gray-900`}>
-                    Instant Results
-                  </h3>
-                  <p className={`${typography.body.xs} text-gray-600`}>
-                    Get your estimate in seconds
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Icon name="map" size={24} className="text-blue-600" />
-                </div>
-                <div>
-                  <h3 className={`${typography.body.small} font-semibold text-gray-900`}>
-                    Local Market Data
-                  </h3>
-                  <p className={`${typography.body.xs} text-gray-600`}>
-                    Based on recent sales in your area
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                  <Icon name="shield" size={24} className="text-green-600" />
-                </div>
-                <div>
-                  <h3 className={`${typography.body.small} font-semibold text-gray-900`}>
-                    No Obligation
-                  </h3>
-                  <p className={`${typography.body.xs} text-gray-600`}>
-                    Free estimate with no strings attached
-                  </p>
-                </div>
+                <button
+                  onClick={handleGetEstimate}
+                  className="flex items-center justify-center gap-3 px-8 py-4 font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  style={{
+                    backgroundColor: colors.primary,
+                    color: colors.background,
+                    borderColor: colors.primary,
+                    borderRadius: `${layout.borderRadius}px`,
+                    border: 'none',
+                    fontFamily: typography.fontFamily,
+                    fontSize: getFontSize('base'),
+                    fontWeight: typography.fontWeight.semibold,
+                    minWidth: '180px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.secondary;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.primary;
+                  }}
+                >
+                  <Icon name="search" size={20} color={colors.background} />
+                  <span>{content.ctaText}</span>
+                </button>
+                
+                <button
+                  onClick={() => setShowIframe(true)}
+                  className="flex items-center justify-center gap-3 px-8 py-4 font-semibold transition-all duration-300 transform hover:scale-105 border-2 hover:shadow-lg"
+                  style={{
+                    backgroundColor: colors.background,
+                    color: colors.primary,
+                    borderColor: colors.primary,
+                    borderRadius: `${layout.borderRadius}px`,
+                    fontFamily: typography.fontFamily,
+                    fontSize: getFontSize('base'),
+                    fontWeight: typography.fontWeight.semibold,
+                    minWidth: '180px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.primary + '10';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.background;
+                  }}
+                >
+                  <Icon name="externalLink" size={20} color={colors.primary} />
+                  <span>{content.ctaSecondary}</span>
+                </button>
               </div>
             </div>
           </div>
 
-          {/* How It Works */}
-          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-8">
-            <h3 className={`${typography.headings.h5} mb-6`}>
-              How Our Home Value Tool Works
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className={`${typography.headings.h5} text-gray-600`}>1</span>
+          {/* Features Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
+              <div className={`${classes.card.body}`}>
+                <div className={`${classes.icon.primary}`}>
+                  <Icon name="home" size={24} color={colors.primary} />
                 </div>
-                <h4 className={`${typography.body.small} font-semibold text-gray-900 mb-2`}>
-                  Enter Address
-                </h4>
-                <p className={`${typography.body.xs} text-gray-600`}>
-                  Provide your property's full address
-                </p>
-              </div>
-
-              <div className="text-center">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className={`${typography.headings.h5} text-gray-600`}>2</span>
-                </div>
-                <h4 className={`${typography.body.small} font-semibold text-gray-900 mb-2`}>
-                  Analyze Data
-                </h4>
-                <p className={`${typography.body.xs} text-gray-600`}>
-                  We analyze recent sales and market trends
-                </p>
-              </div>
-
-              <div className="text-center">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className={`${typography.headings.h5} text-gray-600`}>3</span>
-                </div>
-                <h4 className={`${typography.body.small} font-semibold text-gray-900 mb-2`}>
-                  Generate Estimate
-                </h4>
-                <p className={`${typography.body.xs} text-gray-600`}>
-                  Our algorithm calculates your home's value
-                </p>
-              </div>
-
-              <div className="text-center">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className={`${typography.headings.h5} text-gray-600`}>4</span>
-                </div>
-                <h4 className={`${typography.body.small} font-semibold text-gray-900 mb-2`}>
-                  View Results
-                </h4>
-                <p className={`${typography.body.xs} text-gray-600`}>
-                  See detailed valuation and market insights
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Disclaimer */}
-          <div className="mt-8 bg-yellow-50 rounded-lg p-6">
-            <div className="flex items-start space-x-3">
-              <Icon name="alert-triangle" size={24} className="text-yellow-600 mt-1" />
-              <div>
-                <h3 className={`${typography.body.small} font-semibold text-yellow-900 mb-2`}>
-                  Important Disclaimer
+                <h3 className={`${classes.heading.h5}`}>
+                  Instant Estimates
                 </h3>
-                <p className={`${typography.body.small} text-yellow-800`}>
-                  This is an automated estimate based on publicly available data and recent sales in your area. 
-                  For an accurate valuation, we recommend a professional appraisal or consultation with a real estate agent.
+                <p className={`${classes.body.small}`}>
+                  Get immediate property value estimates using advanced algorithms
                 </p>
+              </div>
+            </div>
+
+            <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
+              <div className={`${classes.card.body}`}>
+                <div className={`${classes.icon.primary}`}>
+                  <Icon name="trendingUp" size={24} color={colors.primary} />
+                </div>
+                <h3 className={`${classes.heading.h5}`}>
+                  Market Trends
+                </h3>
+                <p className={`${classes.body.small}`}>
+                  View historical data and market trends for your area
+                </p>
+              </div>
+            </div>
+
+            <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
+              <div className={`${classes.card.body}`}>
+                <div className={`${classes.icon.primary}`}>
+                  <Icon name="mapPin" size={24} color={colors.primary} />
+                </div>
+                <h3 className={`${classes.heading.h5}`}>
+                  Local Insights
+                </h3>
+                <p className={`${classes.body.small}`}>
+                  Compare with similar properties in your neighborhood
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Information Cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
+              <div className={`${classes.card.header}`}>
+                <h3 className={`${classes.heading.h4}`}>
+                  How It Works
+                </h3>
+              </div>
+              <div className={`${classes.card.body}`}>
+                <div className="space-y-4">
+                  <div className="flex items-start space-x-3">
+                    <div className={`${classes.icon.small}`}>
+                      <span className="text-sm font-bold text-gray-600">1</span>
+                    </div>
+                    <div>
+                      <h4 className={`${classes.heading.h6}`}>Enter Address</h4>
+                      <p className={`${classes.body.small}`}>Provide your property address</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <div className={`${classes.icon.small}`}>
+                      <span className="text-sm font-bold text-gray-600">2</span>
+                    </div>
+                    <div>
+                      <h4 className={`${classes.heading.h6}`}>Analysis</h4>
+                      <p className={`${classes.body.small}`}>Our system analyzes market data</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <div className={`${classes.icon.small}`}>
+                      <span className="text-sm font-bold text-gray-600">3</span>
+                    </div>
+                    <div>
+                      <h4 className={`${classes.heading.h6}`}>Get Results</h4>
+                      <p className={`${classes.body.small}`}>Receive your home value estimate</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
+              <div className={`${classes.card.header}`}>
+                <h3 className={`${classes.heading.h4}`}>
+                  Important Notes
+                </h3>
+              </div>
+              <div className={`${classes.card.body}`}>
+                <div className="space-y-3">
+                  <div className="flex items-start space-x-3">
+                    <Icon name="info" size={20} className="text-[#01bcc6] mt-0.5" />
+                    <p className={`${classes.body.small}`}>
+                      Estimates are based on public records and comparable sales
+                    </p>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <Icon name="info" size={20} className="text-[#01bcc6] mt-0.5" />
+                    <p className={`${classes.body.small}`}>
+                      For accurate pricing, consult with a real estate professional
+                    </p>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <Icon name="info" size={20} className="text-[#01bcc6] mt-0.5" />
+                    <p className={`${classes.body.small}`}>
+                      Values can vary based on property condition and market changes
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </>
       ) : (
-        /* Iframe Home Value Tool */
-        <div className="bg-white rounded-lg shadow-lg border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-            <div>
-              <h3 className={`${typography.headings.h6}`}>
+        /* Results View */
+        <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
+          <div className={`${classes.card.header}`}>
+            <div className="flex items-center justify-between">
+              <h3 className={`${classes.heading.h3}`}>
                 Home Value Estimate
               </h3>
-              <p className={`${typography.body.xs} text-gray-600`}>
-                {address}
-              </p>
+              <button
+                onClick={() => setShowIframe(false)}
+                style={{
+                  padding: `${layout.padding.small}px`,
+                  backgroundColor: 'transparent',
+                  color: colors.textSecondary,
+                  border: 'none',
+                  borderRadius: `${layout.borderRadius}px`,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = `${colors.border}20`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                <Icon name="close" size={20} color={colors.textSecondary} />
+              </button>
             </div>
-            <button
-              onClick={() => setShowIframe(false)}
-              className="text-gray-500 hover:text-gray-700 transition-colors"
-            >
-              <Icon name="x" size={24} />
-            </button>
           </div>
           
-          <div className="p-6">
-            {/* Estimated Value Display */}
-            {estimatedValue && (
-              <div className="bg-green-50 rounded-lg p-6 mb-6 text-center">
-                <h4 className={`${typography.headings.h4} text-green-800 mb-2`}>
-                  Estimated Value
+          <div className={`${classes.card.body}`}>
+            {estimatedValue ? (
+              <div className="text-center">
+                <div className="mb-6">
+                  <h4 className={`${classes.heading.h2} text-green-600`}>
+                    {formatCurrency(estimatedValue)}
+                  </h4>
+                  <p className={`${classes.body.base}`}>
+                    Estimated Market Value
+                  </p>
+                </div>
+                
+                <div className="bg-gray-100 p-6 mb-6">
+                  <h5 className={`${classes.heading.h5} mb-4`}>
+                    Property Details
+                  </h5>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-600">Address:</span>
+                      <p className="font-medium">{address || '123 Main St, City, State'}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Property Type:</span>
+                      <p className="font-medium">Single Family</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Bedrooms:</span>
+                      <p className="font-medium">3</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Bathrooms:</span>
+                      <p className="font-medium">2</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div 
+                  className="flex flex-col sm:flex-row gap-3 sm:gap-4"
+                  style={{ gap: `${layout.padding.medium}px` }}
+                >
+                  <button 
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: `${layout.spacing}px`,
+                      padding: `${layout.padding.medium}px ${layout.padding.large}px`,
+                      backgroundColor: `${colors.primary} !important`,
+                      color: `${colors.background} !important`,
+                      border: `none !important`,
+                      borderRadius: `${layout.borderRadius}px`,
+                      fontSize: getFontSize('base'),
+                      fontWeight: typography.fontWeight.medium,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = `${colors.secondary} !important`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = `${colors.primary} !important`;
+                    }}
+                  >
+                    <Icon name="download" size={20} color={colors.background} />
+                    <span>Download Report</span>
+                  </button>
+                  <button 
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: `${layout.spacing}px`,
+                      padding: `${layout.padding.medium}px ${layout.padding.large}px`,
+                      backgroundColor: `${colors.background} !important`,
+                      color: `${colors.primary} !important`,
+                      border: `1px solid ${colors.primary} !important`,
+                      borderRadius: `${layout.borderRadius}px`,
+                      fontSize: getFontSize('base'),
+                      fontWeight: typography.fontWeight.medium,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = `${colors.primary}10 !important`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = `${colors.background} !important`;
+                    }}
+                  >
+                    <Icon name="share" size={20} color={colors.primary} />
+                    <span>Share Results</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Icon name="home" size={48} className="text-gray-400 mx-auto mb-4" />
+                <h4 className={`${classes.heading.h4} text-gray-600 mb-2`}>
+                  Property Search
                 </h4>
-                <p className={`${typography.headings.h3} text-green-900 font-bold`}>
-                  {formatCurrency(estimatedValue)}
+                <p className={`${classes.body.base} text-gray-500 mb-4`}>
+                  Enter your property address to get an instant home value estimate
                 </p>
-                <p className={`${typography.body.xs} text-green-700 mt-2`}>
-                  Based on recent sales and market data in your area
-                </p>
+                <button
+                  onClick={() => setShowIframe(false)}
+                  style={{
+                    padding: `${layout.padding.medium}px ${layout.padding.large}px`,
+                    backgroundColor: `${colors.primary} !important`,
+                    color: `${colors.background} !important`,
+                    border: `none !important`,
+                    borderRadius: `${layout.borderRadius}px`,
+                    fontSize: getFontSize('base'),
+                    fontWeight: typography.fontWeight.medium,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = `${colors.secondary} !important`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = `${colors.primary} !important`;
+                  }}
+                >
+                  Back to Search
+                </button>
               </div>
             )}
-
-            {/* Iframe Placeholder */}
-            <div className="bg-gray-100 rounded-lg p-8 text-center">
-              <Icon name="home" size={48} className="text-gray-400 mx-auto mb-4" />
-              <h4 className={`${typography.headings.h6} text-gray-600 mb-2`}>
-                Home Value Tool
-              </h4>
-              <p className={`${typography.body.small} text-gray-500 mb-4`}>
-                In a real implementation, this would show an iframe with the home value estimation tool
-              </p>
-              <div className="bg-white rounded-lg p-4 border-2 border-dashed border-gray-300">
-                <p className={`${typography.body.xs} text-gray-500`}>
-                  iframe src="https://home-value-tool.com/estimate" width="100%" height="500px"
-                </p>
-              </div>
-            </div>
-
-            {/* Additional Information */}
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-blue-50 rounded-lg p-4">
-                <h5 className={`${typography.body.small} font-semibold text-blue-900 mb-2`}>
-                  Market Trends
-                </h5>
-                <p className={`${typography.body.xs} text-blue-800`}>
-                  Home values in your area have increased by 5.2% over the past year.
-                </p>
-              </div>
-              
-              <div className="bg-purple-50 rounded-lg p-4">
-                <h5 className={`${typography.body.small} font-semibold text-purple-900 mb-2`}>
-                  Comparable Sales
-                </h5>
-                <p className={`${typography.body.xs} text-purple-800`}>
-                  Based on 12 similar properties sold in the last 6 months.
-                </p>
-              </div>
-            </div>
           </div>
         </div>
       )}

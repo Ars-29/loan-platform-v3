@@ -166,15 +166,237 @@ src/
 - `yarn db:studio` - Open Drizzle Studio
 - `yarn db:push` - Push schema to database
 
+### Template Management Scripts
+
+- `yarn tsx scripts/create-default-templates.ts` - Create default system templates
+- `yarn tsx scripts/update-default-templates.ts` - Update existing templates to default
+- `yarn tsx scripts/create-templates-for-existing-users.ts` - Create personal templates for existing users
+
 ## 🎨 Design System
 
 The platform uses a comprehensive design system with:
 
-- **Colors**: Primary (pink), Secondary (blue), Status colors
+- **Colors**: Primary (blue), Secondary (blue), Status colors
 - **Typography**: Inter font family with multiple weights and sizes
 - **Spacing**: Consistent spacing scale
 - **Components**: Reusable UI components
 - **Theme**: Centralized theme configuration
+
+## 🎨 Template System
+
+The platform includes a comprehensive template system that allows for easy creation and management of landing page templates.
+
+### Template Structure
+
+Templates are stored in the `templates` table with the following structure:
+
+```typescript
+interface Template {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  preview_image?: string;
+  is_active: boolean;
+  is_premium: boolean;
+  is_default: boolean;        // NEW: Marks system-wide default templates
+  user_id?: string;           // NEW: Links to user for personal templates
+  colors: {
+    primary: string;
+    secondary: string;
+    background: string;
+    text: string;
+    textSecondary: string;
+    border: string;
+  };
+  typography: {
+    fontFamily: string;
+    fontSize: number;
+    fontWeight: {
+      light: number;
+      normal: number;
+      medium: number;
+      semibold: number;
+      bold: number;
+    };
+  };
+  content: {
+    headline: string;
+    subheadline: string;
+    ctaText: string;
+    ctaSecondary: string;
+    companyName: string;
+    tagline: string;
+  };
+  layout: {
+    alignment: string;
+    spacing: number;
+    borderRadius: number;
+    padding: number;
+  };
+  advanced: {
+    customCSS: string;
+    accessibility: boolean;
+  };
+  classes: Record<string, any>;
+  header_modifications: Record<string, any>;
+  body_modifications: Record<string, any>;
+  right_sidebar_modifications: Record<string, any>;
+}
+```
+
+### Default Templates
+
+The system includes two default templates that are available to all users:
+
+#### Template 1 - Red Theme
+- **Slug**: `template1`
+- **Primary Color**: `#3b82f6` (Blue)
+- **Secondary Color**: `#3b82f6` (Blue)
+- **Description**: Modern red-themed template with clean design
+
+#### Template 2 - Purple Theme  
+- **Slug**: `template2`
+- **Primary Color**: `#9333ea` (Purple)
+- **Secondary Color**: `#06b6d4` (Cyan)
+- **Description**: Elegant purple-themed template with professional look
+
+### Creating New Default Templates
+
+To create new default templates for the system, follow these steps:
+
+1. **Create a new script** in the `scripts/` directory (e.g., `create-new-template.ts`)
+
+2. **Use the template structure** from `scripts/create-default-templates.ts` as a reference:
+
+```typescript
+import { createClient } from '@supabase/supabase-js';
+import { config } from 'dotenv';
+
+config({ path: '.env.local' });
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+async function createNewTemplate() {
+  const newTemplate = {
+    name: 'Your Template Name',
+    slug: 'your-template-slug',
+    description: 'Your template description',
+    preview_image: null,
+    is_active: true,
+    is_premium: false,
+    is_default: true,        // This makes it a system-wide default
+    user_id: null,           // null for system templates
+    colors: {
+      primary: '#your-primary-color',
+      secondary: '#your-secondary-color',
+      background: '#ffffff',
+      text: '#111827',
+      textSecondary: '#6b7280',
+      border: '#e5e7eb'
+    },
+    typography: {
+      fontFamily: 'Inter',
+      fontSize: 16,
+      fontWeight: {
+        light: 300,
+        normal: 400,
+        medium: 500,
+        semibold: 600,
+        bold: 700
+      }
+    },
+    content: {
+      headline: 'Welcome to Our Service',
+      subheadline: 'Get started with our amazing platform today.',
+      ctaText: 'Get Started',
+      ctaSecondary: 'Learn More',
+      companyName: 'Your Company',
+      tagline: 'Your trusted partner'
+    },
+    layout: {
+      alignment: 'center',
+      spacing: 16,
+      borderRadius: 8,
+      padding: 24
+    },
+    advanced: {
+      customCSS: '',
+      accessibility: true
+    },
+    classes: {},
+    header_modifications: {},
+    body_modifications: {},
+    right_sidebar_modifications: {}
+  };
+
+  // Check if template already exists
+  const { data: existing } = await supabase
+    .from('templates')
+    .select('slug')
+    .eq('slug', 'your-template-slug')
+    .eq('is_default', true)
+    .is('user_id', null);
+
+  if (existing && existing.length > 0) {
+    console.log('⚠️ Template already exists, skipping...');
+    return;
+  }
+
+  // Insert the new template
+  const { data, error } = await supabase
+    .from('templates')
+    .insert(newTemplate)
+    .select();
+
+  if (error) {
+    console.error('❌ Error creating template:', error);
+  } else {
+    console.log('✅ Created template:', data[0].id);
+  }
+}
+
+createNewTemplate();
+```
+
+3. **Run the script**:
+   ```bash
+   yarn tsx scripts/create-new-template.ts
+   ```
+
+### Template Management Commands
+
+- **Create default templates**: `yarn tsx scripts/create-default-templates.ts`
+- **Update existing templates**: `yarn tsx scripts/update-default-templates.ts`
+- **Create personal templates for users**: `yarn tsx scripts/create-templates-for-existing-users.ts`
+
+### Template Customization
+
+Users can customize templates through the customizer interface, which allows:
+- Real-time color changes
+- Typography adjustments
+- Content modifications
+- Layout customizations
+- Advanced CSS overrides
+
+### Database Schema Updates
+
+The template system has evolved through several database migrations:
+
+- **0003_adorable_old_lace.sql**: Added JSONB columns for colors, typography, content, layout, advanced, and classes
+- **0004_conscious_zeigeist.sql**: Added `is_default` and `user_id` columns for template ownership
+- **0006_romantic_venom.sql**: Added modification tracking columns for header, body, and right sidebar
+
+### Best Practices
+
+1. **Always check for existing templates** before creating new ones
+2. **Use descriptive slugs** that are URL-friendly
+3. **Provide comprehensive color palettes** with proper contrast ratios
+4. **Include accessibility features** in the advanced settings
+5. **Test templates** across different screen sizes
+6. **Document template features** in the description field
 
 ## 🔐 Authentication & Authorization
 

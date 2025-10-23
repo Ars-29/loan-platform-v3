@@ -1,28 +1,89 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { db } from '@/lib/db';
-import { leads, companies, users } from '@/lib/db/schema';
+import { db, leads, companies, users } from '@/lib/db';
 import { eq, desc } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
   try {
     console.log('🚀 GET /api/leads - Starting request');
     
-    // For now, return all leads without authentication
-    // In production, you'd want proper authentication and role-based filtering
+    // Get the authorization header
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json(
+        { error: 'Authorization header required' },
+        { status: 401 }
+      );
+    }
+
+    // Extract the token
+    const token = authHeader.replace('Bearer ', '');
     
-    console.log('📝 Fetching all leads...');
+    // Verify the token and get user info
+    const { createClient } = await import('@supabase/supabase-js');
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
-    const allLeads = await db
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      console.error('❌ Leads API: Auth error:', authError);
+      return NextResponse.json(
+        { error: 'Invalid or expired token' },
+        { status: 401 }
+      );
+    }
+
+    console.log('✅ Authenticated user:', user.id);
+    
+    // Fetch leads only for the authenticated user
+    const userLeads = await db
       .select()
       .from(leads)
+      .where(eq(leads.officerId, user.id))
       .orderBy(desc(leads.createdAt));
 
-    console.log('✅ Found leads:', allLeads.length);
+    console.log('✅ Found leads for user:', userLeads.length);
+
+    // Transform snake_case to camelCase for frontend compatibility
+    const transformedLeads = userLeads.map(lead => ({
+      id: lead.id,
+      companyId: lead.companyId,
+      officerId: lead.officerId,
+      firstName: lead.firstName,
+      lastName: lead.lastName,
+      email: lead.email,
+      phone: lead.phone,
+      source: lead.source,
+      status: lead.status,
+      priority: lead.priority,
+      loanDetails: lead.loanDetails,
+      propertyDetails: lead.propertyDetails,
+      creditScore: lead.creditScore,
+      loanAmount: lead.loanAmount,
+      downPayment: lead.downPayment,
+      notes: lead.notes,
+      tags: lead.tags,
+      customFields: lead.customFields,
+      conversionStage: lead.conversionStage,
+      conversionDate: lead.conversionDate,
+      applicationDate: lead.applicationDate,
+      approvalDate: lead.approvalDate,
+      closingDate: lead.closingDate,
+      loanAmountClosed: lead.loanAmountClosed,
+      commissionEarned: lead.commissionEarned,
+      responseTimeHours: lead.responseTimeHours,
+      lastContactDate: lead.lastContactDate,
+      contactCount: lead.contactCount,
+      leadQualityScore: lead.leadQualityScore,
+      geographicLocation: lead.geographicLocation,
+      createdAt: lead.createdAt,
+      updatedAt: lead.updatedAt
+    }));
 
     return NextResponse.json({
       success: true,
-      leads: allLeads
+      leads: transformedLeads
     });
 
   } catch (error) {
@@ -39,9 +100,9 @@ export async function POST(request: NextRequest) {
     console.log('🚀 POST /api/leads - Starting request');
     
     const body = await request.json();
-    const { firstName, lastName, email, phone, creditScore, loanDetails } = body;
+    const { firstName, lastName, email, phone, creditScore, loanDetails, userId, companyId, source } = body;
 
-    console.log('📝 Request body:', { firstName, lastName, email, phone: phone ? '***' : 'missing', creditScore, loanDetails: loanDetails ? 'present' : 'missing' });
+    console.log('📝 Request body:', { firstName, lastName, email, phone: phone ? '***' : 'missing', creditScore, loanDetails: loanDetails ? 'present' : 'missing', userId, companyId });
 
     // Validate required fields
     if (!firstName || !lastName || !email || !phone || !loanDetails) {
@@ -52,38 +113,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // For now, we'll create leads without authentication
-    // In a real scenario, you might want to require authentication
-    // or associate leads with a specific company/officer
-    
-    console.log('📝 Creating lead without authentication...');
-    
-    // For now, we'll create leads without authentication
-    // In a real scenario, you might want to require authentication
-    // or associate leads with a specific company/officer
-    
-    console.log('📝 Creating lead without authentication...');
-    
-    // First, let's check if we have any companies and users to reference
-    const existingCompanies = await db.select().from(companies).limit(1);
-    const existingUsers = await db.select().from(users).limit(1);
-    
-    console.log('🏢 Existing companies:', existingCompanies.length);
-    console.log('👥 Existing users:', existingUsers.length);
-    
-    // Use existing company/user IDs or create a fallback
-    const companyId = existingCompanies.length > 0 ? existingCompanies[0].id : null;
-    const officerId = existingUsers.length > 0 ? existingUsers[0].id : null;
-    
-    if (!companyId || !officerId) {
-      console.log('❌ No companies or users found in database');
+    // Validate that we have the required user and company IDs
+    if (!userId || !companyId) {
+      console.log('❌ Missing userId or companyId');
       return NextResponse.json(
-        { error: 'Database not properly initialized. Please ensure companies and users exist.' },
-        { status: 500 }
+        { error: 'Missing user or company information' },
+        { status: 400 }
       );
     }
-    
-    console.log('✅ Using company:', companyId, 'and officer:', officerId);
+
+    console.log('✅ Using provided company:', companyId, 'and officer:', userId);
     
     // Prepare lead data for insertion
     const leadData = {
@@ -92,8 +131,8 @@ export async function POST(request: NextRequest) {
       email: email.trim().toLowerCase(),
       phone: phone.trim(),
       companyId,
-      officerId,
-      source: 'rate_table',
+      officerId: userId,
+      source: source || 'rate_table', // Use provided source or default to 'rate_table'
       loanDetails: {
         productId: loanDetails.productId,
         lenderName: loanDetails.lenderName,

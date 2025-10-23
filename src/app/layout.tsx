@@ -1,18 +1,8 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import "../styles/mac-text-optimization.css";
+import "../styles/scrollbar.css";
 import { NotificationProvider } from "@/components/ui/Notification";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { UnifiedTemplateProvider } from "@/contexts/UnifiedTemplateContext";
 
 export const metadata: Metadata = {
   title: "Loan Officer Platform",
@@ -25,13 +15,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className="antialiased"
         suppressHydrationWarning
       >
         <NotificationProvider>
-          {children}
+          <UnifiedTemplateProvider>
+            {children}
+          </UnifiedTemplateProvider>
         </NotificationProvider>
       </body>
     </html>

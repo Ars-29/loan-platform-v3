@@ -2,6 +2,7 @@ export interface LoanOfficerInviteData {
   email: string;
   firstName: string;
   lastName: string;
+  nmlsNumber: string;
   companyId: string;
 }
 

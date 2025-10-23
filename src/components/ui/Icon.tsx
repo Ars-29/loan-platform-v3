@@ -42,6 +42,26 @@ import {
   Calendar,
   Shield,
   Clock,
+  Download,
+  Share,
+  Play,
+  Book,
+  Heart,
+  Map,
+  ExternalLink,
+  Monitor,
+  DollarSign,
+  MessageSquare,
+  Filter,
+  UserPlus,
+  Building,
+  LogIn,
+  Activity,
+  Eye,
+  Palette,
+  Settings,
+  Link,
+  AlertCircle,
 } from 'lucide-react';
 
 // Centralized icon registry for the entire app
@@ -115,6 +135,43 @@ export const icons = {
   shield: Shield,
   clock: Clock,
   target: Target,
+  
+  // Extended icons
+  download: Download,
+  share: Share,
+  play: Play,
+  book: Book,
+  heart: Heart,
+  map: Map,
+  externalLink: ExternalLink,
+  monitor: Monitor,
+  fileText: FileText,
+  mapPin: MapPin,
+  calculator: Calculator,
+  x: X,
+  search: Search,
+  mail: Mail,
+  
+  // New icons for lead details
+  user: User,
+  dollarSign: DollarSign,
+  messageSquare: MessageSquare,
+  filter: Filter,
+  
+  // Activity icons
+  userPlus: UserPlus,
+  building: Building,
+  logIn: LogIn,
+  activity: Activity,
+  eye: Eye,
+  palette: Palette,
+  settings: Settings,
+  
+  // Additional icons
+  checkCircle: CheckCircle,
+  alertTriangle: AlertTriangle,
+  link: Link,
+  alertCircle: AlertCircle,
 } as const;
 
 interface IconProps {

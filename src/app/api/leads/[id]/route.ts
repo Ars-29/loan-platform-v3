@@ -1,116 +1,104 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 import { db } from '@/lib/db';
 import { leads } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 
-export async function PATCH(
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const body = await request.json();
-    const { status } = body;
-    const leadId = params.id;
-
-    if (!status) {
-      return NextResponse.json(
-        { error: 'Status is required' },
-        { status: 400 }
-      );
-    }
-
-    // Get the current user from Supabase auth
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    console.log('🚀 GET /api/leads/[id] - Starting request');
     
+    // Get authorization header
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('❌ No authorization header');
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const token = authHeader.substring(7);
+    
+    // Verify the token and get user
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      console.error('❌ Auth error:', authError);
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get user's role to determine permissions
-    const { data: userRole, error: roleError } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('userId', user.id)
-      .single();
+    const { id: leadId } = await params;
+    console.log('✅ Authenticated user:', user.id, 'Requesting lead:', leadId);
 
-    if (roleError || !userRole) {
-      return NextResponse.json(
-        { error: 'User role not found' },
-        { status: 404 }
-      );
+    // Fetch the lead from database
+    const leadResult = await db
+      .select()
+      .from(leads)
+      .where(eq(leads.id, leadId))
+      .limit(1);
+
+    console.log('🔍 Lead query result:', leadResult.length, 'leads found');
+
+    if (leadResult.length === 0) {
+      console.log('❌ Lead not found for ID:', leadId);
+      return NextResponse.json({ error: 'Lead not found' }, { status: 404 });
     }
 
-    // Check if user can update this lead
-    let whereCondition;
-    if (userRole.role === 'employee') {
-      // Loan officers can only update their own leads
-      whereCondition = and(eq(leads.id, leadId), eq(leads.officerId, user.id));
-    } else if (userRole.role === 'company_admin') {
-      // Company admins can update leads for their company
-      const { data: companyData } = await supabase
-        .from('user_companies')
-        .select('companyId')
-        .eq('userId', user.id)
-        .single();
+    const lead = leadResult[0];
+    console.log('✅ Found lead:', lead.id, 'Owner:', lead.officerId, 'User:', user.id);
 
-      if (!companyData) {
-        return NextResponse.json(
-          { error: 'Company not found' },
-          { status: 404 }
-        );
-      }
-
-      whereCondition = and(eq(leads.id, leadId), eq(leads.companyId, companyData.companyId));
-    } else if (userRole.role === 'super_admin') {
-      // Super admins can update any lead
-      whereCondition = eq(leads.id, leadId);
-    } else {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+    // Check if the user owns this lead
+    if (lead.officerId !== user.id) {
+      console.log('❌ User does not own this lead');
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Update the lead
-    const [updatedLead] = await db
-      .update(leads)
-      .set({ 
-        status,
-        updatedAt: new Date()
-      })
-      .where(whereCondition)
-      .returning();
-
-    if (!updatedLead) {
-      return NextResponse.json(
-        { error: 'Lead not found or insufficient permissions' },
-        { status: 404 }
-      );
-    }
-
-    console.log('Lead status updated:', {
-      leadId: updatedLead.id,
-      newStatus: status,
-      updatedBy: user.id,
-      userRole: userRole.role
-    });
+    // Transform snake_case to camelCase for frontend compatibility
+    const transformedLead = {
+      id: lead.id,
+      companyId: lead.companyId,
+      officerId: lead.officerId,
+      firstName: lead.firstName,
+      lastName: lead.lastName,
+      email: lead.email,
+      phone: lead.phone,
+      source: lead.source,
+      status: lead.status,
+      priority: lead.priority,
+      loanDetails: lead.loanDetails,
+      propertyDetails: lead.propertyDetails,
+      creditScore: lead.creditScore,
+      loanAmount: lead.loanAmount,
+      downPayment: lead.downPayment,
+      notes: lead.notes,
+      tags: lead.tags,
+      customFields: lead.customFields,
+      conversionStage: lead.conversionStage,
+      conversionDate: lead.conversionDate,
+      applicationDate: lead.applicationDate,
+      approvalDate: lead.approvalDate,
+      closingDate: lead.closingDate,
+      loanAmountClosed: lead.loanAmountClosed,
+      commissionEarned: lead.commissionEarned,
+      responseTimeHours: lead.responseTimeHours,
+      lastContactDate: lead.lastContactDate,
+      contactCount: lead.contactCount,
+      leadQualityScore: lead.leadQualityScore,
+      geographicLocation: lead.geographicLocation,
+      createdAt: lead.createdAt,
+      updatedAt: lead.updatedAt
+    };
 
     return NextResponse.json({
       success: true,
-      lead: {
-        id: updatedLead.id,
-        status: updatedLead.status,
-        updatedAt: updatedLead.updatedAt
-      }
+      lead: transformedLead
     });
-
   } catch (error) {
-    console.error('Error updating lead status:', error);
+    console.error('Error fetching lead:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

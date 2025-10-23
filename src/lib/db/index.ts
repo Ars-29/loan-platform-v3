@@ -11,8 +11,13 @@ const connectionString = process.env.DATABASE_URL;
 const client = postgres(connectionString, {
   max: 20,
   idle_timeout: 20,
-  connect_timeout: 10,
+  connect_timeout: 30, // Increased timeout for Vercel
   max_lifetime: 60 * 30,
+  ssl: 'require', // Force SSL for Supabase
+  prepare: false, // Disable prepared statements for better compatibility
+  transform: {
+    undefined: null, // Transform undefined to null
+  },
 });
 
 // Create the database instance

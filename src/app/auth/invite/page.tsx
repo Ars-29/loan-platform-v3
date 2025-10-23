@@ -8,6 +8,7 @@ import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import Icon from '@/components/ui/Icon';
 import { Input } from '@/components/ui/Input';
 import { colors, spacing, borderRadius, shadows, typography } from '@/theme/theme';
+import { LiquidChromeBackground } from '@/components/ui/LiquidChromeBackground';
 
 function InvitePageContent() {
   const [password, setPassword] = useState('');
@@ -189,6 +190,7 @@ function InvitePageContent() {
           throw userError;
         }
 
+        // Update user_companies entry to active
         const { error: companyError } = await supabase
           .from('user_companies')
           .update({ is_active: true })
@@ -196,7 +198,49 @@ function InvitePageContent() {
           .eq('company_id', companyId);
 
         if (companyError) {
+          console.error('❌ Error updating user_companies:', companyError);
           throw companyError;
+        }
+
+        console.log('✅ User-company relationship activated successfully');
+
+        // Create personal templates for the loan officer when they activate their account
+        try {
+          console.log('🎨 Creating personal templates for activated loan officer:', user.id);
+          const firstName = user.user_metadata?.first_name || '';
+          const lastName = user.user_metadata?.last_name || '';
+          
+          // Validate user ID format
+          const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+          if (!uuidRegex.test(user.id)) {
+            throw new Error(`Invalid user ID format: ${user.id}`);
+          }
+          
+          // Call API to create personal templates
+          const response = await fetch('/api/templates/create-personal', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+            },
+            body: JSON.stringify({
+              userId: user.id,
+              firstName,
+              lastName
+            })
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            console.log('✅ Personal templates created successfully:', result.data.templatesCreated);
+          } else {
+            const errorText = await response.text();
+            console.error('❌ Error creating personal templates:', errorText);
+            // Don't fail the activation process if template creation fails
+          }
+        } catch (templateError) {
+          console.error('❌ Error creating personal templates:', templateError);
+          // Don't fail the activation process if template creation fails
         }
       } else {
         // Update company status to accepted and activate for company admin
@@ -244,7 +288,7 @@ function InvitePageContent() {
         if (isOfficerInvite) {
           router.push('/officers/dashboard');
         } else {
-          router.push('/companyadmin/loanofficers');
+          router.push('/admin/dashboard');
         }
       }, 2000);
 
@@ -258,131 +302,251 @@ function InvitePageContent() {
 
   if (!user || user.email === 'invite@example.com') {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: `linear-gradient(to bottom right, ${colors.primary[50]}, ${colors.darkPurple[100]})` }}>
-        <Card className="max-w-md w-full">
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ width: spacing.xl2, height: spacing.xl2, backgroundColor: colors.blue[50], borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto', marginBottom: spacing.md }}>
-              <Icon name="email" size={32} color={colors.blue[600]} />
-            </div>
-            <h1 style={{ fontSize: typography.h1.fontSize, fontWeight: typography.h1.fontWeight, color: colors.text.primary, marginBottom: spacing.sm }}>Check Your Email</h1>
-            <p style={{ color: colors.text.secondary, marginBottom: spacing.md }}>Please check your email and click the invite link to continue with the setup.</p>
-            <p style={{ fontSize: typography.sm.fontSize, color: colors.text.muted }}>If you don't see the email, check your spam folder.</p>
-            <div style={{ marginTop: spacing.md, padding: spacing.md, backgroundColor: colors.yellow[50], border: `1px solid ${colors.yellow[200]}`, borderRadius: borderRadius.lg }}>
-              <p style={{ fontSize: typography.sm.fontSize, color: colors.yellow[800] }}>
-                <strong>Note:</strong> Make sure to click the invite link from your email. The link will automatically sign you in.
-              </p>
+      <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#005b7c] via-[#008eab] to-[#01bcc6]">
+        <LiquidChromeBackground />
+        
+        {/* Header */}
+        <header className="bg-white/95 backdrop-blur-xl shadow-lg border-b border-[#F7F1E9]/30 relative z-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-4">
+              <div className="flex items-center">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-[#005b7c] to-[#01bcc6] bg-clip-text text-transparent">
+                  Loan Officer Platform
+                </h1>
+              </div>
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={() => window.location.href = '/auth'}
+                  className="text-[#005b7c] hover:text-[#01bcc6] font-medium transition-colors duration-200"
+                >
+                  Back to Login
+                </button>
+              </div>
             </div>
           </div>
-        </Card>
+        </header>
+
+        {/* Main Content */}
+        <main className="relative z-10 min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-md w-full">
+            <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-[#F7F1E9]/40">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-[#01bcc6] to-[#008eab] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h2 className="text-3xl font-bold text-[#005b7c] mb-4 drop-shadow-lg">Check Your Email</h2>
+                <p className="text-[#005b7c]/80 text-lg mb-6">Please check your email and click the invite link to continue with the setup.</p>
+                <p className="text-sm text-[#005b7c]/60 mb-6">If you don't see the email, check your spam folder.</p>
+                <div className="p-4 bg-yellow-50 border-2 border-yellow-200 rounded-xl">
+                  <p className="text-sm text-yellow-800 font-medium">
+                    <strong>Note:</strong> Make sure to click the invite link from your email. The link will automatically sign you in.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
     );
   }
 
   if (!companyId) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: `linear-gradient(to bottom right, ${colors.primary[50]}, ${colors.darkPurple[100]})` }}>
-        <Card className="max-w-md w-full">
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ width: spacing.xl2, height: spacing.xl2, backgroundColor: colors.red[50], borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto', marginBottom: spacing.md }}>
-              <Icon name="warning" size={32} color={colors.red[600]} />
+      <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#005b7c] via-[#008eab] to-[#01bcc6]">
+        <LiquidChromeBackground />
+        
+        {/* Header */}
+        <header className="bg-white/95 backdrop-blur-xl shadow-lg border-b border-[#F7F1E9]/30 relative z-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-4">
+              <div className="flex items-center">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-[#005b7c] to-[#01bcc6] bg-clip-text text-transparent">
+                  Loan Officer Platform
+                </h1>
+              </div>
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={() => window.location.href = '/auth'}
+                  className="text-[#005b7c] hover:text-[#01bcc6] font-medium transition-colors duration-200"
+                >
+                  Back to Login
+                </button>
+              </div>
             </div>
-            <h1 style={{ fontSize: typography.h1.fontSize, fontWeight: typography.h1.fontWeight, color: colors.text.primary, marginBottom: spacing.sm }}>Invalid Invite Link</h1>
-            <p style={{ color: colors.text.secondary }}>This invite link is invalid or missing required information.</p>
           </div>
-        </Card>
+        </header>
+
+        {/* Main Content */}
+        <main className="relative z-10 min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-md w-full">
+            <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-[#F7F1E9]/40">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h2 className="text-3xl font-bold text-[#005b7c] mb-4 drop-shadow-lg">Invalid Invite Link</h2>
+                <p className="text-[#005b7c]/80 text-lg">This invite link is invalid or missing required information.</p>
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
     );
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: `linear-gradient(to bottom right, ${colors.primary[50]}, ${colors.darkPurple[100]})` }}>
-      <Card className="max-w-md w-full">
-        <div style={{ textAlign: 'center', marginBottom: spacing.xl }}>
-          <div style={{ width: spacing.xl2, height: spacing.xl2, backgroundColor: colors.primary[50], borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto', marginBottom: spacing.md }}>
-            <Icon name="check" size={32} color={colors.primary[600]} />
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#005b7c] via-[#008eab] to-[#01bcc6]">
+      <LiquidChromeBackground />
+      
+      {/* Header */}
+      <header className="bg-white/95 backdrop-blur-xl shadow-lg border-b border-[#F7F1E9]/30 relative z-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-[#005b7c] to-[#01bcc6] bg-clip-text text-transparent">
+                Loan Officer Platform
+              </h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => window.location.href = '/auth'}
+                className="text-[#005b7c] hover:text-[#01bcc6] font-medium transition-colors duration-200"
+              >
+                Back to Login
+              </button>
+            </div>
           </div>
-          <h1 style={{ fontSize: typography.h1.fontSize, fontWeight: typography.h1.fontWeight, color: colors.text.primary, marginBottom: spacing.sm }}>Complete Your Setup</h1>
-          <p style={{ color: colors.text.secondary }}>
-            {isOfficerInvite 
-              ? 'Create a password to access your loan officer dashboard.' 
-              : 'Create a password to access your company dashboard.'
-            }
-          </p>
-          {companyInfo && (
-            <div style={{ marginTop: spacing.md, padding: spacing.md, backgroundColor: colors.gray[50], borderRadius: borderRadius.lg }}>
-              <p style={{ fontSize: typography.sm.fontSize, color: colors.text.secondary }}>
-                <strong>Company:</strong> {companyInfo.name}<br />
-                <strong>Email:</strong> {companyInfo.email}
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="relative z-10 min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
+          {/* Setup Card */}
+          <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-[#F7F1E9]/40">
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-gradient-to-br from-[#01bcc6] to-[#008eab] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h2 className="text-4xl font-bold text-[#005b7c] mb-4 drop-shadow-lg">
+                Complete Your Setup
+              </h2>
+              <p className="text-[#005b7c]/80 text-lg">
+                {isOfficerInvite 
+                  ? 'Create a password to access your loan officer dashboard.' 
+                  : 'Create a password to access your company dashboard.'
+                }
+              </p>
+              {companyInfo && (
+                <div className="mt-6 p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-[#01bcc6]/20">
+                  <p className="text-[#005b7c] font-medium">
+                    <strong>Company:</strong> {companyInfo.name}<br />
+                    <strong>Email:</strong> {companyInfo.email}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {error && (
+              <div className="mb-6 bg-red-50 border-2 border-red-200 p-4 rounded-xl shadow-lg animate-in fade-in-0 slide-in-from-top-2 duration-300">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="text-red-700 font-medium">{error}</p>
+                </div>
+              </div>
+            )}
+
+            {success && (
+              <div className="mb-6 bg-green-50 border-2 border-green-200 p-4 rounded-xl shadow-lg animate-in fade-in-0 slide-in-from-top-2 duration-300">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="text-green-700 font-medium">{success}</p>
+                </div>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <label htmlFor="password" className="block text-sm font-semibold text-[#005b7c] mb-3">
+                  Create Password
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <svg className="w-5 h-5 text-[#01bcc6]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                  </div>
+                  <input
+                    type="password"
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full pl-12 pr-4 py-4 border-2 border-[#01bcc6]/20 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-[#01bcc6]/20 focus:border-[#01bcc6] transition-all duration-300 bg-white/50 backdrop-blur-sm text-[#005b7c] font-medium placeholder-[#005b7c]/50"
+                    placeholder="Enter your password"
+                    required
+                    minLength={8}
+                    disabled={loading}
+                  />
+                </div>
+                <p className="text-xs text-[#005b7c]/60 mt-2">Password must be at least 8 characters long</p>
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="confirmPassword" className="block text-sm font-semibold text-[#005b7c] mb-3">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <svg className="w-5 h-5 text-[#01bcc6]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                  </div>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full pl-12 pr-4 py-4 border-2 border-[#01bcc6]/20 rounded-xl shadow-lg focus:outline-none focus:ring-4 focus:ring-[#01bcc6]/20 focus:border-[#01bcc6] transition-all duration-300 bg-white/50 backdrop-blur-sm text-[#005b7c] font-medium placeholder-[#005b7c]/50"
+                    placeholder="Confirm your password"
+                    required
+                    minLength={8}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-[#01bcc6] to-[#008eab] hover:from-[#008eab] hover:to-[#005b7c] text-white py-4 text-lg font-bold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                  {loading ? 'Setting up account...' : 'Complete Setup & Go to Dashboard'}
+                </button>
+              </div>
+            </form>
+
+            <div className="mt-6 text-center">
+              <p className="text-sm text-[#005b7c]/70">
+                Need help?{' '}
+                <a href="mailto:support@loanplatform.com" className="text-[#01bcc6] hover:text-[#008eab] font-medium transition-colors duration-200">
+                  Contact Support
+                </a>
               </p>
             </div>
-          )}
+          </div>
         </div>
-
-          {error && (
-            <div style={{ marginBottom: spacing.md, padding: spacing.md, backgroundColor: colors.red[50], border: `1px solid ${colors.red[200]}`, borderRadius: borderRadius.lg }}>
-              <p style={{ color: colors.red[700], fontSize: typography.sm.fontSize }}>{error}</p>
-            </div>
-          )}
-
-          {success && (
-            <div style={{ marginBottom: spacing.md, padding: spacing.md, backgroundColor: colors.green[50], border: `1px solid ${colors.green[200]}`, borderRadius: borderRadius.lg }}>
-              <p style={{ color: colors.green[700], fontSize: typography.sm.fontSize }}>{success}</p>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: spacing.lg }}>
-            <div>
-              <label htmlFor="password" style={{ display: 'block', fontSize: typography.sm.fontSize, fontWeight: typography.sm.fontWeight, color: colors.text.secondary, marginBottom: spacing.sm }}>
-                Create Password
-              </label>
-              <Input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                required
-                minLength={8}
-                disabled={loading}
-              />
-              <p style={{ fontSize: typography.xs.fontSize, color: colors.text.muted, marginTop: spacing.xs }}>Password must be at least 8 characters long</p>
-            </div>
-
-            <div>
-              <label htmlFor="confirmPassword" style={{ display: 'block', fontSize: typography.sm.fontSize, fontWeight: typography.sm.fontWeight, color: colors.text.secondary, marginBottom: spacing.sm }}>
-                Confirm Password
-              </label>
-              <Input
-                type="password"
-                id="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm your password"
-                required
-                minLength={8}
-                disabled={loading}
-              />
-            </div>
-
-            <Button
-              type="submit"
-              disabled={loading}
-              loading={loading}
-              className="w-full"
-            >
-              {loading ? 'Setting up account...' : 'Complete Setup & Go to Dashboard'}
-            </Button>
-          </form>
-
-        <div style={{ marginTop: spacing.lg, textAlign: 'center' }}>
-          <p style={{ fontSize: typography.sm.fontSize, color: colors.text.secondary }}>
-            Need help?{' '}
-            <a href="mailto:support@loanplatform.com" style={{ color: colors.primary[600], textDecoration: 'none' }} onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'} onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}>
-              Contact Support
-            </a>
-          </p>
-        </div>
-      </Card>
+      </main>
     </div>
   );
 }
@@ -390,8 +554,11 @@ function InvitePageContent() {
 export default function InvitePage() {
   return (
     <Suspense fallback={
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ animation: 'spin 1s linear infinite', borderRadius: '50%', height: '8rem', width: '8rem', borderBottom: `2px solid ${colors.primary[600]}` }}></div>
+      <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#005b7c] via-[#008eab] to-[#01bcc6]">
+        <LiquidChromeBackground />
+        <div className="relative z-10 min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#01bcc6]"></div>
+        </div>
       </div>
     }>
       <InvitePageContent />

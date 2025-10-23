@@ -1,18 +1,183 @@
 'use client';
 
-import React, { useState } from 'react';
-import { typography } from '@/theme/theme';
+import React, { useState, useEffect } from 'react';
+import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
+import { useAuth } from '@/hooks/use-auth';
 import Icon from '@/components/ui/Icon';
 
 interface FindMyHomeTabProps {
   selectedTemplate: 'template1' | 'template2';
   className?: string;
+  // NEW: Public mode props
+  isPublic?: boolean;
+  publicTemplateData?: any;
 }
 
 export default function FindMyHomeTab({
   selectedTemplate,
-  className = ''
+  className = '',
+  // NEW: Public mode props
+  isPublic = false,
+  publicTemplateData
 }: FindMyHomeTabProps) {
+  const { user } = useAuth();
+  const { getTemplateSync } = useEfficientTemplates();
+  
+  // Template data fetching - support both public and auth modes
+  const templateData = isPublic && publicTemplateData 
+    ? publicTemplateData 
+    : getTemplateSync(selectedTemplate);
+
+  
+  // Comprehensive template data usage
+  const colors = templateData?.template?.colors || {
+    primary: '#ec4899',
+    secondary: '#01bcc6',
+    background: '#ffffff',
+    text: '#111827',
+    textSecondary: '#6b7280',
+    border: '#e5e7eb'
+  };
+  
+  const typography = templateData?.template?.typography || {
+    fontFamily: 'Inter',
+    fontSize: {
+      xs: 12,
+      sm: 14,
+      base: 16,
+      lg: 18,
+      xl: 20,
+      '2xl': 24
+    },
+    fontWeight: {
+      normal: 400,
+      medium: 500,
+      semibold: 600,
+      bold: 700
+    }
+  };
+  
+  // Helper function to get font size
+  const getFontSize = (size: 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl') => {
+    if (typeof typography.fontSize === 'object') {
+      return typography.fontSize[size];
+    }
+    // Fallback sizes if fontSize is a number
+    const fallbackSizes = {
+      xs: 12, sm: 14, base: 16, lg: 18, xl: 20, '2xl': 24
+    };
+    return fallbackSizes[size];
+  };
+  
+  const content = templateData?.template?.content || {
+    headline: 'Find My Home',
+    subheadline: 'Search for your perfect home with our advanced property finder',
+    ctaText: 'Search Homes',
+    ctaSecondary: 'Map View'
+  };
+  
+  const layout = templateData?.template?.layout || {
+    alignment: 'center',
+    spacing: 18,
+    borderRadius: 8,
+    padding: { small: 8, medium: 16, large: 24, xlarge: 32 }
+  };
+  
+  const defaultClasses = {
+    button: {
+      primary: selectedTemplate === 'template2' 
+        ? 'px-6 py-3 font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white'
+        : 'px-6 py-3 font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white',
+      secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 font-medium transition-all duration-200 border border-gray-300',
+      outline: selectedTemplate === 'template2'
+        ? 'border-2 px-6 py-3 font-medium transition-all duration-200'
+        : 'border-2 px-6 py-3 font-medium transition-all duration-200',
+      ghost: selectedTemplate === 'template2'
+        ? 'px-4 py-2 font-medium transition-all duration-200'
+        : 'px-4 py-2 font-medium transition-all duration-200'
+    },
+    card: {
+      container: 'bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200',
+      header: 'px-6 py-4 border-b border-gray-200',
+      body: 'px-6 py-4',
+      footer: 'px-6 py-4 border-t border-gray-200 bg-gray-50'
+    },
+    heading: {
+      h1: 'text-3xl font-bold text-gray-900 mb-4',
+      h2: 'text-2xl font-bold text-gray-900 mb-3',
+      h3: 'text-xl font-semibold text-gray-900 mb-2',
+      h4: 'text-lg font-semibold text-gray-900 mb-2',
+      h5: 'text-base font-semibold text-gray-900 mb-2',
+      h6: 'text-sm font-semibold text-gray-900 mb-1'
+    },
+    body: {
+      large: 'text-lg text-gray-700 leading-relaxed',
+      base: 'text-base text-gray-700 leading-relaxed',
+      small: 'text-sm text-gray-600 leading-relaxed',
+      xs: 'text-xs text-gray-500 leading-normal'
+    },
+    icon: {
+      primary: selectedTemplate === 'template2' 
+        ? 'w-12 h-12 flex items-center justify-center mb-4'
+        : 'w-12 h-12 flex items-center justify-center mb-4',
+      secondary: 'w-10 h-10 bg-gray-100 flex items-center justify-center mb-3',
+      small: selectedTemplate === 'template2'
+        ? 'w-8 h-8 flex items-center justify-center'
+        : 'w-8 h-8 flex items-center justify-center'
+    },
+    input: {
+      base: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#01bcc6] focus:border-transparent',
+      error: 'w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent'
+    },
+    select: {
+      base: 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#01bcc6] focus:border-transparent bg-white',
+      error: 'w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white'
+    },
+    status: {
+      success: 'text-green-600 bg-green-50 px-2 py-1 rounded text-sm',
+      warning: 'text-yellow-600 bg-yellow-50 px-2 py-1 rounded text-sm',
+      error: 'text-red-600 bg-red-50 px-2 py-1 rounded text-sm',
+      info: 'text-[#01bcc6] bg-[#01bcc6]/10 px-2 py-1 rounded text-sm'
+    }
+  };
+  const templateClasses = templateData?.template?.classes;
+  const safeTemplateClasses = templateClasses && typeof templateClasses === 'object' ? templateClasses : {};
+  const classes = {
+    ...defaultClasses,
+    ...safeTemplateClasses,
+button: { 
+      ...defaultClasses.button, 
+      ...(safeTemplateClasses?.button || {}) 
+    },
+    card: { 
+      ...defaultClasses.card, 
+      ...(safeTemplateClasses?.card || {}) 
+    },
+    heading: { 
+      ...defaultClasses.heading, 
+      ...(safeTemplateClasses?.heading || {}) 
+    },
+    body: { 
+      ...defaultClasses.body, 
+      ...(safeTemplateClasses?.body || {}) 
+    },
+    icon: { 
+      ...defaultClasses.icon, 
+      ...(safeTemplateClasses?.icon || {}) 
+    },
+    input: { 
+      ...defaultClasses.input, 
+      ...(safeTemplateClasses?.input || {}) 
+    },
+    select: { 
+      ...defaultClasses.select, 
+      ...(safeTemplateClasses?.select || {}) 
+    },
+    status: { 
+      ...defaultClasses.status, 
+      ...(safeTemplateClasses?.status || {}) 
+    }
+  };
   const [searchCriteria, setSearchCriteria] = useState({
     location: '',
     priceMin: '',
@@ -22,28 +187,6 @@ export default function FindMyHomeTab({
     propertyType: 'all'
   });
   const [showIframe, setShowIframe] = useState(false);
-
-  const getThemeColors = () => {
-    return selectedTemplate === 'template1' 
-      ? {
-          primary: 'pink',
-          primaryBg: 'bg-pink-50',
-          primaryText: 'text-pink-600',
-          primaryBorder: 'border-pink-200',
-          primaryHover: 'hover:bg-pink-100',
-          primaryButton: 'bg-pink-600 hover:bg-pink-700'
-        }
-      : {
-          primary: 'purple',
-          primaryBg: 'bg-purple-50',
-          primaryText: 'text-purple-600',
-          primaryBorder: 'border-purple-200',
-          primaryHover: 'hover:bg-purple-100',
-          primaryButton: 'bg-purple-600 hover:bg-purple-700'
-        };
-  };
-
-  const theme = getThemeColors();
 
   const handleSearch = () => {
     setShowIframe(true);
@@ -56,252 +199,335 @@ export default function FindMyHomeTab({
     }));
   };
 
-  const propertyTypes = [
-    { value: 'all', label: 'All Types' },
-    { value: 'single-family', label: 'Single Family' },
-    { value: 'condo', label: 'Condo' },
-    { value: 'townhouse', label: 'Townhouse' },
-    { value: 'multi-family', label: 'Multi-Family' }
-  ];
-
   return (
-    <div className={`w-full ${className}`}>
+    <div 
+      className={`w-full ${className}`}
+      style={{ fontFamily: typography.fontFamily }}
+    >
       {/* Header */}
-      <div className="mb-8">
-        <h2 className={typography.headings.h4}>
-          Find My Home
+      <div 
+        className={`${classes.card.header}`}
+        style={{ borderBottomColor: colors.border }}
+      >
+        <h2 
+          className={`${classes.heading.h2}`}
+          style={{ color: colors.text }}
+        >
+          {content.headline}
         </h2>
-        <p className={`${typography.body.base} text-gray-600 mt-2`}>
-          Search for your perfect home with our comprehensive property search tool
+        <p 
+          className={`${classes.body.base}`}
+          style={{ color: colors.textSecondary }}
+        >
+          {content.subheadline}
         </p>
       </div>
 
       {!showIframe ? (
         <>
           {/* Search Form */}
-          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-8 mb-8">
-            <h3 className={`${typography.headings.h5} mb-6`}>
-              Search Criteria
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div>
-                <label htmlFor="location" className={`block ${typography.body.small} font-medium text-gray-700 mb-2`}>
-                  Location
-                </label>
-                <input
-                  type="text"
-                  id="location"
-                  value={searchCriteria.location}
-                  onChange={(e) => handleInputChange('location', e.target.value)}
-                  placeholder="City, State or ZIP"
-                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-${theme.primary}-500 focus:border-transparent`}
-                />
+          <div className={`${classes.card.container} mb-8 mt-8`} style={{ borderRadius: `${layout.borderRadius}px` }}>
+            <div className={`${classes.card.body}`}>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                <div>
+                  <label className={`${classes.body.small} font-medium text-gray-700 mb-2 block`}>
+                    Location
+                  </label>
+                  <input
+                    type="text"
+                    value={searchCriteria.location}
+                    onChange={(e) => handleInputChange('location', e.target.value)}
+                    placeholder="City, State or ZIP"
+                    className={`${classes.input.base}`}
+                    style={{
+                      borderRadius: `${layout.borderRadius}px`,
+                      borderColor: colors.border
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label className={`${classes.body.small} font-medium text-gray-700 mb-2 block`}>
+                    Min Price
+                  </label>
+                  <select
+                    value={searchCriteria.priceMin}
+                    onChange={(e) => handleInputChange('priceMin', e.target.value)}
+                    className={`${classes.select.base}`}
+                    style={{
+                      borderRadius: `${layout.borderRadius}px`,
+                      borderColor: colors.border
+                    }}
+                  >
+                    <option value="">No Min</option>
+                    <option value="100000">$100,000</option>
+                    <option value="200000">$200,000</option>
+                    <option value="300000">$300,000</option>
+                    <option value="400000">$400,000</option>
+                    <option value="500000">$500,000</option>
+                    <option value="750000">$750,000</option>
+                    <option value="1000000">$1,000,000</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className={`${classes.body.small} font-medium text-gray-700 mb-2 block`}>
+                    Max Price
+                  </label>
+                  <select
+                    value={searchCriteria.priceMax}
+                    onChange={(e) => handleInputChange('priceMax', e.target.value)}
+                    className={`${classes.select.base}`}
+                    style={{
+                      borderRadius: `${layout.borderRadius}px`,
+                      borderColor: colors.border
+                    }}
+                  >
+                    <option value="">No Max</option>
+                    <option value="200000">$200,000</option>
+                    <option value="300000">$300,000</option>
+                    <option value="400000">$400,000</option>
+                    <option value="500000">$500,000</option>
+                    <option value="750000">$750,000</option>
+                    <option value="1000000">$1,000,000</option>
+                    <option value="1500000">$1,500,000</option>
+                    <option value="2000000">$2,000,000+</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className={`${classes.body.small} font-medium text-gray-700 mb-2 block`}>
+                    Bedrooms
+                  </label>
+                  <select
+                    value={searchCriteria.bedrooms}
+                    onChange={(e) => handleInputChange('bedrooms', e.target.value)}
+                    className={`${classes.select.base}`}
+                    style={{
+                      borderRadius: `${layout.borderRadius}px`,
+                      borderColor: colors.border
+                    }}
+                  >
+                    <option value="">Any</option>
+                    <option value="1">1+</option>
+                    <option value="2">2+</option>
+                    <option value="3">3+</option>
+                    <option value="4">4+</option>
+                    <option value="5">5+</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className={`${classes.body.small} font-medium text-gray-700 mb-2 block`}>
+                    Bathrooms
+                  </label>
+                  <select
+                    value={searchCriteria.bathrooms}
+                    onChange={(e) => handleInputChange('bathrooms', e.target.value)}
+                    className={`${classes.select.base}`}
+                    style={{
+                      borderRadius: `${layout.borderRadius}px`,
+                      borderColor: colors.border
+                    }}
+                  >
+                    <option value="">Any</option>
+                    <option value="1">1+</option>
+                    <option value="1.5">1.5+</option>
+                    <option value="2">2+</option>
+                    <option value="2.5">2.5+</option>
+                    <option value="3">3+</option>
+                    <option value="4">4+</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className={`${classes.body.small} font-medium text-gray-700 mb-2 block`}>
+                    Property Type
+                  </label>
+                  <select
+                    value={searchCriteria.propertyType}
+                    onChange={(e) => handleInputChange('propertyType', e.target.value)}
+                    className={`${classes.select.base}`}
+                    style={{
+                      borderRadius: `${layout.borderRadius}px`,
+                      borderColor: colors.border
+                    }}
+                  >
+                    <option value="all">All Types</option>
+                    <option value="single-family">Single Family</option>
+                    <option value="condo">Condo</option>
+                    <option value="townhouse">Townhouse</option>
+                    <option value="multi-family">Multi-Family</option>
+                    <option value="land">Land</option>
+                  </select>
+                </div>
               </div>
 
-              <div>
-                <label htmlFor="priceMin" className={`block ${typography.body.small} font-medium text-gray-700 mb-2`}>
-                  Min Price
-                </label>
-                <input
-                  type="number"
-                  id="priceMin"
-                  value={searchCriteria.priceMin}
-                  onChange={(e) => handleInputChange('priceMin', e.target.value)}
-                  placeholder="$0"
-                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-${theme.primary}-500 focus:border-transparent`}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="priceMax" className={`block ${typography.body.small} font-medium text-gray-700 mb-2`}>
-                  Max Price
-                </label>
-                <input
-                  type="number"
-                  id="priceMax"
-                  value={searchCriteria.priceMax}
-                  onChange={(e) => handleInputChange('priceMax', e.target.value)}
-                  placeholder="No limit"
-                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-${theme.primary}-500 focus:border-transparent`}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="bedrooms" className={`block ${typography.body.small} font-medium text-gray-700 mb-2`}>
-                  Bedrooms
-                </label>
-                <select
-                  id="bedrooms"
-                  value={searchCriteria.bedrooms}
-                  onChange={(e) => handleInputChange('bedrooms', e.target.value)}
-                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-${theme.primary}-500 focus:border-transparent`}
-                >
-                  <option value="">Any</option>
-                  <option value="1">1+</option>
-                  <option value="2">2+</option>
-                  <option value="3">3+</option>
-                  <option value="4">4+</option>
-                  <option value="5">5+</option>
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="bathrooms" className={`block ${typography.body.small} font-medium text-gray-700 mb-2`}>
-                  Bathrooms
-                </label>
-                <select
-                  id="bathrooms"
-                  value={searchCriteria.bathrooms}
-                  onChange={(e) => handleInputChange('bathrooms', e.target.value)}
-                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-${theme.primary}-500 focus:border-transparent`}
-                >
-                  <option value="">Any</option>
-                  <option value="1">1+</option>
-                  <option value="1.5">1.5+</option>
-                  <option value="2">2+</option>
-                  <option value="2.5">2.5+</option>
-                  <option value="3">3+</option>
-                  <option value="4">4+</option>
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="propertyType" className={`block ${typography.body.small} font-medium text-gray-700 mb-2`}>
-                  Property Type
-                </label>
-                <select
-                  id="propertyType"
-                  value={searchCriteria.propertyType}
-                  onChange={(e) => handleInputChange('propertyType', e.target.value)}
-                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-${theme.primary}-500 focus:border-transparent`}
-                >
-                  {propertyTypes.map(type => (
-                    <option key={type.value} value={type.value}>
-                      {type.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <button
-                onClick={handleSearch}
-                className={`${theme.primaryButton} text-white py-3 px-8 rounded-lg transition-colors flex items-center space-x-2`}
+              <div 
+                className="flex flex-col sm:flex-row gap-3 sm:gap-4"
+                style={{ gap: `${layout.padding.medium}px` }}
               >
-                <Icon name="search" size={20} />
-                <span>Search Properties</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Features */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className={`w-12 h-12 ${theme.primaryBg} rounded-full flex items-center justify-center`}>
-                  <Icon name="map" size={24} className={theme.primaryText} />
-                </div>
-                <div>
-                  <h3 className={`${typography.body.small} font-semibold text-gray-900`}>
-                    MLS Integration
-                  </h3>
-                  <p className={`${typography.body.xs} text-gray-600`}>
-                    Access to all MLS listings
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Icon name="camera" size={24} className="text-blue-600" />
-                </div>
-                <div>
-                  <h3 className={`${typography.body.small} font-semibold text-gray-900`}>
-                    Virtual Tours
-                  </h3>
-                  <p className={`${typography.body.xs} text-gray-600`}>
-                    360° photos and virtual walkthroughs
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                  <Icon name="bell" size={24} className="text-green-600" />
-                </div>
-                <div>
-                  <h3 className={`${typography.body.small} font-semibold text-gray-900`}>
-                    Alerts
-                  </h3>
-                  <p className={`${typography.body.xs} text-gray-600`}>
-                    Get notified of new listings
-                  </p>
-                </div>
+                <button
+                  onClick={handleSearch}
+                  className="flex items-center justify-center gap-3 px-8 py-4 font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  style={{
+                    backgroundColor: colors.primary,
+                    color: colors.background,
+                    borderColor: colors.primary,
+                    borderRadius: `${layout.borderRadius}px`,
+                    border: 'none',
+                    fontFamily: typography.fontFamily,
+                    fontSize: getFontSize('base'),
+                    fontWeight: typography.fontWeight.semibold,
+                    minWidth: '160px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.secondary;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.primary;
+                  }}
+                >
+                  <Icon name="search" size={20} color={colors.background} />
+                  <span>Search Home</span>
+                </button>
+                
+                <button
+                  onClick={() => setShowIframe(true)}
+                  className="flex items-center justify-center gap-3 px-8 py-4 font-semibold transition-all duration-300 transform hover:scale-105 border-2 hover:shadow-lg"
+                  style={{
+                    backgroundColor: colors.background,
+                    color: colors.primary,
+                    borderColor: colors.primary,
+                    borderRadius: `${layout.borderRadius}px`,
+                    fontFamily: typography.fontFamily,
+                    fontSize: getFontSize('base'),
+                    fontWeight: typography.fontWeight.semibold,
+                    minWidth: '160px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.primary + '10';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.background;
+                  }}
+                >
+                  <Icon name="map" size={20} color={colors.primary} />
+                  <span>{content.ctaSecondary}</span>
+                </button>
               </div>
             </div>
           </div>
 
-          {/* Search Tips */}
-          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-8">
-            <h3 className={`${typography.headings.h5} mb-6`}>
-              Search Tips
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <Icon name="lightbulb" size={20} className="text-yellow-500 mt-1" />
-                  <div>
-                    <h4 className={`${typography.body.small} font-semibold text-gray-900`}>
-                      Start Broad
-                    </h4>
-                    <p className={`${typography.body.xs} text-gray-600`}>
-                      Begin with a general location and narrow down as you explore
-                    </p>
-                  </div>
+          {/* Features Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
+              <div className={`${classes.card.body}`}>
+                <div className={`${classes.icon.primary}`}>
+                  <Icon name="search" size={24} color={colors.primary} />
                 </div>
+                <h3 className={`${classes.heading.h5}`}>
+                  Advanced Search
+                </h3>
+                <p className={`${classes.body.small}`}>
+                  Filter by price, location, size, and property type
+                </p>
+              </div>
+            </div>
 
-                <div className="flex items-start space-x-3">
-                  <Icon name="lightbulb" size={20} className="text-yellow-500 mt-1" />
-                  <div>
-                    <h4 className={`${typography.body.small} font-semibold text-gray-900`}>
-                      Set Price Range
-                    </h4>
-                    <p className={`${typography.body.xs} text-gray-600`}>
-                      Include a buffer above your budget to see all options
-                    </p>
+            <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
+              <div className={`${classes.card.body}`}>
+                <div className={`${classes.icon.primary}`}>
+                  <Icon name="map" size={24} color={colors.primary} />
+                </div>
+                <h3 className={`${classes.heading.h5}`}>
+                  Interactive Maps
+                </h3>
+                <p className={`${classes.body.small}`}>
+                  Explore neighborhoods with detailed map views
+                </p>
+              </div>
+            </div>
+
+            <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
+              <div className={`${classes.card.body}`}>
+                <div className={`${classes.icon.primary}`}>
+                  <Icon name="heart" size={24} color={colors.primary} />
+                </div>
+                <h3 className={`${classes.heading.h5}`}>
+                  Save Favorites
+                </h3>
+                <p className={`${classes.body.small}`}>
+                  Save properties you love and compare them easily
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Information Cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
+              <div className={`${classes.card.header}`}>
+                <h3 className={`${classes.heading.h4}`}>
+                  Search Tips
+                </h3>
+              </div>
+              <div className={`${classes.card.body}`}>
+                <div className="space-y-4">
+                  <div className="flex items-start space-x-3">
+                    <div className={`${classes.icon.small}`}>
+                      <span className="text-sm font-bold text-gray-600">1</span>
+                    </div>
+                    <div>
+                      <h4 className={`${classes.heading.h6}`}>Set Your Budget</h4>
+                      <p className={`${classes.body.small}`}>Determine your price range before searching</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <div className={`${classes.icon.small}`}>
+                      <span className="text-sm font-bold text-gray-600">2</span>
+                    </div>
+                    <div>
+                      <h4 className={`${classes.heading.h6}`}>Choose Location</h4>
+                      <p className={`${classes.body.small}`}>Consider commute time and neighborhood amenities</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <div className={`${classes.icon.small}`}>
+                      <span className="text-sm font-bold text-gray-600">3</span>
+                    </div>
+                    <div>
+                      <h4 className={`${classes.heading.h6}`}>Define Needs</h4>
+                      <p className={`${classes.body.small}`}>List must-have features vs. nice-to-have features</p>
+                    </div>
                   </div>
                 </div>
               </div>
+            </div>
 
-              <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <Icon name="lightbulb" size={20} className="text-yellow-500 mt-1" />
-                  <div>
-                    <h4 className={`${typography.body.small} font-semibold text-gray-900`}>
-                      Save Favorites
-                    </h4>
-                    <p className={`${typography.body.xs} text-gray-600`}>
-                      Create a favorites list to compare properties easily
-                    </p>
+            <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
+              <div className={`${classes.card.header}`}>
+                <h3 className={`${classes.heading.h4}`}>
+                  Market Insights
+                </h3>
+              </div>
+              <div className={`${classes.card.body}`}>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className={`${classes.body.small}`}>Average Home Price</span>
+                    <span className={`${classes.body.base} font-semibold`}>$425,000</span>
                   </div>
-                </div>
-
-                <div className="flex items-start space-x-3">
-                  <Icon name="lightbulb" size={20} className="text-yellow-500 mt-1" />
-                  <div>
-                    <h4 className={`${typography.body.small} font-semibold text-gray-900`}>
-                      Schedule Tours
-                    </h4>
-                    <p className={`${typography.body.xs} text-gray-600`}>
-                      Contact agents directly to schedule property viewings
-                    </p>
+                  <div className="flex items-center justify-between">
+                    <span className={`${classes.body.small}`}>Days on Market</span>
+                    <span className={`${classes.body.base} font-semibold`}>28 days</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className={`${classes.body.small}`}>Price per Sq Ft</span>
+                    <span className={`${classes.body.base} font-semibold`}>$185</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className={`${classes.body.small}`}>Market Trend</span>
+                    <span className={`${classes.status.success}`}>Rising</span>
                   </div>
                 </div>
               </div>
@@ -309,109 +535,67 @@ export default function FindMyHomeTab({
           </div>
         </>
       ) : (
-        /* Iframe Property Search */
-        <div className="bg-white rounded-lg shadow-lg border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-            <div>
-              <h3 className={`${typography.headings.h6}`}>
+        /* Results View */
+        <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
+          <div className={`${classes.card.header}`}>
+            <div className="flex items-center justify-between">
+              <h3 className={`${classes.heading.h3}`}>
                 Property Search Results
               </h3>
-              <p className={`${typography.body.xs} text-gray-600`}>
-                {searchCriteria.location || 'All locations'}
-              </p>
+              <button
+                onClick={() => setShowIframe(false)}
+                style={{
+                  padding: `${layout.padding.small}px`,
+                  backgroundColor: 'transparent',
+                  color: colors.textSecondary,
+                  border: 'none',
+                  borderRadius: `${layout.borderRadius}px`,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = `${colors.border}20`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                <Icon name="close" size={20} color={colors.textSecondary} />
+              </button>
             </div>
-            <button
-              onClick={() => setShowIframe(false)}
-              className="text-gray-500 hover:text-gray-700 transition-colors"
-            >
-              <Icon name="x" size={24} />
-            </button>
           </div>
           
-          <div className="p-6">
-            {/* Search Summary */}
-            <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <h4 className={`${typography.body.small} font-semibold text-gray-900 mb-2`}>
-                Search Criteria
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {searchCriteria.location && (
-                  <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                    Location: {searchCriteria.location}
-                  </span>
-                )}
-                {searchCriteria.priceMin && (
-                  <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs">
-                    Min: ${parseInt(searchCriteria.priceMin).toLocaleString()}
-                  </span>
-                )}
-                {searchCriteria.priceMax && (
-                  <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs">
-                    Max: ${parseInt(searchCriteria.priceMax).toLocaleString()}
-                  </span>
-                )}
-                {searchCriteria.bedrooms && (
-                  <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">
-                    {searchCriteria.bedrooms}+ Bedrooms
-                  </span>
-                )}
-                {searchCriteria.bathrooms && (
-                  <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">
-                    {searchCriteria.bathrooms}+ Bathrooms
-                  </span>
-                )}
-                {searchCriteria.propertyType !== 'all' && (
-                  <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-xs">
-                    {propertyTypes.find(t => t.value === searchCriteria.propertyType)?.label}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Iframe Placeholder */}
-            <div className="bg-gray-100 rounded-lg p-8 text-center">
+          <div className={`${classes.card.body}`}>
+            <div className="text-center py-8">
               <Icon name="home" size={48} className="text-gray-400 mx-auto mb-4" />
-              <h4 className={`${typography.headings.h6} text-gray-600 mb-2`}>
-                IDX Property Search
+              <h4 className={`${classes.heading.h4} text-gray-600 mb-2`}>
+                Property Search
               </h4>
-              <p className={`${typography.body.small} text-gray-500 mb-4`}>
-                In a real implementation, this would show an iframe with the IDX property search tool
+              <p className={`${classes.body.base} text-gray-500 mb-4`}>
+                Use our advanced search filters to find your perfect home
               </p>
-              <div className="bg-white rounded-lg p-4 border-2 border-dashed border-gray-300">
-                <p className={`${typography.body.xs} text-gray-500`}>
-                  iframe src="https://idx-property-search.com/search" width="100%" height="600px"
-                </p>
-              </div>
-            </div>
-
-            {/* Quick Stats */}
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-blue-50 rounded-lg p-4 text-center">
-                <h5 className={`${typography.body.small} font-semibold text-blue-900`}>
-                  Properties Found
-                </h5>
-                <p className={`${typography.headings.h5} text-blue-600`}>
-                  247
-                </p>
-              </div>
-              
-              <div className="bg-green-50 rounded-lg p-4 text-center">
-                <h5 className={`${typography.body.small} font-semibold text-green-900`}>
-                  Average Price
-                </h5>
-                <p className={`${typography.headings.h5} text-green-600`}>
-                  $425,000
-                </p>
-              </div>
-              
-              <div className="bg-purple-50 rounded-lg p-4 text-center">
-                <h5 className={`${typography.body.small} font-semibold text-purple-900`}>
-                  New This Week
-                </h5>
-                <p className={`${typography.headings.h5} text-purple-600`}>
-                  23
-                </p>
-              </div>
+              <button
+                onClick={() => setShowIframe(false)}
+                style={{
+                  padding: `${layout.padding.medium}px ${layout.padding.large}px`,
+                  backgroundColor: `${colors.primary} !important`,
+                  color: `${colors.background} !important`,
+                  border: `none !important`,
+                  borderRadius: `${layout.borderRadius}px`,
+                  fontSize: getFontSize('base'),
+                  fontWeight: typography.fontWeight.medium,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = `${colors.secondary} !important`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = `${colors.primary} !important`;
+                }}
+              >
+                Back to Search
+              </button>
             </div>
           </div>
         </div>

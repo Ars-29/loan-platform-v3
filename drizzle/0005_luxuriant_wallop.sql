@@ -1,0 +1,1 @@
+ALTER TABLE "templates" DROP CONSTRAINT "templates_slug_unique";

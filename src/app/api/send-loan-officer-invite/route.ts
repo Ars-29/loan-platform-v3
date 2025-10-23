@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { createPersonalTemplatesForUser } from '@/lib/template-manager';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -10,6 +11,7 @@ export interface LoanOfficerInviteData {
   email: string;
   firstName: string;
   lastName: string;
+  nmlsNumber: string;
   companyId: string;
 }
 
@@ -21,10 +23,10 @@ export interface LoanOfficerInviteResult {
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, firstName, lastName, companyId }: LoanOfficerInviteData = await request.json();
+    const { email, firstName, lastName, nmlsNumber, companyId }: LoanOfficerInviteData = await request.json();
 
     // Validate required fields
-    if (!email || !firstName || !lastName || !companyId) {
+    if (!email || !firstName || !lastName || !nmlsNumber || !companyId) {
       return NextResponse.json({
         success: false,
         message: 'All fields are required.'
@@ -102,6 +104,7 @@ export async function POST(request: NextRequest) {
             email: email,
             first_name: firstName,
             last_name: lastName,
+            nmls_number: nmlsNumber,
             role: 'employee',
             is_active: false, // Will be activated when they accept the invite
             deactivated: false, // Reset deactivation status
@@ -121,6 +124,7 @@ export async function POST(request: NextRequest) {
             email: email,
             first_name: firstName,
             last_name: lastName,
+            nmls_number: nmlsNumber,
             role: 'employee',
             is_active: false, // Will be activated when they accept the invite
             invite_status: 'sent',
@@ -161,6 +165,17 @@ export async function POST(request: NextRequest) {
           success: false,
           message: 'Failed to create company relationship. Please try again.'
         }, { status: 500 });
+      }
+
+      // Create personal templates for the loan officer
+      try {
+        console.log('🎨 Creating personal templates for new loan officer:', inviteResult.user.id);
+        await createPersonalTemplatesForUser(inviteResult.user.id, firstName, lastName);
+        console.log('✅ Personal templates created successfully');
+      } catch (templateError) {
+        console.error('❌ Error creating personal templates:', templateError);
+        // Don't fail the entire invite process if template creation fails
+        // The user can still be created and templates can be created later
       }
 
       return NextResponse.json({

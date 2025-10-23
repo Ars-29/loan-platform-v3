@@ -1,42 +1,145 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { typography } from '@/theme/theme';
+import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
+import { useAuth } from '@/hooks/use-auth';
 import Icon from '@/components/ui/Icon';
 
 interface ApplyNowTabProps {
   selectedTemplate: 'template1' | 'template2';
   className?: string;
+  // NEW: Public mode props
+  isPublic?: boolean;
+  publicTemplateData?: any;
 }
 
 export default function ApplyNowTab({
   selectedTemplate,
-  className = ''
+  className = '',
+  // NEW: Public mode props
+  isPublic = false,
+  publicTemplateData
 }: ApplyNowTabProps) {
+  const { user } = useAuth();
+  const { getTemplateSync } = useEfficientTemplates();
+  
+  // Template data fetching - support both public and auth modes
+  const templateData = isPublic && publicTemplateData 
+    ? publicTemplateData 
+    : getTemplateSync(selectedTemplate);
+
+  
+  // Comprehensive template data usage
+  const colors = templateData?.template?.colors || {
+    primary: '#ec4899',
+    secondary: '#01bcc6',
+    background: '#ffffff',
+    text: '#111827',
+    textSecondary: '#6b7280',
+    border: '#e5e7eb'
+  };
+  
+  const typography = templateData?.template?.typography || {
+    fontFamily: 'Inter',
+    fontSize: 16,
+    fontWeight: {
+      normal: 400,
+      medium: 500,
+      semibold: 600,
+      bold: 700
+    }
+  };
+  
+  const content = templateData?.template?.content || {
+    headline: 'Apply for Your Loan',
+    subheadline: 'Start your loan application process with our secure online platform',
+    ctaText: 'Start Application',
+    ctaSecondary: 'Learn More'
+  };
+  
+  const layout = templateData?.template?.layout || {
+    alignment: 'center',
+    spacing: 18,
+    borderRadius: 8,
+    padding: { small: 8, medium: 16, large: 24, xlarge: 32 }
+  };
+  
+  const defaultClasses = {
+    button: {
+      primary: selectedTemplate === 'template2' 
+        ? 'px-6 py-3 font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white'
+        : 'px-6 py-3 font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white',
+      secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 font-medium transition-all duration-200 border border-gray-300',
+      outline: selectedTemplate === 'template2'
+        ? 'border-2 px-6 py-3 font-medium transition-all duration-200'
+        : 'border-2 px-6 py-3 font-medium transition-all duration-200',
+      ghost: selectedTemplate === 'template2'
+        ? 'px-4 py-2 font-medium transition-all duration-200'
+        : 'px-4 py-2 font-medium transition-all duration-200'
+    },
+    card: {
+      container: 'bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200',
+      header: 'px-6 py-4 border-b border-gray-200',
+      body: 'px-6 py-4',
+      footer: 'px-6 py-4 border-t border-gray-200 bg-gray-50'
+    },
+    heading: {
+      h1: 'text-3xl font-bold text-gray-900 mb-4',
+      h2: 'text-2xl font-bold text-gray-900 mb-3',
+      h3: 'text-xl font-semibold text-gray-900 mb-2',
+      h4: 'text-lg font-semibold text-gray-900 mb-2',
+      h5: 'text-base font-semibold text-gray-900 mb-2',
+      h6: 'text-sm font-semibold text-gray-900 mb-1'
+    },
+    body: {
+      large: 'text-lg text-gray-700 leading-relaxed',
+      base: 'text-base text-gray-700 leading-relaxed',
+      small: 'text-sm text-gray-600 leading-relaxed',
+      xs: 'text-xs text-gray-500 leading-normal'
+    },
+    icon: {
+      primary: selectedTemplate === 'template2' 
+        ? 'w-12 h-12 flex items-center justify-center mb-4'
+        : 'w-12 h-12 flex items-center justify-center mb-4',
+      secondary: 'w-10 h-10 bg-gray-100 flex items-center justify-center mb-3',
+      small: selectedTemplate === 'template2'
+        ? 'w-8 h-8 flex items-center justify-center'
+        : 'w-8 h-8 flex items-center justify-center'
+    }
+  };
+  
+  // More defensive approach for template classes
+  const templateClasses = templateData?.template?.classes;
+  const safeTemplateClasses = templateClasses && typeof templateClasses === 'object' ? templateClasses : {};
+  
+  const classes = {
+    ...defaultClasses,
+    ...safeTemplateClasses,
+    button: { 
+      ...defaultClasses.button, 
+      ...(safeTemplateClasses?.button || {}) 
+    },
+    card: { 
+      ...defaultClasses.card, 
+      ...(safeTemplateClasses?.card || {}) 
+    },
+    heading: { 
+      ...defaultClasses.heading, 
+      ...(safeTemplateClasses?.heading || {}) 
+    },
+    body: { 
+      ...defaultClasses.body, 
+      ...(safeTemplateClasses?.body || {}) 
+    },
+    icon: { 
+      ...defaultClasses.icon, 
+      ...(safeTemplateClasses?.icon || {}) 
+    }
+  };
+  
   const [applicationType, setApplicationType] = useState<'new' | 'existing'>('new');
   const [showIframe, setShowIframe] = useState(false);
-
-  const getThemeColors = () => {
-    return selectedTemplate === 'template1' 
-      ? {
-          primary: 'pink',
-          primaryBg: 'bg-pink-50',
-          primaryText: 'text-pink-600',
-          primaryBorder: 'border-pink-200',
-          primaryHover: 'hover:bg-pink-100',
-          primaryButton: 'bg-pink-600 hover:bg-pink-700'
-        }
-      : {
-          primary: 'purple',
-          primaryBg: 'bg-purple-50',
-          primaryText: 'text-purple-600',
-          primaryBorder: 'border-purple-200',
-          primaryHover: 'hover:bg-purple-100',
-          primaryButton: 'bg-purple-600 hover:bg-purple-700'
-        };
-  };
-
-  const theme = getThemeColors();
 
   const handleStartApplication = () => {
     setShowIframe(true);
@@ -50,277 +153,178 @@ export default function ApplyNowTab({
   return (
     <div className={`w-full ${className}`}>
       {/* Header */}
-      <div className="mb-8">
-        <h2 className={typography.headings.h4}>
+      <div className={`${classes.card.header}`}>
+        <h2 className={`${classes.heading.h2}`}>
           Apply for Your Loan
         </h2>
-        <p className={`${typography.body.base} text-gray-600 mt-2`}>
+        <p className={`${classes.body.base}`}>
           Start your loan application process with our secure online platform
         </p>
       </div>
 
       {!showIframe ? (
         <>
-          {/* Application Type Selection */}
-          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-8 mb-8">
-            <h3 className={`${typography.headings.h5} mb-6`}>
-              Choose Your Application Type
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div
-                className={`p-6 border-2 rounded-lg cursor-pointer transition-all ${
-                  applicationType === 'new'
-                    ? `${theme.primaryBorder} ${theme.primaryBg}`
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-                onClick={() => setApplicationType('new')}
-              >
-                <div className="flex items-center space-x-4">
-                  <div className={`w-12 h-12 ${theme.primaryBg} rounded-full flex items-center justify-center`}>
-                    <Icon name="plus" size={24} className={theme.primaryText} />
-                  </div>
-                  <div>
-                    <h4 className={`${typography.body.small} font-semibold text-gray-900`}>
-                      New Application
-                    </h4>
-                    <p className={`${typography.body.xs} text-gray-600`}>
-                      Start a fresh loan application
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div
-                className={`p-6 border-2 rounded-lg cursor-pointer transition-all ${
-                  applicationType === 'existing'
-                    ? `${theme.primaryBorder} ${theme.primaryBg}`
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-                onClick={() => setApplicationType('existing')}
-              >
-                <div className="flex items-center space-x-4">
-                  <div className={`w-12 h-12 ${theme.primaryBg} rounded-full flex items-center justify-center`}>
-                    <Icon name="file-text" size={24} className={theme.primaryText} />
-                  </div>
-                  <div>
-                    <h4 className={`${typography.body.small} font-semibold text-gray-900`}>
-                      Continue Application
-                    </h4>
-                    <p className={`${typography.body.xs} text-gray-600`}>
-                      Resume your existing application
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Application Options */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          
             {/* Online Application */}
-            <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-8">
-              <div className="text-center mb-6">
-                <div className={`w-16 h-16 ${theme.primaryBg} rounded-full flex items-center justify-center mx-auto mb-4`}>
-                  <Icon name="laptop" size={32} className={theme.primaryText} />
+            <div className={`${classes.card.container}mb-8 mt-8`} style={{ borderRadius: `${layout.borderRadius}px` }}>
+              <div className={`${classes.card.body}`}>
+                <div className={`${classes.icon.primary}`}>
+                  <Icon name="target" size={24} color={colors.primary} />
                 </div>
-                <h3 className={`${typography.headings.h5} mb-2`}>
+                <h3 className={`${classes.heading.h5}`}>
                   Online Application
                 </h3>
-                <p className={`${typography.body.small} text-gray-600`}>
-                  Complete your application securely online
+                <p className={`${classes.body.small} mb-4`}>
+                  Complete your application securely online with our guided process
                 </p>
-              </div>
-
-              <div className="space-y-4 mb-6">
-                <div className="flex items-center space-x-3">
-                  <Icon name="check" size={20} className="text-green-500" />
-                  <span className={`${typography.body.small} text-gray-700`}>
-                    Secure 256-bit SSL encryption
-                  </span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Icon name="check" size={20} className="text-green-500" />
-                  <span className={`${typography.body.small} text-gray-700`}>
-                    Save and resume anytime
-                  </span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Icon name="check" size={20} className="text-green-500" />
-                  <span className={`${typography.body.small} text-gray-700`}>
-                    Instant pre-approval
-                  </span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Icon name="check" size={20} className="text-green-500" />
-                  <span className={`${typography.body.small} text-gray-700`}>
-                    Document upload support
-                  </span>
-                </div>
-              </div>
-
-              <button
-                onClick={handleStartApplication}
-                className={`w-full ${theme.primaryButton} text-white py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2`}
-              >
-                <Icon name="arrow-right" size={20} />
-                <span>Start Online Application</span>
-              </button>
-            </div>
-
-            {/* External Application */}
-            <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-8">
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Icon name="external-link" size={32} className="text-blue-600" />
-                </div>
-                <h3 className={`${typography.headings.h5} mb-2`}>
-                  External Platform
-                </h3>
-                <p className={`${typography.body.small} text-gray-600`}>
-                  Apply through our partner platform
-                </p>
-              </div>
-
-              <div className="space-y-4 mb-6">
-                <div className="flex items-center space-x-3">
-                  <Icon name="check" size={20} className="text-green-500" />
-                  <span className={`${typography.body.small} text-gray-700`}>
-                    Advanced loan software
-                  </span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Icon name="check" size={20} className="text-green-500" />
-                  <span className={`${typography.body.small} text-gray-700`}>
-                    Real-time rate updates
-                  </span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Icon name="check" size={20} className="text-green-500" />
-                  <span className={`${typography.body.small} text-gray-700`}>
-                    Automated underwriting
-                  </span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Icon name="check" size={20} className="text-green-500" />
-                  <span className={`${typography.body.small} text-gray-700`}>
-                    Integrated document management
-                  </span>
-                </div>
-              </div>
-
-              <button
-                onClick={handleExternalRedirect}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
-              >
-                <Icon name="external-link" size={20} />
-                <span>Apply on External Platform</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Application Requirements */}
-          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-8">
-            <h3 className={`${typography.headings.h5} mb-6`}>
-              What You'll Need
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="text-center">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Icon name="user" size={24} className="text-green-600" />
-                </div>
-                <h4 className={`${typography.body.small} font-semibold text-gray-900 mb-2`}>
-                  Personal Info
-                </h4>
-                <p className={`${typography.body.xs} text-gray-600`}>
-                  Name, address, SSN, contact details
-                </p>
-              </div>
-
-              <div className="text-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Icon name="dollar-sign" size={24} className="text-blue-600" />
-                </div>
-                <h4 className={`${typography.body.small} font-semibold text-gray-900 mb-2`}>
-                  Income Details
-                </h4>
-                <p className={`${typography.body.xs} text-gray-600`}>
-                  Employment, salary, other income sources
-                </p>
-              </div>
-
-              <div className="text-center">
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Icon name="home" size={24} className="text-purple-600" />
-                </div>
-                <h4 className={`${typography.body.small} font-semibold text-gray-900 mb-2`}>
-                  Property Info
-                </h4>
-                <p className={`${typography.body.xs} text-gray-600`}>
-                  Address, purchase price, down payment
-                </p>
-              </div>
-
-              <div className="text-center">
-                <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Icon name="file-text" size={24} className="text-orange-600" />
-                </div>
-                <h4 className={`${typography.body.small} font-semibold text-gray-900 mb-2`}>
-                  Documents
-                </h4>
-                <p className={`${typography.body.xs} text-gray-600`}>
-                  ID, pay stubs, bank statements
-                </p>
+                <button
+                  onClick={handleStartApplication}
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors"
+                  style={{
+                    backgroundColor: colors.primary,
+                    color: colors.background,
+                    borderColor: colors.primary,
+                    borderRadius: `${layout.borderRadius}px`,
+                    border: 'none'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.secondary;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.primary;
+                  }}
+                >
+                  <Icon name="arrowRight" size={20} color={colors.background} />
+                  <span>Start Online Application</span>
+                </button>
               </div>
             </div>
-          </div>
+          
 
-          {/* Security Notice */}
-          <div className="mt-8 bg-green-50 rounded-lg p-6">
-            <div className="flex items-start space-x-3">
-              <Icon name="shield" size={24} className="text-green-600 mt-1" />
-              <div>
-                <h3 className={`${typography.body.small} font-semibold text-green-900 mb-2`}>
-                  Your Information is Secure
-                </h3>
-                <p className={`${typography.body.small} text-green-800`}>
-                  We use bank-level security to protect your personal and financial information. 
-                  All data is encrypted and transmitted securely.
-                </p>
+          {/* Requirements Section */}
+          <div className={`${classes.card.container}mb-8 mt-8`} style={{ borderRadius: `${layout.borderRadius}px` }}>
+            <div className={`${classes.card.header}`}>
+              <h3 className={`${classes.heading.h4}`}>
+                Application Requirements
+              </h3>
+            </div>
+            <div className={`${classes.card.body}`}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className={`${classes.heading.h6} mb-3`}>
+                    Required Documents
+                  </h4>
+                  <ul className="space-y-2">
+                    <li className="flex items-center space-x-2">
+                      <Icon name="check" size={16} color={colors.primary} />
+                      <span className={`${classes.body.small}`}>Government-issued ID</span>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <Icon name="check" size={16} color={colors.primary} />
+                      <span className={`${classes.body.small}`}>Social Security Number</span>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <Icon name="check" size={16} color={colors.primary} />
+                      <span className={`${classes.body.small}`}>Proof of Income</span>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <Icon name="check" size={16} color={colors.primary} />
+                      <span className={`${classes.body.small}`}>Bank Statements</span>
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className={`${classes.heading.h6} mb-3`}>
+                    Application Process
+                  </h4>
+                  <ul className="space-y-2">
+                    <li className="flex items-center space-x-2">
+                      <div className={`${classes.icon.small}`}>
+                        <span className="text-sm font-bold" style={{ color: colors.text }}>1</span>
+                      </div>
+                      <span className={`${classes.body.small}`}>Complete Application</span>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <div className={`${classes.icon.small}`}>
+                        <span className="text-sm font-bold" style={{ color: colors.text }}>2</span>
+                      </div>
+                      <span className={`${classes.body.small}`}>Upload Documents</span>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <div className={`${classes.icon.small}`}>
+                        <span className="text-sm font-bold" style={{ color: colors.text }}>3</span>
+                      </div>
+                      <span className={`${classes.body.small}`}>Review & Submit</span>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <div className={`${classes.icon.small}`}>
+                        <span className="text-sm font-bold" style={{ color: colors.text }}>4</span>
+                      </div>
+                      <span className={`${classes.body.small}`}>Get Pre-Approved</span>
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
         </>
       ) : (
-        /* Iframe Application */
-        <div className="bg-white rounded-lg shadow-lg border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-            <h3 className={`${typography.headings.h6}`}>
-              Loan Application
-            </h3>
-            <button
-              onClick={() => setShowIframe(false)}
-              className="text-gray-500 hover:text-gray-700 transition-colors"
-            >
-              <Icon name="x" size={24} />
-            </button>
+        /* Application Iframe */
+        <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
+          <div className={`${classes.card.header}`}>
+            <div className="flex items-center justify-between">
+              <h3 className={`${classes.heading.h3}`}>
+                Loan Application
+              </h3>
+              <button
+                onClick={() => setShowIframe(false)}
+                className="flex items-center justify-center px-4 py-2 font-medium transition-colors"
+                style={{
+                  backgroundColor: 'transparent',
+                  color: colors.textSecondary,
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.border;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                <Icon name="close" size={20} />
+              </button>
+            </div>
           </div>
           
-          <div className="p-6">
-            <div className="bg-gray-100 rounded-lg p-8 text-center">
-              <Icon name="laptop" size={48} className="text-gray-400 mx-auto mb-4" />
-              <h4 className={`${typography.headings.h6} text-gray-600 mb-2`}>
+          <div className={`${classes.card.body}`}>
+            <div className="text-center py-8">
+              <Icon name="monitor" size={48} color={colors.textSecondary} className="mx-auto mb-4" />
+              <h4 className={`${classes.heading.h4} text-gray-600 mb-2`}>
                 Application Platform
               </h4>
-              <p className={`${typography.body.small} text-gray-500 mb-4`}>
-                In a real implementation, this would show an iframe with the loan application software
+              <p className={`${classes.body.base} text-gray-500 mb-4`}>
+                Your loan application will open in a secure, integrated platform
               </p>
-              <div className="bg-white rounded-lg p-4 border-2 border-dashed border-gray-300">
-                <p className={`${typography.body.xs} text-gray-500`}>
-                  iframe src="https://loan-application-platform.com/apply" width="100%" height="600px"
-                </p>
-              </div>
+              <button
+                onClick={() => setShowIframe(false)}
+                className="flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors"
+                style={{
+                  backgroundColor: colors.primary,
+                  color: colors.background,
+                  borderColor: colors.primary,
+                  borderRadius: `${layout.borderRadius}px`,
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.secondary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary;
+                }}
+              >
+                Back to Application Options
+              </button>
             </div>
           </div>
         </div>

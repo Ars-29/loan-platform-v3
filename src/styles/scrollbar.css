@@ -1,0 +1,37 @@
+/* Transparent scrollbars - Professional styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(1, 188, 198, 0.3) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(1, 188, 198, 0.3);
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(1, 188, 198, 0.5);
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Remove horizontal scrollbars where not needed */
+.no-horizontal-scroll {
+  overflow-x: hidden;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}

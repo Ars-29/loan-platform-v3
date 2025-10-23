@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { typography } from '@/theme/theme';
+import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
+import { useAuth } from '@/hooks/use-auth';
 import Icon from '@/components/ui/Icon';
 
 interface Video {
@@ -23,233 +25,326 @@ interface FAQ {
 interface LearningCenterTabProps {
   selectedTemplate: 'template1' | 'template2';
   className?: string;
+  // NEW: Public mode props
+  isPublic?: boolean;
+  publicTemplateData?: any;
 }
 
 export default function LearningCenterTab({
   selectedTemplate,
-  className = ''
+  className = '',
+  // NEW: Public mode props
+  isPublic = false,
+  publicTemplateData
 }: LearningCenterTabProps) {
+  const { user } = useAuth();
+  const { getTemplateSync } = useEfficientTemplates();
+  
+  // Template data fetching - support both public and auth modes
+  const templateData = isPublic && publicTemplateData 
+    ? publicTemplateData 
+    : getTemplateSync(selectedTemplate);
+
+  
+  // Comprehensive template data usage
+  const colors = templateData?.template?.colors || {
+    primary: '#ec4899',
+    secondary: '#01bcc6',
+    background: '#ffffff',
+    text: '#111827',
+    textSecondary: '#6b7280',
+    border: '#e5e7eb'
+  };
+  
+  const typography = templateData?.template?.typography || {
+    fontFamily: 'Inter',
+    fontSize: 16,
+    fontWeight: {
+      normal: 400,
+      medium: 500,
+      semibold: 600,
+      bold: 700
+    }
+  };
+  
+  const content = templateData?.template?.content || {
+    headline: 'Learning Center',
+    subheadline: 'Educational resources to help you navigate the home buying process',
+    ctaText: 'Watch Video',
+    ctaSecondary: 'Download Guide'
+  };
+  
+  const layout = templateData?.template?.layout || {
+    alignment: 'center',
+    spacing: 18,
+    borderRadius: 8,
+    padding: { small: 8, medium: 16, large: 24, xlarge: 32 }
+  };
+  
+  const defaultClasses = {
+    button: {
+      primary: 'px-6 py-3 font-medium transition-all duration-200 shadow-sm hover:shadow-md text-white',
+      secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 font-medium transition-all duration-200 border border-gray-300',
+      outline: 'border-2 px-6 py-3 font-medium transition-all duration-200',
+      ghost: 'px-4 py-2 font-medium transition-all duration-200'
+    },
+    card: {
+      container: 'bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200',
+      header: 'px-6 py-4 border-b border-gray-200',
+      body: 'px-6 py-4',
+      footer: 'px-6 py-4 border-t border-gray-200 bg-gray-50'
+    },
+    heading: {
+      h1: 'text-3xl font-bold text-gray-900 mb-4',
+      h2: 'text-2xl font-bold text-gray-900 mb-3',
+      h3: 'text-xl font-semibold text-gray-900 mb-2',
+      h4: 'text-lg font-semibold text-gray-900 mb-2',
+      h5: 'text-base font-semibold text-gray-900 mb-2',
+      h6: 'text-sm font-semibold text-gray-900 mb-1'
+    },
+    body: {
+      large: 'text-lg text-gray-700 leading-relaxed',
+      base: 'text-base text-gray-700 leading-relaxed',
+      small: 'text-sm text-gray-600 leading-relaxed',
+      xs: 'text-xs text-gray-500 leading-normal'
+    },
+    icon: {
+      primary: selectedTemplate === 'template2' 
+        ? 'w-12 h-12 flex items-center justify-center mb-4'
+        : 'w-12 h-12 flex items-center justify-center mb-4',
+      secondary: 'w-10 h-10 bg-gray-100 flex items-center justify-center mb-3',
+      small: selectedTemplate === 'template2'
+        ? 'w-8 h-8 flex items-center justify-center'
+        : 'w-8 h-8 flex items-center justify-center'
+    },
+    status: {
+      success: 'text-green-600 bg-green-50 px-2 py-1 text-sm',
+      warning: 'text-yellow-600 bg-yellow-50 px-2 py-1 text-sm',
+      error: 'text-red-600 bg-red-50 px-2 py-1 text-sm',
+      info: 'text-[#01bcc6] bg-[#01bcc6]/10 px-2 py-1 text-sm'
+    }
+  };
+  const templateClasses = templateData?.template?.classes;
+  const safeTemplateClasses = templateClasses && typeof templateClasses === 'object' ? templateClasses : {};
+  const classes = {
+    ...defaultClasses,
+    ...safeTemplateClasses,
+button: { 
+      ...defaultClasses.button, 
+      ...(safeTemplateClasses?.button || {}) 
+    },
+    card: { 
+      ...defaultClasses.card, 
+      ...(safeTemplateClasses?.card || {}) 
+    },
+    heading: { 
+      ...defaultClasses.heading, 
+      ...(safeTemplateClasses?.heading || {}) 
+    },
+    body: { 
+      ...defaultClasses.body, 
+      ...(safeTemplateClasses?.body || {}) 
+    },
+    icon: { 
+      ...defaultClasses.icon, 
+      ...(safeTemplateClasses?.icon || {}) 
+    },
+    status: { 
+      ...defaultClasses.status, 
+      ...(safeTemplateClasses?.status || {}) 
+    }
+  };
   const [activeSection, setActiveSection] = useState<'videos' | 'faq' | 'guides'>('videos');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [expandedFAQ, setExpandedFAQ] = useState<string | null>(null);
-
-  const getThemeColors = () => {
-    return selectedTemplate === 'template1' 
-      ? {
-          primary: 'pink',
-          primaryBg: 'bg-pink-50',
-          primaryText: 'text-pink-600',
-          primaryBorder: 'border-pink-200',
-          primaryHover: 'hover:bg-pink-100',
-          primaryButton: 'bg-pink-600 hover:bg-pink-700'
-        }
-      : {
-          primary: 'purple',
-          primaryBg: 'bg-purple-50',
-          primaryText: 'text-purple-600',
-          primaryBorder: 'border-purple-200',
-          primaryHover: 'hover:bg-purple-100',
-          primaryButton: 'bg-purple-600 hover:bg-purple-700'
-        };
-  };
-
-  const theme = getThemeColors();
 
   const mockVideos: Video[] = [
     {
       id: '1',
       title: 'Understanding Mortgage Rates',
-      description: 'Learn how mortgage rates are determined and what factors affect them.',
-      duration: '5:30',
+      description: 'Learn how mortgage rates are determined and what affects them',
+      duration: '8:45',
       thumbnail: '/api/placeholder/300/200',
       category: 'mortgage-basics'
     },
     {
       id: '2',
       title: 'First-Time Home Buyer Guide',
-      description: 'Complete guide for first-time home buyers covering the entire process.',
-      duration: '12:45',
+      description: 'Complete guide for first-time home buyers',
+      duration: '12:30',
       thumbnail: '/api/placeholder/300/200',
-      category: 'home-buying'
+      category: 'first-time-buyer'
     },
     {
       id: '3',
-      title: 'Credit Score Improvement Tips',
-      description: 'Practical strategies to improve your credit score before applying for a loan.',
-      duration: '8:15',
+      title: 'Credit Score Improvement',
+      description: 'Tips to improve your credit score for better rates',
+      duration: '6:15',
       thumbnail: '/api/placeholder/300/200',
       category: 'credit'
     },
     {
       id: '4',
-      title: 'Down Payment Options',
-      description: 'Explore different down payment programs and assistance options.',
-      duration: '6:20',
+      title: 'Down Payment Strategies',
+      description: 'Different ways to save for your down payment',
+      duration: '9:20',
       thumbnail: '/api/placeholder/300/200',
       category: 'financing'
-    },
-    {
-      id: '5',
-      title: 'Home Inspection Process',
-      description: 'What to expect during a home inspection and how to prepare.',
-      duration: '7:10',
-      thumbnail: '/api/placeholder/300/200',
-      category: 'home-buying'
-    },
-    {
-      id: '6',
-      title: 'Refinancing Your Mortgage',
-      description: 'When and how to refinance your existing mortgage.',
-      duration: '9:30',
-      thumbnail: '/api/placeholder/300/200',
-      category: 'refinancing'
     }
   ];
 
-  const mockFAQ: FAQ[] = [
+  const mockFAQs: FAQ[] = [
     {
       id: '1',
-      question: 'What is the minimum credit score needed for a mortgage?',
-      answer: 'The minimum credit score varies by loan type. For conventional loans, you typically need a score of 620 or higher. FHA loans may accept scores as low as 580 with a 3.5% down payment, or 500 with a 10% down payment. VA loans often have more flexible requirements.',
+      question: 'What is a good credit score for a mortgage?',
+      answer: 'A credit score of 620 or higher is generally considered good for conventional loans, while FHA loans may accept scores as low as 580.',
       category: 'credit'
     },
     {
       id: '2',
       question: 'How much down payment do I need?',
-      answer: 'Down payment requirements vary by loan type. Conventional loans typically require 5-20%, FHA loans require 3.5% with good credit, VA loans offer 0% down for eligible veterans, and USDA loans offer 0% down for rural properties.',
+      answer: 'Conventional loans typically require 5-20% down, while FHA loans can go as low as 3.5% down payment.',
       category: 'financing'
     },
     {
       id: '3',
-      question: 'How long does the mortgage process take?',
-      answer: 'The typical mortgage process takes 30-45 days from application to closing. However, this can vary based on loan type, property type, and market conditions. Pre-approval can be obtained in 1-3 days.',
-      category: 'process'
+      question: 'What documents do I need for pre-approval?',
+      answer: 'You\'ll need pay stubs, tax returns, bank statements, and employment verification documents.',
+      category: 'application'
     },
     {
       id: '4',
-      question: 'What documents do I need for a mortgage application?',
-      answer: 'You\'ll need pay stubs, W-2s, tax returns, bank statements, employment verification, and identification. Additional documents may be required based on your specific situation.',
-      category: 'documents'
-    },
-    {
-      id: '5',
-      question: 'Can I get a mortgage with student loan debt?',
-      answer: 'Yes, you can still qualify for a mortgage with student loan debt. Lenders will consider your debt-to-income ratio, which includes your student loan payments. There are also programs specifically designed for borrowers with student debt.',
-      category: 'debt'
-    },
-    {
-      id: '6',
-      question: 'What is PMI and when is it required?',
-      answer: 'Private Mortgage Insurance (PMI) is required when you put down less than 20% on a conventional loan. It protects the lender if you default. PMI can be removed once you reach 20% equity in your home.',
-      category: 'insurance'
+      question: 'How long does the mortgage process take?',
+      answer: 'The typical mortgage process takes 30-45 days from application to closing.',
+      category: 'process'
     }
   ];
 
   const categories = [
-    { id: 'all', name: 'All Topics', icon: 'grid' as const },
-    { id: 'mortgage-basics', name: 'Mortgage Basics', icon: 'book' as const },
-    { id: 'home-buying', name: 'Home Buying', icon: 'home' as const },
-    { id: 'credit', name: 'Credit', icon: 'credit-card' as const },
-    { id: 'financing', name: 'Financing', icon: 'dollar-sign' as const },
-    { id: 'refinancing', name: 'Refinancing', icon: 'refresh' as const },
-    { id: 'process', name: 'Process', icon: 'clock' as const },
-    { id: 'documents', name: 'Documents', icon: 'file-text' as const },
-    { id: 'debt', name: 'Debt', icon: 'alert-circle' as const },
-    { id: 'insurance', name: 'Insurance', icon: 'shield' as const }
+    { id: 'all', name: 'All Topics' },
+    { id: 'mortgage-basics', name: 'Mortgage Basics' },
+    { id: 'first-time-buyer', name: 'First-Time Buyer' },
+    { id: 'credit', name: 'Credit & Scores' },
+    { id: 'financing', name: 'Financing' },
+    { id: 'application', name: 'Application Process' },
+    { id: 'process', name: 'Closing Process' }
   ];
 
   const filteredVideos = selectedCategory === 'all' 
     ? mockVideos 
     : mockVideos.filter(video => video.category === selectedCategory);
 
-  const filteredFAQ = selectedCategory === 'all' 
-    ? mockFAQ 
-    : mockFAQ.filter(faq => faq.category === selectedCategory);
-
-  const toggleFAQ = (id: string) => {
-    setExpandedFAQ(expandedFAQ === id ? null : id);
-  };
+  const filteredFAQs = selectedCategory === 'all' 
+    ? mockFAQs 
+    : mockFAQs.filter(faq => faq.category === selectedCategory);
 
   return (
     <div className={`w-full ${className}`}>
       {/* Header */}
-      <div className="mb-8">
-        <h2 className={typography.headings.h4}>
+      <div className={`${classes.card.header}`}>
+        <h2 className={`${classes.heading.h2}`}>
           Learning Center
         </h2>
-        <p className={`${typography.body.base} text-gray-600 mt-2`}>
-          Educational resources to help you make informed decisions about your mortgage
+        <p className={`${classes.body.base}`}>
+          Educational resources to help you navigate the home buying process
         </p>
       </div>
 
       {/* Navigation Tabs */}
-      <div className="mb-8">
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
-            {[
-              { id: 'videos', label: 'Videos', icon: 'play' as const },
-              { id: 'faq', label: 'FAQ', icon: 'help-circle' as const },
-              { id: 'guides', label: 'Guides', icon: 'book-open' as const }
-            ].map((section) => (
-              <button
-                key={section.id}
-                onClick={() => setActiveSection(section.id as 'videos' | 'faq' | 'guides')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
-                  activeSection === section.id
-                    ? `border-${theme.primary}-600 text-${theme.primary}-600`
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <Icon name={section.icon} size={16} />
-                <span>{section.label}</span>
-              </button>
-            ))}
-          </nav>
-        </div>
-      </div>
-
-      {/* Category Filter */}
-      <div className="mb-8">
-        <div className="flex flex-wrap gap-2">
-          {categories.map((category) => (
+      <div className="mb-8 mt-8">
+        <div className="flex space-x-1 bg-gray-100 p-1" style={{ borderRadius: `${layout.borderRadius}px` }}>
+          {[
+            { id: 'videos', label: 'Videos', icon: 'play' },
+            { id: 'faq', label: 'FAQ', icon: 'help-circle' },
+            { id: 'guides', label: 'Guides', icon: 'book' }
+          ].map((section) => (
             <button
-              key={category.id}
-              onClick={() => setSelectedCategory(category.id)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2 ${
-                selectedCategory === category.id
-                  ? `${theme.primaryBg} ${theme.primaryText}`
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              key={section.id}
+              onClick={() => setActiveSection(section.id as any)}
+              className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 font-medium transition-all duration-200 ${
+                activeSection === section.id
+                  ? 'shadow-sm'
+                  : 'text-gray-600 hover:text-gray-800 hover:bg-white'
               }`}
+              style={activeSection === section.id ? {
+                backgroundColor: colors.primary,
+                color: colors.background,
+                borderRadius: `${layout.borderRadius}px`
+              } : {
+                borderRadius: `${layout.borderRadius}px`
+              }}
             >
-              <Icon name={category.icon} size={16} />
-              <span>{category.name}</span>
+              <Icon name={section.icon as any} size={20} />
+              <span>{section.label}</span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Content */}
+      {/* Category Filter */}
+      <div className="mb-6">
+        <div className="flex flex-wrap gap-2">
+          {categories.map((category) => (
+            <button
+              key={category.id}
+              onClick={() => setSelectedCategory(category.id)}
+              className={`px-4 py-2 font-medium transition-all duration-200 ${
+                selectedCategory === category.id
+                  ? 'border'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+              style={selectedCategory === category.id ? {
+                backgroundColor: `${colors.primary}20`,
+                color: colors.primary,
+                borderColor: colors.primary,
+                borderRadius: `${layout.borderRadius}px`
+              } : {
+                borderRadius: `${layout.borderRadius}px`
+              }}
+            >
+              {category.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Content Sections */}
       {activeSection === 'videos' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredVideos.map((video) => (
-            <div key={video.id} className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-              <div className="relative">
-                <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                  <Icon name="play" size={48} className="text-gray-400" />
+            <div key={video.id} className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
+              <div className={`${classes.card.body}`}>
+                <div className="relative mb-4">
+                  <div className="aspect-video bg-gray-200 flex items-center justify-center" style={{ borderRadius: `${layout.borderRadius}px` }}>
+                    <Icon name="play" size={48} color={colors.textSecondary} />
+                  </div>
+                  <div className={`absolute bottom-2 right-2 ${classes.status.info}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
+                    {video.duration}
+                  </div>
                 </div>
-                <div className="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white px-2 py-1 rounded text-xs">
-                  {video.duration}
-                </div>
-              </div>
-              <div className="p-6">
-                <h3 className={`${typography.body.small} font-semibold text-gray-900 mb-2`}>
+                <h3 className={`${classes.heading.h5} mb-2`}>
                   {video.title}
                 </h3>
-                <p className={`${typography.body.xs} text-gray-600 mb-4`}>
+                <p className={`${classes.body.small} mb-4`}>
                   {video.description}
                 </p>
-                <button className={`w-full ${theme.primaryButton} text-white py-2 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2`}>
-                  <Icon name="play" size={16} />
+                <button 
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors"
+                  style={{
+                    backgroundColor: colors.primary,
+                    color: colors.background,
+                    borderColor: colors.primary,
+                    borderRadius: `${layout.borderRadius}px`,
+                    border: 'none'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.secondary;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = colors.primary;
+                  }}
+                >
+                  <Icon name="play" size={16} color={colors.background} />
                   <span>Watch Video</span>
                 </button>
               </div>
@@ -260,28 +355,30 @@ export default function LearningCenterTab({
 
       {activeSection === 'faq' && (
         <div className="space-y-4">
-          {filteredFAQ.map((faq) => (
-            <div key={faq.id} className="bg-white rounded-lg shadow-lg border border-gray-200">
-              <button
-                onClick={() => toggleFAQ(faq.id)}
-                className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
-              >
-                <h3 className={`${typography.body.small} font-semibold text-gray-900`}>
-                  {faq.question}
-                </h3>
-                <Icon 
-                  name={expandedFAQ === faq.id ? "chevron-up" : "chevron-down"} 
-                  size={20} 
-                  className="text-gray-500" 
-                />
-              </button>
-              {expandedFAQ === faq.id && (
-                <div className="px-6 pb-4">
-                  <p className={`${typography.body.small} text-gray-700`}>
-                    {faq.answer}
-                  </p>
-                </div>
-              )}
+          {filteredFAQs.map((faq) => (
+            <div key={faq.id} className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
+              <div className={`${classes.card.body}`}>
+                <button
+                  onClick={() => setExpandedFAQ(expandedFAQ === faq.id ? null : faq.id)}
+                  className="w-full text-left flex items-center justify-between"
+                >
+                  <h3 className={`${classes.heading.h5}`}>
+                    {faq.question}
+                  </h3>
+                  <Icon 
+                    name={expandedFAQ === faq.id ? 'chevronUp' : 'chevronDown'} 
+                    size={20} 
+                    color={colors.textSecondary}
+                  />
+                </button>
+                {expandedFAQ === faq.id && (
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <p className={`${classes.body.base}`}>
+                      {faq.answer}
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -289,74 +386,178 @@ export default function LearningCenterTab({
 
       {activeSection === 'guides' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {[
-            {
-              title: 'First-Time Home Buyer Checklist',
-              description: 'Complete step-by-step guide for first-time home buyers',
-              icon: 'checklist' as const,
-              pages: 12
-            },
-            {
-              title: 'Mortgage Pre-Approval Guide',
-              description: 'Everything you need to know about getting pre-approved',
-              icon: 'file-check' as const,
-              pages: 8
-            },
-            {
-              title: 'Understanding Closing Costs',
-              description: 'Breakdown of all costs associated with closing on a home',
-              icon: 'calculator' as const,
-              pages: 6
-            },
-            {
-              title: 'Home Inspection Guide',
-              description: 'What to look for during a home inspection',
-              icon: 'search' as const,
-              pages: 10
-            }
-          ].map((guide, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-              <div className="flex items-start space-x-4">
-                <div className={`w-12 h-12 ${theme.primaryBg} rounded-lg flex items-center justify-center`}>
-                  <Icon name={guide.icon} size={24} className={theme.primaryText} />
-                </div>
-                <div className="flex-1">
-                  <h3 className={`${typography.body.small} font-semibold text-gray-900 mb-2`}>
-                    {guide.title}
-                  </h3>
-                  <p className={`${typography.body.xs} text-gray-600 mb-4`}>
-                    {guide.description}
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className={`${typography.body.xs} text-gray-500`}>
-                      {guide.pages} pages
-                    </span>
-                    <button className={`${theme.primaryButton} text-white py-2 px-4 rounded-lg transition-colors flex items-center space-x-2`}>
-                      <Icon name="download" size={16} />
-                      <span>Download</span>
-                    </button>
-                  </div>
-                </div>
+          <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
+            <div className={`${classes.card.body}`}>
+              <div className={`${classes.icon.primary}`}>
+                  <Icon name="book" size={24} color={colors.primary} />
               </div>
+              <h3 className={`${classes.heading.h5}`}>
+                First-Time Home Buyer Guide
+              </h3>
+              <p className={`${classes.body.small} mb-4`}>
+                Complete step-by-step guide for first-time home buyers
+              </p>
+              <button 
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors border-2"
+                style={{
+                  backgroundColor: colors.background,
+                  borderColor: colors.primary,
+                  color: colors.primary,
+                  borderRadius: `${layout.borderRadius}px`
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary + '10';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.background;
+                }}
+              >
+                Download Guide
+              </button>
             </div>
-          ))}
+          </div>
+
+          <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
+            <div className={`${classes.card.body}`}>
+              <div className={`${classes.icon.primary}`}>
+                  <Icon name="calculator" size={24} color={colors.primary} />
+              </div>
+              <h3 className={`${classes.heading.h5}`}>
+                Mortgage Calculator Guide
+              </h3>
+              <p className={`${classes.body.small} mb-4`}>
+                Learn how to calculate your monthly payments and affordability
+              </p>
+              <button 
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors border-2"
+                style={{
+                  backgroundColor: colors.background,
+                  borderColor: colors.primary,
+                  color: colors.primary,
+                  borderRadius: `${layout.borderRadius}px`
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary + '10';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.background;
+                }}
+              >
+                Download Guide
+              </button>
+            </div>
+          </div>
+
+          <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
+            <div className={`${classes.card.body}`}>
+              <div className={`${classes.icon.primary}`}>
+                <Icon name="shield" size={24} color={colors.primary} />
+              </div>
+              <h3 className={`${classes.heading.h5}`}>
+                Credit Score Improvement
+              </h3>
+              <p className={`${classes.body.small} mb-4`}>
+                Tips and strategies to improve your credit score
+              </p>
+              <button 
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors border-2"
+                style={{
+                  backgroundColor: colors.background,
+                  borderColor: colors.primary,
+                  color: colors.primary,
+                  borderRadius: `${layout.borderRadius}px`
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary + '10';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.background;
+                }}
+              >
+                Download Guide
+              </button>
+            </div>
+          </div>
+
+          <div className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
+            <div className={`${classes.card.body}`}>
+              <div className={`${classes.icon.primary}`}>
+                  <Icon name="fileText" size={24} color={colors.primary} />
+              </div>
+              <h3 className={`${classes.heading.h5}`}>
+                Document Checklist
+              </h3>
+              <p className={`${classes.body.small} mb-4`}>
+                Complete list of documents needed for your mortgage application
+              </p>
+              <button 
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors border-2"
+                style={{
+                  backgroundColor: colors.background,
+                  borderColor: colors.primary,
+                  color: colors.primary,
+                  borderRadius: `${layout.borderRadius}px`
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.primary + '10';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.background;
+                }}
+              >
+                Download Guide
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Contact Support */}
-      <div className="mt-12 bg-blue-50 rounded-lg p-6">
-        <div className="flex items-start space-x-3">
-          <Icon name="help-circle" size={24} className="text-blue-600 mt-1" />
-          <div>
-            <h3 className={`${typography.body.small} font-semibold text-blue-900 mb-2`}>
-              Still Have Questions?
-            </h3>
-            <p className={`${typography.body.small} text-blue-800 mb-4`}>
-              Our team of mortgage experts is here to help you understand the process and answer any questions you may have.
-            </p>
-            <button className={`px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2`}>
-              <Icon name="phone" size={16} />
-              <span>Contact Support</span>
+      {/* Call to Action */}
+      <div className={`${classes.card.container} mt-6`} style={{ borderRadius: `${layout.borderRadius}px` }}>
+        <div className={`${classes.card.body} text-center`}>
+          <h3 className={`${classes.heading.h4} mb-2`}>
+            Need Personalized Help?
+          </h3>
+          <p className={`${classes.body.base} mb-6`}>
+            Our loan officers are here to answer your questions and guide you through the process
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button 
+              className="flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors"
+              style={{
+                backgroundColor: colors.primary,
+                color: colors.background,
+                borderColor: colors.primary,
+                borderRadius: `${layout.borderRadius}px`,
+                border: 'none'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = colors.secondary;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = colors.primary;
+              }}
+            >
+              <Icon name="phone" size={20} color={colors.background} />
+              <span>Call Now</span>
+            </button>
+            <button 
+              className="flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors border-2"
+              style={{
+                backgroundColor: colors.background,
+                borderColor: colors.primary,
+                color: colors.primary,
+                borderRadius: `${layout.borderRadius}px`
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = colors.primary + '10';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = colors.background;
+              }}
+            >
+              <Icon name="mail" size={20} color={colors.primary} />
+              <span>Send Message</span>
             </button>
           </div>
         </div>

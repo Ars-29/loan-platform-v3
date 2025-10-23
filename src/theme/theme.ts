@@ -6,20 +6,20 @@
  * to ensure consistency across the entire application.
  */
 
-// Color Palette
+// Color Palette - Final Theme Colors
 export const colors = {
-  // Primary Colors
+  // Primary Colors - Final Theme ( #005b7c #008eab #01bcc6 #EBDBC7 #F7F1E9)
   primary: {
-    50: '#fdf2f8',
-    100: '#fce7f3',
-    200: '#fbcfe8',
-    300: '#f9a8d4',
-    400: '#f472b6',
-    500: '#ec4899', // Main pink
-    600: '#db2777', // Primary pink
-    700: '#be185d',
-    800: '#9d174d',
-    900: '#831843',
+    50: '#F7F1E9',   // Light background
+    100: '#EBDBC7',  // Light accent
+    200: '#EBDBC7',  // Light accent
+    300: '#EBDBC7',  // Light accent
+    400: '#EBDBC7',  // Light accent
+    500: '#01bcc6',  // Main teal
+    600: '#008eab',  // Medium blue
+    700: '#005b7c',  // Dark blue
+    800: '#005b7c',  // Dark blue
+    900: '#005b7c',  // Dark blue
   },
   
   // Dark Blue
@@ -29,7 +29,7 @@ export const colors = {
     200: '#bfdbfe',
     300: '#93c5fd',
     400: '#60a5fa',
-    500: '#3b82f6',
+    500: '#005b7c',
     600: '#2563eb',
     700: '#1d4ed8',
     800: '#1e40af',
@@ -52,16 +52,16 @@ export const colors = {
   
   // Neutral Colors
   gray: {
-    50: '#f9fafb',
-    100: '#f3f4f6',
-    200: '#e5e7eb',
-    300: '#d1d5db',
-    400: '#9ca3af',
-    500: '#6b7280',
-    600: '#4b5563',
-    700: '#374151',
-    800: '#1f2937',
-    900: '#111827',
+    50: '#f9fafb',   // Very light gray
+    100: '#f3f4f6',  // Light gray
+    200: '#e5e7eb',  // Light border
+    300: '#d1d5db',  // Medium light gray
+    400: '#9ca3af',  // Medium gray
+    500: '#6b7280',  // Medium dark gray
+    600: '#4b5563',  // Dark gray
+    700: '#374151',  // Darker gray
+    800: '#1f2937',  // Very dark gray
+    900: '#111827',  // Darkest gray
   },
   
   // Status Colors
@@ -110,7 +110,7 @@ export const colors = {
     200: '#bfdbfe',
     300: '#93c5fd',
     400: '#60a5fa',
-    500: '#3b82f6',
+    500: '#01bcc6',
     600: '#2563eb',
     700: '#1d4ed8',
     800: '#1e40af',
@@ -124,7 +124,7 @@ export const colors = {
     200: '#bfdbfe',
     300: '#93c5fd',
     400: '#60a5fa',
-    500: '#3b82f6',
+    500: '#01bcc6',
     600: '#2563eb',
     700: '#1d4ed8',
     800: '#1e40af',
@@ -170,12 +170,21 @@ export const colors = {
     900: '#78350f',
   },
   
-  // Text colors - FORCE BLACK FOR MAC COMPATIBILITY
+  // Text colors - Context-aware contrast system
   text: {
-    primary: '#000000', // FORCE BLACK - NO EXCEPTIONS
-    secondary: '#000000', // FORCE BLACK - NO EXCEPTIONS
-    muted: '#000000', // FORCE BLACK - NO EXCEPTIONS
-    light: '#000000', // FORCE BLACK - NO EXCEPTIONS
+    // Default text colors for white/light backgrounds
+    primary: '#005b7c',   // Dark blue for headings
+    secondary: '#374151', // Dark gray for secondary text
+    muted: '#6b7280',     // Medium gray for muted text
+    light: '#9ca3af',     // Light gray for subtle text
+    
+    // Text colors for colored/dark backgrounds
+    onPrimary: '#ffffff', // White text for primary colored backgrounds
+    onSecondary: '#ffffff', // White text for secondary colored backgrounds
+    onDark: '#ffffff', // White text for dark backgrounds
+    onColored: '#ffffff', // White text for any colored background
+    
+    // Legacy white reference for backward compatibility
     white: '#ffffff', // Pure white for dark backgrounds only
   },
   
@@ -183,6 +192,9 @@ export const colors = {
   background: '#f9fafb', // gray[50]
   white: '#ffffff',
 } as const;
+
+// Spotlight Colors for SpotlightCard component - New Professional Scheme
+// Spotlight colors removed - no longer used
 
 // Typography System
 export const typography = {
@@ -218,31 +230,54 @@ export const typography = {
     relaxed: '1.75',
   },
   
-  // Typography Classes for consistent styling - Mac optimized
+  // Typography Classes for consistent styling - Context-aware contrast
   headings: {
-    h1: 'text-4xl md:text-5xl lg:text-6xl font-bold text-black leading-tight',
-    h2: 'text-3xl md:text-4xl lg:text-5xl font-bold text-black leading-tight',
-    h3: 'text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-tight',
-    h4: 'text-xl md:text-2xl lg:text-3xl font-bold text-black leading-tight',
-    h5: 'text-lg md:text-xl lg:text-2xl font-bold text-black leading-tight',
-    h6: 'text-base md:text-lg lg:text-xl font-bold text-black leading-tight',
+    // Default headings for white/light backgrounds - Using new primary color
+    h1: 'text-4xl md:text-5xl lg:text-6xl font-bold text-[#005b7c] leading-tight',
+    h2: 'text-3xl md:text-4xl lg:text-5xl font-bold text-[#005b7c] leading-tight',
+    h3: 'text-2xl md:text-3xl lg:text-4xl font-bold text-[#005b7c] leading-tight',
+    h4: 'text-xl md:text-2xl lg:text-3xl font-bold text-[#005b7c] leading-tight',
+    h5: 'text-lg md:text-xl lg:text-2xl font-bold text-[#005b7c] leading-tight',
+    h6: 'text-base md:text-lg lg:text-xl font-bold text-[#005b7c] leading-tight',
+    
+    // Headings for colored/dark backgrounds
+    h1OnColored: 'text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight',
+    h2OnColored: 'text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight',
+    h3OnColored: 'text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight',
+    h4OnColored: 'text-xl md:text-2xl lg:text-3xl font-bold text-white leading-tight',
+    h5OnColored: 'text-lg md:text-xl lg:text-2xl font-bold text-white leading-tight',
+    h6OnColored: 'text-base md:text-lg lg:text-xl font-bold text-white leading-tight',
   },
   
   body: {
+    // Default body text for white/light backgrounds
     large: 'text-lg md:text-xl text-gray-900 leading-relaxed',
     base: 'text-base md:text-lg text-gray-900 leading-relaxed',
     small: 'text-sm md:text-base text-gray-900 leading-relaxed',
     xs: 'text-xs md:text-sm text-gray-900 leading-relaxed',
+    
+    // Body text for colored/dark backgrounds
+    largeOnColored: 'text-lg md:text-xl text-white leading-relaxed',
+    baseOnColored: 'text-base md:text-lg text-white leading-relaxed',
+    smallOnColored: 'text-sm md:text-base text-white leading-relaxed',
+    xsOnColored: 'text-xs md:text-sm text-white leading-relaxed',
   },
   
-  // Responsive text utilities - Mac optimized
+  // Responsive text utilities - Context-aware contrast
   responsive: {
-    // Mobile-first approach with responsive scaling
-    hero: 'text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-black leading-tight',
-    title: 'text-2xl sm:text-3xl md:text-4xl font-bold text-black leading-tight',
+    // Default responsive text for white/light backgrounds - Using new primary color
+    hero: 'text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#005b7c] leading-tight',
+    title: 'text-2xl sm:text-3xl md:text-4xl font-bold text-[#005b7c] leading-tight',
     subtitle: 'text-lg sm:text-xl md:text-2xl font-semibold text-gray-900 leading-relaxed',
     body: 'text-sm sm:text-base md:text-lg text-gray-900 leading-relaxed',
     caption: 'text-xs sm:text-sm text-gray-700 leading-normal',
+    
+    // Responsive text for colored/dark backgrounds
+    heroOnColored: 'text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight',
+    titleOnColored: 'text-2xl sm:text-3xl md:text-4xl font-bold text-white leading-tight',
+    subtitleOnColored: 'text-lg sm:text-xl md:text-2xl font-semibold text-white leading-relaxed',
+    bodyOnColored: 'text-sm sm:text-base md:text-lg text-white leading-relaxed',
+    captionOnColored: 'text-xs sm:text-sm text-gray-200 leading-normal',
   },
   
   // Additional typography properties for components - Mac optimized
@@ -323,16 +358,16 @@ export const breakpoints = {
   '2xl': '1536px',
 } as const;
 
-// Border Radius
+// Border Radius - Standardized for consistency
 export const borderRadius = {
   none: '0',
-  sm: '0.125rem',   // 2px
-  base: '0.25rem',  // 4px
-  md: '0.375rem',   // 6px
-  lg: '0.5rem',     // 8px
-  xl: '0.75rem',    // 12px
-  '2xl': '1rem',    // 16px
-  '3xl': '1.5rem',  // 24px
+  sm: '0.375rem',   // 6px - Badges only
+  base: '0.5rem',   // 8px - Small elements
+  md: '0.75rem',    // 12px - Inputs, small cards
+  lg: '1rem',       // 16px - ALL BUTTONS, main cards, containers
+  xl: '1.25rem',    // 20px - Large containers
+  '2xl': '1.5rem',  // 24px - Hero sections
+  '3xl': '2rem',    // 32px - Special large elements
   full: '9999px',
 } as const;
 
@@ -441,6 +476,50 @@ export const animations = {
   fast: '150ms',
   normal: '200ms',
   slow: '300ms',
+  slower: '500ms',
+} as const;
+
+// Standardized animation classes for consistency
+export const animationClasses = {
+  // Card animations - Ultra subtle
+  card: {
+    base: 'transition-all duration-200 ease-out relative overflow-hidden',
+    hover: 'hover:shadow-sm hover:shadow-gray-200/5',
+    active: 'active:scale-[0.995] active:transition-transform active:duration-75',
+    // Subtle page load animations
+    entrance: 'animate-in fade-in-0 slide-in-from-bottom-2 duration-700',
+    stagger: {
+      '1': 'animate-in fade-in-0 slide-in-from-bottom-2 duration-700',
+      '2': 'animate-in fade-in-0 slide-in-from-bottom-2 duration-700 delay-100',
+      '3': 'animate-in fade-in-0 slide-in-from-bottom-2 duration-700 delay-200',
+      '4': 'animate-in fade-in-0 slide-in-from-bottom-2 duration-700 delay-300',
+      '5': 'animate-in fade-in-0 slide-in-from-bottom-2 duration-700 delay-400',
+      '6': 'animate-in fade-in-0 slide-in-from-bottom-2 duration-700 delay-500',
+    },
+    // Ultra subtle hover effects
+    landingHover: 'hover:shadow-sm hover:shadow-gray-200/5',
+    gradientOverlay: 'absolute inset-0 bg-gradient-to-br from-[#01bcc6]/3 to-[#008eab]/3 opacity-0 hover:opacity-100 transition-opacity duration-200 pointer-events-none',
+    borderGlow: 'hover:border-[#01bcc6]/20',
+  },
+  // Button animations - Ultra subtle
+  button: {
+    base: 'transition-all duration-200 ease-out',
+    hover: 'hover:shadow-sm',
+    active: 'active:scale-[0.995]',
+    focus: 'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#01bcc6]',
+    // Ultra subtle button effects
+    landingHover: 'hover:shadow-sm hover:bg-gradient-to-r hover:from-[#01bcc6] hover:to-[#008eab]',
+  },
+  // Input animations
+  input: {
+    base: 'transition-all duration-200 ease-out',
+    focus: 'focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]',
+  },
+  // Badge animations
+  badge: {
+    base: 'transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1)',
+    hover: 'hover:scale-105 hover:shadow-md',
+  }
 } as const;
 
 // Z-index scale
@@ -459,7 +538,8 @@ export const dashboard = {
   // Layout containers
   container: {
     minHeight: '100vh',
-    backgroundColor: colors.gray[50],
+    backgroundColor: '#f8fafc', // Lighter, more modern background
+    background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)', // Subtle gradient
   },
   mainContent: {
     maxWidth: '1280px', // max-w-7xl
@@ -484,9 +564,9 @@ export const dashboard = {
   borderRadius: borderRadius,
   shadows: shadows,
   
-  // Header styles
+  // Header styles - New navbar gradient
   header: {
-    backgroundColor: '#ffffff',
+    background: 'linear-gradient(135deg, #EBDBC7 0%, #F7F1E9 50%, #ffffff 100%)',
     boxShadow: shadows.sm,
     borderBottom: `1px solid ${colors.gray[200]}`,
   },
@@ -502,11 +582,11 @@ export const dashboard = {
     height: '64px', // h-16
   },
   
-  // Navigation styles
+  // Navigation styles - Dark background like breadcrumb
   nav: {
-    backgroundColor: '#ffffff',
-    boxShadow: shadows.sm,
-    borderBottom: `1px solid ${colors.gray[200]}`,
+    background: '#005b7c', /* Same dark teal as breadcrumb */
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+    borderBottom: '1px solid #374151',
   },
   navContent: {
     maxWidth: '1280px',
@@ -535,30 +615,30 @@ export const dashboard = {
     transition: 'all 0.2s ease-in-out',
   },
   navLinkActive: {
-    borderBottomColor: colors.primary[500],
-    color: colors.gray[900],
+    borderBottomColor: '#005b7c',
+    color: '#005b7c',
   },
   navLinkHover: {
     borderBottomColor: colors.gray[300],
     color: colors.gray[700],
   },
   
-  // Card styles
-  card: {
-    backgroundColor: '#ffffff',
-    borderRadius: borderRadius.lg,
-    boxShadow: shadows.sm,
-    border: `1px solid ${colors.gray[200]}`,
-    padding: spacing[6],
-  },
+  // Card styles - Solid background with transparency
+    card: {
+      background: 'white',
+      borderRadius: borderRadius.lg,
+      boxShadow: shadows.sm,
+      border: `1px solid ${colors.gray[200]}`,
+      padding: spacing[6],
+    },
   cardHover: {
     boxShadow: shadows.md,
     transition: 'box-shadow 0.2s ease-in-out',
   },
   
-  // Stats card styles
+  // Stats card styles - Solid background with transparency
   statsCard: {
-    backgroundColor: '#ffffff',
+    background: 'white',
     borderRadius: borderRadius.lg,
     boxShadow: shadows.sm,
     border: `1px solid ${colors.gray[200]}`,
@@ -582,7 +662,7 @@ export const dashboard = {
   statsCardLabel: {
     fontSize: typography.fontSize.sm,
     fontWeight: typography.fontWeight.medium,
-    color: colors.gray[500],
+    color: 'rgb(17, 24, 39)',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
@@ -590,12 +670,12 @@ export const dashboard = {
   statsCardValue: {
     fontSize: typography.fontSize.lg,
     fontWeight: typography.fontWeight.medium,
-    color: colors.gray[900],
+    color: 'rgb(17, 24, 39)',
   },
   
-  // Quick action styles
+  // Quick action styles - Solid background with transparency
   quickActionCard: {
-    backgroundColor: '#ffffff',
+    background: 'white',
     padding: spacing[6],
     borderRadius: borderRadius.lg,
     boxShadow: shadows.sm,
@@ -626,27 +706,27 @@ export const dashboard = {
     color: colors.gray[500],
   },
   
-  // Button styles
+  // Button styles - New gradient buttons
   button: {
     primary: {
-      backgroundColor: colors.primary[600],
+      background: '#005b7c',
       color: '#ffffff',
       padding: `${spacing[2]} ${spacing[4]}`,
-      borderRadius: borderRadius.md,
+      borderRadius: borderRadius.md, // 12px - LESS ROUNDED
       fontSize: typography.fontSize.sm,
       fontWeight: typography.fontWeight.medium,
       border: 'none',
       cursor: 'pointer',
-      transition: 'background-color 0.2s ease-in-out',
+      transition: 'all 0.2s ease-in-out',
     },
     primaryHover: {
-      backgroundColor: colors.primary[700],
+      background: 'linear-gradient(135deg, #003d52 0%, #006b7a 50%, #0099a3 100%)',
     },
     secondary: {
       backgroundColor: '#ffffff',
       color: colors.gray[700],
       padding: `${spacing[2]} ${spacing[4]}`,
-      borderRadius: borderRadius.md,
+      borderRadius: borderRadius.md, // 12px - LESS ROUNDED
       fontSize: typography.fontSize.sm,
       fontWeight: typography.fontWeight.medium,
       border: `1px solid ${colors.gray[300]}`,
@@ -668,7 +748,7 @@ export const dashboard = {
   userAvatar: {
     width: '32px',
     height: '32px',
-    backgroundColor: colors.primary[100],
+    backgroundColor: 'rgba(255, 255, 255, 0.1)', // White with 10% opacity for dark background
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
@@ -678,7 +758,7 @@ export const dashboard = {
   userAvatarText: {
     fontSize: typography.fontSize.sm,
     fontWeight: typography.fontWeight.medium,
-    color: colors.primary[600],
+    color: 'white', // White text for dark background
   },
   userDetails: {
     textAlign: 'right',
@@ -686,11 +766,11 @@ export const dashboard = {
   userEmail: {
     fontSize: typography.fontSize.sm,
     fontWeight: typography.fontWeight.medium,
-    color: colors.gray[900],
+    color: 'white', /* White text for dark background */
   },
   userRole: {
     fontSize: typography.fontSize.xs,
-    color: colors.gray[500],
+    color: 'rgba(255, 255, 255, 0.8)', /* Semi-transparent white for role */
   },
   
   // Grid layouts
@@ -713,6 +793,11 @@ export const dashboard = {
     cols4: {
       display: 'grid',
       gridTemplateColumns: 'repeat(4, 1fr)',
+      gap: spacing[4],
+    },
+    cols5: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(5, 1fr)',
       gap: spacing[4],
     },
   },
@@ -781,87 +866,543 @@ import {
 // Icons were moved to components/ui/Icon.tsx to centralize UI primitives.
 // Import icons from '@/components/ui/Icon' where needed.
 
-// Template-specific color schemes
-export const templates = {
+// Import efficient templates hook
+import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
+
+// Fallback templates for when database is unavailable
+const fallbackTemplates = {
   template1: {
-    // Template 1: Pink primary theme
-    primary: {
-      color: colors.primary[600], // Pink
-      hover: colors.primary[700],
-      light: colors.primary[50],
-      text: '#ffffff',
+    colors: {
+      primary: '#01bcc6',
+      secondary: '#1d4ed8',
+      background: '#ffffff',
+      text: '#111827',
+      textSecondary: '#6b7280',
+      border: '#e5e7eb',
     },
-    secondary: {
-      color: '#ffffff', // White background
-      hover: colors.gray[50],
-      border: colors.primary[600], // Pink border
-      text: colors.primary[600], // Pink text
-    },
-    navigation: {
-      active: colors.primary[600], // Pink
-      inactive: colors.gray[600],
-      hover: colors.gray[900],
-    },
-    buttons: {
-      applyNow: {
-        variant: 'primary',
-        className: 'px-8 py-4 text-lg font-semibold min-w-[200px] flex items-center justify-center space-x-2',
+    typography: {
+      fontFamily: 'Inter',
+      fontSize: 16,
+      fontWeight: {
+        normal: 400,
+        medium: 500,
+        semibold: 600,
+        bold: 700,
       },
-      contact: {
-        variant: 'secondary',
-        className: 'px-8 py-4 text-lg font-semibold min-w-[200px] bg-white text-blue-900 hover:bg-gray-50 border-white flex items-center justify-center space-x-2',
+    },
+    content: {
+      headline: 'Find the best loan for you',
+      subheadline: 'Compare today\'s rates and apply directly with our loan officers',
+      ctaText: 'Get rates',
+      ctaSecondary: 'Learn more',
+      companyName: 'LoanPro',
+      tagline: 'Real-time demo',
+    },
+    layout: {
+      alignment: 'center',
+      spacing: 18,
+      borderRadius: 8,
+      padding: {
+        small: 8,
+        medium: 16,
+        large: 24,
+        xlarge: 32,
+      },
+    },
+    advanced: {
+      customCSS: '',
+      accessibility: true,
+    },
+    classes: {
+      button: {
+        primary: 'bg-[#01bcc6] hover:bg-[#008eab] text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md',
+        secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium transition-all duration-200 border border-gray-300',
+        outline: 'border-2 border-[#01bcc6]/20 hover:border-[#01bcc6]/30 text-[#01bcc6] hover:text-[#008eab] hover:bg-[#01bcc6]/10 px-6 py-3 rounded-lg font-medium transition-all duration-200',
+        ghost: 'text-[#01bcc6] hover:text-[#008eab] hover:bg-[#01bcc6]/10 px-4 py-2 rounded-lg font-medium transition-all duration-200',
+      },
+      card: {
+        container: 'bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200',
+        header: 'px-6 py-4 border-b border-gray-200',
+        body: 'px-6 py-4',
+        footer: 'px-6 py-4 border-t border-gray-200 bg-gray-50',
+      },
+      heading: {
+        h1: 'text-3xl font-bold text-gray-900 mb-4',
+        h2: 'text-2xl font-bold text-gray-900 mb-3',
+        h3: 'text-xl font-semibold text-gray-900 mb-2',
+        h4: 'text-lg font-semibold text-gray-900 mb-2',
+        h5: 'text-base font-semibold text-gray-900 mb-2',
+        h6: 'text-sm font-semibold text-gray-900 mb-1',
+      },
+      body: {
+        large: 'text-lg text-gray-700 leading-relaxed',
+        base: 'text-base text-gray-700 leading-relaxed',
+        small: 'text-sm text-gray-600 leading-relaxed',
+        xs: 'text-xs text-gray-500 leading-normal',
+      },
+      input: {
+        base: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6] transition-all duration-200',
+        error: 'border-red-300 focus:ring-red-500 focus:border-red-500',
+        success: 'border-green-300 focus:ring-green-500 focus:border-green-500',
+      },
+      select: {
+        base: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6] transition-all duration-200 bg-white',
+      },
+      status: {
+        success: 'bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium',
+        warning: 'bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium',
+        error: 'bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium',
+        info: 'bg-[#01bcc6]/10 text-[#01bcc6] px-3 py-1 rounded-full text-sm font-medium',
+      },
+      icon: {
+        primary: 'w-12 h-12 bg-[#01bcc6]/10 rounded-lg flex items-center justify-center mb-4',
+        secondary: 'w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mb-3',
+        small: 'w-8 h-8 bg-[#01bcc6]/10 rounded-lg flex items-center justify-center',
+      },
+      navigation: {
+        container: 'flex flex-wrap gap-2 p-4',
+        tab: {
+          base: 'px-4 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer',
+          inactive: 'text-gray-600 hover:text-gray-800 hover:bg-gray-100',
+          active: 'bg-[#01bcc6] text-white shadow-md',
+          hover: 'hover:bg-[#01bcc6]/10 hover:text-[#01bcc6]',
+        },
+      },
+      hero: {
+        background: 'bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900',
+        overlay: 'bg-gradient-to-br from-blue-900/90 via-blue-800/90 to-indigo-900/90',
+      },
+      sidebar: {
+        container: 'bg-white border-2 border-[#01bcc6]/20 rounded-lg p-6',
+        logo: {
+          background: 'bg-[#01bcc6]',
+          text: 'text-white',
+        },
       },
     },
   },
   template2: {
-    // Template 2: Dark purple primary theme
-    primary: {
-      color: colors.darkPurple[600], // Dark purple
-      hover: colors.darkPurple[700],
-      light: colors.darkPurple[50],
-      text: '#ffffff',
+    colors: {
+      primary: '#9333ea',
+      secondary: '#dc2626',
+      background: '#ffffff',
+      text: '#111827',
+      textSecondary: '#6b7280',
+      border: '#e5e7eb',
     },
-    secondary: {
-      color: '#ffffff', // White background
-      hover: colors.gray[50],
-      border: colors.darkPurple[600], // Purple border
-      text: colors.darkPurple[600], // Purple text
-    },
-    navigation: {
-      active: colors.darkPurple[800], // Dark purple
-      inactive: colors.gray[600],
-      hover: colors.gray[900],
-    },
-    buttons: {
-      applyNow: {
-        variant: 'secondary',
-        className: 'px-8 py-4 text-lg font-semibold min-w-[200px] bg-gray-300 text-gray-800 hover:bg-gray-400 border-gray-300 flex items-center justify-center space-x-2',
+    typography: {
+      fontFamily: 'Inter',
+      fontSize: 16,
+      fontWeight: {
+        normal: 400,
+        medium: 500,
+        semibold: 600,
+        bold: 700,
       },
-      contact: {
-        variant: 'primary',
-        className: 'px-8 py-4 text-lg font-semibold min-w-[200px] flex items-center justify-center space-x-2',
+    },
+    content: {
+      headline: 'Find the best loan for you',
+      subheadline: 'Compare today\'s rates and apply directly with our loan officers',
+      ctaText: 'Get rates',
+      ctaSecondary: 'Learn more',
+      companyName: 'LoanPro',
+      tagline: 'Real-time demo',
+    },
+    layout: {
+      alignment: 'center',
+      spacing: 18,
+      borderRadius: 8,
+      padding: {
+        small: 8,
+        medium: 16,
+        large: 24,
+        xlarge: 32,
+      },
+    },
+    advanced: {
+      customCSS: '',
+      accessibility: true,
+    },
+    classes: {
+      button: {
+        primary: 'bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md',
+        secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium transition-all duration-200 border border-gray-300',
+        outline: 'border-2 border-purple-200 hover:border-purple-300 text-purple-600 hover:text-purple-700 hover:bg-purple-50 px-6 py-3 rounded-lg font-medium transition-all duration-200',
+        ghost: 'text-purple-600 hover:text-purple-700 hover:bg-purple-50 px-4 py-2 rounded-lg font-medium transition-all duration-200',
+      },
+      card: {
+        container: 'bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200',
+        header: 'px-6 py-4 border-b border-gray-200',
+        body: 'px-6 py-4',
+        footer: 'px-6 py-4 border-t border-gray-200 bg-gray-50',
+      },
+      heading: {
+        h1: 'text-3xl font-bold text-gray-900 mb-4',
+        h2: 'text-2xl font-bold text-gray-900 mb-3',
+        h3: 'text-xl font-semibold text-gray-900 mb-2',
+        h4: 'text-lg font-semibold text-gray-900 mb-2',
+        h5: 'text-base font-semibold text-gray-900 mb-2',
+        h6: 'text-sm font-semibold text-gray-900 mb-1',
+      },
+      body: {
+        large: 'text-lg text-gray-700 leading-relaxed',
+        base: 'text-base text-gray-700 leading-relaxed',
+        small: 'text-sm text-gray-600 leading-relaxed',
+        xs: 'text-xs text-gray-500 leading-normal',
+      },
+      input: {
+        base: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200',
+        error: 'border-red-300 focus:ring-red-500 focus:border-red-500',
+        success: 'border-green-300 focus:ring-green-500 focus:border-green-500',
+      },
+      select: {
+        base: 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 bg-white',
+      },
+      status: {
+        success: 'bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium',
+        warning: 'bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium',
+        error: 'bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium',
+        info: 'bg-[#01bcc6]/10 text-[#01bcc6] px-3 py-1 rounded-full text-sm font-medium',
+      },
+      icon: {
+        primary: 'w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4',
+        secondary: 'w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mb-3',
+        small: 'w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center',
+      },
+      navigation: {
+        container: 'flex flex-wrap gap-2 p-4',
+        tab: {
+          base: 'px-4 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer',
+          inactive: 'text-gray-600 hover:text-gray-800 hover:bg-gray-100',
+          active: 'bg-purple-600 text-white shadow-md',
+          hover: 'hover:bg-purple-50 hover:text-purple-700',
+        },
+      },
+      hero: {
+        background: 'bg-gradient-to-br from-red-900 via-red-800 to-red-900',
+        overlay: 'bg-gradient-to-br from-red-900/90 via-red-800/90 to-red-900/90',
+      },
+      sidebar: {
+        container: 'bg-white border-2 border-purple-200 rounded-lg p-6',
+        logo: {
+          background: 'bg-purple-600',
+          text: 'text-white',
+        },
       },
     },
   },
-} as const;
-
-// Template utility functions
-export const getTemplateStyles = (template: keyof typeof templates) => {
-  return templates[template];
 };
 
-export const getTemplateButtonStyles = (template: keyof typeof templates, buttonType: 'applyNow' | 'contact') => {
-  return templates[template].buttons[buttonType];
-};
-
-export const getTemplateNavigationStyles = (template: keyof typeof templates, isActive: boolean) => {
-  const navStyles = templates[template].navigation;
-  return {
-    borderColor: isActive ? navStyles.active : 'transparent',
-    color: isActive ? navStyles.active : navStyles.inactive,
-    hoverColor: navStyles.hover,
-    hoverBorder: colors.gray[300],
+// Template type definition
+export interface Template {
+  colors: {
+    primary: string;
+    secondary: string;
+    background: string;
+    text: string;
+    textSecondary: string;
+    border: string;
+    backgroundType?: 'solid' | 'gradient'; // New option for background type
   };
+  typography: {
+    fontFamily: string;
+    fontSize: number;
+    fontWeight: {
+      normal: number;
+      medium: number;
+      semibold: number;
+      bold: number;
+    };
+  };
+  content: {
+    headline: string;
+    subheadline: string;
+    ctaText: string;
+    ctaSecondary: string;
+    companyName: string;
+    tagline: string;
+  };
+  layout: {
+    alignment: string;
+    spacing: number;
+    borderRadius: number;
+    padding: {
+      small: number;
+      medium: number;
+      large: number;
+      xlarge: number;
+    };
+  };
+  advanced: {
+    customCSS: string;
+    accessibility: boolean;
+  };
+  classes: {
+    button: {
+      primary: string;
+      secondary: string;
+      outline: string;
+      ghost: string;
+    };
+    card: {
+      container: string;
+      header: string;
+      body: string;
+      footer: string;
+    };
+    heading: {
+      h1: string;
+      h2: string;
+      h3: string;
+      h4: string;
+      h5: string;
+      h6: string;
+    };
+    body: {
+      large: string;
+      base: string;
+      small: string;
+      xs: string;
+    };
+    input: {
+      base: string;
+      error: string;
+      success: string;
+    };
+    select: {
+      base: string;
+    };
+    status: {
+      success: string;
+      warning: string;
+      error: string;
+      info: string;
+    };
+    icon: {
+      primary: string;
+      secondary: string;
+      small: string;
+    };
+    navigation: {
+      container: string;
+      tab: {
+        base: string;
+        inactive: string;
+        active: string;
+        hover: string;
+      };
+    };
+    hero: {
+      background: string;
+      overlay: string;
+    };
+    sidebar: {
+      container: string;
+      logo: {
+        background: string;
+        text: string;
+      };
+    };
+  };
+  // Layout configuration for different template layouts
+  layoutConfig?: {
+    headerLayout: {
+      type: 'centered' | 'horizontal';
+      avatarPosition: 'center' | 'left';
+      avatarSize: 'medium' | 'large';
+      officerInfoPosition: 'center' | 'left';
+      companyInfoPosition: 'center' | 'right';
+      buttonsPosition: 'center' | 'right';
+      spacing: {
+        avatarToOfficer: number;
+        officerToCompany: number;
+        companyToButtons: number;
+      };
+    };
+    mainContentLayout: {
+      type: 'grid' | 'sidebar';
+      sidebarPosition: 'right' | 'left';
+      sidebarWidth: 'narrow' | 'wide';
+      contentAreaWidth: 'full' | 'reduced';
+    };
+  };
+}
+
+// Export template utilities
+export {
+  useEfficientTemplates,
+  fallbackTemplates
+};
+
+// DEPRECATED: Hardcoded templates removed - Use database templates via useEfficientTemplates()
+// All template data now comes from the database
+
+export const getTextClasses = (backgroundType: 'white' | 'light' | 'colored' | 'dark' = 'white') => {
+  switch (backgroundType) {
+    case 'white':
+    case 'light':
+      return {
+        heading: {
+          h1: typography.headings.h1,
+          h2: typography.headings.h2,
+          h3: typography.headings.h3,
+          h4: typography.headings.h4,
+          h5: typography.headings.h5,
+          h6: typography.headings.h6,
+        },
+        body: {
+          large: typography.body.large,
+          base: typography.body.base,
+          small: typography.body.small,
+          xs: typography.body.xs,
+        },
+        responsive: {
+          hero: typography.responsive.hero,
+          title: typography.responsive.title,
+          subtitle: typography.responsive.subtitle,
+          body: typography.responsive.body,
+          caption: typography.responsive.caption,
+        },
+      };
+    case 'colored':
+    case 'dark':
+      return {
+        heading: {
+          h1: typography.headings.h1OnColored,
+          h2: typography.headings.h2OnColored,
+          h3: typography.headings.h3OnColored,
+          h4: typography.headings.h4OnColored,
+          h5: typography.headings.h5OnColored,
+          h6: typography.headings.h6OnColored,
+        },
+        body: {
+          large: typography.body.largeOnColored,
+          base: typography.body.baseOnColored,
+          small: typography.body.smallOnColored,
+          xs: typography.body.xsOnColored,
+        },
+        responsive: {
+          hero: typography.responsive.heroOnColored,
+          title: typography.responsive.titleOnColored,
+          subtitle: typography.responsive.subtitleOnColored,
+          body: typography.responsive.bodyOnColored,
+          caption: typography.responsive.captionOnColored,
+        },
+      };
+    default:
+      return {
+        heading: {
+          h1: typography.headings.h1,
+          h2: typography.headings.h2,
+          h3: typography.headings.h3,
+          h4: typography.headings.h4,
+          h5: typography.headings.h5,
+          h6: typography.headings.h6,
+        },
+        body: {
+          large: typography.body.large,
+          base: typography.body.base,
+          small: typography.body.small,
+          xs: typography.body.xs,
+        },
+        responsive: {
+          hero: typography.responsive.hero,
+          title: typography.responsive.title,
+          subtitle: typography.responsive.subtitle,
+          body: typography.responsive.body,
+          caption: typography.responsive.caption,
+        },
+      };
+  }
+};
+
+// Template utility functions for backward compatibility
+// These functions provide access to template data from the template manager
+
+export const getTemplateColors = (templateId: 'template1' | 'template2' = 'template1') => {
+  const template = fallbackTemplates[templateId];
+  return template?.colors || fallbackTemplates.template1.colors;
+};
+
+export const getTemplateTypography = (templateId: 'template1' | 'template2' = 'template1') => {
+  const template = fallbackTemplates[templateId];
+  return template?.typography || fallbackTemplates.template1.typography;
+};
+
+export const getTemplateContent = (templateId: 'template1' | 'template2' = 'template1') => {
+  const template = fallbackTemplates[templateId];
+  return template?.content || fallbackTemplates.template1.content;
+};
+
+export const getTemplateLayout = (templateId: 'template1' | 'template2' = 'template1') => {
+  const template = fallbackTemplates[templateId];
+  return template?.layout || fallbackTemplates.template1.layout;
+};
+
+export const getTemplateAdvanced = (templateId: 'template1' | 'template2' = 'template1') => {
+  const template = fallbackTemplates[templateId];
+  return template?.advanced || fallbackTemplates.template1.advanced;
+};
+
+export const getTemplateStyles = (templateId: 'template1' | 'template2' = 'template1') => {
+  const template = fallbackTemplates[templateId];
+  return template?.classes || fallbackTemplates.template1.classes;
+};
+
+export const getTemplateButtonStyles = (templateId: 'template1' | 'template2' = 'template1') => {
+  const template = fallbackTemplates[templateId];
+  return template?.classes?.button || fallbackTemplates.template1.classes.button;
+};
+
+export const getTemplateNavigationStyles = (templateId: 'template1' | 'template2' = 'template1') => {
+  const template = fallbackTemplates[templateId];
+  return template?.classes?.navigation || fallbackTemplates.template1.classes.navigation;
+};
+
+export const getTemplateHeroStyles = (templateId: 'template1' | 'template2' = 'template1') => {
+  const template = fallbackTemplates[templateId];
+  return template?.classes?.hero || fallbackTemplates.template1.classes.hero;
+};
+
+export const getTemplateSidebarStyles = (templateId: 'template1' | 'template2' = 'template1') => {
+  const template = fallbackTemplates[templateId];
+  return template?.classes?.sidebar || fallbackTemplates.template1.classes.sidebar;
+};
+
+export const getTemplateTabStyles = (templateId: 'template1' | 'template2' = 'template1') => {
+  const template = fallbackTemplates[templateId];
+  return template?.classes?.navigation?.tab || fallbackTemplates.template1.classes.navigation.tab;
+};
+
+export const getUnifiedTabStyles = (templateId: 'template1' | 'template2' = 'template1') => {
+  const template = fallbackTemplates[templateId];
+  const fallbackTemplate = fallbackTemplates.template1;
+  
+  return {
+    container: template?.classes?.navigation?.container || fallbackTemplate.classes.navigation.container,
+    tab: {
+      base: template?.classes?.navigation?.tab?.base || fallbackTemplate.classes.navigation.tab.base,
+      inactive: template?.classes?.navigation?.tab?.inactive || fallbackTemplate.classes.navigation.tab.inactive,
+      active: template?.classes?.navigation?.tab?.active || fallbackTemplate.classes.navigation.tab.active,
+      hover: template?.classes?.navigation?.tab?.hover || fallbackTemplate.classes.navigation.tab.hover,
+    },
+    colors: template?.colors || fallbackTemplate.colors,
+    // Include all template classes for backward compatibility
+    ...template?.classes || fallbackTemplate.classes,
+  };
+};
+
+export const getTextColor = (backgroundType: 'white' | 'light' | 'colored' | 'dark' = 'white') => {
+  switch (backgroundType) {
+    case 'white':
+    case 'light':
+      return colors.text.primary;
+    case 'colored':
+    case 'dark':
+      return colors.text.onColored;
+    default:
+      return colors.text.primary;
+  }
 };
 
 // Export default theme object
@@ -877,10 +1418,21 @@ export const theme = {
   animations,
   zIndex,
   dashboard,
-  templates,
+  templates: fallbackTemplates,
+  getTextColor,
+  getTextClasses,
   getTemplateStyles,
+  getTemplateColors,
+  getTemplateTypography,
+  getTemplateContent,
+  getTemplateLayout,
+  getTemplateAdvanced,
   getTemplateButtonStyles,
   getTemplateNavigationStyles,
+  getTemplateHeroStyles,
+  getTemplateSidebarStyles,
+  getTemplateTabStyles,
+  getUnifiedTabStyles,
 } as const;
 
 export type Theme = typeof theme;

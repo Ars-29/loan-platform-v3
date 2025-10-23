@@ -1,10 +1,10 @@
 "use client";
 
 import React from 'react';
-import { theme, RoleType, colors, spacing, borderRadius, typography } from '@/theme/theme';
+import { theme, RoleType, colors, spacing, borderRadius, typography, animationClasses } from '@/theme/theme';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'white' | 'outline-white';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
   role?: RoleType;
@@ -68,27 +68,37 @@ export const Button: React.FC<ButtonProps> = ({
     lg: { padding: `${spacing[3]} ${spacing[6]}`, fontSize: typography.fontSize.base as unknown as number, height: 48 },
   };
 
-  // Variant tokens from theme
+  // Variant tokens from theme - Simple styling like Back button
   const variantStyle: Record<NonNullable<ButtonProps['variant']>, React.CSSProperties> = {
     primary: {
       backgroundColor: colors.primary[600],
       color: '#ffffff',
-      border: `1px solid ${colors.primary[600]}`,
+      border: 'none',
     },
     secondary: {
       backgroundColor: '#ffffff',
       color: colors.gray[900],
-      border: `1px solid ${colors.gray[300]}`,
+      border: 'none',
     },
     ghost: {
       backgroundColor: 'transparent',
       color: colors.gray[700],
-      border: `1px solid transparent`,
+      border: 'none',
     },
     danger: {
       backgroundColor: '#dc2626',
       color: '#ffffff',
-      border: `1px solid #dc2626`,
+      border: 'none',
+    },
+    white: {
+      backgroundColor: '#ffffff',
+      color: colors.gray[900],
+      border: 'none',
+    },
+    'outline-white': {
+      backgroundColor: 'transparent',
+      color: '#ffffff',
+      border: 'none',
     },
   };
 
@@ -121,12 +131,32 @@ export const Button: React.FC<ButtonProps> = ({
 
   return (
     <button
-      className={`inline-flex items-center justify-center font-medium transition-colors duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${className}`.trim()}
+      className={`
+        inline-flex items-center justify-center font-medium 
+        ${animationClasses.button.base}
+        ${animationClasses.button.landingHover}
+        ${animationClasses.button.active}
+        ${animationClasses.button.focus}
+        disabled:opacity-50 disabled:cursor-not-allowed
+        ${variant === 'primary' ? 'btn-primary-solid' : ''} 
+        ${className}
+      `.trim()}
       disabled={isDisabled}
       style={{
-        borderRadius: borderRadius.md as unknown as number,
+        borderRadius: borderRadius.md, // 12px - LESS ROUNDED
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
         ...sizeStyle[size],
         ...variantStyle[variant],
+      }}
+      onMouseEnter={(e) => {
+        if (!isDisabled) {
+          e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.25)'; // EXACT landing page shadow-3xl
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!isDisabled) {
+          e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
+        }
       }}
       {...props}
     >
@@ -150,7 +180,7 @@ export const DeleteButton: React.FC<Omit<ButtonProps, 'action'>> = ({ role, ...p
 );
 
 export const ResendButton: React.FC<Omit<ButtonProps, 'action'>> = ({ role, ...props }) => (
-  <Button role={role} action="resend" variant="ghost" size="sm" {...props} />
+  <Button role={role} action="resend" variant="primary" size="sm" {...props} />
 );
 
 export const DeactivateButton: React.FC<Omit<ButtonProps, 'action'>> = ({ role, ...props }) => (

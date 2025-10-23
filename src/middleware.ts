@@ -34,7 +34,7 @@ export async function middleware(request: NextRequest) {
   // } = await supabase.auth.getSession();
 
   // Protected routes
-  const protectedRoutes = ['/dashboard', '/customizer', '/admin', '/api/auth'];
+  const protectedRoutes = ['/customizer', '/admin', '/api/auth'];
   const isProtectedRoute = protectedRoutes.some(route => 
     request.nextUrl.pathname.startsWith(route)
   );

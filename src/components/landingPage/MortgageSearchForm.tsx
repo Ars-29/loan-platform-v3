@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useCallback, memo } from 'react';
-import { typography, colors, spacing, borderRadius, shadows, getTemplateStyles } from '@/theme/theme';
+import { spacing, borderRadius, shadows, typography, colors } from '@/theme/theme';
+import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
 import Icon from '@/components/ui/Icon';
 
 interface SearchFormData {
@@ -13,7 +14,6 @@ interface SearchFormData {
   propertyType: string;
   occupancy: string;
   loanType: string;
-  loanTerm?: string;
   eligibleForLowerRate: boolean;
   loanPurpose: string;
   // Refinance-specific fields
@@ -38,16 +38,50 @@ interface SearchFormData {
   baseLoanAmount: number;
   loanLevelDebtToIncomeRatio: number;
   totalMonthlyQualifyingIncome: number;
+  // ARM Loan Configuration
+  amortizationTypes: string[];
+  armFixedTerms: string[];
+  loanTerms: string[];
 }
 
 interface MortgageSearchFormProps {
   onSearch: (data: SearchFormData) => void;
   loading: boolean;
   template?: 'template1' | 'template2';
+  // NEW: Public mode props
+  isPublic?: boolean;
+  publicTemplateData?: any;
 }
 
-function MortgageSearchForm({ onSearch, loading, template = 'template1' }: MortgageSearchFormProps) {
-  const templateStyles = getTemplateStyles(template);
+function MortgageSearchForm({ 
+  onSearch, 
+  loading, 
+  template = 'template1',
+  // NEW: Public mode props
+  isPublic = false,
+  publicTemplateData
+}: MortgageSearchFormProps) {
+  const { getTemplateSync } = useEfficientTemplates();
+  
+  // Template data fetching - support both public and auth modes
+  const templateData = isPublic && publicTemplateData 
+    ? publicTemplateData 
+    : getTemplateSync(template);
+  const templateColors = templateData?.template?.colors || {
+    primary: '#ec4899',
+    secondary: '#01bcc6',
+    background: '#ffffff',
+    text: '#111827',
+    textSecondary: '#6b7280',
+    border: '#e5e7eb'
+  };
+  
+  // Get layout data for border radius
+  const templateLayout = templateData?.template?.layout || {
+    borderRadius: 8,
+    padding: { small: 8, medium: 16, large: 24 },
+    spacing: 16
+  };
   
   const [formData, setFormData] = useState<SearchFormData>({
     zipCode: '75024',
@@ -81,7 +115,11 @@ function MortgageSearchForm({ onSearch, loading, template = 'template1' }: Mortg
     borrowerPaidMI: 'Yes',
     baseLoanAmount: 150000,
     loanLevelDebtToIncomeRatio: 18,
-    totalMonthlyQualifyingIncome: 9000
+    totalMonthlyQualifyingIncome: 9000,
+    // ARM Loan Configuration - Explicitly enforce ARM loans
+    amortizationTypes: ["Fixed", "ARM"],
+    armFixedTerms: ["ThreeYear", "FiveYear", "SevenYear", "TenYear"],
+    loanTerms: ["ThirtyYear", "TwentyYear", "TwentyFiveYear", "FifteenYear", "TenYear"]
   });
 
   const [activeTab, setActiveTab] = useState<'purchase' | 'refinance'>('purchase');
@@ -121,32 +159,36 @@ function MortgageSearchForm({ onSearch, loading, template = 'template1' }: Mortg
 
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
+    console.log('🔄 MortgageSearchForm: Form submitted with data:', formData);
+    console.log('🔄 MortgageSearchForm: Calling onSearch callback');
     onSearch(formData);
   }, [onSearch, formData]);
 
   return (
     <div style={{
       backgroundColor: '#ffffff',
-      borderRadius: borderRadius.lg,
+      borderRadius: `${templateLayout.borderRadius}px`,
       boxShadow: shadows.lg,
       padding: spacing[6],
       marginBottom: spacing[8]
     }}>
-      {/* Tab Navigation */}
-      <div style={{ display: 'flex', marginBottom: spacing[6] }}>
+      {/* Sleek Toggle Switch */}
+      <div 
+        className="relative inline-flex p-1 mb-4"
+        style={{
+          backgroundColor: templateColors.border,
+          borderRadius: `${templateLayout.borderRadius}px`
+        }}
+      >
         <button
           type="button"
           onClick={() => setActiveTab('purchase')}
+          className={`relative z-10 px-4 py-2 text-sm font-medium transition-all duration-200 ${
+            activeTab === 'purchase' ? 'text-white' : 'text-gray-600'
+          }`}
           style={{
-            padding: `${spacing[3]} ${spacing[6]}`,
-            fontSize: typography.fontSize.sm,
-            fontWeight: typography.fontWeight.semibold,
-            borderRadius: borderRadius.lg,
-            border: `1px solid ${activeTab === 'purchase' ? templateStyles.primary.color : colors.gray[300]}`,
-            backgroundColor: activeTab === 'purchase' ? templateStyles.primary.color : colors.gray[100],
-            color: activeTab === 'purchase' ? templateStyles.primary.text : colors.gray[700],
-            cursor: 'pointer',
-            transition: 'all 0.2s ease-in-out'
+            borderRadius: `${templateLayout.borderRadius}px`,
+            backgroundColor: activeTab === 'purchase' ? templateColors.primary : 'transparent'
           }}
         >
           Purchase
@@ -154,16 +196,12 @@ function MortgageSearchForm({ onSearch, loading, template = 'template1' }: Mortg
         <button
           type="button"
           onClick={() => setActiveTab('refinance')}
+          className={`relative z-10 px-4 py-2 text-sm font-medium transition-all duration-200 ${
+            activeTab === 'refinance' ? 'text-white' : 'text-gray-600'
+          }`}
           style={{
-            padding: `${spacing[3]} ${spacing[6]}`,
-            fontSize: typography.fontSize.sm,
-            fontWeight: typography.fontWeight.semibold,
-            borderRadius: borderRadius.lg,
-            border: `1px solid ${activeTab === 'refinance' ? templateStyles.primary.color : colors.gray[300]}`,
-            backgroundColor: activeTab === 'refinance' ? templateStyles.primary.color : colors.gray[100],
-            color: activeTab === 'refinance' ? templateStyles.primary.text : colors.gray[700],
-            cursor: 'pointer',
-            transition: 'all 0.2s ease-in-out'
+            borderRadius: `${templateLayout.borderRadius}px`,
+            backgroundColor: activeTab === 'refinance' ? templateColors.primary : 'transparent'
           }}
         >
           Refinance
@@ -171,11 +209,14 @@ function MortgageSearchForm({ onSearch, loading, template = 'template1' }: Mortg
       </div>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: spacing[6] }}>
-        {/* Row 1: ZIP Code and Price/Value */}
+        {/* Row 1: ZIP Code, Price/Value, Down Payment, Credit Score */}
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-          gap: spacing[4] 
+          gridTemplateColumns: activeTab === 'purchase' 
+            ? '1fr 2fr 2fr 1.5fr'  // ZIP | Purchase Price | Down Payment | Credit Score
+            : '1fr 2fr 1.5fr 1fr',  // ZIP | Home Value | Mortgage Balance | Cash Out
+          gap: spacing[4],
+          alignItems: 'end'  // Align all fields to bottom to ensure same height
         }}>
           <div>
             <label style={{
@@ -193,14 +234,18 @@ function MortgageSearchForm({ onSearch, loading, template = 'template1' }: Mortg
               onChange={(e) => handleInputChange('zipCode', e.target.value)}
               style={{
                 width: '100%',
+                height: '40px',
                 padding: `${spacing[2]} ${spacing[3]}`,
                 border: `1px solid ${colors.gray[300]}`,
-                borderRadius: borderRadius.md,
+                borderRadius: `${templateLayout.borderRadius}px`,
                 fontSize: typography.fontSize.base,
                 outline: 'none',
-                transition: 'border-color 0.2s ease-in-out'
+                transition: 'border-color 0.2s ease-in-out',
+                boxSizing: 'border-box',
+                color: templateColors.text,
+                backgroundColor: templateColors.background
               }}
-              placeholder="Enter ZIP code"
+              placeholder="75024"
             />
           </div>
           <div>
@@ -213,224 +258,238 @@ function MortgageSearchForm({ onSearch, loading, template = 'template1' }: Mortg
             }}>
               {activeTab === 'purchase' ? 'Purchase Price' : 'Home Value'}
             </label>
-            <input
-              type="number"
-              value={activeTab === 'purchase' ? formData.salesPrice : formData.homeValue}
-              onChange={(e) => handleInputChange(activeTab === 'purchase' ? 'salesPrice' : 'homeValue', e.target.value)}
-              style={{
-                width: '100%',
-                padding: `${spacing[2]} ${spacing[3]}`,
-                border: `1px solid ${colors.gray[300]}`,
-                borderRadius: borderRadius.md,
-                fontSize: typography.fontSize.base,
-                outline: 'none',
-                transition: 'border-color 0.2s ease-in-out'
-              }}
-              placeholder={activeTab === 'purchase' ? 'Enter purchase price' : 'Enter home value'}
-            />
-            {activeTab === 'refinance' && (
-              <div style={{ 
-                marginTop: spacing.xs, 
-                fontSize: typography.fontSize.sm, 
-                color: colors.text.muted 
-              }}>
-                {formData.ltv}% LTV
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Row 2: Purchase-specific or Refinance-specific fields */}
-        {activeTab === 'purchase' ? (
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-            gap: spacing.md 
-          }}>
-            <div>
-              <label style={{ 
-                display: 'block', 
-                fontSize: typography.fontSize.sm, 
-                fontWeight: typography.fontWeight.medium, 
-                color: colors.text.secondary, 
-                marginBottom: spacing.sm 
-              }}>
-                Down Payment
-              </label>
-              <div style={{ display: 'flex' }}>
+{activeTab === 'refinance' ? (
+              <div style={{ display: 'flex', height: '40px' }}>
                 <input
                   type="number"
-                  value={formData.downPayment}
-                  onChange={(e) => handleInputChange('downPayment', e.target.value)}
-                  style={{ 
+                  value={formData.homeValue}
+                  onChange={(e) => handleInputChange('homeValue', e.target.value)}
+                  style={{
                     flex: 1,
-                    padding: `${spacing.sm} ${spacing.md}`,
+                    padding: `${spacing[2]} ${spacing[3]}`,
                     border: `1px solid ${colors.gray[300]}`,
-                    borderTopLeftRadius: borderRadius.md,
-                    borderBottomLeftRadius: borderRadius.md,
+                    borderTopLeftRadius: `${templateLayout.borderRadius}px`,
+                    borderBottomLeftRadius: `${templateLayout.borderRadius}px`,
                     borderRight: 'none',
+                    fontSize: typography.fontSize.base,
+                    outline: 'none',
+                    transition: 'border-color 0.2s ease-in-out',
+                    boxSizing: 'border-box',
+                    color: templateColors.text,
+                    backgroundColor: templateColors.background,
+                    height: '100%'
+                  }}
+                  placeholder="450000"
+                />
+                 <div style={{ 
+                   display: 'flex',
+                   alignItems: 'center',
+                   padding: `${spacing[2]} ${spacing[2]}`, 
+                   backgroundColor: 'transparent', 
+                   border: `1px solid ${colors.gray[300]}`, 
+                   borderLeft: 'none',
+                   borderTopRightRadius: `${templateLayout.borderRadius}px`,
+                   borderBottomRightRadius: `${templateLayout.borderRadius}px`,
+                   fontSize: typography.fontSize.xs, 
+                   color: colors.gray[500],
+                   minWidth: '70px',
+                   justifyContent: 'center',
+                   height: '100%',
+                   boxSizing: 'border-box',
+                   fontWeight: typography.fontWeight.normal
+                 }}>
+                   {formData.ltv}% LTV
+                 </div>
+              </div>
+            ) : (
+              <input
+                type="number"
+                value={formData.salesPrice}
+                onChange={(e) => handleInputChange('salesPrice', e.target.value)}
+                style={{
+                  width: '100%',
+                  height: '40px',
+                  padding: `${spacing[2]} ${spacing[3]}`,
+                  border: `1px solid ${colors.gray[300]}`,
+                  borderRadius: `${templateLayout.borderRadius}px`,
+                  fontSize: typography.fontSize.base,
+                  outline: 'none',
+                  transition: 'border-color 0.2s ease-in-out',
+                  boxSizing: 'border-box',
+                  color: templateColors.text,
+                  backgroundColor: templateColors.background
+                }}
+                placeholder="225000"
+              />
+            )}
+          </div>
+
+          {/* Add Down Payment and Credit Score to Row 1 */}
+          {activeTab === 'purchase' ? (
+            <>
+              <div>
+                <label style={{ 
+                  display: 'block', 
+                  fontSize: typography.fontSize.sm, 
+                  fontWeight: typography.fontWeight.medium, 
+                  color: colors.gray[700], 
+                  marginBottom: spacing[2]
+                }}>
+                  Down Payment
+                </label>
+                <div style={{ display: 'flex', height: '40px' }}>
+                  <input
+                    type="number"
+                    value={formData.downPayment}
+                    onChange={(e) => handleInputChange('downPayment', e.target.value)}
+                    style={{ 
+                      flex: 1,
+                      padding: `${spacing[2]} ${spacing[3]}`,
+                      border: `1px solid ${colors.gray[300]}`,
+                      borderTopLeftRadius: `${templateLayout.borderRadius}px`,
+                      borderBottomLeftRadius: `${templateLayout.borderRadius}px`,
+                      borderRight: 'none',
+                      outline: 'none',
+                      fontSize: typography.fontSize.base,
+                      color: templateColors.text,
+                      backgroundColor: templateColors.background,
+                      height: '100%',
+                      boxSizing: 'border-box'
+                    }}
+                    placeholder="75000"
+                  />
+                  <div style={{ 
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: `${spacing[2]} ${spacing[3]}`, 
+                    backgroundColor: colors.gray[100], 
+                    border: `1px solid ${colors.gray[300]}`, 
+                    borderTopRightRadius: `${templateLayout.borderRadius}px`,
+                    borderBottomRightRadius: `${templateLayout.borderRadius}px`,
+                    fontSize: typography.fontSize.sm, 
+                    color: colors.gray[600],
+                    minWidth: '60px',
+                    justifyContent: 'center',
+                    height: '100%',
+                    boxSizing: 'border-box'
+                  }}>
+                    {formData.downPaymentPercent}%
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label style={{ 
+                  display: 'block', 
+                  fontSize: typography.fontSize.sm, 
+                  fontWeight: typography.fontWeight.medium, 
+                  color: colors.gray[600], 
+                  marginBottom: spacing.sm 
+                }}>
+                  Credit Score
+                </label>
+                <select
+                  value={formData.creditScore}
+                  onChange={(e) => handleInputChange('creditScore', e.target.value)}
+                  style={{ 
+                    width: '100%',
+                    height: '40px',
+                    padding: `${spacing[2]} ${spacing[3]}`,
+                    border: `1px solid ${colors.gray[300]}`,
+                    borderRadius: `${templateLayout.borderRadius}px`,
                     outline: 'none',
                     fontSize: typography.fontSize.base,
-                    color: colors.text.primary,
-                    backgroundColor: colors.white
+                    color: templateColors.text,
+                    backgroundColor: templateColors.background,
+                    boxSizing: 'border-box'
                   }}
-                  placeholder="Enter down payment"
-                />
-                <span style={{ 
-                  padding: `${spacing.sm} ${spacing.md}`, 
-                  backgroundColor: colors.gray[100], 
-                  border: `1px solid ${colors.gray[300]}`, 
-                  borderTopRightRadius: borderRadius.md,
-                  borderBottomRightRadius: borderRadius.md,
-                  fontSize: typography.fontSize.sm, 
-                  color: colors.text.secondary 
-                }}>
-                  {formData.downPaymentPercent}%
-                </span>
+                >
+                  <option value="500-850">Outstanding 800+</option>
+                  <option value="780-799">Excellent 780 - 799</option>
+                  <option value="740-779">Very good 740 - 779</option>
+                  <option value="720-739">Fairly good 720 - 739</option>
+                  <option value="700-719">Good 700 - 719</option>
+                  <option value="680-699">Decent 680 - 699</option>
+                  <option value="660-679">Average 660 - 679</option>
+                </select>
               </div>
-            </div>
-            <div>
-              <label style={{ 
-                display: 'block', 
-                fontSize: typography.fontSize.sm, 
-                fontWeight: typography.fontWeight.medium, 
-                color: colors.text.secondary, 
-                marginBottom: spacing.sm 
-              }}>
-                Credit Score
-              </label>
-              <select
-                value={formData.creditScore}
-                onChange={(e) => handleInputChange('creditScore', e.target.value)}
-                style={{ 
-                  width: '100%',
-                  padding: `${spacing.sm} ${spacing.md}`,
-                  border: `1px solid ${colors.gray[300]}`,
-                  borderRadius: borderRadius.md,
-                  outline: 'none',
-                  fontSize: typography.fontSize.base,
-                  color: colors.text.primary,
-                  backgroundColor: colors.white
-                }}
-              >
-                <option value="500-850">Outstanding 800+</option>
-                <option value="780-799">Excellent 780 - 799</option>
-                <option value="740-779">Very good 740 - 779</option>
-                <option value="720-739">Fairly good 720 - 739</option>
-                <option value="700-719">Good 700 - 719</option>
-                <option value="680-699">Decent 680 - 699</option>
-                <option value="660-679">Average 660 - 679</option>
-              </select>
-            </div>
-          </div>
-        ) : (
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-            gap: spacing.md 
-          }}>
-            <div>
-              <label style={{ 
-                display: 'block', 
-                fontSize: typography.fontSize.sm, 
-                fontWeight: typography.fontWeight.medium, 
-                color: colors.text.secondary, 
-                marginBottom: spacing.sm 
-              }}>
-                Mortgage Balance
-              </label>
-              <input
-                type="number"
-                value={formData.mortgageBalance}
-                onChange={(e) => handleInputChange('mortgageBalance', e.target.value)}
-                style={{ 
-                  width: '100%',
-                  padding: `${spacing.sm} ${spacing.md}`,
-                  border: `1px solid ${colors.gray[300]}`,
-                  borderRadius: borderRadius.md,
-                  outline: 'none',
-                  fontSize: typography.fontSize.base,
-                  color: colors.text.primary,
-                  backgroundColor: colors.white
-                }}
-                placeholder="Enter mortgage balance"
-              />
-            </div>
-            <div>
-              <label style={{ 
-                display: 'block', 
-                fontSize: typography.fontSize.sm, 
-                fontWeight: typography.fontWeight.medium, 
-                color: colors.text.secondary, 
-                marginBottom: spacing.sm 
-              }}>
-                Cash Out
-              </label>
-              <input
-                type="number"
-                value={formData.cashOut}
-                onChange={(e) => handleInputChange('cashOut', e.target.value)}
-                style={{ 
-                  width: '100%',
-                  padding: `${spacing.sm} ${spacing.md}`,
-                  border: `1px solid ${colors.gray[300]}`,
-                  borderRadius: borderRadius.md,
-                  outline: 'none',
-                  fontSize: typography.fontSize.base,
-                  color: colors.text.primary,
-                  backgroundColor: colors.white
-                }}
-                placeholder="Enter cash out amount"
-              />
-            </div>
-            <div>
-              <label style={{ 
-                display: 'block', 
-                fontSize: typography.fontSize.sm, 
-                fontWeight: typography.fontWeight.medium, 
-                color: colors.text.secondary, 
-                marginBottom: spacing.sm 
-              }}>
-                Credit Score
-              </label>
-              <select
-                value={formData.creditScore}
-                onChange={(e) => handleInputChange('creditScore', e.target.value)}
-                style={{ 
-                  width: '100%',
-                  padding: `${spacing.sm} ${spacing.md}`,
-                  border: `1px solid ${colors.gray[300]}`,
-                  borderRadius: borderRadius.md,
-                  outline: 'none',
-                  fontSize: typography.fontSize.base,
-                  color: colors.text.primary,
-                  backgroundColor: colors.white
-                }}
-              >
-                <option value="500-850">Outstanding 800+</option>
-                <option value="780-799">Excellent 780 - 799</option>
-                <option value="740-779">Very good 740 - 779</option>
-                <option value="720-739">Fairly good 720 - 739</option>
-                <option value="700-719">Good 700 - 719</option>
-                <option value="680-699">Decent 680 - 699</option>
-                <option value="660-679">Average 660 - 679</option>
-              </select>
-            </div>
-          </div>
-        )}
+            </>
+          ) : (
+            <>
+              <div>
+                <label style={{ 
+                  display: 'block', 
+                  fontSize: typography.fontSize.sm, 
+                  fontWeight: typography.fontWeight.medium, 
+                  color: colors.gray[600], 
+                  marginBottom: spacing.sm 
+                }}>
+                  Mortgage Balance
+                </label>
+                <input
+                  type="number"
+                  value={formData.mortgageBalance}
+                  onChange={(e) => handleInputChange('mortgageBalance', e.target.value)}
+                  style={{ 
+                    width: '100%',
+                    height: '40px',
+                    padding: `${spacing[2]} ${spacing[3]}`,
+                    border: `1px solid ${colors.gray[300]}`,
+                    borderRadius: `${templateLayout.borderRadius}px`,
+                    outline: 'none',
+                    fontSize: typography.fontSize.base,
+                    color: templateColors.text,
+                    backgroundColor: templateColors.background,
+                    boxSizing: 'border-box'
+                  }}
+                  placeholder="360000"
+                />
+              </div>
+              <div>
+                <label style={{ 
+                  display: 'block', 
+                  fontSize: typography.fontSize.sm, 
+                  fontWeight: typography.fontWeight.medium, 
+                  color: colors.gray[600], 
+                  marginBottom: spacing.sm 
+                }}>
+                  Cash Out
+                </label>
+                <input
+                  type="number"
+                  value={formData.cashOut}
+                  onChange={(e) => handleInputChange('cashOut', e.target.value)}
+                  style={{ 
+                    width: '100%',
+                    height: '40px',
+                    padding: `${spacing[2]} ${spacing[3]}`,
+                    border: `1px solid ${colors.gray[300]}`,
+                    borderRadius: `${templateLayout.borderRadius}px`,
+                    outline: 'none',
+                    fontSize: typography.fontSize.base,
+                    color: templateColors.text,
+                    backgroundColor: templateColors.background,
+                    boxSizing: 'border-box'
+                  }}
+                  placeholder="0"
+                />
+              </div>
+            </>
+          )}
+        </div>
 
-        {/* Row 3: Property Type and Residency Usage */}
+        {/* Row 2: Property Type, Residency Usage, Loan Type */}
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-          gap: spacing.md 
+          gridTemplateColumns: '1fr 1fr 1fr', 
+          gap: spacing[4],
+          alignItems: 'end'
         }}>
           <div>
             <label style={{ 
               display: 'block', 
               fontSize: typography.fontSize.sm, 
               fontWeight: typography.fontWeight.medium, 
-              color: colors.text.secondary, 
+              color: colors.gray[600], 
               marginBottom: spacing.sm 
             }}>
               Property Type
@@ -440,13 +499,15 @@ function MortgageSearchForm({ onSearch, loading, template = 'template1' }: Mortg
               onChange={(e) => handleInputChange('propertyType', e.target.value)}
               style={{ 
                 width: '100%',
-                padding: `${spacing.sm} ${spacing.md}`,
+                height: '40px',
+                padding: `${spacing[2]} ${spacing[3]}`,
                 border: `1px solid ${colors.gray[300]}`,
-                borderRadius: borderRadius.md,
+                borderRadius: `${templateLayout.borderRadius}px`,
                 outline: 'none',
                 fontSize: typography.fontSize.base,
-                color: colors.text.primary,
-                backgroundColor: colors.white
+                color: templateColors.text,
+                backgroundColor: templateColors.background,
+                boxSizing: 'border-box'
               }}
             >
               <option value="SingleFamily">Single Family Home</option>
@@ -461,7 +522,7 @@ function MortgageSearchForm({ onSearch, loading, template = 'template1' }: Mortg
               display: 'block', 
               fontSize: typography.fontSize.sm, 
               fontWeight: typography.fontWeight.medium, 
-              color: colors.text.secondary, 
+              color: colors.gray[600], 
               marginBottom: spacing.sm 
             }}>
               Residency Usage
@@ -471,13 +532,15 @@ function MortgageSearchForm({ onSearch, loading, template = 'template1' }: Mortg
               onChange={(e) => handleInputChange('occupancy', e.target.value)}
               style={{ 
                 width: '100%',
-                padding: `${spacing.sm} ${spacing.md}`,
+                height: '40px',
+                padding: `${spacing[2]} ${spacing[3]}`,
                 border: `1px solid ${colors.gray[300]}`,
-                borderRadius: borderRadius.md,
+                borderRadius: `${templateLayout.borderRadius}px`,
                 outline: 'none',
                 fontSize: typography.fontSize.base,
-                color: colors.text.primary,
-                backgroundColor: colors.white
+                color: templateColors.text,
+                backgroundColor: templateColors.background,
+                boxSizing: 'border-box'
               }}
             >
               <option value="PrimaryResidence">Primary Home</option>
@@ -485,20 +548,12 @@ function MortgageSearchForm({ onSearch, loading, template = 'template1' }: Mortg
               <option value="Investment">Rental Home</option>
             </select>
           </div>
-        </div>
-
-        {/* Row 4: Loan Type and Loan Term */}
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-          gap: spacing.md 
-        }}>
           <div>
             <label style={{ 
               display: 'block', 
               fontSize: typography.fontSize.sm, 
               fontWeight: typography.fontWeight.medium, 
-              color: colors.text.secondary, 
+              color: colors.gray[600], 
               marginBottom: spacing.sm 
             }}>
               Loan Type
@@ -508,13 +563,15 @@ function MortgageSearchForm({ onSearch, loading, template = 'template1' }: Mortg
               onChange={(e) => handleInputChange('loanType', e.target.value)}
               style={{ 
                 width: '100%',
-                padding: `${spacing.sm} ${spacing.md}`,
+                height: '40px',
+                padding: `${spacing[2]} ${spacing[3]}`,
                 border: `1px solid ${colors.gray[300]}`,
-                borderRadius: borderRadius.md,
+                borderRadius: `${templateLayout.borderRadius}px`,
                 outline: 'none',
                 fontSize: typography.fontSize.base,
-                color: colors.text.primary,
-                backgroundColor: colors.white
+                color: templateColors.text,
+                backgroundColor: templateColors.background,
+                boxSizing: 'border-box'
               }}
             >
               <option value="Conforming">Conforming</option>
@@ -524,65 +581,66 @@ function MortgageSearchForm({ onSearch, loading, template = 'template1' }: Mortg
               <option value="USDA">USDA</option>
             </select>
           </div>
-          <div>
-            <label style={{ 
-              display: 'block', 
-              fontSize: typography.fontSize.sm, 
-              fontWeight: typography.fontWeight.medium, 
-              color: colors.text.secondary, 
-              marginBottom: spacing.sm 
-            }}>
-              Loan Term
-            </label>
-            <select
-              value={formData.loanTerm || 'ThirtyYear'}
-              onChange={(e) => handleInputChange('loanTerm', e.target.value)}
-              style={{ 
-                width: '100%',
-                padding: `${spacing.sm} ${spacing.md}`,
-                border: `1px solid ${colors.gray[300]}`,
-                borderRadius: borderRadius.md,
-                outline: 'none',
-                fontSize: typography.fontSize.base,
-                color: colors.text.primary,
-                backgroundColor: colors.white
-              }}
-            >
-              <option value="ThirtyYear">30 Year Fixed</option>
-              <option value="TwentyFiveYear">25 Year Fixed</option>
-              <option value="FifteenYear">15 Year Fixed</option>
-              <option value="TwentyYear">20 Year Fixed</option>
-            </select>
-          </div>
         </div>
 
-        {/* Row 5: Eligible for Lower Rate (Purchase only) */}
-        {activeTab === 'purchase' && (
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <input
-              type="checkbox"
-              id="eligibleForLowerRate"
-              checked={formData.eligibleForLowerRate}
-              onChange={(e) => handleInputChange('eligibleForLowerRate', e.target.checked)}
-              style={{ 
-                height: '1rem',
-                width: '1rem',
-                border: `1px solid ${colors.gray[300]}`,
-                borderRadius: borderRadius.sm,
-                color: templateStyles.primary.color,
-                accentColor: templateStyles.primary.color
-              }}
-            />
-            <label htmlFor="eligibleForLowerRate" style={{ 
-              marginLeft: spacing.sm, 
-              display: 'block', 
-              fontSize: typography.fontSize.sm, 
-              color: colors.text.secondary 
-            }}>
-              Eligible for lower rate
-            </label>
-          </div>
-        )}
+        {/* Row 3: Eligible for Lower Rate and Update Button */}
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: activeTab === 'purchase' ? '1fr auto' : 'auto', 
+          gap: spacing[4],
+          alignItems: 'center',
+          justifyContent: activeTab === 'refinance' ? 'flex-end' : 'normal'
+        }}>
+          {activeTab === 'purchase' && (
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <input
+                type="checkbox"
+                id="eligibleForLowerRate"
+                checked={formData.eligibleForLowerRate}
+                onChange={(e) => handleInputChange('eligibleForLowerRate', e.target.checked)}
+                style={{ 
+                  height: '1rem',
+                  width: '1rem',
+                  border: `1px solid ${colors.gray[300]}`,
+                  borderRadius: `${templateLayout.borderRadius}px`,
+                  color: templateColors.primary,
+                  accentColor: templateColors.primary
+                }}
+              />
+              <label htmlFor="eligibleForLowerRate" style={{ 
+                marginLeft: spacing.sm, 
+                display: 'block', 
+                fontSize: typography.fontSize.sm, 
+                color: colors.text.secondary 
+              }}>
+                Eligible for lower rate
+              </label>
+            </div>
+          )}
+          
+          {/* Update Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              height: '40px',
+              backgroundColor: templateColors.primary,
+              color: '#ffffff',
+              padding: `0 ${spacing[6]}`,
+              borderRadius: `${templateLayout.borderRadius}px`,
+              fontSize: typography.fontSize.sm,
+              fontWeight: typography.fontWeight.semibold,
+              border: 'none',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.5 : 1,
+              transition: 'all 0.2s ease-in-out',
+              minWidth: '140px',
+              boxSizing: 'border-box'
+            }}
+          >
+            {loading ? 'Searching...' : 'Update Rates'}
+          </button>
+        </div>
 
         {/* Debug Info */}
         <div style={{ 
@@ -594,14 +652,14 @@ function MortgageSearchForm({ onSearch, loading, template = 'template1' }: Mortg
           <h4 style={{ 
             fontSize: typography.fontSize.sm, 
             fontWeight: typography.fontWeight.medium, 
-            color: colors.text.secondary, 
+              color: colors.gray[600],
             marginBottom: spacing.sm 
           }}>
             Current Form Values (Debug):
           </h4>
           <div style={{ 
             fontSize: typography.fontSize.xs, 
-            color: colors.text.muted, 
+              color: colors.gray[600],
             display: 'flex', 
             flexDirection: 'column', 
             gap: spacing.xs 
@@ -613,28 +671,6 @@ function MortgageSearchForm({ onSearch, loading, template = 'template1' }: Mortg
           </div>
         </div>
 
-        {/* Submit Button */}
-        <div style={{ paddingTop: spacing[4] }}>
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: '100%',
-              backgroundColor: templateStyles.primary.color,
-              color: '#ffffff',
-              padding: `${spacing[3]} ${spacing[6]}`,
-              borderRadius: borderRadius.md,
-              fontSize: typography.fontSize.sm,
-              fontWeight: typography.fontWeight.semibold,
-              border: 'none',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.5 : 1,
-              transition: 'all 0.2s ease-in-out'
-            }}
-          >
-            {loading ? 'Searching...' : 'Update Rates'}
-          </button>
-        </div>
       </form>
     </div>
   );
