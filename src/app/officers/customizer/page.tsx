@@ -7,8 +7,6 @@ import { useAuth } from '@/hooks/use-auth';
 import { useTemplateSelection, useTemplate, useGlobalTemplates, TemplateProvider } from '@/contexts/UnifiedTemplateContext';
 import { supabase } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import Icon, { icons } from '@/components/ui/Icon';
 import Image from 'next/image';
 import PublicProfileContent from '@/components/public/PublicProfileContent';
 
@@ -54,14 +52,13 @@ import {
   Layout, 
   Settings, 
   Save, 
-  Download, 
   Eye, 
-  RefreshCw,
   ChevronLeft,
   ChevronRight,
   Maximize2,
   Smartphone,
-  Cog
+  Cog,
+  LaptopMinimal
 } from 'lucide-react';
 
 // Lazy load preview components
@@ -598,6 +595,8 @@ export default function CustomizerPage() {
 
   // Toggle preview mode (now called full width)
   const toggleFullWidth = useCallback(() => {
+    if (isMobileView) return;
+
     setIsFullWidth(prev => !prev);
     setCustomizerState(prev => ({
       ...prev,
@@ -854,6 +853,18 @@ export default function CustomizerPage() {
                 >
                   <Cog size={18} />
                 </button>
+
+                <button
+                  onClick={toggleMobileView}
+                  className={`p-2 rounded-md hover:bg-gray-100 transition-colors flex-shrink-0 ${
+                    !isMobileView 
+                      ? 'bg-[#01bcc6]/10 text-[#01bcc6]' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                  title="Desktop View"
+                >
+                  <LaptopMinimal size={18} />
+                </button>
                 
                 {/* Mobile View Icon - Hide on actual mobile devices */}
                 <button
@@ -875,8 +886,9 @@ export default function CustomizerPage() {
                     isFullWidth 
                       ? 'bg-[#01bcc6]/10 text-[#01bcc6]' 
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
-                  title={isFullWidth ? 'Exit Full Width' : 'Full Width'}
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  title={isMobileView ? 'Cannot toggle full width on mobile' : isFullWidth ? 'Exit Full Width' : 'Full Width'}
+                  disabled={isMobileView}
                 >
                   <Maximize2 size={18} />
                 </button>

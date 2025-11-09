@@ -14,6 +14,7 @@ import Breadcrumb, { BreadcrumbItem } from '@/components/ui/Breadcrumb';
 import Pagination from '@/components/ui/Pagination';
 import SearchFilter, { FilterOption } from '@/components/ui/SearchFilter';
 import { useRouter } from 'next/navigation';
+import Loader from '@/components/ui/Loader';
 
 interface Lead {
   id: string;
@@ -464,14 +465,8 @@ export default function LeadsPage() {
       <DashboardLayout showBreadcrumb={true}
         breadcrumbVariant="default"
         breadcrumbSize="md">
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '400px',
-          fontSize: typography.fontSize.lg,
-          color: colors.gray[600]
-        }}>
+        <div className="flex flex-col items-center justify-center text-gray-600">
+          <Loader />
           Loading leads...
         </div>
       </DashboardLayout>

@@ -11,6 +11,7 @@ import EnhancedLeadsTable from '@/components/analytics/tables/EnhancedLeadsTable
 import Pagination from '@/components/ui/Pagination';
 import SearchFilter, { FilterOption } from '@/components/ui/SearchFilter';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Loader from '@/components/ui/Loader';
 
 interface Lead {
   id: string;
@@ -443,9 +444,7 @@ export default function AdminLeadsView({
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#01bcc6]"></div>
-      </div>
+      <Loader />
     );
   }
 

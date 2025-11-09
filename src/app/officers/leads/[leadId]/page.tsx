@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { supabase } from '@/lib/supabase/client';
 import { typography, colors, spacing, borderRadius } from '@/theme/theme';
 import { icons } from '@/components/ui/Icon';
+import Loader from '@/components/ui/Loader';
 // Breadcrumb is now handled automatically by DashboardLayout
 
 interface Lead {
@@ -236,15 +237,8 @@ export default function LeadDetailsPage() {
         breadcrumbVariant="elevated"
         breadcrumbSize="md"
       >
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '400px',
-          fontSize: typography.fontSize.lg,
-          color: colors.gray[600]
-        }}>
-          <div className="animate-spin rounded-lg h-8 w-8 border-b-2 border-blue-600 mr-4"></div>
+        <div className="flex flex-col items-center justify-center text-gray-600">
+          <Loader />
           Loading lead details...
         </div>
       </DashboardLayout>
