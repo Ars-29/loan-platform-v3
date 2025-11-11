@@ -5,10 +5,14 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { icons } from '@/components/ui/Icon';
 import { colors, typography, spacing, borderRadius } from '@/theme/theme';
+import SmartDropdown, { SmartDropdownOption } from '@/components/ui/SmartDropdown';
+
+type IconName = keyof typeof icons;
 
 export interface FilterOption {
   value: string;
   label: string;
+  icon?: IconName;
 }
 
 export interface SearchFilterProps {
@@ -127,24 +131,21 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
                 >
                   {filter.label}
                 </label>
-                <select
+                <SmartDropdown
                   value={filter.value}
-                  onChange={(e) => filter.onChange(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
-                  style={{
-                    borderRadius: borderRadius.md,
-                    border: `1px solid ${colors.gray[300]}`,
-                    fontSize: typography.fontSize.sm,
-                    color: colors.gray[900]
-                  }}
-                >
-                  <option value="">All {filter.label}</option>
-                  {filter.options.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
+                  onChange={filter.onChange}
+                  options={([
+                    { value: '', label: `All ${filter.label}` },
+                    ...filter.options.map(option => ({
+                      value: option.value,
+                      label: option.label,
+                      icon: option.icon,
+                    })),
+                  ] as SmartDropdownOption[])}
+                  placeholder={`All ${filter.label}`}
+                  buttonClassName="w-full"
+                  className="w-full"
+                />
               </div>
             ))}
           </div>

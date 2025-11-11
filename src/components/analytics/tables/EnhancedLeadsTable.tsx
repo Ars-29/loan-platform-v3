@@ -7,6 +7,29 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { format } from 'date-fns';
 import { borderRadius } from '@/theme/theme';
+import SmartDropdown, { SmartDropdownOption } from '@/components/ui/SmartDropdown';
+
+const STATUS_OPTIONS: SmartDropdownOption[] = [
+  { value: 'new', label: 'New', icon: 'plus' },
+  { value: 'contacted', label: 'Contacted', icon: 'phone' },
+  { value: 'qualified', label: 'Qualified', icon: 'checkCircle' },
+  { value: 'converted', label: 'Converted', icon: 'success' },
+  { value: 'lost', label: 'Lost', icon: 'error' },
+];
+
+const STAGE_OPTIONS: SmartDropdownOption[] = [
+  { value: 'lead', label: 'Lead', icon: 'target' },
+  { value: 'application', label: 'Application', icon: 'document' },
+  { value: 'approval', label: 'Approval', icon: 'checkCircle' },
+  { value: 'closing', label: 'Closing', icon: 'calendar' },
+];
+
+const PRIORITY_OPTIONS: SmartDropdownOption[] = [
+  { value: 'low', label: 'Low', icon: 'chevronsDown' },
+  { value: 'medium', label: 'Medium', icon: 'filter' },
+  { value: 'high', label: 'High', icon: 'chevronsUp' },
+  { value: 'urgent', label: 'Urgent', icon: 'alertCircle' },
+];
 
 interface EnhancedLead {
   id: string;
@@ -67,24 +90,26 @@ const EnhancedLeadsTable: React.FC<EnhancedLeadsTableProps> = ({
     setTempValue(String(currentValue || ''));
   };
 
-  const handleEditSave = () => {
+  const handleEditSave = (overrideValue?: string) => {
     if (!editingLead || !editingField) return;
+
+    const valueToSave = overrideValue ?? tempValue;
 
     switch (editingField) {
       case 'status':
-        onStatusUpdate(editingLead, tempValue as EnhancedLead['status']);
+        onStatusUpdate(editingLead, valueToSave as EnhancedLead['status']);
         break;
       case 'conversionStage':
-        onConversionStageUpdate(editingLead, tempValue as EnhancedLead['conversionStage']);
+        onConversionStageUpdate(editingLead, valueToSave as EnhancedLead['conversionStage']);
         break;
       case 'priority':
-        onPriorityUpdate(editingLead, tempValue as EnhancedLead['priority']);
+        onPriorityUpdate(editingLead, valueToSave as EnhancedLead['priority']);
         break;
       case 'leadQualityScore':
-        onQualityScoreUpdate(editingLead, parseInt(tempValue));
+        onQualityScoreUpdate(editingLead, parseInt(valueToSave, 10));
         break;
       case 'notes':
-        onNotesUpdate(editingLead, tempValue);
+        onNotesUpdate(editingLead, valueToSave);
         break;
     }
 
@@ -214,23 +239,18 @@ const EnhancedLeadsTable: React.FC<EnhancedLeadsTableProps> = ({
         if (!lead) return <div className="text-gray-400">No data</div>;
         if (editingLead === lead.id && editingField === 'status') {
           return (
-            <select
+            <SmartDropdown
               value={tempValue}
-              onChange={(e) => setTempValue(e.target.value)}
-              className="text-sm border border-gray-300 rounded px-2 py-1"
-              onBlur={handleEditSave}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleEditSave();
-                if (e.key === 'Escape') handleEditCancel();
+              onChange={(newValue) => handleEditSave(newValue)}
+              options={STATUS_OPTIONS}
+              placeholder="Select status"
+              buttonClassName="min-w-[160px]"
+              onOpenChange={(open) => {
+                if (!open && editingLead === lead.id && editingField === 'status') {
+                  handleEditCancel();
+                }
               }}
-              autoFocus
-            >
-              <option value="new">New</option>
-              <option value="contacted">Contacted</option>
-              <option value="qualified">Qualified</option>
-              <option value="converted">Converted</option>
-              <option value="lost">Lost</option>
-            </select>
+            />
           );
         }
         return (
@@ -259,22 +279,18 @@ const EnhancedLeadsTable: React.FC<EnhancedLeadsTableProps> = ({
         if (!lead) return <div className="text-gray-400">No data</div>;
         if (editingLead === lead.id && editingField === 'conversionStage') {
           return (
-            <select
+            <SmartDropdown
               value={tempValue}
-              onChange={(e) => setTempValue(e.target.value)}
-              className="text-sm border border-gray-300 rounded px-2 py-1"
-              onBlur={handleEditSave}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleEditSave();
-                if (e.key === 'Escape') handleEditCancel();
+              onChange={(newValue) => handleEditSave(newValue)}
+              options={STAGE_OPTIONS}
+              placeholder="Select stage"
+              buttonClassName="min-w-[170px]"
+              onOpenChange={(open) => {
+                if (!open && editingLead === lead.id && editingField === 'conversionStage') {
+                  handleEditCancel();
+                }
               }}
-              autoFocus
-            >
-              <option value="lead">Lead</option>
-              <option value="application">Application</option>
-              <option value="approval">Approval</option>
-              <option value="closing">Closing</option>
-            </select>
+            />
           );
         }
         return (
@@ -302,22 +318,18 @@ const EnhancedLeadsTable: React.FC<EnhancedLeadsTableProps> = ({
         if (!lead) return <div className="text-gray-400">No data</div>;
         if (editingLead === lead.id && editingField === 'priority') {
           return (
-            <select
+            <SmartDropdown
               value={tempValue}
-              onChange={(e) => setTempValue(e.target.value)}
-              className="text-sm border border-gray-300 rounded px-2 py-1"
-              onBlur={handleEditSave}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleEditSave();
-                if (e.key === 'Escape') handleEditCancel();
+              onChange={(newValue) => handleEditSave(newValue)}
+              options={PRIORITY_OPTIONS}
+              placeholder="Select priority"
+              buttonClassName="min-w-[150px]"
+              onOpenChange={(open) => {
+                if (!open && editingLead === lead.id && editingField === 'priority') {
+                  handleEditCancel();
+                }
               }}
-              autoFocus
-            >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-              <option value="urgent">Urgent</option>
-            </select>
+            />
           );
         }
         return (

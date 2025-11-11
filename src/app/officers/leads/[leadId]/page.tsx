@@ -10,6 +10,7 @@ import { supabase } from '@/lib/supabase/client';
 import { typography, colors, spacing, borderRadius } from '@/theme/theme';
 import { icons } from '@/components/ui/Icon';
 import Loader from '@/components/ui/Loader';
+import SmartDropdown, { SmartDropdownOption } from '@/components/ui/SmartDropdown';
 // Breadcrumb is now handled automatically by DashboardLayout
 
 interface Lead {
@@ -59,6 +60,28 @@ interface Lead {
     lockPeriod: number;
   };
 }
+
+const STATUS_OPTIONS: SmartDropdownOption[] = [
+  { value: 'new', label: 'New', icon: 'plus' },
+  { value: 'contacted', label: 'Contacted', icon: 'phone' },
+  { value: 'qualified', label: 'Qualified', icon: 'checkCircle' },
+  { value: 'converted', label: 'Converted', icon: 'success' },
+  { value: 'lost', label: 'Lost', icon: 'error' },
+];
+
+const STAGE_OPTIONS: SmartDropdownOption[] = [
+  { value: 'lead', label: 'Lead', icon: 'target' },
+  { value: 'application', label: 'Application', icon: 'document' },
+  { value: 'approval', label: 'Approval', icon: 'checkCircle' },
+  { value: 'closing', label: 'Closing', icon: 'calendar' },
+];
+
+const PRIORITY_OPTIONS: SmartDropdownOption[] = [
+  { value: 'low', label: 'Low', icon: 'chevronsDown' },
+  { value: 'medium', label: 'Medium', icon: 'filter' },
+  { value: 'high', label: 'High', icon: 'chevronsUp' },
+  { value: 'urgent', label: 'Urgent', icon: 'alertCircle' },
+];
 
 export default function LeadDetailsPage() {
   const params = useParams();
@@ -175,33 +198,32 @@ export default function LeadDetailsPage() {
     setTempValue('');
   };
 
-  const handleEditSave = async () => {
+  const handleUpdateField = async (field: keyof Lead, value: string) => {
     if (!lead || !accessToken || saving) return;
 
     try {
       setSaving(true);
-      
-      // Get fresh session to ensure we have a valid token
+
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
+
       if (sessionError || !session?.access_token) {
         console.error('Session error:', sessionError);
         throw new Error('Authentication failed. Please refresh the page and try again.');
       }
-      
+
       const response = await fetch(`/api/leads/${lead.id}/analytics`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ [editingField!]: tempValue }),
+        body: JSON.stringify({ [field]: value }),
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
         console.error('API Error:', response.status, errorData);
-        
+
         if (response.status === 401) {
           throw new Error('Authentication expired. Please refresh the page and try again.');
         } else if (response.status === 403) {
@@ -213,14 +235,8 @@ export default function LeadDetailsPage() {
         }
       }
 
-      const result = await response.json();
-      
-      // Update local state
-      setLead(prevLead => prevLead ? { ...prevLead, [editingField!]: tempValue } : null);
-      setEditingField(null);
-      setTempValue('');
-      
-      console.log('Lead updated successfully:', result);
+      await response.json();
+      setLead(prevLead => prevLead ? { ...prevLead, [field]: value } : null);
     } catch (err) {
       console.error('Error updating lead:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to update lead. Please try again.';
@@ -318,87 +334,29 @@ export default function LeadDetailsPage() {
         <div className="flex justify-between items-center mb-8">
           
           <div className="flex gap-3">
-            {/* Status */}
-            {editingField === 'status' ? (
-              <select
-                value={tempValue}
-                onChange={(e) => setTempValue(e.target.value)}
-                className="px-4 py-2 rounded-lg text-sm font-semibold border-2 border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
-                onBlur={handleEditSave}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleEditSave();
-                  if (e.key === 'Escape') handleEditCancel();
-                }}
-                autoFocus
-              >
-                <option value="new">New</option>
-                <option value="contacted">Contacted</option>
-                <option value="qualified">Qualified</option>
-                <option value="converted">Converted</option>
-                <option value="lost">Lost</option>
-              </select>
-            ) : (
-              <span 
-                className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer status-badge ${getStatusBadgeColor(lead.status)}`}
-                onClick={() => handleEditStart('status', lead.status)}
-              >
-                {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
-              </span>
-            )}
+            <SmartDropdown
+              value={lead.status}
+              onChange={(newValue) => handleUpdateField('status', newValue)}
+              options={STATUS_OPTIONS}
+              placeholder="Select status"
+              buttonClassName="min-w-[160px]"
+            />
 
-            {/* Stage */}
-            {editingField === 'conversionStage' ? (
-              <select
-                value={tempValue}
-                onChange={(e) => setTempValue(e.target.value)}
-                className="px-4 py-2 rounded-lg text-sm font-semibold border-2 border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
-                onBlur={handleEditSave}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleEditSave();
-                  if (e.key === 'Escape') handleEditCancel();
-                }}
-                autoFocus
-              >
-                <option value="lead">Lead</option>
-                <option value="application">Application</option>
-                <option value="approval">Approval</option>
-                <option value="closing">Closing</option>
-              </select>
-            ) : (
-              <span 
-                className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer status-badge ${getStageBadgeColor(lead.conversionStage)}`}
-                onClick={() => handleEditStart('conversionStage', lead.conversionStage)}
-              >
-                {lead.conversionStage.charAt(0).toUpperCase() + lead.conversionStage.slice(1)}
-              </span>
-            )}
+            <SmartDropdown
+              value={lead.conversionStage}
+              onChange={(newValue) => handleUpdateField('conversionStage', newValue)}
+              options={STAGE_OPTIONS}
+              placeholder="Select stage"
+              buttonClassName="min-w-[180px]"
+            />
 
-            {/* Priority */}
-            {editingField === 'priority' ? (
-              <select
-                value={tempValue}
-                onChange={(e) => setTempValue(e.target.value)}
-                className="px-4 py-2 rounded-lg text-sm font-semibold border-2 border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
-                onBlur={handleEditSave}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleEditSave();
-                  if (e.key === 'Escape') handleEditCancel();
-                }}
-                autoFocus
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-                <option value="urgent">Urgent</option>
-              </select>
-            ) : (
-              <span 
-                className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer status-badge ${getPriorityBadgeColor(lead.priority)}`}
-                onClick={() => handleEditStart('priority', lead.priority)}
-              >
-                {lead.priority.charAt(0).toUpperCase() + lead.priority.slice(1)} Priority
-              </span>
-            )}
+            <SmartDropdown
+              value={lead.priority}
+              onChange={(newValue) => handleUpdateField('priority', newValue)}
+              options={PRIORITY_OPTIONS}
+              placeholder="Select priority"
+              buttonClassName="min-w-[150px]"
+            />
           </div>
         </div>
 
@@ -500,9 +458,9 @@ export default function LeadDetailsPage() {
                       value={tempValue}
                       onChange={(e) => setTempValue(e.target.value)}
                       className="w-16 text-sm border-2 border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-md px-3 py-2 mr-3 transition-all duration-200"
-                      onBlur={handleEditSave}
+                      onBlur={() => handleUpdateField('leadQualityScore', tempValue)}
                       onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleEditSave();
+                        if (e.key === 'Enter') handleUpdateField('leadQualityScore', tempValue);
                         if (e.key === 'Escape') handleEditCancel();
                       }}
                       autoFocus
@@ -668,9 +626,9 @@ export default function LeadDetailsPage() {
               onChange={(e) => setTempValue(e.target.value)}
               className="w-full text-sm border-2 border-blue-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-md px-4 py-3 transition-all duration-200 resize-none"
               rows={4}
-              onBlur={handleEditSave}
+              onBlur={() => handleUpdateField('notes', tempValue)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && e.ctrlKey) handleEditSave();
+                if (e.key === 'Enter' && e.ctrlKey) handleUpdateField('notes', tempValue);
                 if (e.key === 'Escape') handleEditCancel();
               }}
               autoFocus
