@@ -95,6 +95,7 @@ export default function CustomizerPage() {
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [isTemplateSaved, setIsTemplateSaved] = useState(false);
   const [isFullWidth, setIsFullWidth] = useState(false);
+  const [isDesktopView, setIsDesktopView] = useState(true);
   const [isMobileView, setIsMobileView] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [isSettingProfileTemplate, setIsSettingProfileTemplate] = useState(false);
@@ -595,18 +596,28 @@ export default function CustomizerPage() {
 
   // Toggle preview mode (now called full width)
   const toggleFullWidth = useCallback(() => {
-    if (isMobileView) return;
+    if (!isDesktopView) return;
 
     setIsFullWidth(prev => !prev);
     setCustomizerState(prev => ({
       ...prev,
       isPreviewMode: !prev.isPreviewMode
     }));
+  }, [isDesktopView]);
+
+  const activateDesktopView = useCallback(() => {
+    setIsDesktopView(true);
+    setIsMobileView(false);
   }, []);
 
-  // Toggle mobile view
-  const toggleMobileView = useCallback(() => {
-    setIsMobileView(prev => !prev);
+  const activateMobileView = useCallback(() => {
+    setIsDesktopView(false);
+    setIsMobileView(true);
+    setIsFullWidth(false);
+    setCustomizerState(prev => ({
+      ...prev,
+      isPreviewMode: false
+    }));
   }, []);
 
   // Handle setting current template as profile template
@@ -855,9 +866,9 @@ export default function CustomizerPage() {
                 </button>
 
                 <button
-                  onClick={toggleMobileView}
+                  onClick={activateDesktopView}
                   className={`p-2 rounded-md hover:bg-gray-100 transition-colors flex-shrink-0 ${
-                    !isMobileView 
+                    isDesktopView 
                       ? 'bg-[#01bcc6]/10 text-[#01bcc6]' 
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                   }`}
@@ -868,7 +879,7 @@ export default function CustomizerPage() {
                 
                 {/* Mobile View Icon - Hide on actual mobile devices */}
                 <button
-                  onClick={toggleMobileView}
+                  onClick={activateMobileView}
                   className={`hidden md:block p-2 rounded-md transition-colors ${
                     isMobileView 
                       ? 'bg-[#01bcc6]/10 text-[#01bcc6]' 
@@ -887,8 +898,8 @@ export default function CustomizerPage() {
                       ? 'bg-[#01bcc6]/10 text-[#01bcc6]' 
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
-                  title={isMobileView ? 'Cannot toggle full width on mobile' : isFullWidth ? 'Exit Full Width' : 'Full Width'}
-                  disabled={isMobileView}
+                  title={!isDesktopView ? 'Cannot toggle full width on mobile' : isFullWidth ? 'Exit Full Width' : 'Full Width'}
+                  disabled={!isDesktopView}
                 >
                   <Maximize2 size={18} />
                 </button>

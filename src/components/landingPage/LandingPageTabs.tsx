@@ -299,7 +299,7 @@ export default function LandingPageTabs({
         <div className="relative">
         {/* Enhanced background using template colors */}
         <div 
-          className="absolute inset-0 shadow-inner max-w-7xl mx-auto"
+          className={`absolute inset-0 shadow-inner w-full mx-auto`}
           style={{
             background: `linear-gradient(to right, ${colors.primary}10, ${colors.primary}05, ${colors.primary}10)`,
             paddingLeft: '1rem',
@@ -441,9 +441,17 @@ export default function LandingPageTabs({
       )}
 
       {/* Tab Content */}
-      <div className={`w-full mx-auto ${forceMobileView ? '' : 'md:min-w-[800px] md:max-w-7xl overflow-x-auto'}`}>
+      <div
+        className={`w-full mx-auto ${
+          forceMobileView
+            ? ''
+              : 'md:min-w-[800px] md:max-w-7xl overflow-x-auto'
+        }`}
+      >
         <div 
-          className={`bg-white shadow-xl border ${forceMobileView ? '' : 'overflow-x-auto'} ${hideTabNavigation ? 'rounded-2xl' : 'rounded-b-2xl border-t-0'}`}
+          className={`bg-white shadow-xl border ${
+            forceMobileView || selectedTemplate === 'template2' ? '' : 'overflow-x-auto'
+          } ${hideTabNavigation ? 'rounded-2xl' : 'rounded-b-2xl border-t-0'}`}
           style={{ 
             backgroundColor: colors.background,
             borderColor: colors.border,

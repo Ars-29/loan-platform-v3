@@ -378,10 +378,20 @@ export default function PublicProfileContent({
                     </div>
                   );
                 } else {
+                  const gridLayoutClasses = forceMobileViewport
+                    ? ''
+                    : selectedTemplate === 'template2'
+                      ? 'md:gap-6'
+                      : 'md:gap-6 xl:grid xl:grid-cols-4';
+                  const gridContentClasses = forceMobileViewport
+                    ? ''
+                    : selectedTemplate === 'template2'
+                      ? ''
+                      : 'xl:col-span-3';
                   // Grid Layout (Template1) - Responsive: Flex column on mobile, grid on desktop
                   return (
-                    <div className={`flex flex-col gap-4 w-full ${forceMobileViewport ? '' : 'md:gap-6 xl:grid xl:grid-cols-4'}`}>
-                      <div className={`w-full overflow-x-auto ${forceMobileViewport ? '' : 'xl:col-span-3'}`}>
+                    <div className={`flex flex-col gap-4 w-full ${gridLayoutClasses}`}>
+                      <div className={`w-full overflow-x-auto ${gridContentClasses}`}>
                         <LandingPageTabs
                           isPublic={true}
                           publicTemplateData={templateData}
@@ -394,39 +404,18 @@ export default function PublicProfileContent({
                           forceMobileView={forceMobileViewport}
                         />
                       </div>
-                      <div className={`w-full overflow-x-auto ${forceMobileViewport ? '' : 'xl:col-span-1'}`}>
-                        <div className={forceMobileViewport ? '' : 'xl:sticky xl:top-6 xl:lg:top-8'}>
-                          <UnifiedRightSidebar 
-                            isPublic={true}
-                            publicCompanyData={{
-                              name: profileData.company.name,
-                              logo: profileData.company.logo,
-                              phone: profileData.company.phone,
-                              email: profileData.company.email,
-                              address: profileData.company.address,
-                              website: profileData.company.website,
-                              license_number: profileData.company.license_number,
-                              company_nmls_number: profileData.company.company_nmls_number,
-                              company_social_media: profileData.company.company_social_media
-                            }}
-                            publicTemplateData={templateData}
-                            template={selectedTemplate} 
-                            templateCustomization={profileData.template}
-                            companyData={{
-                              id: profileData.company.id,
-                              name: profileData.company.name,
-                              logo: profileData.company.logo,
-                              phone: profileData.company.phone,
-                              email: profileData.company.email,
-                              address: profileData.company.address,
-                              website: profileData.company.website,
-                              license_number: profileData.company.license_number,
-                              company_nmls_number: profileData.company.company_nmls_number,
-                              company_social_media: profileData.company.company_social_media
-                            }}
-                          />
+                      {selectedTemplate !== 'template2' && (
+                        <div className={`w-full overflow-x-auto ${forceMobileViewport ? '' : 'xl:col-span-1'}`}>
+                          <div className={forceMobileViewport ? '' : 'xl:sticky xl:top-6 xl:lg:top-8'}>
+                            <UnifiedRightSidebar 
+                              isPublic={true}
+                              publicCompanyData={profileData.company}
+                              publicTemplateData={templateData}
+                              templateCustomization={profileData.template}
+                            />
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
                   );
                 }
