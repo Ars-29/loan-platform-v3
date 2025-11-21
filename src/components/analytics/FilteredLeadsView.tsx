@@ -75,11 +75,11 @@ export default function FilteredLeadsView({
 
   // Filter options
   const statusOptions: FilterOption[] = [
-    { value: 'new', label: 'New' },
-    { value: 'contacted', label: 'Contacted' },
-    { value: 'qualified', label: 'Qualified' },
-    { value: 'converted', label: 'Converted' },
-    { value: 'lost', label: 'Lost' }
+    { value: 'new', label: 'New', icon: 'plus' },
+    { value: 'contacted', label: 'Contacted', icon: 'phone' },
+    { value: 'qualified', label: 'Qualified', icon: 'checkCircle' },
+    { value: 'converted', label: 'Converted', icon: 'success' },
+    { value: 'lost', label: 'Lost', icon: 'error' }
   ];
   
   // Note: conversionStage column doesn't exist in the database
@@ -91,10 +91,10 @@ export default function FilteredLeadsView({
   // ];
   
   const priorityOptions: FilterOption[] = [
-    { value: 'low', label: 'Low' },
-    { value: 'medium', label: 'Medium' },
-    { value: 'high', label: 'High' },
-    { value: 'urgent', label: 'Urgent' }
+    { value: 'low', label: 'Low', icon: 'chevronsDown' },
+    { value: 'medium', label: 'Medium', icon: 'filter' },
+    { value: 'high', label: 'High', icon: 'chevronsUp' },
+    { value: 'urgent', label: 'Urgent', icon: 'alertCircle' }
   ];
 
   // Fetch companies (for Super Admin)

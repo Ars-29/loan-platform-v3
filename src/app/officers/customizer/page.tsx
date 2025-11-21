@@ -7,11 +7,10 @@ import { useAuth } from '@/hooks/use-auth';
 import { useTemplateSelection, useTemplate, useGlobalTemplates, TemplateProvider } from '@/contexts/UnifiedTemplateContext';
 import { supabase } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import Icon, { icons } from '@/components/ui/Icon';
 import Image from 'next/image';
 import PublicProfileContent from '@/components/public/PublicProfileContent';
 import type { TabId } from '@/components/landingPage/LandingPageTabs';
+import SmartDropdown from '@/components/ui/SmartDropdown';
 
 // Define Template type for customizer
 interface Template {
@@ -55,14 +54,13 @@ import {
   Layout, 
   Settings, 
   Save, 
-  Download, 
   Eye, 
-  RefreshCw,
   ChevronLeft,
   ChevronRight,
   Maximize2,
   Smartphone,
-  Cog
+  Cog,
+  LaptopMinimal
 } from 'lucide-react';
 
 // Lazy load preview components
@@ -77,6 +75,8 @@ interface CustomizerState {
   activeSection: 'general' | 'header' | 'body' | 'rightSidebar';
   showSectionDetails: boolean;
 }
+
+type ViewMode = 'desktop' | 'mobile' | 'full';
 
 export default function CustomizerPage() {
   const { user, userRole, companyId, loading: authLoading } = useAuth();
@@ -98,8 +98,11 @@ export default function CustomizerPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [isTemplateSaved, setIsTemplateSaved] = useState(false);
-  const [isFullWidth, setIsFullWidth] = useState(false);
-  const [isMobileView, setIsMobileView] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('desktop');
+  const previousNonFullViewRef = useRef<ViewMode>('desktop');
+  const isDesktopView = viewMode === 'desktop';
+  const isMobileView = viewMode === 'mobile';
+  const isFullWidth = viewMode === 'full';
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [isSettingProfileTemplate, setIsSettingProfileTemplate] = useState(false);
   const [publicLink, setPublicLink] = useState<any>(null);
@@ -599,17 +602,45 @@ export default function CustomizerPage() {
 
   // Toggle preview mode (now called full width)
   const toggleFullWidth = useCallback(() => {
-    setIsFullWidth(prev => !prev);
+    setViewMode(prevMode => {
+      const nextMode = prevMode === 'full'
+        ? previousNonFullViewRef.current || 'desktop'
+        : 'full';
+
+      if (prevMode !== 'full') {
+        previousNonFullViewRef.current = prevMode;
+      }
+
+      setCustomizerState(prev => ({
+        ...prev,
+        isPreviewMode: nextMode === 'full'
+      }));
+
+      if (nextMode !== 'full') {
+        previousNonFullViewRef.current = nextMode;
+      }
+
+      return nextMode;
+    });
+  }, [setCustomizerState]);
+
+  const activateDesktopView = useCallback(() => {
+    previousNonFullViewRef.current = 'desktop';
+    setViewMode('desktop');
     setCustomizerState(prev => ({
       ...prev,
-      isPreviewMode: !prev.isPreviewMode
+      isPreviewMode: false
     }));
-  }, []);
+  }, [setCustomizerState]);
 
-  // Toggle mobile view
-  const toggleMobileView = useCallback(() => {
-    setIsMobileView(prev => !prev);
-  }, []);
+  const activateMobileView = useCallback(() => {
+    previousNonFullViewRef.current = 'mobile';
+    setViewMode('mobile');
+    setCustomizerState(prev => ({
+      ...prev,
+      isPreviewMode: false
+    }));
+  }, [setCustomizerState]);
 
   // Handle setting current template as profile template
   const handleSetProfileTemplate = useCallback(async () => {
@@ -790,48 +821,98 @@ export default function CustomizerPage() {
         breadcrumbSize="md"
       >
         <style jsx global>{`
-          /* Hide scrollbars but keep functionality */
-          ::-webkit-scrollbar {
-            width: 0px;
-            height: 0px;
-            background: transparent;
+          /* Show scrollbars for customizer scroll wrapper */
+          .customizer-scroll-wrapper::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
           }
           
-          ::-webkit-scrollbar-track {
-            background: transparent;
+          .customizer-scroll-wrapper::-webkit-scrollbar-track {
+            background: #f1f1f1;
           }
           
-          ::-webkit-scrollbar-thumb {
-            background: transparent;
+          .customizer-scroll-wrapper::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
           }
           
-          /* Firefox */
-          * {
-            scrollbar-width: none;
-            -ms-overflow-style: none;
+          .customizer-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #555;
+          }
+          
+          /* Firefox scrollbar for customizer */
+          .customizer-scroll-wrapper {
+            scrollbar-width: thin;
+            scrollbar-color: #888 #f1f1f1;
           }
           
           /* Ensure customizer is scrollable on mobile */
           @media (max-width: 768px) {
-            .customizer-container {
-              overflow-x: auto;
-              overflow-y: auto;
+            .customizer-scroll-wrapper {
               -webkit-overflow-scrolling: touch;
             }
           }
+          
+          /* Force preview container to maintain fixed size in customizer (desktop only) */
+          .customizer-container .public-profile-container {
+            width: auto !important;
+            max-width: none !important;
+            min-width: 1200px !important;
+          }
+          
+          /* Prevent child elements from being constrained in customizer preview (desktop only) */
+          .customizer-container .public-profile-container * {
+            max-width: none !important;
+          }
+          
+          /* Override fixed-width rules for mobile preview */
+          .customizer-mobile-preview .public-profile-container {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: auto !important;
+          }
+          
+          .customizer-mobile-preview .public-profile-container * {
+            max-width: 100% !important;
+          }
+          
+          /* Override the 768px media query for customizer preview (desktop only) */
+          @media (max-width: 768px) {
+            .customizer-container .public-profile-container {
+              width: auto !important;
+              max-width: none !important;
+              min-width: 1200px !important;
+            }
+            
+            .customizer-container .public-profile-container * {
+              max-width: none !important;
+            }
+            
+            /* Ensure mobile preview still works at 768px */
+            .customizer-mobile-preview .public-profile-container {
+              width: 100% !important;
+              max-width: 100% !important;
+              min-width: auto !important;
+            }
+            
+            .customizer-mobile-preview .public-profile-container * {
+              max-width: 100% !important;
+            }
+          }
         `}</style>
-        <div className="h-screen flex flex-col bg-gray-50 customizer-container">
+        <div className="w-full max-h-[calc(100vh-120px)] overflow-x-auto overflow-y-auto customizer-scroll-wrapper">
+          <div className="flex flex-col bg-gray-50 customizer-container min-w-[1500px] min-h-[calc(100vh-120px)]">
           {/* Header Controls */}
-          <div className="bg-white border-b border-gray-200 px-4 md:px-6 py-3 md:py-4 flex-shrink-0">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-0">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                <h1 className="text-xl md:text-2xl font-bold text-gray-900">Template Customizer</h1>
+          <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0">
+            <div className="flex flex-row items-center justify-between gap-0">
+              <div className="flex flex-row items-center gap-4">
+                <h1 className="text-2xl font-bold text-gray-900">Template Customizer</h1>
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs md:text-sm text-gray-500">Template:</span>
+                  <span className="text-sm text-gray-500">Template:</span>
                   <select
                     value={customizerState.selectedTemplate}
                     onChange={(e) => handleTemplateSelect(e.target.value)}
-                    className="px-2 md:px-3 py-1 border border-gray-300 rounded-md text-xs md:text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
+                    className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
                   >
                     {['template1', 'template2'].map(templateSlug => {
                       const templateName = templateSlug === 'template1' ? 'Template1' : 'Template2';
@@ -855,11 +936,23 @@ export default function CustomizerPage() {
                 >
                   <Cog size={18} />
                 </button>
-                
-                {/* Mobile View Icon - Hide on actual mobile devices */}
+
                 <button
-                  onClick={toggleMobileView}
-                  className={`hidden md:block p-2 rounded-md transition-colors ${
+                  onClick={activateDesktopView}
+                  className={`p-2 rounded-md hover:bg-gray-100 transition-colors flex-shrink-0 ${
+                    isDesktopView 
+                      ? 'bg-[#01bcc6]/10 text-[#01bcc6]' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                  title="Desktop View"
+                >
+                  <LaptopMinimal size={18} />
+                </button>
+                
+                {/* Mobile View Icon */}
+                <button
+                  onClick={activateMobileView}
+                  className={`block p-2 rounded-md transition-colors ${
                     isMobileView 
                       ? 'bg-[#01bcc6]/10 text-[#01bcc6]' 
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
@@ -869,12 +962,12 @@ export default function CustomizerPage() {
                   <Smartphone size={18} />
                 </button>
                 
-                {/* Full Width Icon - Hide on actual mobile */}
+                {/* Full Width Icon */}
                 <button
                   onClick={toggleFullWidth}
-                  className={`hidden md:block p-2 rounded-md transition-colors ${
-                    isFullWidth 
-                      ? 'bg-[#01bcc6]/10 text-[#01bcc6]' 
+                  className={`block p-2 rounded-md transition-colors ${
+                    isFullWidth
+                      ? 'bg-[#01bcc6]/10 text-[#01bcc6]'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                   }`}
                   title={isFullWidth ? 'Exit Full Width' : 'Full Width'}
@@ -886,19 +979,17 @@ export default function CustomizerPage() {
                 <Button
                   onClick={handleSave}
                   disabled={(isSaving || (Object.keys(customizerState.customSettings).length === 0 && !isTemplateSaved)) && !isTemplateSaved}
-                  className="bg-[#005b7c] hover:bg-[#01bcc6] text-white border-0 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 text-xs md:text-sm px-3 md:px-4"
+                  className="bg-[#005b7c] hover:bg-[#01bcc6] text-white border-0 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 text-sm px-4"
                 >
                   {isTemplateSaved ? (
                     <>
-                      <Eye size={14} className="mr-1 md:mr-2" />
-                      <span className="hidden sm:inline">Profile Preview</span>
-                      <span className="sm:hidden">Preview</span>
+                      <Eye size={14} className="mr-2" />
+                      <span className="inline">Profile Preview</span>
                     </>
                   ) : (
                     <>
-                      <Save size={14} className="mr-1 md:mr-2" />
-                      <span className="hidden sm:inline">{isSaving ? 'Saving...' : 'Save Template'}</span>
-                      <span className="sm:hidden">{isSaving ? 'Saving...' : 'Save'}</span>
+                      <Save size={14} className="mr-2" />
+                      <span className="inline">{isSaving ? 'Saving...' : 'Save Template'}</span>
                     </>
                   )}
                 </Button>
@@ -947,8 +1038,8 @@ export default function CustomizerPage() {
 
           {/* Main Content - Takes remaining height */}
           <div className="flex flex-1 min-h-0 overflow-hidden">
-            {/* Left Sidebar - Sections or Section Details - Hide on mobile, show on desktop */}
-            <div className={`hidden md:block w-80 bg-white border-r border-gray-200 transition-all duration-300 flex-shrink-0 ${
+            {/* Left Sidebar - Sections or Section Details */}
+            <div className={`block w-80 bg-white border-r border-gray-200 transition-all duration-300 flex-shrink-0 ${
               customizerState.isPreviewMode ? '-ml-80' : 'ml-0'
             }`}>
               {!customizerState.showSectionDetails ? (
@@ -1049,12 +1140,12 @@ export default function CustomizerPage() {
             {/* Center - Live Preview (Full Width) */}
             <div className="flex-1 bg-gray-100 overflow-auto">
               <div className={`h-full w-full overflow-auto overflow-x-auto`}>
-                <div className={`${isMobileView ? 'flex justify-center items-start min-h-full p-0' : 'p-2 md:p-6'}`}>
+                <div className={`${isMobileView ? 'flex justify-center items-start min-h-full p-0' : 'p-6'}`}>
                   <div 
                       className={`transition-all duration-300 ${
                         isMobileView 
-                          ? 'w-[375px] h-[667px] overflow-y-auto overflow-x-auto rounded-[28px] shadow-2xl border border-gray-300 bg-white m-0'
-                          : 'min-h-full w-full overflow-auto bg-white rounded-lg shadow-sm border border-gray-200'
+                          ? 'customizer-mobile-preview w-[375px] h-[667px] overflow-y-auto overflow-x-auto rounded-[28px] shadow-2xl border border-gray-300 bg-white m-0'
+                          : 'min-h-full min-w-[1200px] w-full overflow-auto bg-white rounded-lg shadow-sm border border-gray-200'
                       }`}
                     style={{
                       fontFamily: mergedTemplate?.typography?.fontFamily || 'Inter',
@@ -1075,8 +1166,21 @@ export default function CustomizerPage() {
                           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#01bcc6]"></div>
                         </div>
                       }>
-                        {/* Use PublicProfileContent component for both mobile and desktop views */}
-                        <PublicProfileContent
+                        {/* Show skeleton loader if template is still loading or is fallback */}
+                        {(templateLoading || isFallback || !currentTemplate) ? (
+                          <div className="bg-white min-h-screen flex flex-col">
+                            <div className="h-20 bg-gray-100 border-b border-gray-200" />
+                            <div className="h-[300px] bg-gray-50 flex items-center justify-center">
+                              <div className="w-[200px] h-[200px] bg-gray-200 rounded-full" />
+                            </div>
+                            <div className="p-8 bg-white">
+                              <div className="h-5 bg-gray-200 mb-4 rounded" />
+                              <div className="h-5 bg-gray-200 mb-4 rounded w-3/5" />
+                            </div>
+                          </div>
+                        ) : (
+                          /* Use PublicProfileContent component for both mobile and desktop views */
+                          <PublicProfileContent
                           profileData={{
                             user: {
                               id: user?.id || '',
@@ -1130,12 +1234,14 @@ export default function CustomizerPage() {
                           companyName={companyData?.name}
                           forceMobileViewport={isMobileView}
                         />
+                        )}
                       </React.Suspense>
                     </TemplateProvider>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
           </div>
         </div>
       </DashboardLayout>
@@ -1680,8 +1786,86 @@ function ColorsSettings({ template, onChange }: SettingsProps) {
     backgroundType: template.colors?.backgroundType || 'gradient'
   };
 
+  // Define theme presets
+  const themes = [
+    {
+      value: 'default',
+      label: 'Default',
+      primary: '#005b7c',
+      secondary: '#01bcc6'
+    },
+    {
+      value: 'theme1',
+      label: 'Theme 1',
+      primary: '#064E3B',
+      secondary: '#D4AF37'
+    },
+    {
+      value: 'theme2',
+      label: 'Theme 2',
+      primary: '#374151',
+      secondary: '#9CA3AF'
+    },
+    {
+      value: 'theme3',
+      label: 'Theme 3',
+      primary: '#000000',
+      secondary: '#62a0ea'
+    }
+  ];
+
+  // Normalize color value for comparison (handles #, case, whitespace)
+  const normalizeColor = (color: string) => {
+    const cleaned = color.trim().toUpperCase();
+    // Ensure it starts with # for consistent comparison
+    return cleaned.startsWith('#') ? cleaned : `#${cleaned}`;
+  };
+
+  // Detect current theme based on primary and secondary colors
+  const detectCurrentTheme = () => {
+    const normalizedPrimary = normalizeColor(colors.primary);
+    const normalizedSecondary = normalizeColor(colors.secondary);
+    
+    const matchingTheme = themes.find(
+      theme => 
+        normalizeColor(theme.primary) === normalizedPrimary &&
+        normalizeColor(theme.secondary) === normalizedSecondary
+    );
+    
+    return matchingTheme?.value || null;
+  };
+
+  const currentTheme = detectCurrentTheme();
+
+  // Handle theme selection
+  const handleThemeChange = (themeValue: string) => {
+    const selectedTheme = themes.find(t => t.value === themeValue);
+    if (selectedTheme) {
+      onChange('primary', selectedTheme.primary);
+      onChange('secondary', selectedTheme.secondary);
+    }
+  };
+
+  // Prepare dropdown options
+  const themeOptions = themes.map(theme => ({
+    value: theme.value,
+    label: theme.label
+  }));
+
   return (
     <div className="space-y-4">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Theme Presets</label>
+        <SmartDropdown
+          value={currentTheme}
+          onChange={handleThemeChange}
+          options={themeOptions}
+          placeholder="Select a theme preset"
+        />
+        <p className="text-xs text-gray-500 mt-1">
+          Apply preset color combinations. You can still customize individual colors below.
+        </p>
+      </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">Primary Color</label>
         <div className="flex items-center space-x-3">

@@ -11,6 +11,7 @@ import { dashboard } from '@/theme/theme';
 import { icons } from '@/components/ui/Icon';
 import { Button } from '@/components/ui/Button';
 import SpotlightCard from '@/components/ui/SpotlightCard';
+import { QuickActions } from '@/components/dashboard/QuickActions';
 
 // Interfaces for Company Admin data
 interface CompanyStats {
@@ -432,207 +433,15 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Quick Actions */}
-          <SpotlightCard variant="default" className="p-6">
-            <h3 style={{
-              fontSize: '18px',
-              fontWeight: 'bold',
-              color: '#005b7c',
-              marginBottom: '16px'
-            }}>
-              Quick Actions
-            </h3>
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-              <Button
-                variant="secondary"
-                size="md"
-                onClick={() => router.push('/admin/loanofficers')}
-                style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '8px',
-                  minWidth: '140px',
-                  padding: '12px 16px',
-                  backgroundColor: 'white',
-                  border: '1px solid rgba(1, 188, 198, 0.3)',
-                  color: '#008eab',
-                  fontWeight: '500',
-                  borderRadius: '16px', // CONSISTENT WITH ALL BUTTONS
-                  transition: 'all 0.2s ease-in-out',
-                  cursor: 'pointer'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(1, 188, 198, 0.05)';
-                  e.currentTarget.style.borderColor = 'rgba(1, 188, 198, 0.5)';
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(1, 188, 198, 0.15)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'white';
-                  e.currentTarget.style.borderColor = 'rgba(1, 188, 198, 0.3)';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                {React.createElement(icons.profile, { 
-                  size: 16, 
-                  style: { color: '#008eab' } 
-                })}
-                Loan Officers
-              </Button>
-
-              <Button
-                variant="secondary"
-                size="md"
-                onClick={() => router.push('/admin/insights')}
-                style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '8px',
-                  minWidth: '140px',
-                  padding: '12px 16px',
-                  backgroundColor: 'white',
-                  border: '1px solid rgba(1, 188, 198, 0.3)',
-                  color: '#008eab',
-                  fontWeight: '500',
-                  borderRadius: '16px', // CONSISTENT WITH ALL BUTTONS
-                  transition: 'all 0.2s ease-in-out',
-                  cursor: 'pointer'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(1, 188, 198, 0.05)';
-                  e.currentTarget.style.borderColor = 'rgba(1, 188, 198, 0.5)';
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(1, 188, 198, 0.15)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'white';
-                  e.currentTarget.style.borderColor = 'rgba(1, 188, 198, 0.3)';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                {React.createElement(icons.trendingUp, { 
-                  size: 16, 
-                  style: { color: '#008eab' } 
-                })}
-                Leads Insights
-              </Button>
-
-              <Button
-                variant="secondary"
-                size="md"
-                onClick={() => router.push('/admin/stats')}
-                style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '8px',
-                  minWidth: '140px',
-                  padding: '12px 16px',
-                  backgroundColor: 'white',
-                  border: '1px solid rgba(1, 188, 198, 0.3)',
-                  color: '#008eab',
-                  fontWeight: '500',
-                  borderRadius: '16px', // CONSISTENT WITH ALL BUTTONS
-                  transition: 'all 0.2s ease-in-out',
-                  cursor: 'pointer'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(1, 188, 198, 0.05)';
-                  e.currentTarget.style.borderColor = 'rgba(1, 188, 198, 0.5)';
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(1, 188, 198, 0.15)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'white';
-                  e.currentTarget.style.borderColor = 'rgba(1, 188, 198, 0.3)';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                {React.createElement(icons.calculator, { 
-                  size: 16, 
-                  style: { color: '#008eab' } 
-                })}
-                Conversion Stats
-              </Button>
-
-              <Button
-                variant="secondary"
-                size="md"
-                onClick={() => router.push('/admin/settings')}
-                style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '8px',
-                  minWidth: '140px',
-                  padding: '12px 16px',
-                  backgroundColor: 'white',
-                  border: '1px solid rgba(1, 188, 198, 0.3)',
-                  color: '#008eab',
-                  fontWeight: '500',
-                  borderRadius: '16px', // CONSISTENT WITH ALL BUTTONS
-                  transition: 'all 0.2s ease-in-out',
-                  cursor: 'pointer'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(1, 188, 198, 0.05)';
-                  e.currentTarget.style.borderColor = 'rgba(1, 188, 198, 0.5)';
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(1, 188, 198, 0.15)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'white';
-                  e.currentTarget.style.borderColor = 'rgba(1, 188, 198, 0.3)';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                {React.createElement(icons.settings, { 
-                  size: 16, 
-                  style: { color: '#008eab' } 
-                })}
-                Settings
-              </Button>
-
-              <Button
-                variant="secondary"
-                size="md"
-                onClick={() => router.push('/admin/activities')}
-                style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '8px',
-                  minWidth: '140px',
-                  padding: '12px 16px',
-                  backgroundColor: 'white',
-                  border: '1px solid rgba(1, 188, 198, 0.3)',
-                  color: '#008eab',
-                  fontWeight: '500',
-                  borderRadius: '16px', // CONSISTENT WITH ALL BUTTONS
-                  transition: 'all 0.2s ease-in-out',
-                  cursor: 'pointer'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(1, 188, 198, 0.05)';
-                  e.currentTarget.style.borderColor = 'rgba(1, 188, 198, 0.5)';
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(1, 188, 198, 0.15)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'white';
-                  e.currentTarget.style.borderColor = 'rgba(1, 188, 198, 0.3)';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                {React.createElement(icons.activity, { 
-                  size: 16, 
-                  style: { color: '#008eab' } 
-                })}
-                Activities
-              </Button>
-            </div>
-          </SpotlightCard>
+          <QuickActions
+            actions={[
+              { label: 'Loan Officers', icon: 'profile', href: '/admin/loanofficers' },
+              { label: 'Leads Insights', icon: 'trendingUp', href: '/admin/insights' },
+              { label: 'Conversion Stats', icon: 'calculator', href: '/admin/stats' },
+              { label: 'Settings', icon: 'settings', href: '/admin/settings' },
+              { label: 'Activities', icon: 'activity', href: '/admin/activities' },
+            ]}
+          />
 
           {/* Team Management & Analytics */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>

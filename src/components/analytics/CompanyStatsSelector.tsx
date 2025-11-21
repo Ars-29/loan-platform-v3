@@ -7,6 +7,7 @@ import { DataTable } from '@/components/ui/DataTable';
 import { Pagination } from '@/components/ui/Pagination';
 import { SearchFilter } from '@/components/ui/SearchFilter';
 import { Building2, TrendingUp, Users, DollarSign } from 'lucide-react';
+import Loader from '@/components/ui/Loader';
 
 interface Company {
   id: string;
@@ -162,11 +163,7 @@ const CompanyStatsSelector: React.FC<CompanyStatsSelectorProps> = ({ onCompanySe
   ];
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#01bcc6]"></div>
-      </div>
-    );
+    return <Loader />;
   }
 
   if (error) {
@@ -253,9 +250,8 @@ const CompanyStatsSelector: React.FC<CompanyStatsSelectorProps> = ({ onCompanySe
         <DataTable
           data={companies}
           columns={columns}
-          loading={loading}
         />
-        
+
         {/* Pagination */}
         <div className="px-6 py-4 border-t border-gray-200">
           <Pagination

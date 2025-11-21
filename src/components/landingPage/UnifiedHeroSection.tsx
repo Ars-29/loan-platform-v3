@@ -320,6 +320,33 @@ export default function UnifiedHeroSection({
     );
   }
 
+  const headerPaddingClasses = layoutConfig?.headerLayout?.type === 'centered'
+    ? `py-6 @[18.75rem]:py-8 @[20rem]:py-10 @[30rem]:py-12 ${forceMobileView ? '' : '@[64rem]:py-16'}`
+    : `py-8 @[18.75rem]:py-12 @[20rem]:py-16 @[30rem]:py-20 ${forceMobileView ? '' : '@[64rem]:py-24'}`;
+
+  const containerPaddingClasses = forceMobileView
+    ? 'px-1 @[18.75rem]:px-2'
+    : 'px-2 @[18.75rem]:px-3 @[20rem]:px-4 @[40rem]:px-6 @[64rem]:px-8 @[64rem]:py-2';
+
+  const containerWidthClasses = forceMobileView && layoutConfig?.headerLayout?.type !== 'centered'
+    ? 'w-full max-w-full'
+    : 'w-full';
+
+  const responsiveContainerWidthClasses = forceMobileView ? '' : '@[64rem]:max-w-7xl';
+
+  const containerClassNames = [
+    containerWidthClasses,
+    'mx-auto py-2',
+    containerPaddingClasses,
+    responsiveContainerWidthClasses
+  ].filter(Boolean).join(' ');
+
+  const avatarBaseClasses = 'w-16 h-16 @[18.75rem]:w-20 @[18.75rem]:h-20 @[20rem]:w-24 @[20rem]:h-24 @[30rem]:w-28 @[30rem]:h-28 @[40rem]:w-32 @[40rem]:h-32 @[50rem]:w-36 @[50rem]:h-36 @[60rem]:w-40 @[60rem]:h-40 @[70rem]:w-44 @[70rem]:h-44';
+  const avatarBaseInitialsClasses = 'text-sm @[18.75rem]:text-base @[20rem]:text-lg @[30rem]:text-xl @[40rem]:text-2xl @[60rem]:text-3xl @[70rem]:text-4xl';
+  const avatarFeatureClasses = 'w-20 h-20 @[18.75rem]:w-24 @[18.75rem]:h-24 @[20rem]:w-28 @[20rem]:h-28 @[30rem]:w-32 @[30rem]:h-32 @[40rem]:w-36 @[40rem]:h-36 @[50rem]:w-40 @[50rem]:h-40 @[60rem]:w-44 @[60rem]:h-44 @[70rem]:w-48 @[70rem]:h-48';
+  const avatarFeatureInitialsClasses = 'text-xl @[18.75rem]:text-2xl @[30rem]:text-3xl @[40rem]:text-4xl @[60rem]:text-5xl';
+  const avatarSizes = '(max-width: 300px) 64px, (max-width: 320px) 80px, (max-width: 480px) 112px, (max-width: 640px) 144px, (max-width: 960px) 176px, 208px';
+
   return (
     <section 
       className={`relative overflow-hidden ${className}`}
@@ -335,40 +362,32 @@ export default function UnifiedHeroSection({
       />
 
       {/* Main Content */}
-      <div className={`relative z-10 ${layoutConfig?.headerLayout?.type === 'centered' ? (forceMobileView ? 'py-12' : 'py-12 lg:py-16') : (forceMobileView ? 'py-20' : 'py-20 lg:py-24')}`}>
-        <div className={`${forceMobileView && layoutConfig?.headerLayout?.type !== 'centered' ? 'min-w-max' : 'w-full'} mx-auto py-2 ${forceMobileView ? 'px-2' : 'px-4 sm:px-6 lg:px-8 lg:py-2'} ${forceMobileView ? '' : 'md:min-w-[800px] md:max-w-7xl overflow-x-auto'}`}>
+      <div className={`relative z-10 ${headerPaddingClasses.trim()}`}>
+        <div className={containerClassNames}>
           {layoutConfig?.headerLayout?.type === 'centered' ? (
             // Centered Layout (Template1)
-          <div className={`text-center ${forceMobileView ? '' : 'md:min-w-[750px]'}`}>
+          <div className="text-center">
             {/* Profile Image */}
-            <div className="relative inline-block mb-4">
-                <div className={`relative ${layoutConfig?.headerLayout?.avatarSize === 'large' ? 'w-40 h-40' : 'w-32 h-32'} mx-auto`}>
+            <div className="relative inline-block mb-2 @[18.75rem]:mb-3 @[20rem]:mb-4">
+                <div className={`relative mx-auto ${avatarBaseClasses}`}>
                 {showInitials ? (
                   <div
-                      className={`${layoutConfig?.headerLayout?.avatarSize === 'large' ? 'w-40 h-40' : 'w-32 h-32'} rounded-full border-4 border-white shadow-lg flex items-center justify-center text-white font-bold ${layoutConfig?.headerLayout?.avatarSize === 'large' ? 'text-4xl' : 'text-3xl'}`}
+                      className={`w-full h-full rounded-full border-2 @[20rem]:border-4 border-white shadow-lg flex items-center justify-center text-white font-bold ${avatarBaseInitialsClasses}`}
                     style={{ backgroundColor: colors.primary, borderColor: colors.primary }}
                   >
                     {displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
                   </div>
                 ) : (
                     <div 
-                      className="rounded-full border-4 border-white shadow-lg overflow-hidden"
-                      style={{ 
-                        borderColor: colors.primary,
-                        width: layoutConfig?.headerLayout?.avatarSize === 'large' ? '160px' : '128px',
-                        height: layoutConfig?.headerLayout?.avatarSize === 'large' ? '160px' : '128px'
-                      }}
+                      className="w-full h-full rounded-full border-2 @[20rem]:border-4 border-white shadow-lg overflow-hidden"
+                      style={{ borderColor: colors.primary }}
                     >
                   <Image
                     src={displayImage as string}
                     alt={displayName}
-                        width={layoutConfig?.headerLayout?.avatarSize === 'large' ? 160 : 128}
-                        height={layoutConfig?.headerLayout?.avatarSize === 'large' ? 160 : 128}
-                        className="w-full h-full object-cover"
-                        style={{ 
-                          objectFit: 'cover',
-                          objectPosition: 'center'
-                        }}
+                        fill
+                        className="object-cover"
+                        sizes={avatarSizes}
                     onError={() => {
                       console.warn('⚠️ UnifiedHeroSection: Image failed to load:', displayImage);
                       setImageError(true);
@@ -381,7 +400,7 @@ export default function UnifiedHeroSection({
 
             {/* Officer Name */}
             <h1 
-              className={`text-4xl font-bold mb-4 text-white ${forceMobileView ? '' : 'lg:text-5xl'}`}
+              className={`text-sm @[18.75rem]:text-base @[20rem]:text-lg @[30rem]:text-xl @[40rem]:text-2xl @[50rem]:text-3xl @[60rem]:text-4xl @[70rem]:text-5xl font-bold mb-2 @[18.75rem]:mb-3 @[20rem]:mb-4 text-white ${forceMobileView ? '' : '@[64rem]:text-5xl'}`}
               style={{ 
                 fontWeight: typography.fontWeight.bold
               }}
@@ -390,45 +409,45 @@ export default function UnifiedHeroSection({
             </h1>
 
             {/* Contact Information */}
-            <div className={`flex flex-col items-center justify-center space-y-2 mb-6 ${forceMobileView ? '' : 'sm:flex-row sm:space-y-0 sm:space-x-6'}`}>
+            <div className={`flex flex-col items-center justify-center space-y-1.5 @[18.75rem]:space-y-2 mb-4 @[18.75rem]:mb-5 @[20rem]:mb-6 ${forceMobileView ? '' : '@[40rem]:flex-row @[40rem]:space-y-0 @[40rem]:space-x-6'}`}>
               {displayEmail && (
-                <div className="flex items-center space-x-2">
-                  <div className="w-5 h-5 flex items-center justify-center">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <div className="flex items-center space-x-1.5 @[18.75rem]:space-x-2">
+                  <div className="w-4 h-4 @[18.75rem]:w-5 @[18.75rem]:h-5 flex items-center justify-center">
+                    <svg className="w-3 h-3 @[18.75rem]:w-4 @[18.75rem]:h-4" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
                       <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                     </svg>
                   </div>
                   <span 
-                    className="text-lg text-white opacity-90"
+                    className="text-xs @[18.75rem]:text-sm @[20rem]:text-base @[30rem]:text-lg text-white opacity-90 break-all"
                   >
                     {displayEmail}
                   </span>
                 </div>
               )}
               {displayPhone && (
-                <div className="flex items-center space-x-2">
-                  <div className="w-5 h-5 flex items-center justify-center">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <div className="flex items-center space-x-1.5 @[18.75rem]:space-x-2">
+                  <div className="w-4 h-4 @[18.75rem]:w-5 @[18.75rem]:h-5 flex items-center justify-center">
+                    <svg className="w-3 h-3 @[18.75rem]:w-4 @[18.75rem]:h-4" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                     </svg>
                   </div>
                   <span 
-                    className="text-lg text-white opacity-90"
+                    className="text-xs @[18.75rem]:text-sm @[20rem]:text-base @[30rem]:text-lg text-white opacity-90"
                   >
                     {displayPhone}
                   </span>
                 </div>
               )}
               {publicUserData?.nmlsNumber && (
-                <div className="flex items-center space-x-2">
-                  <div className="w-5 h-5 flex items-center justify-center">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <div className="flex items-center space-x-1.5 @[18.75rem]:space-x-2">
+                  <div className="w-4 h-4 @[18.75rem]:w-5 @[18.75rem]:h-5 flex items-center justify-center">
+                    <svg className="w-3 h-3 @[18.75rem]:w-4 @[18.75rem]:h-4" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm2 6a2 2 0 114 0 2 2 0 01-4 0zm2 4a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                     </svg>
                   </div>
                   <span 
-                    className="text-lg text-white opacity-90"
+                    className="text-xs @[18.75rem]:text-sm @[20rem]:text-base @[30rem]:text-lg text-white opacity-90"
                   >
                     NMLS# {publicUserData.nmlsNumber}
                   </span>
@@ -437,10 +456,10 @@ export default function UnifiedHeroSection({
             </div>
 
             {/* Action Buttons */}
-            <div className={`flex flex-col items-center justify-center space-y-3 mb-6 ${forceMobileView ? '' : 'sm:flex-row sm:space-y-0 sm:space-x-4'}`}>
+            <div className={`flex flex-col @[18.75rem]:flex-row items-center justify-center gap-2 @[18.75rem]:gap-3 mb-4 @[18.75rem]:mb-5 @[20rem]:mb-6 ${forceMobileView ? '' : '@[40rem]:space-x-4'}`}>
               <button
                 onClick={handleApplyNow}
-                className="inline-flex items-center px-6 py-3 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer border-none"
+                className="inline-flex items-center justify-center px-3 py-2 @[18.75rem]:px-4 @[18.75rem]:py-2 @[20rem]:px-4 @[20rem]:py-2 text-[10px] @[18.75rem]:text-xs @[20rem]:text-sm @[30rem]:text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer border-none w-full @[18.75rem]:w-auto"
                 style={{
                   backgroundColor: colors.primary,
                   color: 'white',
@@ -448,22 +467,22 @@ export default function UnifiedHeroSection({
                   borderRadius: `${layout.borderRadius}px`
                 }}
               >
-                {getApplyNowText()}
-                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <p className='@sm:pb-1 pb-0'>{getApplyNowText()}</p>
+                <svg className="w-4 h-4 @[18.75rem]:w-5 @[18.75rem]:h-5 ml-1.5 @[18.75rem]:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
               
               <a
                 href="#contact"
-                className="inline-flex items-center px-6 py-3 text-base font-semibold border-2 hover:shadow-lg transition-all duration-300 transform hover:scale-105 text-white border-white hover:bg-white hover:text-gray-900"
+                className="inline-flex items-center justify-center px-3 py-1.5 @[18.75rem]:px-4 @[18.75rem]:py-1.5 @[20rem]:px-4 @[20rem]:py-1.5 text-[10px] @[18.75rem]:text-xs @[20rem]:text-sm @[30rem]:text-base font-semibold border-2 hover:shadow-lg transition-all duration-300 transform hover:scale-105 text-white border-white hover:bg-white hover:text-gray-900 w-full @[18.75rem]:w-auto"
                 style={{
                   fontWeight: typography.fontWeight.semibold,
                   borderRadius: `${layout.borderRadius}px`
                 }}
               >
-                Contact {displayName.split(' ')[0]}
-                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <p className='@sm:pb-1 pb-0'>Contact {displayName.split(' ')[0]}</p>
+                <svg className="w-4 h-4 @[18.75rem]:w-5 @[18.75rem]:h-5 ml-1.5 @[18.75rem]:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </a>
@@ -471,39 +490,31 @@ export default function UnifiedHeroSection({
             </div>
           ) : (
             // Horizontal Layout (Template2) - Responsive: Stack on mobile, horizontal on desktop
-            <div className={`flex flex-col ${forceMobileView ? 'overflow-x-auto  w-[375px]' : 'md:flex-row md:items-start md:min-w-[900px]'}`}>
+            <div className={`flex flex-col ${forceMobileView ? 'w-full overflow-hidden' : '@[60rem]:flex-row @[60rem]:items-start'}`}>
               {/* Left Section: Officer Info (80%) */}
-              <div className={`${forceMobileView ? 'min-w-max' : 'w-full'} mb-6 ${forceMobileView ? '' : 'md:w-3/4 md:pr-8 md:flex-shrink-0 md:min-w-[650px] md:mb-0'}`}>
-                <div className={`flex items-start space-x-6 ${forceMobileView ? 'min-w-max' : ''}`}>
+                <div className={`${forceMobileView ? 'w-full max-w-full' : 'w-full'} mb-6 ${forceMobileView ? '' : '@[48rem]:w-3/4 @[48rem]:pr-8 @[48rem]:flex-shrink-0 @[48rem]:mb-0'}`}>
+                 <div className={`flex flex-col @[50rem]:flex-row gap-3 ${forceMobileView ? 'items-center justify-center w-full max-w-full min-w-0' : 'items-start @[50rem]:justify-start'}`}>
                   {/* Profile Image */}
-                  <div className="relative">
-                    <div className={`relative ${layoutConfig?.headerLayout?.avatarSize === 'large' ? 'w-52 h-52' : 'w-40 h-40'}`}>
+                   <div className="flex justify-center @[50rem]:justify-start items-center mx-auto">
+                    <div className={`${avatarFeatureClasses}`}>
                       {showInitials ? (
                         <div
-                          className={`${layoutConfig?.headerLayout?.avatarSize === 'large' ? 'w-52 h-52' : 'w-40 h-40'} rounded-full border-4 border-white shadow-lg flex items-center justify-center text-white font-bold ${layoutConfig?.headerLayout?.avatarSize === 'large' ? 'text-5xl' : 'text-4xl'}`}
+                          className={`w-full h-full rounded-full border-2 @[20rem]:border-4 border-white shadow-lg flex items-center justify-center text-white font-bold ${avatarFeatureInitialsClasses}`}
                           style={{ backgroundColor: colors.primary, borderColor: colors.primary }}
                         >
                           {displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
                         </div>
                       ) : (
                         <div 
-                          className="rounded-full border-4 border-white shadow-lg overflow-hidden"
-                          style={{ 
-                            borderColor: colors.primary,
-                            width: layoutConfig?.headerLayout?.avatarSize === 'large' ? '208px' : '160px',
-                            height: layoutConfig?.headerLayout?.avatarSize === 'large' ? '208px' : '160px'
-                          }}
+                          className="w-full h-full rounded-full border-2 @[20rem]:border-4 border-white shadow-lg overflow-hidden"
+                          style={{ borderColor: colors.primary }}
                         >
                           <Image
                             src={displayImage as string}
                             alt={displayName}
-                            width={layoutConfig?.headerLayout?.avatarSize === 'large' ? 208 : 160}
-                            height={layoutConfig?.headerLayout?.avatarSize === 'large' ? 208 : 160}
-                            className="w-full h-full object-cover"
-                            style={{ 
-                              objectFit: 'cover',
-                              objectPosition: 'center'
-                            }}
+                            fill
+                            className="object-cover"
+                            sizes={avatarSizes}
                             onError={() => {
                               console.warn('⚠️ UnifiedHeroSection: Image failed to load:', displayImage);
                               setImageError(true);
@@ -515,9 +526,9 @@ export default function UnifiedHeroSection({
                   </div>
 
                   {/* Officer Info */}
-                  <div className="flex flex-col">
+                   <div className="flex flex-col items-center @sm:items-start justify-center w-full my-auto">
                     <h1 
-                      className={`text-4xl font-bold text-white mb-4 ${forceMobileView ? '' : 'lg:text-5xl'}`}
+                      className={`text-lg @[18.75rem]:text-xl @[20rem]:text-2xl @[30rem]:text-3xl @[40rem]:text-4xl font-bold text-white mb-2 @[18.75rem]:mb-3 @[20rem]:mb-4 ${forceMobileView ? '' : '@[64rem]:text-5xl'}`}
                       style={{ 
                         fontWeight: typography.fontWeight.bold
                       }}
@@ -526,31 +537,31 @@ export default function UnifiedHeroSection({
                     </h1>
                     
                     {/* Officer Contact Info */}
-                    <div className="flex items-center space-x-2 text-lg text-white opacity-90 mb-6">
+                     <div className="flex flex-col items-start @[50rem]:flex-row @[50rem]:items-center text-xs @[18.75rem]:text-sm @[20rem]:text-base @[30rem]:text-lg gap-2 @[18.75rem]:gap-3 text-white opacity-90 mb-4 @[18.75rem]:mb-5 @[20rem]:mb-6">
                       {/* Officer Email */}
                       {displayEmail && (
                         <>
-                          <div className="flex items-center space-x-2">
-                            <div className="w-5 h-5 flex items-center justify-center">
-                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <div className="flex items-center space-x-1.5 @[18.75rem]:space-x-2">
+                            <div className="w-4 h-4 @[18.75rem]:w-5 @[18.75rem]:h-5 flex items-center justify-center">
+                              <svg className="w-3 h-3 @[18.75rem]:w-4 @[18.75rem]:h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
                                 <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                               </svg>
                             </div>
-                            <span>{displayEmail}</span>
+                            <span className="break-all">{displayEmail}</span>
                           </div>
                           
                           {/* Dot Separator */}
-                          <span className="text-white opacity-50">•</span>
+                          <span className="text-white opacity-50 hidden @[50rem]:block">•</span>
                         </>
                       )}
                       
                       {/* Officer Phone */}
                       {displayPhone && (
                         <>
-                          <div className="flex items-center space-x-2">
-                            <div className="w-5 h-5 flex items-center justify-center">
-                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <div className="flex items-center space-x-1.5 @[18.75rem]:space-x-2">
+                            <div className="w-4 h-4 @[18.75rem]:w-5 @[18.75rem]:h-5 flex items-center justify-center">
+                              <svg className="w-3 h-3 @[18.75rem]:w-4 @[18.75rem]:h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                               </svg>
                             </div>
@@ -558,14 +569,14 @@ export default function UnifiedHeroSection({
                           </div>
                           
                           {/* Dot Separator */}
-                          <span className="text-white opacity-50">•</span>
+                          <span className="text-white opacity-50 hidden @[50rem]:block">•</span>
                         </>
                       )}
                       
                       {/* Officer NMLS# */}
-                      <div className="flex items-center space-x-2">
-                        <div className="w-5 h-5 flex items-center justify-center">
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <div className="flex items-center space-x-1.5 @[18.75rem]:space-x-2">
+                        <div className="w-4 h-4 @[18.75rem]:w-5 @[18.75rem]:h-5 flex items-center justify-center">
+                          <svg className="w-3 h-3 @[18.75rem]:w-4 @[18.75rem]:h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm2 6a2 2 0 114 0 2 2 0 01-4 0zm2 4a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                           </svg>
                         </div>
@@ -585,10 +596,10 @@ export default function UnifiedHeroSection({
                     </div>
 
                     {/* Action Buttons - Horizontal */}
-                    <div className="flex space-x-4">
+                     <div className="flex flex-col @[18.75rem]:flex-row items-start @sm:items-center gap-2 @[18.75rem]:gap-3 @sm:justify-start w-full @[18.75rem]:w-auto">
                       <button
                         onClick={handleApplyNow}
-                        className="inline-flex items-center px-6 py-3 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer border-none"
+                        className="inline-flex items-center justify-center w-full @[18.75rem]:w-auto px-3 py-2 @[18.75rem]:px-4 @[18.75rem]:py-2 @[20rem]:px-4 @[20rem]:py-2 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer border-none"
                         style={{
                           backgroundColor: colors.primary,
                           color: 'white',
@@ -596,22 +607,22 @@ export default function UnifiedHeroSection({
                           borderRadius: `${layout.borderRadius}px`
                         }}
                       >
-                        Apply Now
-                        <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <p className='text-[10px] @[18.75rem]:text-xs @[20rem]:text-sm @[30rem]:text-base @sm:pb-1 pb-0'>Apply Now</p>
+                        <svg className="w-4 h-4 @[18.75rem]:w-5 @[18.75rem]:h-5 ml-1.5 @[18.75rem]:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
                       </button>
                       
                       <a
                         href="#contact"
-                        className="inline-flex items-center px-6 py-3 text-base font-semibold border-2 hover:shadow-lg transition-all duration-300 transform hover:scale-105 text-white border-white hover:bg-white hover:text-gray-900"
+                        className="inline-flex items-center justify-center w-full @[18.75rem]:w-auto px-3 py-1.5 @[18.75rem]:px-4 @[18.75rem]:py-1.5 @[20rem]:px-4 @[20rem]:py-1.5 font-semibold border-2 hover:shadow-lg transition-all duration-300 transform hover:scale-105 text-white border-white hover:bg-white hover:text-gray-900"
                         style={{
                           fontWeight: typography.fontWeight.semibold,
                           borderRadius: `${layout.borderRadius}px`
                         }}
                       >
-                        Contact Officer
-                        <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <p className='text-[10px] @[18.75rem]:text-xs @[20rem]:text-sm @[30rem]:text-base @sm:pb-1 pb-0'>Contact {displayName.split(' ')[0]}</p>
+                        <svg className="w-4 h-4 @[18.75rem]:w-5 @[18.75rem]:h-5 ml-1.5 @[18.75rem]:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                         </svg>
                       </a>
@@ -621,16 +632,16 @@ export default function UnifiedHeroSection({
               </div>
 
               {/* Vertical Separator Line - Hidden on mobile, visible on desktop */}
-              <div className={`${forceMobileView ? 'hidden' : 'hidden md:block'} w-px h-64 bg-white opacity-30 mx-4 flex-shrink-0`}></div>
+              <div className={`${forceMobileView ? 'hidden' : 'hidden @[60rem]:block'} w-px h-64 bg-white opacity-30 mx-4 flex-shrink-0`}></div>
               
               {/* Horizontal Separator Line - Visible on mobile, hidden on desktop */}
-              <div className={`${forceMobileView ? 'block' : 'md:hidden'} w-full h-px bg-white opacity-30 my-6`}></div>
+              <div className={`${forceMobileView ? 'block' : '@[60rem]:hidden'} w-full h-px bg-white opacity-30 my-6`}></div>
 
               {/* Right Section: Company Info (20%) */}
-              <div className={`w-full ${forceMobileView ? '' : 'md:w-1/4 md:pl-4 md:flex-shrink-0 md:min-w-[220px]'}`}>
-                <div className="flex items-start space-x-4">
+              <div className={`w-full ${forceMobileView ? '' : '@[48rem]:w-1/4 @[48rem]:pl-4 @[48rem]:flex-shrink-0'}`}>
+                <div className="flex flex-col @[22rem]:flex-row @[50rem]:flex-col justify-center items-start @[50rem]:items-center space-x-4">
                   {/* Company Logo */}
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0"
+                  <div className="w-14 h-14 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0"
                     style={{
                       backgroundColor: colors.background,
                       border: `2px solid ${colors.primary}`
@@ -660,7 +671,7 @@ export default function UnifiedHeroSection({
                   
                   {/* Company Details */}
                   <div className="flex flex-col">
-                    <h2 className={`text-2xl font-semibold text-white mb-3 ${forceMobileView ? '' : 'lg:text-3xl'}`}>
+                    <h2 className={`text-xl font-semibold text-white mb-3 ${forceMobileView ? '' : ''}`}>
                       {companyData?.name || 'Your Company'}
                     </h2>
                     

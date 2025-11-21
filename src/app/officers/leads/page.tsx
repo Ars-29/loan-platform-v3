@@ -14,6 +14,7 @@ import Breadcrumb, { BreadcrumbItem } from '@/components/ui/Breadcrumb';
 import Pagination from '@/components/ui/Pagination';
 import SearchFilter, { FilterOption } from '@/components/ui/SearchFilter';
 import { useRouter } from 'next/navigation';
+import Loader from '@/components/ui/Loader';
 
 interface Lead {
   id: string;
@@ -75,25 +76,25 @@ export default function LeadsPage() {
 
   // Filter options
   const statusOptions: FilterOption[] = [
-    { value: 'new', label: 'New' },
-    { value: 'contacted', label: 'Contacted' },
-    { value: 'qualified', label: 'Qualified' },
-    { value: 'converted', label: 'Converted' },
-    { value: 'lost', label: 'Lost' }
+    { value: 'new', label: 'New', icon: 'plus' },
+    { value: 'contacted', label: 'Contacted', icon: 'phone' },
+    { value: 'qualified', label: 'Qualified', icon: 'checkCircle' },
+    { value: 'converted', label: 'Converted', icon: 'success' },
+    { value: 'lost', label: 'Lost', icon: 'error' }
   ];
   
   const stageOptions: FilterOption[] = [
-    { value: 'lead', label: 'Lead' },
-    { value: 'application', label: 'Application' },
-    { value: 'approval', label: 'Approval' },
-    { value: 'closing', label: 'Closing' }
+    { value: 'lead', label: 'Lead', icon: 'target' },
+    { value: 'application', label: 'Application', icon: 'document' },
+    { value: 'approval', label: 'Approval', icon: 'checkCircle' },
+    { value: 'closing', label: 'Closing', icon: 'calendar' }
   ];
   
   const priorityOptions: FilterOption[] = [
-    { value: 'low', label: 'Low' },
-    { value: 'medium', label: 'Medium' },
-    { value: 'high', label: 'High' },
-    { value: 'urgent', label: 'Urgent' }
+    { value: 'low', label: 'Low', icon: 'chevronsDown' },
+    { value: 'medium', label: 'Medium', icon: 'filter' },
+    { value: 'high', label: 'High', icon: 'chevronsUp' },
+    { value: 'urgent', label: 'Urgent', icon: 'alertCircle' }
   ];
 
   // Get unique sources from leads for filter options
@@ -464,14 +465,8 @@ export default function LeadsPage() {
       <DashboardLayout showBreadcrumb={true}
         breadcrumbVariant="default"
         breadcrumbSize="md">
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '400px',
-          fontSize: typography.fontSize.lg,
-          color: colors.gray[600]
-        }}>
+        <div className="flex flex-col items-center justify-center text-gray-600">
+          <Loader />
           Loading leads...
         </div>
       </DashboardLayout>

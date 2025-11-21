@@ -542,14 +542,14 @@ export const dashboard = {
     background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)', // Subtle gradient
   },
   mainContent: {
-    maxWidth: '1280px', // max-w-7xl
+    maxWidth: '85%', // max-w-7xl
     margin: '0 auto',
     padding: `${spacing[6]} ${spacing[6]}`,
   },
   
   // Additional dashboard properties
   layout: {
-    maxWidth: '1280px',
+    maxWidth: '85%',
   },
   colors: {
     background: colors.gray[50],
