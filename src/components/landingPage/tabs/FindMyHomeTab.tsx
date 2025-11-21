@@ -192,6 +192,12 @@ button: {
     setIdxWidgetLoaded(true);
   };
 
+  // Stub variables for legacy code (never executed, kept for reference)
+  const searchCriteria: any = {};
+  const handleInputChange = (_field: string, _value: string) => {};
+  const handleSearch = () => {};
+  const setShowIframe = (_show: boolean) => {};
+
   return (
     <div 
       className={`w-full ${className}`}
@@ -200,7 +206,7 @@ button: {
       {/* IDX Widget Script */}
       <Script
         id="idxwidgetsrc-122191"
-        charset="UTF-8"
+        charSet="UTF-8"
         type="text/javascript"
         src="//syncly360.idxbroker.com/idx/widgets/122191"
         strategy="lazyOnload"
@@ -278,6 +284,8 @@ button: {
       `}</style>
 
       {/* Legacy Search Form - Hidden but kept for reference */}
+      {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+      {/* @ts-ignore - Legacy code kept for reference, never executed */}
       {false && (
         <>
           {/* Search Form */}
