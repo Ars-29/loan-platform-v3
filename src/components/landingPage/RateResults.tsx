@@ -6,6 +6,8 @@ import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
 import Icon, { icons } from '@/components/ui/Icon';
 import LeadCaptureModal, { type LeadData } from './LeadCaptureModal';
 import { useNotification } from '@/components/ui/Notification';
+import SmartDropdown, { type SmartDropdownOption } from '@/components/ui/SmartDropdown';
+import RateProductCard from './RateProductCard';
 
 interface RateProduct {
   id: string;
@@ -294,6 +296,24 @@ function RateResults({
     return '0 Points';
   };
 
+  // Loan term filter options for SmartDropdown
+  const loanTermOptions: SmartDropdownOption[] = useMemo(() => [
+    { value: 'all', label: 'All' },
+    { value: '30', label: '30yr Fixed' },
+    { value: '20', label: '20yr Fixed' },
+    { value: '15', label: '15yr Fixed' },
+    { value: '10', label: '10y/6m ARM' },
+    { value: '7', label: '7y/6m ARM' },
+    { value: '5', label: '5y/6m ARM' }
+  ], []);
+
+  // Sort options for SmartDropdown
+  const sortOptions: SmartDropdownOption[] = useMemo(() => [
+    { value: 'rate', label: 'Low Rate' },
+    { value: 'payment', label: 'Low Payment' },
+    { value: 'fees', label: 'Low Fees' }
+  ], []);
+
   if (loading) {
     return (
       <div style={{
@@ -416,92 +436,48 @@ function RateResults({
 
       {/* Loan Term Filter and Sort Controls */}
       <div className="p-4 border-b" style={{ borderBottomColor: colors.border }}>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          {/* Loan Term Filter Buttons */}
-          <div className="flex flex-wrap gap-2">
-            {[
-              { id: 'all', label: 'All' },
-              { id: '30', label: '30yr Fixed' },
-              { id: '20', label: '20yr Fixed' },
-              { id: '15', label: '15yr Fixed' },
-              { id: '10', label: '10y/6m ARM' },
-              { id: '7', label: '7y/6m ARM' },
-              { id: '5', label: '5y/6m ARM' }
-            ].map((term) => (
-              <button
-                key={term.id}
-                onClick={() => handleTermChange(term.id)}
-                className={`px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg ${
-                  selectedTerm === term.id
-                    ? 'text-white shadow-md'
-                    : 'text-gray-700 bg-gray-100 hover:bg-gray-200'
-                }`}
-                style={{
-                  backgroundColor: selectedTerm === term.id ? colors.primary : undefined,
-                  color: selectedTerm === term.id ? colors.background : colors.text,
-                  borderRadius: `${layout.borderRadius}px`
-                }}
-                onMouseEnter={(e) => {
-                  if (selectedTerm !== term.id) {
-                    e.currentTarget.style.backgroundColor = colors.border;
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (selectedTerm !== term.id) {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                  }
-                }}
-              >
-                {term.label}
-              </button>
-            ))}
-          </div>
+        <div className="@container">
+          <div className="flex flex-col @[640px]:flex-row @[640px]:justify-end gap-4">
+            {/* Dropdowns Group - Right side on desktop, stacked on mobile */}
+            <div className="flex flex-col @[640px]:flex-row items-stretch @[640px]:items-center gap-3">
+              {/* Loan Term Filter Dropdown */}
+              <div className="flex flex-col @[640px]:flex-row items-stretch @[640px]:items-center gap-2 w-full @[640px]:w-auto">
+                <span 
+                  className="text-sm font-medium @[640px]:whitespace-nowrap"
+                  style={{ color: colors.primary }}
+                >
+                  Loan Term:
+                </span>
+                <div className="w-full @[640px]:w-auto @[640px]:min-w-[180px] min-w-0">
+                  <SmartDropdown
+                    value={selectedTerm}
+                    onChange={handleTermChange}
+                    options={loanTermOptions}
+                    placeholder="Select loan term"
+                    buttonClassName="border-gray-300 focus:ring-2 focus:ring-offset-2 w-full @[640px]:w-auto"
+                  />
+                </div>
+              </div>
 
-          {/* Sort Controls */}
-          <div className="flex items-center gap-3">
-            {/* Settings Button */}
-            <button
-              className="w-10 h-10 flex items-center justify-center border transition-colors"
-              style={{
-                borderColor: colors.border,
-                borderRadius: `${layout.borderRadius}px`
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = colors.border;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={colors.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-              </svg>
-            </button>
-
-            {/* Sort Dropdown */}
-            <div className="flex items-center gap-2">
-              <span 
-                className="text-sm font-medium"
-                style={{ color: colors.primary }}
-              >
-                Sort By:
-              </span>
-              <select
-                value={sortBy}
-                onChange={(e) => handleSortChange(e.target.value as 'rate' | 'payment' | 'fees')}
-                className="px-3 py-2 text-sm border focus:outline-none focus:ring-2"
-                style={{
-                  borderColor: colors.border,
-                  borderRadius: `${layout.borderRadius}px`,
-                  backgroundColor: colors.background,
-                  color: colors.text
-                }}
-              >
-                <option value="rate">Low Rate</option>
-                <option value="payment">Low Payment</option>
-                <option value="fees">Low Fees</option>
-              </select>
+              {/* Sort Controls */}
+              <div className="flex flex-col @[640px]:flex-row items-stretch @[640px]:items-center gap-2 w-full @[640px]:w-auto">
+                
+                <span 
+                  className="text-sm font-medium @[640px]:whitespace-nowrap"
+                  style={{ color: colors.primary }}
+                >
+                  Sort By:
+                </span>
+                <div className="w-full @[640px]:w-auto @[640px]:min-w-[140px] min-w-0">
+                  <SmartDropdown
+                    value={sortBy}
+                    onChange={(value) => handleSortChange(value as 'rate' | 'payment' | 'fees')}
+                    options={sortOptions}
+                    placeholder="Sort by"
+                    buttonClassName="border-gray-300 focus:ring-2 focus:ring-offset-2 w-full @[640px]:w-auto"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -509,140 +485,187 @@ function RateResults({
 
       {/* Results */}
       <div className="p-6">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead 
-              className="border-b"
-              style={{ 
-                backgroundColor: `${colors.primary}10`,
-                borderColor: colors.border 
-              }}
-            >
-              <tr>
-                <th 
-                  className="px-4 py-4 text-left text-sm font-semibold"
-                  style={{ color: colors.primary }}
+        <style jsx>{`
+          .rate-results-container {
+            container-type: inline-size;
+            container-name: rate-results;
+          }
+          
+          .table-view {
+            display: block;
+          }
+          
+          .cards-view {
+            display: none;
+          }
+          
+          @container rate-results (max-width: 900px) {
+            .table-view {
+              display: none;
+            }
+            .cards-view {
+              display: block;
+            }
+          }
+        `}</style>
+        <div className="rate-results-container">
+          {/* Table View - Desktop */}
+          <div className="table-view">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead 
+                  className="border-b"
+                  style={{ 
+                    backgroundColor: `${colors.primary}10`,
+                    borderColor: colors.border 
+                  }}
                 >
-                  Loan Type
-                </th>
-                <th 
-                  className="px-4 py-4 text-left text-sm font-semibold"
-                  style={{ color: colors.primary }}
-                >
-                  Interest Rate
-                </th>
-                <th 
-                  className="px-4 py-4 text-left text-sm font-semibold"
-                  style={{ color: colors.primary }}
-                >
-                  APR
-                </th>
-                <th 
-                  className="px-4 py-4 text-left text-sm font-semibold"
-                  style={{ color: colors.primary }}
-                >
-                  Points
-                </th>
-                <th 
-                  className="px-4 py-4 text-left text-sm font-semibold"
-                  style={{ color: colors.primary }}
-                >
-                  Monthly Payment*
-                </th>
-                <th 
-                  className="px-4 py-4 text-left text-sm font-semibold"
-                  style={{ color: colors.primary }}
-                >
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y"
-                   style={{ borderColor: colors.border }}>
+                  <tr>
+                    <th 
+                      className="px-4 py-4 text-left text-sm font-semibold"
+                      style={{ color: colors.primary }}
+                    >
+                      Loan Type
+                    </th>
+                    <th 
+                      className="px-4 py-4 text-left text-sm font-semibold"
+                      style={{ color: colors.primary }}
+                    >
+                      Interest Rate
+                    </th>
+                    <th 
+                      className="px-4 py-4 text-left text-sm font-semibold"
+                      style={{ color: colors.primary }}
+                    >
+                      APR
+                    </th>
+                    <th 
+                      className="px-4 py-4 text-left text-sm font-semibold"
+                      style={{ color: colors.primary }}
+                    >
+                      Points
+                    </th>
+                    <th 
+                      className="px-4 py-4 text-left text-sm font-semibold"
+                      style={{ color: colors.primary }}
+                    >
+                      Monthly Payment*
+                    </th>
+                    <th 
+                      className="px-4 py-4 text-center text-sm font-semibold"
+                      style={{ color: colors.primary }}
+                    >
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y"
+                       style={{ borderColor: colors.border }}>
+                  {filteredAndSortedProducts.map((product, index) => (
+                    <tr key={`${product.id}-${index}-${product.interestRate}-${product.apr}`} 
+                        className="transition-colors hover:opacity-90">
+                      <td className="px-4 py-4">
+                        <div className="flex items-center space-x-2">
+                          {React.createElement(icons.document, { 
+                            size: 16, 
+                            color: colors.primary 
+                          })}
+                          <span className="text-sm font-medium"
+                                style={{ color: colors.text }}>
+                            {product.loanTerm}-Year Fixed
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <span className="text-sm font-semibold"
+                              style={{ color: colors.text }}>
+                          {formatRate(product.interestRate)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4">
+                        <span className="text-sm"
+                              style={{ color: colors.textSecondary }}>
+                          {formatRate(product.apr)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4">
+                        <span className="text-sm"
+                              style={{ color: colors.textSecondary }}>
+                          {formatPoints(product.points)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4">
+                        <span className="text-sm font-semibold"
+                              style={{ color: colors.text }}>
+                          {formatCurrency(product.monthlyPayment)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="flex flex-col space-y-2">
+                          <button
+                            onClick={() => handleGetStarted(product)}
+                            className="flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium transition-colors w-full"
+                            style={{
+                              backgroundColor: colors.primary,
+                              color: colors.background,
+                              borderRadius: `${layout.borderRadius}px`,
+                              border: 'none'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = colors.secondary;
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = colors.primary;
+                            }}
+                          >
+                            {React.createElement(icons.arrowRight, { size: 16, color: colors.background })}
+                            <span>Get Started</span>
+                          </button>
+                          <button 
+                            onClick={() => handleViewDetails(product)}
+                            className="flex items-center justify-center px-4 py-2 text-sm font-medium transition-colors w-full"
+                            style={{
+                              backgroundColor: colors.background,
+                              color: colors.text,
+                              border: `1px solid ${colors.border}`,
+                              borderRadius: `${layout.borderRadius}px`
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = colors.backgroundSecondary || '#f9fafb';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = colors.background;
+                            }}
+                          >
+                            View Details
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Cards View - Mobile */}
+          <div className="cards-view">
+            <div className="space-y-4">
               {filteredAndSortedProducts.map((product, index) => (
-                <tr key={`${product.id}-${index}-${product.interestRate}-${product.apr}`} 
-                    className="transition-colors hover:opacity-90">
-                  <td className="px-4 py-4">
-                    <div className="flex items-center space-x-2">
-                      {React.createElement(icons.document, { 
-                        size: 16, 
-                        color: colors.primary 
-                      })}
-                      <span className="text-sm font-medium"
-                            style={{ color: colors.text }}>
-                        {product.loanTerm}-Year Fixed
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-4">
-                    <span className="text-sm font-semibold"
-                          style={{ color: colors.text }}>
-                      {formatRate(product.interestRate)}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4">
-                    <span className="text-sm"
-                          style={{ color: colors.textSecondary }}>
-                      {formatRate(product.apr)}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4">
-                    <span className="text-sm"
-                          style={{ color: colors.textSecondary }}>
-                      {formatPoints(product.points)}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4">
-                    <span className="text-sm font-semibold"
-                          style={{ color: colors.text }}>
-                      {formatCurrency(product.monthlyPayment)}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="flex flex-col space-y-2">
-                      <button
-                        onClick={() => handleGetStarted(product)}
-                        className="flex items-center justify-center space-x-2 px-4 py-2 text-sm font-medium transition-colors w-full"
-                        style={{
-                          backgroundColor: colors.primary,
-                          color: colors.background,
-                          borderRadius: `${layout.borderRadius}px`,
-                          border: 'none'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = colors.secondary;
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = colors.primary;
-                        }}
-                      >
-                        {React.createElement(icons.arrowRight, { size: 16, color: colors.background })}
-                        <span>Get Started</span>
-                      </button>
-                      <button 
-                        onClick={() => handleViewDetails(product)}
-                        className="flex items-center justify-center px-4 py-2 text-sm font-medium transition-colors w-full"
-                        style={{
-                          backgroundColor: colors.background,
-                          color: colors.text,
-                          border: `1px solid ${colors.border}`,
-                          borderRadius: `${layout.borderRadius}px`
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = colors.backgroundSecondary || '#f9fafb';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = colors.background;
-                        }}
-                      >
-                        View Details
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                <RateProductCard
+                  key={`${product.id}-${index}-${product.interestRate}-${product.apr}`}
+                  product={product}
+                  colors={colors}
+                  layout={layout}
+                  onGetStarted={handleGetStarted}
+                  onViewDetails={handleViewDetails}
+                  formatRate={formatRate}
+                  formatCurrency={formatCurrency}
+                  formatPoints={formatPoints}
+                />
               ))}
-            </tbody>
-          </table>
+            </div>
+          </div>
         </div>
 
         {/* Footer */}

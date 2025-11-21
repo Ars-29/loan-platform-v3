@@ -42,7 +42,7 @@ const slides = [
   { id: 9, title: 'Divorce Status' },
   { id: 10, title: 'Child Support' },
   { id: 11, title: 'IRS Repayment' },
-  { id: 12, title: 'Summary' }
+  { id: 12, title: '' } // No title for summary
 ];
 
 export default function DocumentChecklistTab({
@@ -110,9 +110,9 @@ export default function DocumentChecklistTab({
         : 'px-4 py-2 font-medium transition-all duration-200'
     },
     card: {
-      container: 'bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200',
+      container: 'bg-white transition-all duration-200',
       header: 'px-6 py-4 border-b border-gray-200',
-      body: 'px-6 py-4',
+      body: '',
       footer: 'px-6 py-4 border-t border-gray-200 bg-gray-50'
     },
     heading: {
@@ -1136,90 +1136,13 @@ Please gather all required documents before submitting your loan application.`;
       case 12: // Summary
         return (
           <div className="w-full max-w-4xl mx-auto">
-            {/* Header Section */}
-            <div className="text-center mb-8">
-              <h2 
-                className="text-3xl font-bold mb-2"
-                style={{ 
-                  color: colors.text,
-                  fontFamily: typography.fontFamily,
-                  fontSize: '2rem',
-                  fontWeight: typography.fontWeight.bold
-                }}
-              >
-                Loan Document Checklist
-              </h2>
-              <p 
-                className="text-lg opacity-80"
-                style={{ 
-                  color: colors.textSecondary,
-                  fontFamily: typography.fontFamily,
-                  fontSize: '1.125rem',
-                  fontWeight: typography.fontWeight.normal
-                }}
-              >
-                Complete this step-by-step checklist to determine all required documents for your loan application
-              </p>
-            </div>
-
-            {/* Progress Indicator */}
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-3">
-                <div 
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold"
-                  style={{ 
-                    backgroundColor: colors.primary,
-                    fontFamily: typography.fontFamily,
-                    fontSize: '1.125rem',
-                    fontWeight: typography.fontWeight.bold
-                  }}
-                >
-                  N
-                </div>
-                <span 
-                  className="text-lg font-medium"
-                  style={{ 
-                    color: colors.text,
-                    fontFamily: typography.fontFamily,
-                    fontWeight: typography.fontWeight.medium
-                  }}
-                >
-                  Step 13 of 13
-                </span>
-              </div>
-              <div 
-                className="text-lg font-semibold"
-                style={{ 
-                  color: colors.primary,
-                  fontFamily: typography.fontFamily,
-                  fontWeight: typography.fontWeight.semibold
-                }}
-              >
-                100% Complete
-              </div>
-            </div>
-
-            {/* Progress Bar */}
-            <div 
-              className="w-full h-2 rounded-full mb-8"
-              style={{ backgroundColor: colors.border }}
-            >
-              <div 
-                className="h-full rounded-full transition-all duration-500"
-                style={{ 
-                  backgroundColor: colors.primary,
-                  width: '100%'
-                }}
-              />
-            </div>
-
             {/* Summary Content */}
-            <div className="bg-white rounded-2xl shadow-lg border-2 p-8" style={{ 
+            <div className="bg-white rounded-2xl" style={{ 
               borderColor: colors.border,
               borderRadius: `${layout.borderRadius}px`
             }}>
               <h3 
-                className="text-2xl font-bold mb-6 text-center"
+                className="text-xl @sm:text-2xl font-bold mb-6 text-center"
                 style={{ 
                   color: colors.text,
                   fontFamily: typography.fontFamily,
@@ -1232,11 +1155,11 @@ Please gather all required documents before submitting your loan application.`;
               
               <div className="mb-6">
                 <h4 
-                  className="text-xl font-semibold mb-4"
+                  className="text-lg @sm:text-xl font-semibold mb-4"
                   style={{ 
                     color: colors.text,
                     fontFamily: typography.fontFamily,
-                    fontSize: '1.25rem',
+                    fontSize: '1.1rem @sm:1.25rem',
                     fontWeight: typography.fontWeight.semibold
                   }}
                 >
@@ -1276,16 +1199,15 @@ Please gather all required documents before submitting your loan application.`;
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col @sm:flex-row gap-2 @sm:gap-4 justify-center">
                 <button
                   onClick={downloadChecklist}
-                  className="flex items-center justify-center gap-3 px-8 py-4 font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  className="flex items-center justify-center gap-1.5 px-4 py-2 @sm:px-6 @sm:py-3 text-xs @sm:text-base font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                   style={{
                     backgroundColor: colors.primary,
                     color: colors.background,
                     borderRadius: `${layout.borderRadius}px`,
                     fontFamily: typography.fontFamily,
-                    fontSize: '1rem',
                     fontWeight: typography.fontWeight.semibold,
                     border: 'none'
                   }}
@@ -1296,20 +1218,19 @@ Please gather all required documents before submitting your loan application.`;
                     e.currentTarget.style.backgroundColor = colors.primary;
                   }}
                 >
-                  <Icon name="download" size={20} color={colors.background} />
+                  <Icon name="download" size={16} color={colors.background} />
                   Download Checklist
                 </button>
                 
                 <button
                   onClick={printChecklist}
-                  className="flex items-center justify-center gap-3 px-8 py-4 font-semibold transition-all duration-300 transform hover:scale-105 border-2 hover:shadow-lg"
+                  className="flex items-center justify-center gap-1.5 px-4 py-2 @sm:px-6 @sm:py-3 text-xs @sm:text-base font-semibold transition-all duration-300 transform hover:scale-105 border-2 hover:shadow-lg"
                   style={{
                     backgroundColor: colors.background,
                     color: colors.primary,
                     borderColor: colors.primary,
                     borderRadius: `${layout.borderRadius}px`,
                     fontFamily: typography.fontFamily,
-                    fontSize: '1rem',
                     fontWeight: typography.fontWeight.semibold
                   }}
                   onMouseEnter={(e) => {
@@ -1319,10 +1240,11 @@ Please gather all required documents before submitting your loan application.`;
                     e.currentTarget.style.backgroundColor = colors.background;
                   }}
                 >
-                  <Icon name="fileText" size={20} color={colors.primary} />
+                  <Icon name="fileText" size={16} color={colors.primary} />
                   Print Checklist
                 </button>
               </div>
+              <br />
             </div>
           </div>
         );
@@ -1367,30 +1289,30 @@ Please gather all required documents before submitting your loan application.`;
       </div>
 
       {/* Current Slide */}
-      <div className={`${classes.card.container} mb-6`} style={{ borderRadius: `${layout.borderRadius}px` }}>
-        <div className={`${classes.card.body}`}>
+      <div className={`${classes.card.container} mb-6 border-0 !shadow-none`} style={{ borderRadius: `${layout.borderRadius}px` }}>
+        <div className={`p-0`}>
           <h3 className={`${classes.heading.h4} mb-6`}>
-            {slides[currentSlide].title}
+            {slides[currentSlide]?.title || ''}
           </h3>
           {renderSlide()}
         </div>
       </div>
 
       {/* Navigation */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center gap-2 ">
         {/* Left Side - Previous Button */}
         <div>
           {currentSlide > 0 ? (
              <button
                onClick={prevSlide}
-               className="flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors"
+               className="flex items-center justify-center gap-2 px-3 py-2 @sm:px-6 @sm:py-3 font-medium transition-colors text-[13px] @sm:text-base"
                style={{
                  backgroundColor: colors.primary,
                  color: colors.background,
                  borderColor: colors.primary,
                  borderRadius: `${layout.borderRadius}px`,
                  border: 'none',
-                 minWidth: '120px'
+                 minWidth: '80px'
                }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = colors.secondary;
@@ -1418,7 +1340,7 @@ Please gather all required documents before submitting your loan application.`;
             <button
               onClick={nextSlide}
               disabled={!isCurrentSlideValid()}
-              className={`flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors ${
+              className={`flex items-center justify-center gap-2 px-3 py-2 @sm:px-6 @sm:py-3 font-medium transition-colors text-[13px] @sm:text-base ${
                 !isCurrentSlideValid() ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
               }`}
               style={{
@@ -1454,7 +1376,7 @@ Please gather all required documents before submitting your loan application.`;
             <button
               onClick={nextSlide}
               disabled={!isCurrentSlideValid()}
-              className={`flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors ${
+              className={`flex items-center justify-center gap-1 px-4 py-2 @sm:px-6 @sm:py-3 font-medium transition-colors text-[13px] @sm:text-base ${
                 !isCurrentSlideValid() ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
               }`}
               style={{
@@ -1489,7 +1411,7 @@ Please gather all required documents before submitting your loan application.`;
           {currentSlide === slides.length - 1 && (
             <button
               onClick={nextSlide}
-              className="flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors"
+              className="flex items-center justify-center gap-2 @sm:px-6 @sm:py-3 px-4 py-2 font-medium transition-colors text-[13px] @sm:text-base"
               style={{
                 backgroundColor: colors.primary,
                 color: colors.background,

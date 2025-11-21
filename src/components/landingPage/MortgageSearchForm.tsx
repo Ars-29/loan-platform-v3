@@ -199,16 +199,208 @@ function MortgageSearchForm({
   }, [onSearch, formData]);
 
   return (
-    <div style={{
-      backgroundColor: '#ffffff',
-      borderRadius: `${templateLayout.borderRadius}px`,
-      boxShadow: shadows.lg,
-      padding: spacing[6],
-      marginBottom: spacing[8]
-    }}>
+    <>
+      <style jsx>{`
+        .mortgage-form-container {
+          container-type: inline-size;
+          container-name: mortgage-form;
+          overflow: hidden;
+          max-width: 100%;
+        }
+        
+        /* Ensure all inputs and selects don't overflow */
+        .mortgage-form-container input,
+        .mortgage-form-container select {
+          max-width: 100%;
+          box-sizing: border-box;
+        }
+        
+        /* Row 1 - Purchase: Desktop (4 columns) */
+        .row1-purchase {
+          display: grid;
+          grid-template-columns: 1fr 2fr 2fr 1.5fr;
+        }
+        
+        /* Row 1 - Refinance: Desktop (3 columns) */
+        .row1-refinance {
+          display: grid;
+          grid-template-columns: 1fr 2fr 1.5fr;
+        }
+        
+        /* Row 1 - Mobile (≤375px): 2 columns */
+        @container mortgage-form (max-width: 375px) {
+          .row1-purchase {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+          }
+          .row1-refinance {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+          }
+          .row1-purchase > div,
+          .row1-refinance > div {
+            min-width: 0;
+            overflow: hidden;
+          }
+        }
+        
+        /* Row 1 - Extra small (≤305px): 1 column */
+        @container mortgage-form (max-width: 305px) {
+          .row1-purchase {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+          }
+          .row1-refinance {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+          }
+        }
+        
+        /* Row 2: Desktop (3 columns) */
+        .row2 {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+        }
+        
+        /* Row 2 - Mobile (≤375px): 2 columns */
+        @container mortgage-form (max-width: 375px) {
+          .row2 {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+          }
+          .row2 > div {
+            min-width: 0;
+            overflow: hidden;
+          }
+        }
+        
+        /* Row 2 - Extra small (≤305px): 1 column */
+        @container mortgage-form (max-width: 305px) {
+          .row2 {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+          }
+        }
+        
+        /* Additional Options: Desktop (4 columns) */
+        .additional-options-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr 1fr;
+        }
+        
+        /* Additional Options - Mobile (≤375px): 1 column */
+        @container mortgage-form (max-width: 375px) {
+          .additional-options-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+        
+        /* Toggle Switch: Full width buttons at mobile */
+        @container mortgage-form (max-width: 375px) {
+          .toggle-switch {
+            width: 100%;
+          }
+          .toggle-switch button {
+            flex: 1;
+          }
+        }
+        
+        /* Bottom Row - Purchase: Desktop */
+        .bottom-row-purchase {
+          display: grid;
+          grid-template-columns: 1fr auto;
+        }
+        
+        /* Bottom Row - Refinance: Desktop */
+        .bottom-row-refinance {
+          display: grid;
+          grid-template-columns: auto;
+          justify-content: flex-end;
+        }
+        
+        /* Bottom Row - Mobile (≤375px): Stack vertically */
+        @container mortgage-form (max-width: 375px) {
+          .bottom-row-purchase {
+            grid-template-columns: 1fr;
+          }
+          .bottom-row-refinance {
+            grid-template-columns: 1fr;
+            justify-content: stretch;
+          }
+          .bottom-row-purchase > button,
+          .bottom-row-refinance > button {
+            width: 100% !important;
+            min-width: unset !important;
+          }
+        }
+        
+        /* Reduce padding and gaps at mobile */
+        @container mortgage-form (max-width: 375px) {
+          .form-container {
+            padding: 0.75rem;
+          }
+          .form-content {
+            gap: 0.75rem;
+          }
+        }
+        
+        @container mortgage-form (max-width: 305px) {
+          .form-container {
+            padding: 0.5rem;
+          }
+          .form-content {
+            gap: 0.5rem;
+          }
+        }
+        
+        /* Ensure grid items don't overflow */
+        .row1-purchase > div,
+        .row1-refinance > div,
+        .row2 > div {
+          min-width: 0;
+          width: 100%;
+          overflow: hidden;
+        }
+        
+        /* Ensure flex containers within grid items don't overflow */
+        .down-payment-input-group {
+          min-width: 0;
+          max-width: 100%;
+        }
+        
+        .down-payment-input-group > input {
+          min-width: 0;
+          max-width: 100%;
+        }
+        
+        /* Ensure down payment percentage display doesn't cause overflow on mobile */
+        @container mortgage-form (max-width: 375px) {
+          .down-payment-input-group {
+            min-width: 0;
+          }
+          .down-payment-input-group > input {
+            min-width: 0;
+            flex-shrink: 1;
+          }
+          .down-payment-input-group > div:last-child {
+            min-width: 50px !important;
+            flex-shrink: 0;
+            font-size: 0.75rem !important;
+            padding: 0.25rem 0.5rem !important;
+          }
+        }
+      `}</style>
+      <div 
+        className="mortgage-form-container form-container"
+        style={{
+          backgroundColor: '#ffffff',
+          borderRadius: `${templateLayout.borderRadius}px`,
+          marginBottom: spacing[8]
+        }}
+      >
       {/* Sleek Toggle Switch */}
       <div 
-        className="relative inline-flex p-1 mb-4"
+        className="toggle-switch relative inline-flex p-1 mb-4"
         style={{
           backgroundColor: templateColors.border,
           borderRadius: `${templateLayout.borderRadius}px`
@@ -242,13 +434,9 @@ function MortgageSearchForm({
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: spacing[6] }}>
+      <form onSubmit={handleSubmit} className="form-content" style={{ display: 'flex', flexDirection: 'column', gap: spacing[6] }}>
         {/* Row 1: ZIP Code, Price/Value, Down Payment, Credit Score */}
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: activeTab === 'purchase' 
-            ? '1fr 2fr 2fr 1.5fr'  // ZIP | Purchase Price | Down Payment | Credit Score
-            : '1fr 2fr 1.5fr',  // ZIP | Loan Amount | Credit Score
+        <div className={activeTab === 'purchase' ? 'row1-purchase' : 'row1-refinance'} style={{ 
           gap: spacing[4],
           alignItems: 'end'  // Align all fields to bottom to ensure same height
         }}>
@@ -328,7 +516,7 @@ function MortgageSearchForm({
                 }}>
                   Down Payment
                 </label>
-                <div style={{ display: 'flex', height: '40px' }}>
+                <div className="down-payment-input-group" style={{ display: 'flex', height: '40px' }}>
                   <input
                     type="number"
                     value={formData.downPayment}
@@ -448,9 +636,7 @@ function MortgageSearchForm({
         </div>
 
         {/* Row 2: Property Type, Residency Usage, Loan Term */}
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: '1fr 1fr 1fr', 
+        <div className="row2" style={{ 
           gap: spacing[4],
           alignItems: 'end'
         }}>
@@ -587,9 +773,7 @@ function MortgageSearchForm({
               borderRadius: `${templateLayout.borderRadius}px`,
               backgroundColor: colors.gray[50]
             }}>
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: '1fr 1fr 1fr 1fr', 
+              <div className="additional-options-grid" style={{ 
                 gap: spacing[4],
                 alignItems: 'end'
               }}>
@@ -732,12 +916,9 @@ function MortgageSearchForm({
         </div>
 
         {/* Row 3: Eligible for Lower Rate and Update Button */}
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: activeTab === 'purchase' ? '1fr auto' : 'auto', 
+        <div className={activeTab === 'purchase' ? 'bottom-row-purchase' : 'bottom-row-refinance'} style={{ 
           gap: spacing[4],
-          alignItems: 'center',
-          justifyContent: activeTab === 'refinance' ? 'flex-end' : 'normal'
+          alignItems: 'center'
         }}>
           {activeTab === 'purchase' && (
             <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -790,37 +971,9 @@ function MortgageSearchForm({
           </button>
         </div>
 
-        {/* Debug Info */}
-        <div style={{ 
-          paddingTop: spacing.md, 
-          padding: spacing.md, 
-          backgroundColor: colors.gray[50], 
-          borderRadius: borderRadius.md 
-        }}>
-          <h4 style={{ 
-            fontSize: typography.fontSize.sm, 
-            fontWeight: typography.fontWeight.medium, 
-              color: colors.gray[600],
-            marginBottom: spacing.sm 
-          }}>
-            Current Form Values (Debug):
-          </h4>
-          <div style={{ 
-            fontSize: typography.fontSize.xs, 
-              color: colors.gray[600],
-            display: 'flex', 
-            flexDirection: 'column', 
-            gap: spacing.xs 
-          }}>
-            <p><strong>Property:</strong> {formData.salesPrice} | {formData.zipCode} | {formData.county}, {formData.state}</p>
-            <p><strong>Loan:</strong> {formData.baseLoanAmount} | {formData.loanTerm}yr | FICO: {formData.creditScore}</p>
-            <p><strong>Borrower:</strong> {formData.firstName} {formData.lastName} | Self-employed: {formData.selfEmployed ? 'Yes' : 'No'}</p>
-            <p><strong>Income:</strong> ${formData.totalMonthlyQualifyingIncome}/month | DTI: {formData.loanLevelDebtToIncomeRatio}%</p>
-          </div>
-        </div>
-
       </form>
-    </div>
+      </div>
+    </>
   );
 }
 

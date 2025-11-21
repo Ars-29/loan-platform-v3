@@ -315,7 +315,7 @@ button: {
                     borderRadius: `${layout.borderRadius}px`
                   }}
                 >
-                  {React.createElement(icons.close, { size: 20 })}
+                  {React.createElement(icons.close, { size: 25 })}
                 </button>
               </div>
             </div>
@@ -505,7 +505,7 @@ button: {
                   type="button"
                   onClick={handleClose}
                   disabled={isSubmitting}
-                  className="flex items-center justify-center px-6 py-3 text-base font-medium transition-colors w-full border"
+                  className="flex items-center justify-center px-4 py-2 text-base font-medium transition-colors w-full border"
                   style={{
                     backgroundColor: colors.background,
                     color: colors.text,

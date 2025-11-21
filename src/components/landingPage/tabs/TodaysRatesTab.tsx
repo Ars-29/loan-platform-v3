@@ -257,22 +257,7 @@ export default function TodaysRatesTab({
 
       // Transform Mortech rates to our display format
       if (result.rates && Array.isArray(result.rates)) {
-        // Only include rates updated today (based on quote.lastUpdate)
-        const isToday = (dateStr: string | undefined) => {
-          if (!dateStr) return true; // if not provided, don't exclude
-          const d = new Date(dateStr);
-          if (isNaN(d.getTime())) return true; // if unparsable, don't exclude
-          const now = new Date();
-          return (
-            d.getFullYear() === now.getFullYear() &&
-            d.getMonth() === now.getMonth() &&
-            d.getDate() === now.getDate()
-          );
-        };
-
-        const todaysRates = result.rates.filter((r: any) => isToday(r.lastUpdate));
-
-        const transformedRates: Rate[] = todaysRates.slice(0, 6).map((rate: any, index: number) => ({
+        const transformedRates: Rate[] = result.rates.slice(0, 6).map((rate: any, index: number) => ({
           id: rate.id || `rate-${index}`,
           loanType: rate.productName || rate.loanProgram || '30 Year Fixed',
           rate: rate.interestRate || 6.0,
@@ -352,9 +337,8 @@ export default function TodaysRatesTab({
 
       {/* Mortgage Search Form */}
       <div 
-        className="bg-white border shadow-sm p-6"
+        className="bg-white p-6"
         style={{ 
-          borderColor: colors.border,
           backgroundColor: colors.background,
           borderRadius: `${layout.borderRadius}px`
         }}

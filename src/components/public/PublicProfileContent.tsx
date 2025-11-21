@@ -143,6 +143,11 @@ export default function PublicProfileContent({
     <div className={`min-h-screen bg-white overflow-x-auto overflow-y-auto ${forceMobileViewport ? 'mobile-viewport-simulator' : ''}`}>
       {/* Scroll bar styling with template border radius */}
       <style jsx global>{`
+        .public-profile-container {
+          container-type: inline-size;
+          container-name: profile;
+        }
+
         /* Hide scrollbars but keep functionality */
         ::-webkit-scrollbar {
           width: 0px;
@@ -223,12 +228,12 @@ export default function PublicProfileContent({
       {/* Unified Template Rendering with Suspense - PUBLIC MODE */}
       <Suspense fallback={<SkeletonLoader />}>
         {/* Main Content Area (container that wraps hero, content, footer) */}
-        <div className={`w-full min-w-0 px-2 py-2 public-profile-container ${forceMobileViewport ? '' : 'md:px-4 md:py-4 lg:px-6 lg:py-6'}`}>
+        <div className={`w-full min-w-0 px-2 py-2 public-profile-container ${forceMobileViewport ? '' : '@[48rem]:px-4 @[48rem]:py-4 @[64rem]:px-6 @[64rem]:py-6'}`}>
           <div 
             className="overflow-auto w-full"
             style={{ 
               borderRadius: `${templateData?.template?.layout?.borderRadius || 8}px`,
-              minWidth: '320px'
+              minWidth: '300px'
             }}
           >
             {/* Hero Section - rounded top corners */}
@@ -269,10 +274,10 @@ export default function PublicProfileContent({
 
             {/* Content Area - reduced padding and visible side borders */}
             <div 
-              className={`p-2 border-x overflow-auto w-full ${forceMobileViewport ? '' : 'md:p-3'}`}
+              className={`p-2 border-x overflow-auto w-full ${forceMobileViewport ? '' : '@[48rem]:p-3'}`}
               style={{ 
                 borderColor: templateData?.template?.colors?.border || '#e5e7eb',
-                minWidth: '320px'
+                minWidth: '300px'
               }}
             >
               {(() => {
@@ -283,10 +288,10 @@ export default function PublicProfileContent({
                 if (isSidebarLayout) {
                   // Sidebar Layout (Template2) - Stack vertically on mobile, horizontal on large screens
                   return (
-                    <div className={`flex flex-col gap-4 w-full ${forceMobileViewport ? '' : 'lg:flex-row lg:gap-6'}`}>
+                    <div className={`flex flex-col gap-4 w-full ${forceMobileViewport ? '' : '@[64rem]:flex-row @[64rem]:gap-6'}`}>
                       {/* Left Sidebar - Tabs List */}
-                      <div className={`w-full overflow-x-auto ${forceMobileViewport ? '' : 'lg:w-64 lg:flex-shrink-0'}`}>
-                        <div className={forceMobileViewport ? '' : 'sticky top-6 lg:top-8'}>
+                      <div className={`w-full overflow-x-auto ${forceMobileViewport ? '' : '@[64rem]:w-64 @[64rem]:flex-shrink-0'}`}>
+                        <div className={forceMobileViewport ? '' : 'sticky top-6 @[64rem]:top-8'}>
                           <div 
                             className="rounded-lg shadow-sm border p-4"
                             style={{
@@ -378,10 +383,20 @@ export default function PublicProfileContent({
                     </div>
                   );
                 } else {
+                  const gridLayoutClasses = forceMobileViewport
+                    ? ''
+                    : selectedTemplate === 'template2'
+                      ? '@[48rem]:gap-6'
+                      : '@[48rem]:gap-6 @[80rem]:grid @[80rem]:grid-cols-4';
+                  const gridContentClasses = forceMobileViewport
+                    ? ''
+                    : selectedTemplate === 'template2'
+                      ? ''
+                      : '@[80rem]:col-span-3';
                   // Grid Layout (Template1) - Responsive: Flex column on mobile, grid on desktop
                   return (
-                    <div className={`flex flex-col gap-4 w-full ${forceMobileViewport ? '' : 'md:gap-6 xl:grid xl:grid-cols-4'}`}>
-                      <div className={`w-full overflow-x-auto ${forceMobileViewport ? '' : 'xl:col-span-3'}`}>
+                    <div className={`flex flex-col gap-4 w-full ${gridLayoutClasses}`}>
+                      <div className={`w-full overflow-x-auto ${gridContentClasses}`}>
                         <LandingPageTabs
                           isPublic={true}
                           publicTemplateData={templateData}
@@ -394,39 +409,18 @@ export default function PublicProfileContent({
                           forceMobileView={forceMobileViewport}
                         />
                       </div>
-                      <div className={`w-full overflow-x-auto ${forceMobileViewport ? '' : 'xl:col-span-1'}`}>
-                        <div className={forceMobileViewport ? '' : 'xl:sticky xl:top-6 xl:lg:top-8'}>
-                          <UnifiedRightSidebar 
-                            isPublic={true}
-                            publicCompanyData={{
-                              name: profileData.company.name,
-                              logo: profileData.company.logo,
-                              phone: profileData.company.phone,
-                              email: profileData.company.email,
-                              address: profileData.company.address,
-                              website: profileData.company.website,
-                              license_number: profileData.company.license_number,
-                              company_nmls_number: profileData.company.company_nmls_number,
-                              company_social_media: profileData.company.company_social_media
-                            }}
-                            publicTemplateData={templateData}
-                            template={selectedTemplate} 
-                            templateCustomization={profileData.template}
-                            companyData={{
-                              id: profileData.company.id,
-                              name: profileData.company.name,
-                              logo: profileData.company.logo,
-                              phone: profileData.company.phone,
-                              email: profileData.company.email,
-                              address: profileData.company.address,
-                              website: profileData.company.website,
-                              license_number: profileData.company.license_number,
-                              company_nmls_number: profileData.company.company_nmls_number,
-                              company_social_media: profileData.company.company_social_media
-                            }}
-                          />
+                      {selectedTemplate !== 'template2' && (
+                        <div className={`w-full overflow-x-auto ${forceMobileViewport ? '' : '@[80rem]:col-span-1'}`}>
+                          <div className={forceMobileViewport ? '' : '@[80rem]:sticky @[80rem]:top-6 @[96rem]:top-8'}>
+                            <UnifiedRightSidebar 
+                              isPublic={true}
+                              publicCompanyData={profileData.company}
+                              publicTemplateData={templateData}
+                              templateCustomization={profileData.template}
+                            />
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
                   );
                 }
@@ -441,12 +435,12 @@ export default function PublicProfileContent({
                 borderBottomRightRadius: `${templateData?.template?.layout?.borderRadius || 8}px`
               }}
             >
-              <footer className={`bg-gray-900 text-white py-6 w-full ${forceMobileViewport ? '' : 'md:py-8'}`}>
+              <footer className={`bg-gray-900 text-white py-6 w-full ${forceMobileViewport ? '' : '@[48rem]:py-8'}`}>
                 <div className="text-center px-4">
-                  <p className={`text-xs text-white opacity-90 ${forceMobileViewport ? '' : 'md:text-sm'}`}>
+                  <p className={`text-xs text-white opacity-90 ${forceMobileViewport ? '' : '@[48rem]:text-sm'}`}>
                     © 2024 {companyName || profileData.company.name}™. All rights reserved. | NMLS Consumer Access
                   </p>
-                  <p className={`text-xs text-white opacity-75 mt-2 ${forceMobileViewport ? '' : 'md:text-sm'}`}>
+                  <p className={`text-xs text-white opacity-75 mt-2 ${forceMobileViewport ? '' : '@[48rem]:text-sm'}`}>
                     {isPreview ? 'This is a template preview.' : 'This is an official public profile page.'}
                   </p>
                 </div>
