@@ -241,6 +241,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
     let creditScore = '740-759';
     let loanPurpose = 'Purchase';
     let vaFirstTimeUse = false;
+    let downPaymentPercent: string | undefined = undefined;
     
     Object.values(answers).forEach((answer: any) => {
       if (answer && typeof answer === 'object') {
@@ -248,25 +249,39 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
         if (answer.creditScore) creditScore = answer.creditScore;
         if (answer.loanPurpose) loanPurpose = answer.loanPurpose;
         if (answer.vaFirstTimeUse !== undefined) vaFirstTimeUse = answer.vaFirstTimeUse;
+        if (answer.downPaymentPercent) downPaymentPercent = answer.downPaymentPercent;
       }
     });
     
     // Map credit score to exact dropdown value
     const mappedCreditScore = mapCreditScoreToDropdown(creditScore);
     
+    // Default sales price
+    const defaultSalesPrice = 225000;
+    
+    // Calculate down payment amount from percentage if provided
+    let downPayment: string | undefined = undefined;
+    if (downPaymentPercent && loanPurpose === 'Purchase') {
+      const percent = parseFloat(downPaymentPercent);
+      const amount = (defaultSalesPrice * percent) / 100;
+      downPayment = amount.toFixed(0);
+    }
+    
     console.log('📝 Questionnaire mapping:', {
       original: creditScore,
       mapped: mappedCreditScore,
       loanPurpose,
-      loanType
+      loanType,
+      downPaymentPercent,
+      downPayment
     });
     
     // Create form data from questionnaire - map to form fields
     const formDataPartial: Partial<SearchFormData> = {
       zipCode: '75024',
-      salesPrice: loanPurpose === 'Purchase' ? '225000' : undefined,
-      downPayment: loanPurpose === 'Purchase' ? '75000' : undefined,
-      downPaymentPercent: loanPurpose === 'Purchase' ? '33.33' : undefined,
+      salesPrice: loanPurpose === 'Purchase' ? defaultSalesPrice.toString() : undefined,
+      downPayment: downPayment || (loanPurpose === 'Purchase' ? '75000' : undefined),
+      downPaymentPercent: downPaymentPercent || (loanPurpose === 'Purchase' ? '33.33' : undefined),
       creditScore: mappedCreditScore, // Use mapped value
       propertyType: 'SingleFamily',
       occupancy: 'PrimaryResidence',
@@ -683,7 +698,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
             <p className="mb-6 text-center text-sm @sm:text-base" style={{ color: colors.text }}>Your down payment amount affects your loan options and monthly payments</p>
             <div className="grid grid-cols-2 gap-2 @sm:gap-4">
               <Button 
-                onClick={() => handleQuestionnaireComplete({ loanType: 'FHA' })}
+                onClick={() => handleQuestionnaireComplete({ loanType: 'FHA', downPaymentPercent: '3.5' })}
                 {...getTemplateButtonStyles('secondary')}
                 className="h-10 @sm:h-14 text-sm @sm:text-base"
               >
@@ -693,7 +708,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
                 </div>
               </Button>
               <Button 
-                onClick={() => handleQuestionnaireComplete({ loanType: 'Conventional', dpa: true })}
+                onClick={() => handleQuestionnaireComplete({ loanType: 'Conventional', dpa: true, downPaymentPercent: '3.5' })}
                 {...getTemplateButtonStyles('secondary')}
                 className="h-10 @sm:h-14 text-sm @sm:text-base"
               >
@@ -713,7 +728,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
             <p className="mb-6 text-center text-sm @sm:text-base" style={{ color: colors.text }}>Your down payment amount affects your loan options and monthly payments</p>
             <div className="grid grid-cols-2 @md:grid-cols-3 gap-1.5 @sm:gap-4">
               <Button 
-                onClick={() => handleQuestionnaireComplete({ loanType: 'Conventional', dpa: true })}
+                onClick={() => handleQuestionnaireComplete({ loanType: 'Conventional', dpa: true, downPaymentPercent: '3' })}
                 {...getTemplateButtonStyles('secondary')}
                 className="h-10 @sm:h-14 text-sm @sm:text-base"
               >
@@ -723,7 +738,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
                 </div>
               </Button>
               <Button 
-                onClick={() => handleQuestionnaireComplete({ loanType: 'FHA' })}
+                onClick={() => handleQuestionnaireComplete({ loanType: 'FHA', downPaymentPercent: '4' })}
                 {...getTemplateButtonStyles('secondary')}
                 className="h-10 @sm:h-14 text-sm @sm:text-base"
               >
@@ -733,7 +748,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
                 </div>
               </Button>
               <Button 
-                onClick={() => handleQuestionnaireComplete({ loanType: 'Conventional' })}
+                onClick={() => handleQuestionnaireComplete({ loanType: 'Conventional', downPaymentPercent: '5' })}
                 {...getTemplateButtonStyles('secondary')}
                 className="h-10 @sm:h-14 text-sm @sm:text-base col-span-2 @md:col-span-1"
               >
