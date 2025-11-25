@@ -857,7 +857,7 @@ export default function CustomizerPage() {
           .customizer-container .public-profile-container {
             width: auto !important;
             max-width: none !important;
-            min-width: 1200px !important;
+            min-width: 900px !important;
           }
           
           /* Prevent child elements from being constrained in customizer preview (desktop only) */
@@ -901,7 +901,7 @@ export default function CustomizerPage() {
           }
         `}</style>
         <div className="w-full max-h-[calc(100vh-120px)] overflow-x-auto overflow-y-auto customizer-scroll-wrapper">
-          <div className="flex flex-col bg-gray-50 customizer-container min-w-[1500px] min-h-[calc(100vh-120px)]">
+          <div className="flex flex-col bg-gray-50 customizer-container min-w-[1200px] min-h-[calc(100vh-120px)]">
           {/* Header Controls */}
           <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0">
             <div className="flex flex-row items-center justify-between gap-0">
@@ -1145,7 +1145,7 @@ export default function CustomizerPage() {
                       className={`transition-all duration-300 ${
                         isMobileView 
                           ? 'customizer-mobile-preview w-[375px] h-[667px] overflow-y-auto overflow-x-auto rounded-[28px] shadow-2xl border border-gray-300 bg-white m-0'
-                          : 'min-h-full min-w-[1200px] w-full overflow-auto bg-white rounded-lg shadow-sm border border-gray-200'
+                          : 'min-h-full min-w-[900px] w-full overflow-auto bg-white rounded-lg shadow-sm border border-gray-200'
                       }`}
                     style={{
                       fontFamily: mergedTemplate?.typography?.fontFamily || 'Inter',
@@ -1283,10 +1283,8 @@ function GeneralSettings({ template, onChange }: SettingsProps) {
 
   const sections = [
     { id: 'colors', label: 'Colors', icon: Palette, component: ColorsSettings },
-    { id: 'typography', label: 'Typography', icon: Type, component: TypographySettings },
     { id: 'content', label: 'Content', icon: Settings, component: ContentSettings },
-    { id: 'layout', label: 'Layout', icon: Layout, component: LayoutSettings },
-    { id: 'advanced', label: 'Advanced', icon: Settings, component: AdvancedSettings }
+    { id: 'layout', label: 'Layout', icon: Layout, component: LayoutSettings }
   ];
 
   return (
@@ -2181,39 +2179,11 @@ function LayoutSettings({ template, onChange }: SettingsProps) {
 
   // Provide default values to prevent controlled/uncontrolled input errors
   const layout = {
-    alignment: template.layout?.alignment || 'center',
-    spacing: template.layout?.spacing || 16,
     borderRadius: template.layout?.borderRadius || 8
   };
 
   return (
     <div className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Alignment</label>
-        <select
-          value={layout.alignment}
-          onChange={(e) => onChange('alignment', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        >
-          <option value="left">Left</option>
-          <option value="center">Center</option>
-          <option value="right">Right</option>
-        </select>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Spacing</label>
-        <input
-          type="range"
-          min="8"
-          max="32"
-          value={layout.spacing}
-          onChange={(e) => onChange('spacing', parseInt(e.target.value))}
-          className="w-full"
-        />
-        <div className="text-sm text-gray-500 mt-1">{layout.spacing}px</div>
-      </div>
-
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">Border Radius</label>
         <input
