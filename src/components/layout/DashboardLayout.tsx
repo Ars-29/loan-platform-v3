@@ -63,7 +63,7 @@ const DashboardLayout = memo(function DashboardLayout({
       <StaticHeader />
 
       {/* Main Content */}
-      <main style={dashboard.mainContent}>
+      <main style={dashboard.mainContent} className='max-w-[98%] mx-auto sm:max-w-[95%] md:max-w-[90%] lg:max-w-[85%]'>
         <div style={{ padding: '24px 0' }}>
           {/* Breadcrumb Navigation - New modern approach */}
           {shouldShowBreadcrumb && (
