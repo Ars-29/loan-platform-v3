@@ -3,7 +3,6 @@
 import React, { useState, useCallback, memo, useEffect, useMemo } from 'react';
 import { spacing, borderRadius, shadows, typography, colors } from '@/theme/theme';
 import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
-import Icon from '@/components/ui/Icon';
 import SmartDropdown, { type SmartDropdownOption } from '@/components/ui/SmartDropdown';
 
 interface SearchFormData {
@@ -663,7 +662,7 @@ function MortgageSearchForm({
               options={creditScoreOptions}
               placeholder="Select credit score"
               borderRadius={templateLayout.borderRadius}
-              buttonClassName="h-10"
+              buttonClassName="h-10 w-full min-w-0"
             />
           </div>
         </div>
@@ -689,7 +688,7 @@ function MortgageSearchForm({
               options={propertyTypeOptions}
               placeholder="Select property type"
               borderRadius={templateLayout.borderRadius}
-              buttonClassName="h-10"
+              buttonClassName="h-10 w-full min-w-0"
             />
           </div>
           <div>
@@ -708,7 +707,7 @@ function MortgageSearchForm({
               options={occupancyOptions}
               placeholder="Select residency"
               borderRadius={templateLayout.borderRadius}
-              buttonClassName="h-10"
+              buttonClassName="h-10 w-full min-w-0"
             />
           </div>
           <div>
@@ -727,7 +726,7 @@ function MortgageSearchForm({
               options={loanTermOptions}
               placeholder="Select loan term"
               borderRadius={templateLayout.borderRadius}
-              buttonClassName="h-10"
+              buttonClassName="h-10 w-full min-w-0"
             />
           </div>
         </div>
@@ -783,7 +782,7 @@ function MortgageSearchForm({
                     options={yesNoOptions}
                     placeholder="Waive escrow?"
                     borderRadius={templateLayout.borderRadius}
-                    buttonClassName="h-10"
+                    buttonClassName="h-10 w-full min-w-0"
                   />
                 </div>
 
@@ -804,7 +803,7 @@ function MortgageSearchForm({
                     options={yesNoOptions}
                     placeholder="Military/Veteran?"
                     borderRadius={templateLayout.borderRadius}
-                    buttonClassName="h-10"
+                    buttonClassName="h-10 w/full min-w-0"
                   />
                 </div>
 
@@ -829,7 +828,7 @@ function MortgageSearchForm({
                     ]}
                     placeholder="Lock days"
                     borderRadius={templateLayout.borderRadius}
-                    buttonClassName="h-10"
+                    buttonClassName="h-10 w-full min-w-0"
                   />
                 </div>
 
