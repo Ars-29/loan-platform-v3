@@ -131,6 +131,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
   const [stepHistory, setStepHistory] = useState<string[]>(['landing']);
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
   const [questionnaireFormData, setQuestionnaireFormData] = useState<Partial<SearchFormData> | undefined>(undefined);
+  const [pendingAutoSearchData, setPendingAutoSearchData] = useState<SearchFormData | null>(null);
 
   // Get template-specific styles and content
   const { getTemplateSync } = useEfficientTemplates();
@@ -174,7 +175,9 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
     setQuestionnaireAnswers(allAnswers);
     
     // Generate form data from questionnaire answers
-    await autoSearchFromQuestionnaire(allAnswers);
+    const formData = await autoSearchFromQuestionnaire(allAnswers);
+    
+    setPendingAutoSearchData(formData);
     
     // Hide questionnaire and show search form with pre-filled values
     setShowQuestionnaire(false);
@@ -235,7 +238,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
   };
 
   // Auto-search based on questionnaire answers
-  const autoSearchFromQuestionnaire = async (answers: Record<string, any>) => {
+  const autoSearchFromQuestionnaire = async (answers: Record<string, any>): Promise<SearchFormData> => {
     // Extract values from questionnaire answers
     let loanType = 'Conventional';
     let creditScore = '740-759';
@@ -362,8 +365,7 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
       loanTerms: formDataPartial.loanTerms || ["ThirtyYear", "TwentyYear", "TwentyFiveYear", "FifteenYear", "TenYear"]
     };
 
-    // Don't auto-trigger search - let user see the form with pre-filled values
-    // await handleSearch(formData);
+    return formData;
   };
 
   // Handle search - transform form data to Mortech API format
@@ -504,6 +506,15 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!pendingAutoSearchData || !questionnaireFormData) {
+      return;
+    }
+
+    handleSearch(pendingAutoSearchData);
+    setPendingAutoSearchData(null);
+  }, [pendingAutoSearchData, questionnaireFormData, handleSearch]);
 
   // Get template content
   const getTemplateContent = () => {
