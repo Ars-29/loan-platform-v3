@@ -345,14 +345,12 @@ export default function LandingPageTabs({
             <nav 
               className="overflow-x-auto overflow-y-hidden scrollbar-rounded gap-2 @sm:gap-3"
               style={{ 
-                paddingTop: `${layout.padding.small}px`,
-                paddingBottom: `${layout.padding.small + 8}px`,
                 display: 'flex',
                 flexWrap: 'nowrap',
                 alignItems: 'center',
                 scrollBehavior: 'smooth',
                 WebkitOverflowScrolling: 'touch',
-                minHeight: '80px'
+                minHeight: '70px'
               }}
             >
             {filteredTabs.map((tab, index) => {
