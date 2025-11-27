@@ -228,7 +228,7 @@ export default function PublicProfileContent({
       {/* Unified Template Rendering with Suspense - PUBLIC MODE */}
       <Suspense fallback={<SkeletonLoader />}>
         {/* Main Content Area (container that wraps hero, content, footer) */}
-        <div className={`w-full min-w-0 px-2 py-2 public-profile-container ${forceMobileViewport ? '' : '@[48rem]:px-4 @[48rem]:py-4 @[64rem]:px-6 @[64rem]:py-6'}`}>
+        <div className={`w-full min-w-0 public-profile-container`}>
           <div 
             className="overflow-auto w-full"
             style={{ 

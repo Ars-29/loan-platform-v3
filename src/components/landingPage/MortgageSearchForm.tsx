@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useCallback, memo, useEffect } from 'react';
+import React, { useState, useCallback, memo, useEffect, useMemo } from 'react';
 import { spacing, borderRadius, shadows, typography, colors } from '@/theme/theme';
 import { useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
 import Icon from '@/components/ui/Icon';
+import SmartDropdown, { type SmartDropdownOption } from '@/components/ui/SmartDropdown';
 
 interface SearchFormData {
   zipCode: string;
@@ -92,6 +93,52 @@ function MortgageSearchForm({
     padding: { small: 8, medium: 16, large: 24 },
     spacing: 16
   };
+
+  const creditScoreOptions = useMemo<SmartDropdownOption[]>(() => [
+    { value: '800+', label: '800 or greater' },
+    { value: '780-799', label: '780 - 799' },
+    { value: '760-779', label: '760 - 779' },
+    { value: '740-759', label: '740 - 759' },
+    { value: '720-739', label: '720 - 739' },
+    { value: '700-719', label: '700 - 719' },
+    { value: '680-699', label: '680 - 699' },
+    { value: '660-679', label: '660 - 679' },
+    { value: '640-659', label: '640 - 659' },
+    { value: '620-639', label: '620 - 639' },
+    { value: '580-619', label: '580 - 619' },
+    { value: 'Below 580', label: 'Below 580' }
+  ], []);
+
+  const propertyTypeOptions = useMemo<SmartDropdownOption[]>(() => [
+    { value: 'SingleFamily', label: 'Single Family' },
+    { value: 'AttachedCondo', label: 'Attached Condo' },
+    { value: 'DetachedCondo', label: 'Detached Condo' },
+    { value: 'Townhouse', label: 'Townhome' },
+    { value: '2Unit', label: '2 Unit' },
+    { value: '3Unit', label: '3 Unit' },
+    { value: '4Unit', label: '4 Unit' },
+    { value: '1Unit', label: '1 Unit' },
+    { value: 'Manufactured', label: 'Manufactured Home' }
+  ], []);
+
+  const occupancyOptions = useMemo<SmartDropdownOption[]>(() => [
+    { value: 'PrimaryResidence', label: 'Primary' },
+    { value: 'SecondHome', label: 'Secondary Home' },
+    { value: 'Investment', label: 'Investment' }
+  ], []);
+
+  const loanTermOptions = useMemo<SmartDropdownOption[]>(() => [
+    { value: '30', label: '30 Year Fixed' },
+    { value: '25', label: '25 Year Fixed' },
+    { value: '20', label: '20 Year Fixed' },
+    { value: '15', label: '15 Year Fixed' },
+    { value: '10', label: '10 Year Fixed' }
+  ], []);
+
+  const yesNoOptions = useMemo<SmartDropdownOption[]>(() => [
+    { value: 'No', label: 'No' },
+    { value: 'Yes', label: 'Yes' }
+  ], []);
   
   const defaultFormData: SearchFormData = {
     zipCode: '75024',
@@ -204,7 +251,7 @@ function MortgageSearchForm({
         .mortgage-form-container {
           container-type: inline-size;
           container-name: mortgage-form;
-          overflow: hidden;
+          overflow: visible;
           max-width: 100%;
         }
         
@@ -240,7 +287,7 @@ function MortgageSearchForm({
           .row1-purchase > div,
           .row1-refinance > div {
             min-width: 0;
-            overflow: hidden;
+            overflow: visible;
           }
         }
         
@@ -270,7 +317,7 @@ function MortgageSearchForm({
           }
           .row2 > div {
             min-width: 0;
-            overflow: hidden;
+            overflow: visible;
           }
         }
         
@@ -279,6 +326,13 @@ function MortgageSearchForm({
           .row2 {
             grid-template-columns: 1fr;
             gap: 0.5rem;
+          }
+        }
+
+        /* Dropdowns span full width on narrow screens */
+        @container mortgage-form (max-width: 400px) {
+          .dropdown-field {
+            grid-column: 1 / -1;
           }
         }
         
@@ -359,7 +413,7 @@ function MortgageSearchForm({
         .row2 > div {
           min-width: 0;
           width: 100%;
-          overflow: hidden;
+          overflow: visible;
         }
         
         /* Ensure flex containers within grid items don't overflow */
@@ -603,35 +657,14 @@ function MortgageSearchForm({
             }}>
               Credit Score
             </label>
-            <select
+            <SmartDropdown
               value={formData.creditScore}
-              onChange={(e) => handleInputChange('creditScore', e.target.value)}
-              style={{ 
-                width: '100%',
-                height: '40px',
-                padding: `${spacing[2]} ${spacing[3]}`,
-                border: `1px solid ${colors.gray[300]}`,
-                borderRadius: `${templateLayout.borderRadius}px`,
-                outline: 'none',
-                fontSize: typography.fontSize.base,
-                color: templateColors.text,
-                backgroundColor: templateColors.background,
-                boxSizing: 'border-box'
-              }}
-            >
-              <option value="800+">800 or greater</option>
-              <option value="780-799">780 - 799</option>
-              <option value="760-779">760 - 779</option>
-              <option value="740-759">740 - 759</option>
-              <option value="720-739">720 - 739</option>
-              <option value="700-719">700 - 719</option>
-              <option value="680-699">680 - 699</option>
-              <option value="660-679">660 - 679</option>
-              <option value="640-659">640 - 659</option>
-              <option value="620-639">620 - 639</option>
-              <option value="580-619">580 - 619</option>
-              <option value="Below 580">Below 580</option>
-            </select>
+              onChange={(value) => handleInputChange('creditScore', value)}
+              options={creditScoreOptions}
+              placeholder="Select credit score"
+              borderRadius={templateLayout.borderRadius}
+              buttonClassName="h-10"
+            />
           </div>
         </div>
 
@@ -650,32 +683,14 @@ function MortgageSearchForm({
             }}>
               Property Type
             </label>
-            <select
+            <SmartDropdown
               value={formData.propertyType}
-              onChange={(e) => handleInputChange('propertyType', e.target.value)}
-              style={{ 
-                width: '100%',
-                height: '40px',
-                padding: `${spacing[2]} ${spacing[3]}`,
-                border: `1px solid ${colors.gray[300]}`,
-                borderRadius: `${templateLayout.borderRadius}px`,
-                outline: 'none',
-                fontSize: typography.fontSize.base,
-                color: templateColors.text,
-                backgroundColor: templateColors.background,
-                boxSizing: 'border-box'
-              }}
-            >
-              <option value="SingleFamily">Single Family</option>
-              <option value="AttachedCondo">Attached Condo</option>
-              <option value="DetachedCondo">Detached Condo</option>
-              <option value="Townhouse">Townhome</option>
-              <option value="2Unit">2 Unit</option>
-              <option value="3Unit">3 Unit</option>
-              <option value="4Unit">4 Unit</option>
-              <option value="1Unit">1 Unit</option>
-              <option value="Manufactured">Manufactured Home</option>
-            </select>
+              onChange={(value) => handleInputChange('propertyType', value)}
+              options={propertyTypeOptions}
+              placeholder="Select property type"
+              borderRadius={templateLayout.borderRadius}
+              buttonClassName="h-10"
+            />
           </div>
           <div>
             <label style={{ 
@@ -687,26 +702,14 @@ function MortgageSearchForm({
             }}>
               Residency Usage
             </label>
-            <select
+            <SmartDropdown
               value={formData.occupancy}
-              onChange={(e) => handleInputChange('occupancy', e.target.value)}
-              style={{ 
-                width: '100%',
-                height: '40px',
-                padding: `${spacing[2]} ${spacing[3]}`,
-                border: `1px solid ${colors.gray[300]}`,
-                borderRadius: `${templateLayout.borderRadius}px`,
-                outline: 'none',
-                fontSize: typography.fontSize.base,
-                color: templateColors.text,
-                backgroundColor: templateColors.background,
-                boxSizing: 'border-box'
-              }}
-            >
-              <option value="PrimaryResidence">Primary</option>
-              <option value="SecondHome">Secondary Home</option>
-              <option value="Investment">Investment</option>
-            </select>
+              onChange={(value) => handleInputChange('occupancy', value)}
+              options={occupancyOptions}
+              placeholder="Select residency"
+              borderRadius={templateLayout.borderRadius}
+              buttonClassName="h-10"
+            />
           </div>
           <div>
             <label style={{ 
@@ -718,28 +721,14 @@ function MortgageSearchForm({
             }}>
               Loan Term
             </label>
-            <select
+            <SmartDropdown
               value={formData.loanTerm}
-              onChange={(e) => handleInputChange('loanTerm', e.target.value)}
-              style={{ 
-                width: '100%',
-                height: '40px',
-                padding: `${spacing[2]} ${spacing[3]}`,
-                border: `1px solid ${colors.gray[300]}`,
-                borderRadius: `${templateLayout.borderRadius}px`,
-                outline: 'none',
-                fontSize: typography.fontSize.base,
-                color: templateColors.text,
-                backgroundColor: templateColors.background,
-                boxSizing: 'border-box'
-              }}
-            >
-              <option value="30">30 Year Fixed</option>
-              <option value="25">25 Year Fixed</option>
-              <option value="20">20 Year Fixed</option>
-              <option value="15">15 Year Fixed</option>
-              <option value="10">10 Year Fixed</option>
-            </select>
+              onChange={(value) => handleInputChange('loanTerm', value)}
+              options={loanTermOptions}
+              placeholder="Select loan term"
+              borderRadius={templateLayout.borderRadius}
+              buttonClassName="h-10"
+            />
           </div>
         </div>
 
@@ -788,25 +777,14 @@ function MortgageSearchForm({
                   }}>
                     Waive Escrow
                   </label>
-                  <select
+                  <SmartDropdown
                     value={formData.waiveEscrow ? 'Yes' : 'No'}
-                    onChange={(e) => handleInputChange('waiveEscrow', e.target.value === 'Yes')}
-                    style={{ 
-                      width: '100%',
-                      height: '40px',
-                      padding: `${spacing[2]} ${spacing[3]}`,
-                      border: `1px solid ${colors.gray[300]}`,
-                      borderRadius: `${templateLayout.borderRadius}px`,
-                      outline: 'none',
-                      fontSize: typography.fontSize.base,
-                      color: templateColors.text,
-                      backgroundColor: templateColors.background,
-                      boxSizing: 'border-box'
-                    }}
-                  >
-                    <option value="No">No</option>
-                    <option value="Yes">Yes</option>
-                  </select>
+                    onChange={(value) => handleInputChange('waiveEscrow', value === 'Yes')}
+                    options={yesNoOptions}
+                    placeholder="Waive escrow?"
+                    borderRadius={templateLayout.borderRadius}
+                    buttonClassName="h-10"
+                  />
                 </div>
 
                 {/* Military/Veteran */}
@@ -820,25 +798,14 @@ function MortgageSearchForm({
                   }}>
                     Military/Veteran
                   </label>
-                  <select
+                  <SmartDropdown
                     value={formData.militaryVeteran ? 'Yes' : 'No'}
-                    onChange={(e) => handleInputChange('militaryVeteran', e.target.value === 'Yes')}
-                    style={{ 
-                      width: '100%',
-                      height: '40px',
-                      padding: `${spacing[2]} ${spacing[3]}`,
-                      border: `1px solid ${colors.gray[300]}`,
-                      borderRadius: `${templateLayout.borderRadius}px`,
-                      outline: 'none',
-                      fontSize: typography.fontSize.base,
-                      color: templateColors.text,
-                      backgroundColor: templateColors.background,
-                      boxSizing: 'border-box'
-                    }}
-                  >
-                    <option value="No">No</option>
-                    <option value="Yes">Yes</option>
-                  </select>
+                    onChange={(value) => handleInputChange('militaryVeteran', value === 'Yes')}
+                    options={yesNoOptions}
+                    placeholder="Military/Veteran?"
+                    borderRadius={templateLayout.borderRadius}
+                    buttonClassName="h-10"
+                  />
                 </div>
 
                 {/* Lock Days */}
@@ -852,26 +819,18 @@ function MortgageSearchForm({
                   }}>
                     Lock Days
                   </label>
-                  <select
+                  <SmartDropdown
                     value={formData.lockDays}
-                    onChange={(e) => handleInputChange('lockDays', e.target.value)}
-                    style={{ 
-                      width: '100%',
-                      height: '40px',
-                      padding: `${spacing[2]} ${spacing[3]}`,
-                      border: `1px solid ${colors.gray[300]}`,
-                      borderRadius: `${templateLayout.borderRadius}px`,
-                      outline: 'none',
-                      fontSize: typography.fontSize.base,
-                      color: templateColors.text,
-                      backgroundColor: templateColors.background,
-                      boxSizing: 'border-box'
-                    }}
-                  >
-                    <option value="30">30 days</option>
-                    <option value="45">45 days</option>
-                    <option value="60">60 days</option>
-                  </select>
+                    onChange={(value) => handleInputChange('lockDays', value)}
+                    options={[
+                      { value: '30', label: '30 days' },
+                      { value: '45', label: '45 days' },
+                      { value: '60', label: '60 days' }
+                    ]}
+                    placeholder="Lock days"
+                    borderRadius={templateLayout.borderRadius}
+                    buttonClassName="h-10"
+                  />
                 </div>
 
                 {/* Second Mortgage Amount */}
