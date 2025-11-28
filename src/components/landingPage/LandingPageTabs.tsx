@@ -320,8 +320,7 @@ export default function LandingPageTabs({
             background: `linear-gradient(to right, ${colors.primary}10, ${colors.primary}05, ${colors.primary}10)`,
             paddingLeft: '1rem',
             paddingRight: '1rem',
-            borderTopLeftRadius: `${layout.borderRadius}px`,
-            borderTopRightRadius: `${layout.borderRadius}px`
+            borderRadius: `${layout.borderRadius}px`,
           }}
         />
         
@@ -334,8 +333,7 @@ export default function LandingPageTabs({
             color: colors.border,
             paddingLeft: '1rem',
             paddingRight: '1rem',
-            borderTopLeftRadius: `${layout.borderRadius}px`,
-            borderTopRightRadius: `${layout.borderRadius}px`
+            borderRadius: `${layout.borderRadius}px`,
           }}
         />
         

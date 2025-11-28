@@ -485,7 +485,7 @@ export default function UnifiedHeroSection({
             // Horizontal Layout (Template2) - Responsive: Stack on mobile, horizontal on desktop
             <div className={`flex flex-col ${forceMobileView ? 'w-full overflow-hidden' : '@[60rem]:flex-row @[60rem]:items-start'}`}>
               {/* Left Section: Officer Info (80%) */}
-                <div className={`${forceMobileView ? 'w-full max-w-full' : 'w-full'} mb-6 ${forceMobileView ? '' : '@[48rem]:w-3/4 @[48rem]:pr-8 @[48rem]:flex-shrink-0 @[48rem]:mb-0'}`}>
+                <div className={`${forceMobileView ? 'w-full max-w-full' : 'w-full'} mb-6 ${forceMobileView ? '' : '@[48rem]:w-3/4 @[48rem]:flex-shrink-0 @[48rem]:mb-0'}`}>
                  <div className={`flex flex-col @[50rem]:flex-row gap-3 ${forceMobileView ? 'items-center justify-center w-full max-w-full min-w-0' : 'items-start @[50rem]:justify-start'}`}>
                   {/* Profile Image */}
                    <div className="flex justify-center @[50rem]:justify-start items-center mx-auto">
@@ -631,8 +631,8 @@ export default function UnifiedHeroSection({
               <div className={`${forceMobileView ? 'block' : '@[60rem]:hidden'} w-full h-px bg-white opacity-30 my-6`}></div>
 
               {/* Right Section: Company Info (20%) */}
-              <div className={`w-full ${forceMobileView ? '' : '@[48rem]:w-1/4 @[48rem]:pl-4 @[48rem]:flex-shrink-0'}`}>
-                <div className="flex flex-col @[22rem]:flex-row @[50rem]:flex-col justify-center items-start @[50rem]:items-center space-x-4">
+              <div className={`w-full ${forceMobileView ? '' : '@[48rem]:pl-4 '}`}>
+                <div className="flex flex-row @lg:flex-col justify-center items-center @lg:items-start @lg:justify-start gap-2">
                   {/* Company Logo */}
                   <div className="w-14 h-14 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0"
                     style={{
@@ -672,7 +672,7 @@ export default function UnifiedHeroSection({
                     <div className="space-y-2 text-base text-white opacity-90">
                       {/* Company Email */}
                       {companyData?.email && (
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center">
                           <div className="w-4 h-4 flex items-center justify-center">
                             <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                               <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
