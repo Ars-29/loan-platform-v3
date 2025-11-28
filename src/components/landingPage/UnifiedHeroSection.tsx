@@ -60,6 +60,7 @@ interface UnifiedHeroSectionProps {
   };
   // Force mobile view (for customizer mobile preview)
   forceMobileView?: boolean;
+  onApplyNowRequest?: () => void;
 }
 
 export default function UnifiedHeroSection({
@@ -79,7 +80,8 @@ export default function UnifiedHeroSection({
   // NEW: Company data props
   companyData,
   // Force mobile view
-  forceMobileView = false
+  forceMobileView = false,
+  onApplyNowRequest
 }: UnifiedHeroSectionProps) {
   // Debug: Log force mobile view state
   console.log('🔍 UnifiedHeroSection: forceMobileView =', forceMobileView, 'template =', template);
@@ -172,20 +174,11 @@ export default function UnifiedHeroSection({
   };
 
   const handleApplyNow = () => {
-    // Get the officer's email
-    const officerEmail = isPublic ? publicUserData?.email : email;
-    const officerFirstName = isPublic ? publicUserData?.name?.split(' ')[0] : officerName?.split(' ')[0];
-    
-    if (!officerEmail) {
-      console.warn('No officer email available for Apply Now functionality');
+    if (onApplyNowRequest) {
+      onApplyNowRequest();
       return;
     }
-
-    // Create mailto link
-    const subject = encodeURIComponent('Loan Application Inquiry');
-    const body = encodeURIComponent(`Hi ${officerFirstName || 'there'}, I'm interested in your loan services. Please contact me to discuss my application.`);
-    
-    window.location.href = `mailto:${officerEmail}?subject=${subject}&body=${body}`;
+    console.warn('UnifiedHeroSection: onApplyNowRequest not provided; Apply Now action skipped.');
   };
 
   // Use helper functions to get display values

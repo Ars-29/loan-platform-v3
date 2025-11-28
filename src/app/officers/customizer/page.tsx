@@ -1787,25 +1787,25 @@ function ColorsSettings({ template, onChange }: SettingsProps) {
   const themes = [
     {
       value: 'default',
-      label: 'Default',
+      label: 'LoanOff Default',
       primary: '#005b7c',
       secondary: '#01bcc6'
     },
     {
       value: 'theme1',
-      label: 'Theme 1',
+      label: 'Luxury',
       primary: '#064E3B',
       secondary: '#D4AF37'
     },
     {
       value: 'theme2',
-      label: 'Theme 2',
+      label: 'Modern',
       primary: '#374151',
       secondary: '#9CA3AF'
     },
     {
       value: 'theme3',
-      label: 'Theme 3',
+      label: 'Premium',
       primary: '#000000',
       secondary: '#62a0ea'
     }

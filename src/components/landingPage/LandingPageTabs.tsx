@@ -153,6 +153,7 @@ export default function LandingPageTabs({
   // Get enabled tabs from customization or use all tabs
   const enabledTabs = templateCustomization?.bodyModifications?.enabledTabs || tabs.map(tab => tab.id);
   const filteredTabs = tabs.filter(tab => enabledTabs.includes(tab.id));
+  const navigationTabs = filteredTabs.filter(tab => tab.id !== 'apply-now');
   
   // Get active tab from customization or use prop
   const effectiveActiveTab = templateCustomization?.bodyModifications?.activeTab || activeTab;
@@ -341,7 +342,7 @@ export default function LandingPageTabs({
         {/* Scrollable Tab Container */}
         <div className="relative">
           {/* Scrollable Tab Navigation */}
-          <div className="relative max-w-7xl mx-auto px-4">
+          <div className="relative w-full mx-auto px-4 flex justify-center">
             <nav 
               className="overflow-x-auto overflow-y-hidden scrollbar-rounded gap-2 @sm:gap-3"
               style={{ 
@@ -353,7 +354,7 @@ export default function LandingPageTabs({
                 minHeight: '70px'
               }}
             >
-            {filteredTabs.map((tab, index) => {
+            {navigationTabs.map((tab, index) => {
               const isActive = effectiveActiveTab === tab.id;
               return (
                 <button

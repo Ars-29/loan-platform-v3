@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, lazy, Suspense } from 'react';
+import { useState, useRef, lazy, Suspense } from 'react';
 import Icon, { icons } from '@/components/ui/Icon';
 import type { TabId } from '@/components/landingPage/LandingPageTabs';
 
@@ -113,6 +113,7 @@ export default function PublicProfileContent({
   forceMobileViewport = false
 }: PublicProfileContentProps) {
   const [activeTab, setActiveTab] = useState<TabId>(initialActiveTab);
+  const tabsSectionRef = useRef<HTMLDivElement | null>(null);
 
   // Debug: Log force mobile viewport state
   console.log('🔍 PublicProfileContent: forceMobileViewport =', forceMobileViewport);
@@ -126,6 +127,17 @@ export default function PublicProfileContent({
     if (onTabChange) {
       onTabChange(tabId);
     }
+  };
+
+  const scrollTabsIntoView = () => {
+    if (tabsSectionRef.current) {
+      tabsSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handleHeroApplyNow = () => {
+    handleTabChange('apply-now');
+    scrollTabsIntoView();
   };
 
   // Memoize user information
@@ -269,6 +281,7 @@ export default function PublicProfileContent({
                   company_social_media: profileData.company.company_social_media
                 }}
                 forceMobileView={forceMobileViewport}
+                onApplyNowRequest={handleHeroApplyNow}
               />
             </div>
 
@@ -314,7 +327,6 @@ export default function PublicProfileContent({
                                 { id: 'todays-rates', label: "Today's Rates", icon: 'rates' },
                                 { id: 'get-custom-rate', label: 'Get My Custom Rate', icon: 'custom' },
                                 { id: 'document-checklist', label: 'Document Checklist', icon: 'document' },
-                                { id: 'apply-now', label: 'Apply Now', icon: 'applyNow' },
                                 { id: 'my-home-value', label: 'My Home Value', icon: 'home' },
                                 { id: 'find-my-home', label: 'Find My Home', icon: 'home' },
                                 { id: 'learning-center', label: 'Learning Center', icon: 'about' }
@@ -366,7 +378,7 @@ export default function PublicProfileContent({
                       </div>
                       
                       {/* Right Content Area - Selected Tab Details */}
-                      <div className="flex-1 min-w-0 w-full overflow-auto">
+                      <div className="flex-1 min-w-0 w-full overflow-auto" ref={tabsSectionRef}>
                         <LandingPageTabs
                           isPublic={true}
                           publicTemplateData={templateData}
@@ -396,7 +408,7 @@ export default function PublicProfileContent({
                   // Grid Layout (Template1) - Responsive: Flex column on mobile, grid on desktop
                   return (
                     <div className={`flex flex-col gap-4 w-full ${gridLayoutClasses}`}>
-                      <div className={`w-full overflow-x-auto ${gridContentClasses}`}>
+                      <div className={`w-full overflow-x-auto ${gridContentClasses}`} ref={tabsSectionRef}>
                         <LandingPageTabs
                           isPublic={true}
                           publicTemplateData={templateData}
