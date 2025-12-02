@@ -483,10 +483,10 @@ export default function UnifiedHeroSection({
             </div>
           ) : (
             // Horizontal Layout (Template2) - Responsive: Stack on mobile, horizontal on desktop
-            <div className={`flex flex-col ${forceMobileView ? 'w-full overflow-hidden' : '@[60rem]:flex-row @[60rem]:items-start'}`}>
+            <div className={`flex flex-col justify-center ${forceMobileView ? 'w-full overflow-hidden' : '@4xl:flex-row @4xl:items-center'}`}>
               {/* Left Section: Officer Info (80%) */}
-                <div className={`${forceMobileView ? 'w-full max-w-full' : 'w-full'} mb-6 ${forceMobileView ? '' : '@[48rem]:w-3/4 @[48rem]:flex-shrink-0 @[48rem]:mb-0'}`}>
-                 <div className={`flex flex-col @[50rem]:flex-row gap-3 ${forceMobileView ? 'items-center justify-center w-full max-w-full min-w-0' : 'items-start @[50rem]:justify-start'}`}>
+                <div className={`mx-auto @3xl:mx-0 ${forceMobileView ? 'w-full max-w-full' : 'w-full'} mb-6 ${forceMobileView ? '' : '@[48rem]:w-3/4 @[48rem]:flex-shrink-0 @[48rem]:mb-0'}`}>
+                 <div className={`flex flex-col @[50rem]:flex-row gap-3 ${forceMobileView ? 'items-center justify-center w-full max-w-full min-w-0' : 'items-center @[50rem]:justify-center'}`}>
                   {/* Profile Image */}
                    <div className="flex justify-center @[50rem]:justify-start items-center mx-auto">
                     <div className={`${avatarFeatureClasses}`}>
@@ -519,7 +519,7 @@ export default function UnifiedHeroSection({
                   </div>
 
                   {/* Officer Info */}
-                   <div className="flex flex-col items-center @sm:items-start justify-center w-full my-auto">
+                   <div className="flex flex-col items-center @3xl:items-start justify-center w-full my-auto">
                     <h1 
                       className={`text-lg @[18.75rem]:text-xl @[20rem]:text-2xl @[30rem]:text-3xl @[40rem]:text-4xl font-bold text-white mb-2 @[18.75rem]:mb-3 @[20rem]:mb-4 ${forceMobileView ? '' : '@[64rem]:text-5xl'}`}
                       style={{ 
@@ -530,7 +530,7 @@ export default function UnifiedHeroSection({
                     </h1>
                     
                     {/* Officer Contact Info */}
-                     <div className="flex flex-col items-start @[50rem]:flex-row @[50rem]:items-center text-xs @[18.75rem]:text-sm @[20rem]:text-base @[30rem]:text-lg gap-2 @[18.75rem]:gap-3 text-white opacity-90 mb-4 @[18.75rem]:mb-5 @[20rem]:mb-6">
+                     <div className="flex flex-col items-start @4xl:flex-row @4xl:items-center text-xs @[18.75rem]:text-sm @[20rem]:text-base @[30rem]:text-lg gap-2 @[18.75rem]:gap-3 text-white opacity-90 mb-4 @[18.75rem]:mb-5 @[20rem]:mb-6">
                       {/* Officer Email */}
                       {displayEmail && (
                         <>
@@ -545,7 +545,7 @@ export default function UnifiedHeroSection({
                           </div>
                           
                           {/* Dot Separator */}
-                          <span className="text-white opacity-50 hidden @[50rem]:block">•</span>
+                          <span className="text-white opacity-50 hidden @4xl:block">•</span>
                         </>
                       )}
                       
@@ -632,7 +632,7 @@ export default function UnifiedHeroSection({
 
               {/* Right Section: Company Info (20%) */}
               <div className={`w-full ${forceMobileView ? '' : '@[48rem]:pl-4 '}`}>
-                <div className="flex flex-row @lg:flex-col justify-center items-center @lg:items-start @lg:justify-start gap-2">
+                <div className="flex flex-row @4xl:flex-col justify-center items-center @3xl:items-start @3xl:justify-start gap-2">
                   {/* Company Logo */}
                   <div className="w-14 h-14 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0"
                     style={{
