@@ -1,40 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { cloudinary } from '@/lib/cloudinary';
+import { UploadApiErrorResponse, UploadApiResponse } from 'cloudinary';
 
-// Initialize Supabase client for server-side operations
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+type CloudinaryUploadResult = {
+  secure_url: string;
+  public_id: string;
+  resource_type: string;
+};
 
 // POST /api/upload/avatar - Upload profile avatar image
 export async function POST(request: NextRequest) {
   try {
-    // Get the authorization header
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { success: false, error: 'Authorization header required' },
-        { status: 401 }
-      );
-    }
-
-    // Extract the token
-    const token = authHeader.replace('Bearer ', '');
-    
-    // Verify the token and get user info
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
-      console.error('❌ Avatar Upload API: Auth error:', authError);
-      return NextResponse.json(
-        { success: false, error: 'Invalid or expired token' },
-        { status: 401 }
-      );
-    }
-
     // Parse the form data
     const formData = await request.formData();
     const file = formData.get('avatar') as File;
+    const folder = 'avatars';
     
     if (!file) {
       return NextResponse.json(
@@ -64,54 +44,47 @@ export async function POST(request: NextRequest) {
     console.log('🔍 Avatar Upload API: Processing upload:', {
       fileName: file.name,
       fileSize: file.size,
-      fileType: file.type,
-      userId: user.id
+      fileType: file.type
     });
 
-    // Generate unique filename
-    const fileExt = file.name.split('.').pop();
-    const fileName = `avatar-${user.id}-${Date.now()}.${fileExt}`;
-    const filePath = `avatars/${fileName}`;
+    // Upload to Cloudinary
+    const fileBuffer = Buffer.from(await file.arrayBuffer());
 
-    // Convert file to buffer
-    const fileBuffer = await file.arrayBuffer();
-
-    // Upload to Supabase Storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('profile-images')
-      .upload(filePath, fileBuffer, {
-        contentType: file.type,
-        upsert: false
-      });
-
-    if (uploadError) {
-      console.error('❌ Avatar Upload API: Upload error:', uploadError);
-      return NextResponse.json(
-        { success: false, error: 'Failed to upload image' },
-        { status: 500 }
-      );
-    }
-
-    // Get public URL
-    const { data: urlData } = supabase.storage
-      .from('profile-images')
-      .getPublicUrl(filePath);
-
-    const publicUrl = urlData.publicUrl;
+    const uploadResult = await new Promise<CloudinaryUploadResult>((resolve, reject) => {
+      cloudinary.uploader
+        .upload_stream(
+          {
+            folder,
+            resource_type: 'image',
+            overwrite: false,
+            unique_filename: true
+          },
+          (error: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
+            if (error || !result) {
+              return reject(error || new Error('Cloudinary upload failed'));
+            }
+            resolve({
+              secure_url: result.secure_url,
+              public_id: result.public_id,
+              resource_type: result.resource_type
+            });
+          }
+        )
+        .end(fileBuffer);
+    });
 
     console.log('✅ Avatar Upload API: Upload successful:', {
-      fileName,
-      filePath,
-      publicUrl,
-      userId: user.id
+      publicId: uploadResult.public_id,
+      url: uploadResult.secure_url,
+      resourceType: uploadResult.resource_type
     });
 
     return NextResponse.json({
       success: true,
       data: {
-        url: publicUrl,
-        fileName,
-        filePath
+        url: uploadResult.secure_url,
+        publicId: uploadResult.public_id,
+        resourceType: uploadResult.resource_type
       },
       message: 'Avatar uploaded successfully'
     });
@@ -132,59 +105,25 @@ export async function POST(request: NextRequest) {
 // DELETE /api/upload/avatar - Delete profile avatar image
 export async function DELETE(request: NextRequest) {
   try {
-    // Get the authorization header
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { success: false, error: 'Authorization header required' },
-        { status: 401 }
-      );
-    }
-
-    // Extract the token
-    const token = authHeader.replace('Bearer ', '');
+    const { publicId } = await request.json();
     
-    // Verify the token and get user info
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
-      console.error('❌ Avatar Delete API: Auth error:', authError);
+    if (!publicId) {
       return NextResponse.json(
-        { success: false, error: 'Invalid or expired token' },
-        { status: 401 }
-      );
-    }
-
-    const { filePath } = await request.json();
-    
-    if (!filePath) {
-      return NextResponse.json(
-        { success: false, error: 'File path required' },
+        { success: false, error: 'publicId required' },
         { status: 400 }
       );
     }
 
     console.log('🔍 Avatar Delete API: Deleting file:', {
-      filePath,
-      userId: user.id
+      publicId
     });
 
-    // Delete from Supabase Storage
-    const { error: deleteError } = await supabase.storage
-      .from('profile-images')
-      .remove([filePath]);
-
-    if (deleteError) {
-      console.error('❌ Avatar Delete API: Delete error:', deleteError);
-      return NextResponse.json(
-        { success: false, error: 'Failed to delete image' },
-        { status: 500 }
-      );
-    }
+    await cloudinary.uploader.destroy(publicId, {
+      resource_type: 'image'
+    });
 
     console.log('✅ Avatar Delete API: Delete successful:', {
-      filePath,
-      userId: user.id
+      publicId
     });
 
     return NextResponse.json({

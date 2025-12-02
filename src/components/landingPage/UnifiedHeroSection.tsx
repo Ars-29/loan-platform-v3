@@ -189,6 +189,7 @@ export default function UnifiedHeroSection({
   const displayImage = getProfileImage();
   const hasExplicitImage = !!displayImage;
   const showInitials = imageError || !hasExplicitImage;
+  {console.log('displayImage', displayImage)}
 
   // No need for profile fetching - using user data directly
 
@@ -372,7 +373,7 @@ export default function UnifiedHeroSection({
                   </div>
                 ) : (
                     <div 
-                      className="w-full h-full rounded-full border-2 @[20rem]:border-4 border-white shadow-lg overflow-hidden"
+                      className="relative w-full h-full rounded-full border-2 @[20rem]:border-4 border-white shadow-lg overflow-hidden"
                       style={{ borderColor: colors.primary }}
                     >
                   <Image
@@ -492,15 +493,15 @@ export default function UnifiedHeroSection({
                     <div className={`${avatarFeatureClasses}`}>
                       {showInitials ? (
                         <div
-                          className={`w-full h-full rounded-full border-2 @[20rem]:border-4 border-white shadow-lg flex items-center justify-center text-white font-bold ${avatarFeatureInitialsClasses}`}
-                          style={{ backgroundColor: colors.primary, borderColor: colors.primary }}
+                        className={`w-full h-full rounded-full border-2 @[20rem]:border-4 border-white shadow-lg flex items-center justify-center text-white font-bold ${avatarFeatureInitialsClasses}`}
+                        style={{ backgroundColor: colors.primary, borderColor: colors.primary }}
                         >
                           {displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
                         </div>
                       ) : (
                         <div 
-                          className="w-full h-full rounded-full border-2 @[20rem]:border-4 border-white shadow-lg overflow-hidden"
-                          style={{ borderColor: colors.primary }}
+                        className="relative w-full h-full rounded-full border-2 @[20rem]:border-4 border-white shadow-lg overflow-hidden"
+                        style={{ borderColor: colors.primary }}
                         >
                           <Image
                             src={displayImage as string}
