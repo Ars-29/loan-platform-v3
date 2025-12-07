@@ -154,16 +154,51 @@ export async function DELETE(
       );
     }
 
-    // Delete from Cloudinary if public_id exists
-    if (existingVideo[0].cloudinaryPublicId) {
+    const video = existingVideo[0];
+
+    // Delete video from Cloudinary if public_id exists
+    if (video.cloudinaryPublicId) {
       try {
-        await cloudinary.uploader.destroy(existingVideo[0].cloudinaryPublicId, {
+        await cloudinary.uploader.destroy(video.cloudinaryPublicId, {
           resource_type: 'video'
         });
-        console.log('✅ Deleted video from Cloudinary:', existingVideo[0].cloudinaryPublicId);
+        console.log('✅ Deleted video from Cloudinary:', video.cloudinaryPublicId);
       } catch (cloudinaryError) {
         console.error('❌ Error deleting video from Cloudinary:', cloudinaryError);
         // Continue with database deletion even if Cloudinary deletion fails
+      }
+    }
+
+    // Delete thumbnail from Cloudinary if it exists and is a custom upload
+    // Custom thumbnails are in the format: https://res.cloudinary.com/.../upload/v1234567890/officer-content/videos/thumbnails/[public_id].[ext]
+    // Auto-generated thumbnails are transformations and don't need separate deletion
+    if (video.thumbnailUrl) {
+      try {
+        // Check if thumbnail is a custom upload (contains '/thumbnails/' in the path)
+        const thumbnailUrl = video.thumbnailUrl;
+        if (thumbnailUrl.includes('/thumbnails/')) {
+          // Extract public_id from Cloudinary URL
+          // Format: https://res.cloudinary.com/cloud_name/image/upload/v1234567890/officer-content/videos/thumbnails/public_id.jpg
+          const urlMatch = thumbnailUrl.match(/\/upload\/v\d+\/(.+)$/);
+          if (urlMatch && urlMatch[1]) {
+            // Remove file extension to get the public_id
+            const publicId = urlMatch[1].split('.')[0];
+            
+            try {
+              await cloudinary.uploader.destroy(publicId, {
+                resource_type: 'image'
+              });
+              console.log('✅ Deleted thumbnail from Cloudinary:', publicId);
+            } catch (thumbError) {
+              console.error('❌ Error deleting thumbnail from Cloudinary:', thumbError);
+              // Continue even if thumbnail deletion fails
+            }
+          }
+        }
+        // Auto-generated thumbnails (transformations) don't need separate deletion
+      } catch (thumbnailError) {
+        console.error('❌ Error processing thumbnail deletion:', thumbnailError);
+        // Continue with database deletion
       }
     }
 

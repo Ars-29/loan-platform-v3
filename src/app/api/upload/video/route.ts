@@ -114,9 +114,10 @@ export async function POST(request: NextRequest) {
 
     // Upload thumbnail if provided, otherwise use auto-generated one
     let thumbnailUrl = '';
+    let thumbnailPublicId: string | null = null;
     if (thumbnailFile) {
       const thumbnailBuffer = Buffer.from(await thumbnailFile.arrayBuffer());
-      const thumbnailResult = await new Promise<{ secure_url: string }>((resolve, reject) => {
+      const thumbnailResult = await new Promise<{ secure_url: string; public_id: string }>((resolve, reject) => {
         cloudinary.uploader
           .upload_stream(
             {
@@ -130,13 +131,15 @@ export async function POST(request: NextRequest) {
                 return reject(error || new Error('Cloudinary thumbnail upload failed'));
               }
               resolve({
-                secure_url: result.secure_url
+                secure_url: result.secure_url,
+                public_id: result.public_id
               });
             }
           )
           .end(thumbnailBuffer);
       });
       thumbnailUrl = thumbnailResult.secure_url;
+      thumbnailPublicId = thumbnailResult.public_id;
     } else {
       // Generate thumbnail from video using Cloudinary transformation
       // Use the eager transformation we set, or generate a frame at 1 second
@@ -148,6 +151,7 @@ export async function POST(request: NextRequest) {
           { start_offset: '1' } // Frame at 1 second
         ]
       });
+      // Auto-generated thumbnails are transformations, not separate assets, so no public_id to store
     }
 
     // Format duration as MM:SS or HH:MM:SS
@@ -176,6 +180,7 @@ export async function POST(request: NextRequest) {
       data: {
         video_url: videoUploadResult.secure_url,
         thumbnail_url: thumbnailUrl,
+        thumbnail_public_id: thumbnailPublicId, // Only for custom thumbnails
         duration: formattedDuration,
         public_id: videoUploadResult.public_id,
         format: videoUploadResult.format,

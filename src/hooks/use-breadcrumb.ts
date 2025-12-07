@@ -267,6 +267,12 @@ const breadcrumbConfig: BreadcrumbConfig = {
     icon: 'activity',
     parent: '/officers/dashboard'
   },
+  '/officers/content-management': {
+    path: '/officers/content-management',
+    label: 'Content Management',
+    icon: 'book',
+    parent: '/officers/dashboard'
+  },
 
   // Super Admin Portal Routes
   '/super-admin/dashboard': {

@@ -167,6 +167,7 @@ button: {
   const [guides, setGuides] = useState<any[]>([]);
   const [videoDataMap, setVideoDataMap] = useState<Map<string, any>>(new Map()); // Store full video data with URLs
   const [loadingContent, setLoadingContent] = useState(true);
+  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
 
   // Mock data as fallback
   const mockVideos: Video[] = [
@@ -268,7 +269,7 @@ button: {
                 title: v.title,
                 description: v.description || '',
                 duration: v.duration || '',
-                thumbnail: v.thumbnail_url || '',
+                thumbnail: v.thumbnailUrl || '',
                 category: v.category
               }));
               setVideos(videosList);
@@ -318,7 +319,7 @@ button: {
                 title: v.title,
                 description: v.description || '',
                 duration: v.duration || '',
-                thumbnail: v.thumbnail_url || '',
+                thumbnail: v.thumbnailUrl || '',
                 category: v.category
               }));
               setVideos(videosList);
@@ -492,10 +493,7 @@ button: {
                     e.currentTarget.style.backgroundColor = colors.primary;
                   }}
                   onClick={() => {
-                    const videoData = videoDataMap.get(video.id);
-                    if (videoData?.video_url || videoData?.videoUrl) {
-                      window.open(videoData.video_url || videoData.videoUrl, '_blank');
-                    }
+                    setSelectedVideo(video);
                   }}
                 >
                   <Icon name="play" size={16} color={colors.background} />
@@ -560,7 +558,7 @@ button: {
                     {guide.file_name}
                   </p>
                   <a
-                    href={guide.file_url}
+                    href={guide.fileUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors border-2"
@@ -637,6 +635,68 @@ button: {
           </div>
         </div>
       </div>
+
+      {/* Video Player Modal */}
+      {selectedVideo && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+          onClick={() => setSelectedVideo(null)}
+        >
+          <div 
+            className="relative bg-black rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+            style={{ borderRadius: `${layout.borderRadius}px` }}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-700">
+              <h3 className={`${classes.heading.h5}`} style={{ color: colors.background }}>
+                {selectedVideo.title}
+              </h3>
+              <button
+                onClick={() => setSelectedVideo(null)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <Icon name="close" size={24} />
+              </button>
+            </div>
+            
+            {/* Video Player */}
+            <div className="relative flex-1 flex items-center justify-center p-4">
+              {(() => {
+                const videoData = videoDataMap.get(selectedVideo.id);
+                const videoUrl = videoData?.videoUrl || videoData?.video_url;
+                if (videoUrl) {
+                  return (
+                    <video
+                      controls
+                      autoPlay
+                      className="w-full h-full max-h-[70vh]"
+                      style={{ borderRadius: `${layout.borderRadius}px` }}
+                    >
+                      <source src={videoUrl} type="video/mp4" />
+                      <source src={videoUrl} type="video/webm" />
+                      <source src={videoUrl} type="video/quicktime" />
+                      Your browser does not support the video tag.
+                    </video>
+                  );
+                }
+                return (
+                  <p className="text-white">Video URL not available</p>
+                );
+              })()}
+            </div>
+            
+            {/* Video Description */}
+            {selectedVideo.description && (
+              <div className="p-4 border-t border-gray-700">
+                <p className={`${classes.body.small}`} style={{ color: colors.textSecondary }}>
+                  {selectedVideo.description}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -23,12 +23,12 @@ interface Video {
   title: string;
   description: string;
   category: string;
-  video_url: string;
-  thumbnail_url: string;
+  videoUrl: string;
+  thumbnailUrl: string | null;
   duration: string;
-  cloudinary_public_id: string;
-  created_at?: string;
-  updated_at?: string;
+  cloudinaryPublicId: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface Guide {
@@ -70,6 +70,9 @@ export default function ContentManagementPage() {
   const [faqForm, setFaqForm] = useState<FAQ[]>([]);
   const [editingFaq, setEditingFaq] = useState<FAQ | null>(null);
   const [deletingFaq, setDeletingFaq] = useState<string | null>(null);
+  const [savingFaqs, setSavingFaqs] = useState(false);
+  const [updatingFaq, setUpdatingFaq] = useState<string | null>(null);
+  const [deletingFaqId, setDeletingFaqId] = useState<string | null>(null);
   
   // Video states
   const [videoForm, setVideoForm] = useState({
@@ -83,6 +86,9 @@ export default function ContentManagementPage() {
   const [videoPreview, setVideoPreview] = useState<{ url: string; thumbnail: string; duration: string } | null>(null);
   const [editingVideo, setEditingVideo] = useState<Video | null>(null);
   const [deletingVideo, setDeletingVideo] = useState<string | null>(null);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [updatingVideo, setUpdatingVideo] = useState<string | null>(null);
+  const [deletingVideoId, setDeletingVideoId] = useState<string | null>(null);
   
   // Guide states
   const [guideForm, setGuideForm] = useState({
@@ -93,6 +99,9 @@ export default function ContentManagementPage() {
   const [guideUploadProgress, setGuideUploadProgress] = useState(0);
   const [editingGuide, setEditingGuide] = useState<Guide | null>(null);
   const [deletingGuide, setDeletingGuide] = useState<string | null>(null);
+  const [uploadingGuide, setUploadingGuide] = useState(false);
+  const [updatingGuide, setUpdatingGuide] = useState<string | null>(null);
+  const [deletingGuideId, setDeletingGuideId] = useState<string | null>(null);
 
   // Get auth token
   const getAuthToken = async (): Promise<string | null> => {
@@ -184,6 +193,7 @@ export default function ContentManagementPage() {
     }
 
     try {
+      setSavingFaqs(true);
       const token = await getAuthToken();
       if (!token) throw new Error('No authentication token');
 
@@ -215,11 +225,14 @@ export default function ContentManagementPage() {
         title: 'Error',
         message: 'Failed to save FAQs'
       });
+    } finally {
+      setSavingFaqs(false);
     }
   };
 
   const updateFaq = async (faq: FAQ) => {
     try {
+      setUpdatingFaq(faq.id);
       const token = await getAuthToken();
       if (!token) throw new Error('No authentication token');
 
@@ -255,11 +268,14 @@ export default function ContentManagementPage() {
         title: 'Error',
         message: 'Failed to update FAQ'
       });
+    } finally {
+      setUpdatingFaq(null);
     }
   };
 
   const deleteFaq = async (id: string) => {
     try {
+      setDeletingFaqId(id);
       const token = await getAuthToken();
       if (!token) throw new Error('No authentication token');
 
@@ -287,6 +303,8 @@ export default function ContentManagementPage() {
         title: 'Error',
         message: 'Failed to delete FAQ'
       });
+    } finally {
+      setDeletingFaqId(null);
     }
   };
 
@@ -316,6 +334,7 @@ export default function ContentManagementPage() {
     }
 
     try {
+      setUploadingVideo(true);
       setVideoUploadProgress(0);
       const token = await getAuthToken();
       if (!token) throw new Error('No authentication token');
@@ -384,11 +403,14 @@ export default function ContentManagementPage() {
         message: 'Failed to upload video'
       });
       setVideoUploadProgress(0);
+    } finally {
+      setUploadingVideo(false);
     }
   };
 
   const updateVideo = async (video: Video) => {
     try {
+      setUpdatingVideo(video.id);
       const token = await getAuthToken();
       if (!token) throw new Error('No authentication token');
 
@@ -402,7 +424,7 @@ export default function ContentManagementPage() {
           title: video.title,
           description: video.description,
           category: video.category,
-          thumbnail_url: video.thumbnail_url
+          thumbnail_url: video.thumbnailUrl
         })
       });
 
@@ -425,11 +447,14 @@ export default function ContentManagementPage() {
         title: 'Error',
         message: 'Failed to update video'
       });
+    } finally {
+      setUpdatingVideo(null);
     }
   };
 
   const deleteVideo = async (id: string) => {
     try {
+      setDeletingVideoId(id);
       const token = await getAuthToken();
       if (!token) throw new Error('No authentication token');
 
@@ -457,6 +482,8 @@ export default function ContentManagementPage() {
         title: 'Error',
         message: 'Failed to delete video'
       });
+    } finally {
+      setDeletingVideoId(null);
     }
   };
 
@@ -479,6 +506,7 @@ export default function ContentManagementPage() {
     }
 
     try {
+      setUploadingGuide(true);
       setGuideUploadProgress(0);
       const token = await getAuthToken();
       if (!token) throw new Error('No authentication token');
@@ -537,11 +565,14 @@ export default function ContentManagementPage() {
         message: 'Failed to upload guide'
       });
       setGuideUploadProgress(0);
+    } finally {
+      setUploadingGuide(false);
     }
   };
 
   const updateGuide = async (guide: Guide) => {
     try {
+      setUpdatingGuide(guide.id);
       const token = await getAuthToken();
       if (!token) throw new Error('No authentication token');
 
@@ -576,11 +607,14 @@ export default function ContentManagementPage() {
         title: 'Error',
         message: 'Failed to update guide'
       });
+    } finally {
+      setUpdatingGuide(null);
     }
   };
 
   const deleteGuide = async (id: string) => {
     try {
+      setDeletingGuideId(id);
       const token = await getAuthToken();
       if (!token) throw new Error('No authentication token');
 
@@ -608,8 +642,34 @@ export default function ContentManagementPage() {
         title: 'Error',
         message: 'Failed to delete guide'
       });
+    } finally {
+      setDeletingGuideId(null);
     }
   };
+
+  // Spinner component helper
+  const Spinner = ({ className = 'text-white' }: { className?: string }) => (
+    <svg
+      className={`animate-spin -ml-1 mr-2 h-4 w-4 ${className}`}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      />
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      />
+    </svg>
+  );
 
   if (authLoading || loading) {
     return <PageLoadingState />;
@@ -617,7 +677,7 @@ export default function ContentManagementPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-6">
+      <div className="p-0 sm:p-6">
         <h1 className="text-3xl font-bold mb-6">Content Management</h1>
 
         {/* Tabs */}
@@ -630,6 +690,7 @@ export default function ContentManagementPage() {
             ].map((tab) => (
               <button
                 key={tab.id}
+                type="button"
                 onClick={() => setActiveTab(tab.id as TabType)}
                 className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 font-medium transition-all duration-200 rounded-lg ${
                   activeTab === tab.id
@@ -651,6 +712,7 @@ export default function ContentManagementPage() {
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold">Add FAQs</h2>
                 <button
+                  type="button"
                   onClick={addFaqToForm}
                   className="flex items-center gap-2 px-4 py-2 bg-[#005b7c] text-white rounded-lg hover:bg-[#004a65] transition-colors"
                 >
@@ -668,6 +730,7 @@ export default function ContentManagementPage() {
                       <div className="flex justify-between items-start mb-4">
                         <h3 className="font-semibold">FAQ {index + 1}</h3>
                         <button
+                          type="button"
                           onClick={() => removeFaqFromForm(index)}
                           className="text-red-600 hover:text-red-800"
                         >
@@ -712,10 +775,13 @@ export default function ContentManagementPage() {
                     </div>
                   ))}
                   <button
+                    type="button"
                     onClick={saveAllFaqs}
-                    className="w-full px-6 py-3 bg-[#005b7c] text-white rounded-lg hover:bg-[#004a65] transition-colors font-medium"
+                    disabled={savingFaqs}
+                    className="w-full px-6 py-3 bg-[#005b7c] text-white rounded-lg hover:bg-[#004a65] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                   >
-                    Save All FAQs
+                    {savingFaqs && <Spinner />}
+                    {savingFaqs ? 'Saving...' : 'Save All FAQs'}
                   </button>
                 </div>
               )}
@@ -755,14 +821,19 @@ export default function ContentManagementPage() {
                           </select>
                           <div className="flex gap-2">
                             <button
+                              type="button"
                               onClick={() => updateFaq(editingFaq)}
-                              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                              disabled={updatingFaq === editingFaq.id}
+                              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                             >
-                              Save
+                              {updatingFaq === editingFaq.id && <Spinner />}
+                              {updatingFaq === editingFaq.id ? 'Saving...' : 'Save'}
                             </button>
                             <button
+                              type="button"
                               onClick={() => setEditingFaq(null)}
-                              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                              disabled={updatingFaq === editingFaq.id}
+                              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               Cancel
                             </button>
@@ -780,12 +851,14 @@ export default function ContentManagementPage() {
                             </div>
                             <div className="flex gap-2">
                               <button
+                                type="button"
                                 onClick={() => setEditingFaq(faq)}
                                 className="text-blue-600 hover:text-blue-800"
                               >
                                 <Icon name="edit" size={18} />
                               </button>
                               <button
+                                type="button"
                                 onClick={() => setDeletingFaq(faq.id)}
                                 className="text-red-600 hover:text-red-800"
                               >
@@ -878,11 +951,13 @@ export default function ContentManagementPage() {
                   </div>
                 )}
                 <button
+                  type="button"
                   onClick={uploadVideo}
-                  disabled={videoUploadProgress > 0 && videoUploadProgress < 100}
-                  className="w-full px-6 py-3 bg-[#005b7c] text-white rounded-lg hover:bg-[#004a65] transition-colors font-medium disabled:opacity-50"
+                  disabled={uploadingVideo || (videoUploadProgress > 0 && videoUploadProgress < 100)}
+                  className="w-full px-6 py-3 bg-[#005b7c] text-white rounded-lg hover:bg-[#004a65] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 >
-                  Upload Video
+                  {uploadingVideo && <Spinner />}
+                  {uploadingVideo ? 'Uploading...' : 'Upload Video'}
                 </button>
               </div>
             </SpotlightCard>
@@ -921,14 +996,19 @@ export default function ContentManagementPage() {
                           </select>
                           <div className="flex gap-2">
                             <button
+                              type="button"
                               onClick={() => updateVideo(editingVideo)}
-                              className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700"
+                              disabled={updatingVideo === editingVideo.id}
+                              className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                             >
-                              Save
+                              {updatingVideo === editingVideo.id && <Spinner />}
+                              {updatingVideo === editingVideo.id ? 'Saving...' : 'Save'}
                             </button>
                             <button
+                              type="button"
                               onClick={() => setEditingVideo(null)}
-                              className="px-3 py-1 bg-gray-600 text-white rounded text-sm hover:bg-gray-700"
+                              disabled={updatingVideo === editingVideo.id}
+                              className="px-3 py-1 bg-gray-600 text-white rounded text-sm hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               Cancel
                             </button>
@@ -936,8 +1016,8 @@ export default function ContentManagementPage() {
                         </div>
                       ) : (
                         <>
-                          {video.thumbnail_url && (
-                            <img src={video.thumbnail_url} alt={video.title} className="w-full h-32 object-cover rounded mb-2" />
+                          {video.thumbnailUrl && (
+                            <img src={video.thumbnailUrl} alt={video.title} className="w-full h-32 object-cover rounded mb-2" />
                           )}
                           <h3 className="font-semibold text-sm mb-1">{video.title}</h3>
                           <p className="text-xs text-gray-600 mb-2">{video.description}</p>
@@ -947,12 +1027,14 @@ export default function ContentManagementPage() {
                             </span>
                             <div className="flex gap-2">
                               <button
+                                type="button"
                                 onClick={() => setEditingVideo(video)}
                                 className="text-blue-600 hover:text-blue-800"
                               >
                                 <Icon name="edit" size={16} />
                               </button>
                               <button
+                                type="button"
                                 onClick={() => setDeletingVideo(video.id)}
                                 className="text-red-600 hover:text-red-800"
                               >
@@ -1017,11 +1099,13 @@ export default function ContentManagementPage() {
                   </div>
                 )}
                 <button
+                  type="button"
                   onClick={uploadGuide}
-                  disabled={guideUploadProgress > 0 && guideUploadProgress < 100}
-                  className="w-full px-6 py-3 bg-[#005b7c] text-white rounded-lg hover:bg-[#004a65] transition-colors font-medium disabled:opacity-50"
+                  disabled={uploadingGuide || (guideUploadProgress > 0 && guideUploadProgress < 100)}
+                  className="w-full px-6 py-3 bg-[#005b7c] text-white rounded-lg hover:bg-[#004a65] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 >
-                  Upload Guide
+                  {uploadingGuide && <Spinner />}
+                  {uploadingGuide ? 'Uploading...' : 'Upload Guide'}
                 </button>
               </div>
             </SpotlightCard>
@@ -1054,14 +1138,19 @@ export default function ContentManagementPage() {
                           </select>
                           <div className="flex gap-2">
                             <button
+                              type="button"
                               onClick={() => updateGuide(editingGuide)}
-                              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                              disabled={updatingGuide === editingGuide.id}
+                              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                             >
-                              Save
+                              {updatingGuide === editingGuide.id && <Spinner />}
+                              {updatingGuide === editingGuide.id ? 'Saving...' : 'Save'}
                             </button>
                             <button
+                              type="button"
                               onClick={() => setEditingGuide(null)}
-                              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                              disabled={updatingGuide === editingGuide.id}
+                              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               Cancel
                             </button>
@@ -1086,12 +1175,14 @@ export default function ContentManagementPage() {
                               <Icon name="download" size={18} />
                             </a>
                             <button
+                              type="button"
                               onClick={() => setEditingGuide(guide)}
                               className="text-blue-600 hover:text-blue-800"
                             >
                               <Icon name="edit" size={18} />
                             </button>
                             <button
+                              type="button"
                               onClick={() => setDeletingGuide(guide.id)}
                               className="text-red-600 hover:text-red-800"
                             >
@@ -1116,16 +1207,21 @@ export default function ContentManagementPage() {
               <p className="mb-6">Are you sure you want to delete this FAQ? This action cannot be undone.</p>
               <div className="flex gap-2 justify-end">
                 <button
+                  type="button"
                   onClick={() => setDeletingFaq(null)}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                  disabled={deletingFaqId === deletingFaq}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
                 <button
+                  type="button"
                   onClick={() => deleteFaq(deletingFaq)}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                  disabled={deletingFaqId === deletingFaq}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 >
-                  Delete
+                  {deletingFaqId === deletingFaq && <Spinner />}
+                  {deletingFaqId === deletingFaq ? 'Deleting...' : 'Delete'}
                 </button>
               </div>
             </div>
@@ -1139,16 +1235,21 @@ export default function ContentManagementPage() {
               <p className="mb-6">Are you sure you want to delete this video? This action cannot be undone.</p>
               <div className="flex gap-2 justify-end">
                 <button
+                  type="button"
                   onClick={() => setDeletingVideo(null)}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                  disabled={deletingVideoId === deletingVideo}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
                 <button
+                  type="button"
                   onClick={() => deleteVideo(deletingVideo)}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                  disabled={deletingVideoId === deletingVideo}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 >
-                  Delete
+                  {deletingVideoId === deletingVideo && <Spinner />}
+                  {deletingVideoId === deletingVideo ? 'Deleting...' : 'Delete'}
                 </button>
               </div>
             </div>
@@ -1162,16 +1263,21 @@ export default function ContentManagementPage() {
               <p className="mb-6">Are you sure you want to delete this guide? This action cannot be undone.</p>
               <div className="flex gap-2 justify-end">
                 <button
+                  type="button"
                   onClick={() => setDeletingGuide(null)}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                  disabled={deletingGuideId === deletingGuide}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
                 <button
+                  type="button"
                   onClick={() => deleteGuide(deletingGuide)}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                  disabled={deletingGuideId === deletingGuide}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 >
-                  Delete
+                  {deletingGuideId === deletingGuide && <Spinner />}
+                  {deletingGuideId === deletingGuide ? 'Deleting...' : 'Delete'}
                 </button>
               </div>
             </div>
