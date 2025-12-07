@@ -643,7 +643,7 @@ button: {
           onClick={() => setSelectedVideo(null)}
         >
           <div 
-            className="relative bg-black rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col"
+            className="relative bg-black rounded-lg w-full max-h-[90vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
             style={{ borderRadius: `${layout.borderRadius}px` }}
           >
