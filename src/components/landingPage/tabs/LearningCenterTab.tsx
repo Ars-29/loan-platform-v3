@@ -558,7 +558,7 @@ button: {
                     {guide.file_name}
                   </p>
                   <a
-                    href={guide.fileUrl}
+                    href={guide.funnelUrl || guide.funnel_url || guide.fileUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full flex items-center justify-center gap-2 px-6 py-3 font-medium transition-colors border-2"

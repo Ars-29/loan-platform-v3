@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useAuth } from '@/hooks/use-auth';
 import { useNotification } from '@/components/ui/Notification';
@@ -39,6 +39,7 @@ interface Guide {
   file_name: string;
   file_type: string;
   cloudinary_public_id: string;
+  funnelUrl?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -94,7 +95,8 @@ export default function ContentManagementPage() {
   const [guideForm, setGuideForm] = useState({
     name: '',
     category: '',
-    file: null as File | null
+    file: null as File | null,
+    funnelUrl: ''
   });
   const [guideUploadProgress, setGuideUploadProgress] = useState(0);
   const [editingGuide, setEditingGuide] = useState<Guide | null>(null);
@@ -102,6 +104,10 @@ export default function ContentManagementPage() {
   const [uploadingGuide, setUploadingGuide] = useState(false);
   const [updatingGuide, setUpdatingGuide] = useState<string | null>(null);
   const [deletingGuideId, setDeletingGuideId] = useState<string | null>(null);
+
+  // Refs to prevent unnecessary refetches
+  const hasLoadedRef = useRef(false);
+  const lastUserIdRef = useRef<string | null>(null);
 
   // Get auth token
   const getAuthToken = async (): Promise<string | null> => {
@@ -163,9 +169,18 @@ export default function ContentManagementPage() {
 
   useEffect(() => {
     if (user && !authLoading) {
-      fetchContent();
+      const userId = user.id;
+      
+      // Only fetch if:
+      // 1. We haven't loaded yet, OR
+      // 2. The user ID actually changed
+      if (!hasLoadedRef.current || lastUserIdRef.current !== userId) {
+        hasLoadedRef.current = true;
+        lastUserIdRef.current = userId;
+        fetchContent();
+      }
     }
-  }, [user, authLoading]);
+  }, [user?.id, authLoading]);
 
   // FAQ handlers
   const addFaqToForm = () => {
@@ -188,6 +203,23 @@ export default function ContentManagementPage() {
         type: 'warning',
         title: 'No FAQs',
         message: 'Please add at least one FAQ'
+      });
+      return;
+    }
+
+    // Validate that all FAQs have required fields
+    const missingFields: string[] = [];
+    faqForm.forEach((faq, index) => {
+      if (!faq.question) missingFields.push(`FAQ ${index + 1}: Question`);
+      if (!faq.answer) missingFields.push(`FAQ ${index + 1}: Answer`);
+      if (!faq.category) missingFields.push(`FAQ ${index + 1}: Category`);
+    });
+
+    if (missingFields.length > 0) {
+      showNotification({
+        type: 'warning',
+        title: 'Missing Information',
+        message: `Please fill in the following required fields: ${missingFields.join(', ')}`
       });
       return;
     }
@@ -231,6 +263,21 @@ export default function ContentManagementPage() {
   };
 
   const updateFaq = async (faq: FAQ) => {
+    // Validate required fields
+    const missingFields: string[] = [];
+    if (!faq.question) missingFields.push('Question');
+    if (!faq.answer) missingFields.push('Answer');
+    if (!faq.category) missingFields.push('Category');
+
+    if (missingFields.length > 0) {
+      showNotification({
+        type: 'warning',
+        title: 'Missing Information',
+        message: `Please fill in the following required fields: ${missingFields.join(', ')}`
+      });
+      return;
+    }
+
     try {
       setUpdatingFaq(faq.id);
       const token = await getAuthToken();
@@ -324,11 +371,16 @@ export default function ContentManagementPage() {
   };
 
   const uploadVideo = async () => {
-    if (!videoForm.videoFile || !videoForm.title || !videoForm.category) {
+    const missingFields: string[] = [];
+    if (!videoForm.videoFile) missingFields.push('Video File');
+    if (!videoForm.title) missingFields.push('Title');
+    if (!videoForm.category) missingFields.push('Category');
+
+    if (missingFields.length > 0) {
       showNotification({
         type: 'warning',
         title: 'Missing Information',
-        message: 'Please fill in all required fields and select a video file'
+        message: `Please fill in the following required fields: ${missingFields.join(', ')}`
       });
       return;
     }
@@ -341,7 +393,7 @@ export default function ContentManagementPage() {
 
       // Upload video
       const formData = new FormData();
-      formData.append('video', videoForm.videoFile);
+      formData.append('video', videoForm.videoFile!);
       if (videoForm.thumbnailFile) {
         formData.append('thumbnail', videoForm.thumbnailFile);
       }
@@ -409,6 +461,20 @@ export default function ContentManagementPage() {
   };
 
   const updateVideo = async (video: Video) => {
+    // Validate required fields
+    const missingFields: string[] = [];
+    if (!video.title) missingFields.push('Title');
+    if (!video.category) missingFields.push('Category');
+
+    if (missingFields.length > 0) {
+      showNotification({
+        type: 'warning',
+        title: 'Missing Information',
+        message: `Please fill in the following required fields: ${missingFields.join(', ')}`
+      });
+      return;
+    }
+
     try {
       setUpdatingVideo(video.id);
       const token = await getAuthToken();
@@ -496,11 +562,16 @@ export default function ContentManagementPage() {
   };
 
   const uploadGuide = async () => {
-    if (!guideForm.file || !guideForm.name || !guideForm.category) {
+    const missingFields: string[] = [];
+    if (!guideForm.file) missingFields.push('File');
+    if (!guideForm.name) missingFields.push('Name');
+    if (!guideForm.category) missingFields.push('Category');
+
+    if (missingFields.length > 0) {
       showNotification({
         type: 'warning',
         title: 'Missing Information',
-        message: 'Please fill in all required fields and select a file'
+        message: `Please fill in the following required fields: ${missingFields.join(', ')}`
       });
       return;
     }
@@ -513,7 +584,7 @@ export default function ContentManagementPage() {
 
       // Upload guide
       const formData = new FormData();
-      formData.append('guide', guideForm.file);
+      formData.append('guide', guideForm.file!);
 
       const uploadRes = await fetch('/api/upload/guide', {
         method: 'POST',
@@ -540,7 +611,8 @@ export default function ContentManagementPage() {
           file_url: uploadData.data.file_url,
           file_name: uploadData.data.file_name,
           file_type: uploadData.data.file_type,
-          cloudinary_public_id: uploadData.data.public_id
+          cloudinary_public_id: uploadData.data.public_id,
+          funnel_url: guideForm.funnelUrl || null
         })
       });
 
@@ -551,7 +623,7 @@ export default function ContentManagementPage() {
           title: 'Success',
           message: 'Guide uploaded and saved successfully'
         });
-        setGuideForm({ name: '', category: '', file: null });
+        setGuideForm({ name: '', category: '', file: null, funnelUrl: '' });
         setGuideUploadProgress(0);
         fetchContent();
       } else {
@@ -571,6 +643,20 @@ export default function ContentManagementPage() {
   };
 
   const updateGuide = async (guide: Guide) => {
+    // Validate required fields
+    const missingFields: string[] = [];
+    if (!guide.name) missingFields.push('Name');
+    if (!guide.category) missingFields.push('Category');
+
+    if (missingFields.length > 0) {
+      showNotification({
+        type: 'warning',
+        title: 'Missing Information',
+        message: `Please fill in the following required fields: ${missingFields.join(', ')}`
+      });
+      return;
+    }
+
     try {
       setUpdatingGuide(guide.id);
       const token = await getAuthToken();
@@ -584,7 +670,8 @@ export default function ContentManagementPage() {
         },
         body: JSON.stringify({
           name: guide.name,
-          category: guide.category
+          category: guide.category,
+          funnel_url: guide.funnelUrl || null
         })
       });
 
@@ -684,8 +771,8 @@ export default function ContentManagementPage() {
         <div className="mb-6">
           <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
             {[
-              { id: 'faqs', label: 'FAQs', icon: 'help-circle' },
               { id: 'videos', label: 'Videos', icon: 'play' },
+              { id: 'faqs', label: 'FAQs', icon: 'help-circle' },
               { id: 'guides', label: 'Guides', icon: 'book' }
             ].map((tab) => (
               <button
@@ -1090,6 +1177,17 @@ export default function ContentManagementPage() {
                     ))}
                   </select>
                 </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Funnel URL (Optional)</label>
+                  <input
+                    type="text"
+                    value={guideForm.funnelUrl}
+                    onChange={(e) => setGuideForm({ ...guideForm, funnelUrl: e.target.value })}
+                    className="w-full px-3 py-2 border rounded-lg"
+                    placeholder="https://app.syncly360.com/v2/preview/..."
+                  />
+                  <p className="text-sm text-gray-500 mt-1">If provided, clicking "Download Guide" will redirect to this URL instead of downloading the file.</p>
+                </div>
                 {guideUploadProgress > 0 && guideUploadProgress < 100 && (
                   <div className="w-full bg-gray-200 rounded-full h-2.5">
                     <div
@@ -1136,6 +1234,17 @@ export default function ContentManagementPage() {
                               <option key={cat.id} value={cat.id}>{cat.name}</option>
                             ))}
                           </select>
+                          <div>
+                            <label className="block text-sm font-medium mb-1">Funnel URL (Optional)</label>
+                            <input
+                              type="text"
+                              value={editingGuide.funnelUrl || ''}
+                              onChange={(e) => setEditingGuide({ ...editingGuide, funnelUrl: e.target.value })}
+                              className="w-full px-3 py-2 border rounded-lg"
+                              placeholder="https://app.syncly360.com/v2/preview/..."
+                            />
+                            <p className="text-sm text-gray-500 mt-1">If provided, clicking "Download Guide" will redirect to this URL instead of downloading the file.</p>
+                          </div>
                           <div className="flex gap-2">
                             <button
                               type="button"

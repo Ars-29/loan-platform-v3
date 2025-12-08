@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, category, file_url, file_name, file_type, cloudinary_public_id } = body;
+    const { name, category, file_url, file_name, file_type, cloudinary_public_id, funnel_url } = body;
 
     // Validate required fields
     if (!name || !category || !file_url || !file_name || !cloudinary_public_id) {
@@ -94,6 +94,7 @@ export async function POST(request: NextRequest) {
       name,
       category,
       fileUrl: file_url,
+      funnelUrl: funnel_url || null,
       fileName: file_name,
       fileType: file_type || null,
       cloudinaryPublicId: cloudinary_public_id,

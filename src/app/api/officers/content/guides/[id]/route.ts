@@ -36,7 +36,7 @@ export async function PUT(
 
     const { id } = await params;
     const body = await request.json();
-    const { name, category } = body;
+    const { name, category, funnel_url } = body;
 
     // Validate required fields
     if (!name || !category) {
@@ -73,6 +73,7 @@ export async function PUT(
       .set({
         name,
         category,
+        funnelUrl: funnel_url || null,
         updatedAt: new Date()
       })
       .where(eq(officerContentGuides.id, id))

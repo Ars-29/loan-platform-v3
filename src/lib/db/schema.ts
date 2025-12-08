@@ -386,6 +386,7 @@ export const officerContentGuides = pgTable('officer_content_guides', {
   name: text('name').notNull(),
   category: text('category').notNull(),
   fileUrl: text('file_url').notNull(),
+  funnelUrl: text('funnel_url'), // Optional funnel URL for external redirects
   fileName: text('file_name').notNull(),
   fileType: text('file_type'), // MIME type
   cloudinaryPublicId: text('cloudinary_public_id'), // for deletion
