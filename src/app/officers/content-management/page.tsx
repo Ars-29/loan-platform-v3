@@ -44,6 +44,7 @@ interface Guide {
   updated_at?: string;
 }
 
+// Categories for FAQs and Guides (keep existing)
 const categories = [
   { id: 'mortgage-basics', name: 'Mortgage Basics' },
   { id: 'first-time-buyer', name: 'First-Time Buyer' },
@@ -51,6 +52,29 @@ const categories = [
   { id: 'financing', name: 'Financing' },
   { id: 'application', name: 'Application Process' },
   { id: 'process', name: 'Closing Process' }
+];
+
+// Video loan categories - all sub-categories from all 3 tabs
+const videoCategories = [
+  // Purchase Loans
+  { id: 'conventional', name: 'Conventional', group: 'Purchase Loans' },
+  { id: 'va-loan', name: 'VA Loan', group: 'Purchase Loans' },
+  { id: 'fha-loan', name: 'FHA Loan', group: 'Purchase Loans' },
+  { id: 'jumbo-loan', name: 'Jumbo Loan', group: 'Purchase Loans' },
+  { id: 'usda-loan', name: 'USDA Loan', group: 'Purchase Loans' },
+  { id: '2nd-mortgage', name: '2nd Mortgage', group: 'Purchase Loans' },
+  { id: 'construction-loan', name: 'Construction Loan', group: 'Purchase Loans' },
+  { id: 'down-payment-assistance-loan', name: 'Down Payment Assistance Loan', group: 'Purchase Loans' },
+  // Refinance Loans
+  { id: 'streamline', name: 'Streamline', group: 'Refinance Loans' },
+  { id: 'va-irrrl', name: 'VA IRRRL', group: 'Refinance Loans' },
+  { id: 'heloc', name: 'HELOC', group: 'Refinance Loans' },
+  { id: 'cash-out', name: 'Cash-Out', group: 'Refinance Loans' },
+  // Non-QM Loans
+  { id: '1099-loans', name: '1099 Loans', group: 'Non-QM Loans' },
+  { id: 'va-irrrl', name: 'VA IRRRL', group: 'Non-QM Loans' },
+  { id: 'heloc', name: 'HELOC', group: 'Non-QM Loans' },
+  { id: 'cash-out', name: 'Cash-Out', group: 'Non-QM Loans' }
 ];
 
 type TabType = 'faqs' | 'videos' | 'guides';
@@ -1018,8 +1042,14 @@ export default function ContentManagementPage() {
                     className="w-full px-3 py-2 border rounded-lg"
                   >
                     <option value="">Select category</option>
-                    {categories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    {['Purchase Loans', 'Refinance Loans', 'Non-QM Loans'].map((group) => (
+                      <optgroup key={group} label={group}>
+                        {videoCategories
+                          .filter(cat => cat.group === group)
+                          .map((cat) => (
+                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                          ))}
+                      </optgroup>
                     ))}
                   </select>
                 </div>
@@ -1077,8 +1107,14 @@ export default function ContentManagementPage() {
                             onChange={(e) => setEditingVideo({ ...editingVideo, category: e.target.value })}
                             className="w-full px-3 py-2 border rounded-lg text-sm"
                           >
-                            {categories.map((cat) => (
-                              <option key={cat.id} value={cat.id}>{cat.name}</option>
+                            {['Purchase Loans', 'Refinance Loans', 'Non-QM Loans'].map((group) => (
+                              <optgroup key={group} label={group}>
+                                {videoCategories
+                                  .filter(cat => cat.group === group)
+                                  .map((cat) => (
+                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                  ))}
+                              </optgroup>
                             ))}
                           </select>
                           <div className="flex gap-2">
@@ -1110,7 +1146,7 @@ export default function ContentManagementPage() {
                           <p className="text-xs text-gray-600 mb-2">{video.description}</p>
                           <div className="flex items-center justify-between">
                             <span className="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
-                              {categories.find(c => c.id === video.category)?.name || video.category}
+                              {videoCategories.find(c => c.id === video.category)?.name || categories.find(c => c.id === video.category)?.name || video.category}
                             </span>
                             <div className="flex gap-2">
                               <button

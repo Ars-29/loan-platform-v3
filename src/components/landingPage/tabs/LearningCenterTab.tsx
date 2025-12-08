@@ -158,7 +158,9 @@ button: {
     }
   };
   const [activeSection, setActiveSection] = useState<'videos' | 'faq' | 'guides'>('videos');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all'); // For FAQs and Guides
+  const [selectedVideoTab, setSelectedVideoTab] = useState<string>('all');
+  const [selectedVideoSubCategory, setSelectedVideoSubCategory] = useState<string>('all');
   const [expandedFAQ, setExpandedFAQ] = useState<string | null>(null);
   
   // State for fetched content
@@ -232,6 +234,7 @@ button: {
     }
   ];
 
+  // Categories for FAQs and Guides (keep existing)
   const categories = [
     { id: 'all', name: 'All Topics' },
     { id: 'mortgage-basics', name: 'Mortgage Basics' },
@@ -241,6 +244,47 @@ button: {
     { id: 'application', name: 'Application Process' },
     { id: 'process', name: 'Closing Process' }
   ];
+
+  // Video loan categories structure with 3 main tabs
+  const videoLoanCategories = {
+    'purchase-loans': {
+      id: 'purchase-loans',
+      name: 'Purchase Loans',
+      subCategories: [
+        { id: 'all', name: 'All Purchase Loans' },
+        { id: 'conventional', name: 'Conventional' },
+        { id: 'va-loan', name: 'VA Loan' },
+        { id: 'fha-loan', name: 'FHA Loan' },
+        { id: 'jumbo-loan', name: 'Jumbo Loan' },
+        { id: 'usda-loan', name: 'USDA Loan' },
+        { id: '2nd-mortgage', name: '2nd Mortgage' },
+        { id: 'construction-loan', name: 'Construction Loan' },
+        { id: 'down-payment-assistance-loan', name: 'Down Payment Assistance Loan' }
+      ]
+    },
+    'refinance-loans': {
+      id: 'refinance-loans',
+      name: 'Refinance Loans',
+      subCategories: [
+        { id: 'all', name: 'All Refinance Loans' },
+        { id: 'streamline', name: 'Streamline' },
+        { id: 'va-irrrl', name: 'VA IRRRL' },
+        { id: 'heloc', name: 'HELOC' },
+        { id: 'cash-out', name: 'Cash-Out' }
+      ]
+    },
+    'non-qm-loans': {
+      id: 'non-qm-loans',
+      name: 'Non-QM Loans',
+      subCategories: [
+        { id: 'all', name: 'All Non-QM Loans' },
+        { id: '1099-loans', name: '1099 Loans' },
+        { id: 'va-irrrl', name: 'VA IRRRL' },
+        { id: 'heloc', name: 'HELOC' },
+        { id: 'cash-out', name: 'Cash-Out' }
+      ]
+    }
+  };
 
   // Fetch content from API
   useEffect(() => {
@@ -364,9 +408,42 @@ button: {
     fetchContent();
   }, [user, userId, isPublic, publicTemplateData]);
 
-  const filteredVideos = selectedCategory === 'all' 
-    ? videos 
-    : videos.filter(video => video.category === selectedCategory);
+  // Reset sub-category when switching video tabs or when switching to videos section
+  useEffect(() => {
+    if (activeSection === 'videos') {
+      setSelectedVideoSubCategory('all');
+    }
+  }, [selectedVideoTab, activeSection]);
+
+  // Filter videos by tab and sub-category
+  const filteredVideos = activeSection === 'videos' 
+    ? (() => {
+        // If "All" is selected, show all videos
+        if (selectedVideoTab === 'all') {
+          return videos;
+        }
+        
+        const currentTab = videoLoanCategories[selectedVideoTab as keyof typeof videoLoanCategories];
+        if (!currentTab) return videos;
+        
+        // Get all sub-category IDs for the current tab (excluding 'all')
+        const tabSubCategoryIds = currentTab.subCategories
+          .filter(sub => sub.id !== 'all')
+          .map(sub => sub.id);
+        
+        // Filter by tab sub-categories
+        let filtered = videos.filter(video => tabSubCategoryIds.includes(video.category));
+        
+        // Further filter by selected sub-category if not 'all'
+        if (selectedVideoSubCategory !== 'all') {
+          filtered = filtered.filter(video => video.category === selectedVideoSubCategory);
+        }
+        
+        return filtered;
+      })()
+    : (selectedCategory === 'all' 
+        ? videos 
+        : videos.filter(video => video.category === selectedCategory));
 
   const filteredFAQs = selectedCategory === 'all' 
     ? faqs 
@@ -419,32 +496,112 @@ button: {
         </div>
       </div>
 
-      {/* Category Filter */}
-      <div className="mb-6">
-        <div className="flex flex-wrap gap-2">
-          {categories.map((category) => (
-            <button
-              key={category.id}
-              onClick={() => setSelectedCategory(category.id)}
-              className={`px-4 py-2 font-medium transition-all duration-200 ${
-                selectedCategory === category.id
-                  ? 'border'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-              style={selectedCategory === category.id ? {
-                backgroundColor: `${colors.primary}20`,
-                color: colors.primary,
-                borderColor: colors.primary,
-                borderRadius: `${layout.borderRadius}px`
-              } : {
-                borderRadius: `${layout.borderRadius}px`
-              }}
-            >
-              {category.name}
-            </button>
-          ))}
+      {/* Category Filter - Conditional Rendering */}
+      {activeSection === 'videos' ? (
+        <div className="mb-6">
+          {/* Main Video Tabs - Styled as sub-navigation */}
+          <div className="mb-4 pl-2" style={{ borderColor: colors.primary }}>
+            <div className="flex flex-col sm:flex-row gap-2">
+              {/* All Videos Tab */}
+              <button
+                onClick={() => setSelectedVideoTab('all')}
+                className={`px-3 sm:px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                  selectedVideoTab === 'all'
+                    ? 'shadow-sm'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+                style={selectedVideoTab === 'all' ? {
+                  backgroundColor: `${colors.primary}15`,
+                  color: colors.primary,
+                  borderBottom: `3px solid ${colors.primary}`,
+                  borderRadius: `${layout.borderRadius}px`
+                } : {
+                  backgroundColor: 'transparent',
+                  borderRadius: `${layout.borderRadius}px`
+                }}
+              >
+                All
+              </button>
+              {/* Category Tabs */}
+              {Object.values(videoLoanCategories).map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setSelectedVideoTab(tab.id)}
+                  className={`px-3 sm:px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                    selectedVideoTab === tab.id
+                      ? 'shadow-sm'
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                  style={selectedVideoTab === tab.id ? {
+                    backgroundColor: `${colors.primary}15`,
+                    color: colors.primary,
+                    borderBottom: `3px solid ${colors.primary}`,
+                    borderRadius: `${layout.borderRadius}px`
+                  } : {
+                    backgroundColor: 'transparent',
+                    borderRadius: `${layout.borderRadius}px`
+                  }}
+                >
+                  {tab.name}
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          {/* Sub-Category Filter - Only show when a specific tab is selected (not "All") */}
+          {selectedVideoTab !== 'all' && videoLoanCategories[selectedVideoTab as keyof typeof videoLoanCategories] && (
+            <div className="flex flex-wrap gap-2">
+              {videoLoanCategories[selectedVideoTab as keyof typeof videoLoanCategories].subCategories.map((subCategory) => (
+                <button
+                  key={subCategory.id}
+                  onClick={() => setSelectedVideoSubCategory(subCategory.id)}
+                  className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium transition-all duration-200 ${
+                    selectedVideoSubCategory === subCategory.id
+                      ? 'border-2'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                  style={selectedVideoSubCategory === subCategory.id ? {
+                    backgroundColor: `${colors.primary}20`,
+                    color: colors.primary,
+                    borderColor: colors.primary,
+                    borderRadius: `${layout.borderRadius}px`
+                  } : {
+                    borderRadius: `${layout.borderRadius}px`
+                  }}
+                >
+                  {subCategory.name}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
-      </div>
+      ) : (
+        <div className="mb-6">
+          <div className="flex flex-wrap gap-2">
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className={`px-4 py-2 font-medium transition-all duration-200 ${
+                  selectedCategory === category.id
+                    ? 'border'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+                style={selectedCategory === category.id ? {
+                  backgroundColor: `${colors.primary}20`,
+                  color: colors.primary,
+                  borderColor: colors.primary,
+                  borderRadius: `${layout.borderRadius}px`
+                } : {
+                  borderRadius: `${layout.borderRadius}px`
+                }}
+              >
+                {category.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Content Sections */}
       {activeSection === 'videos' && (
@@ -509,23 +666,40 @@ button: {
         <div className="space-y-4">
           {filteredFAQs.map((faq) => (
             <div key={faq.id} className={`${classes.card.container}`} style={{ borderRadius: `${layout.borderRadius}px` }}>
-              <div className={`${classes.card.body}`}>
+              <div className={`${classes.card.body}`} style={{ padding: 0 }}>
                 <button
                   onClick={() => setExpandedFAQ(expandedFAQ === faq.id ? null : faq.id)}
-                  className="w-full text-left flex items-center justify-between"
+                  className="w-full text-left flex items-center justify-between py-3 px-6 hover:opacity-90 transition-opacity"
+                  style={{
+                    backgroundColor: colors.primary,
+                    color: colors.background,
+                    borderRadius: `${layout.borderRadius}px ${layout.borderRadius}px 0 0`
+                  }}
                 >
-                  <h3 className={`${classes.heading.h5}`}>
+                  <h3 
+                    className="text-base font-semibold leading-snug pr-4"
+                  >
                     {faq.question}
                   </h3>
                   <Icon 
                     name={expandedFAQ === faq.id ? 'chevronUp' : 'chevronDown'} 
                     size={20} 
-                    color={colors.textSecondary}
+                    color={colors.background}
+                    className="flex-shrink-0"
                   />
                 </button>
                 {expandedFAQ === faq.id && (
-                  <div className="mt-4 pt-4 border-t border-gray-200">
-                    <p className={`${classes.body.base}`}>
+                  <div 
+                    className="px-6 py-4"
+                    style={{ 
+                      backgroundColor: colors.background,
+                      borderRadius: `0 0 ${layout.borderRadius}px ${layout.borderRadius}px`
+                    }}
+                  >
+                    <p 
+                      className="text-base leading-relaxed"
+                      style={{ color: colors.text }}
+                    >
                       {faq.answer}
                     </p>
                   </div>
