@@ -224,6 +224,9 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
     if (creditScore === '580-619') return '580-619';
     if (creditScore === '620-639') return '620-639';
     if (creditScore === '640+') return '640-659'; // Map 640+ to closest range
+    if (creditScore === '640-679') return '660-679'; // Map 640-679 to middle range
+    if (creditScore === '680-719') return '700-719'; // Map 680-719 to middle range
+    if (creditScore === '720+') return '720-739'; // Map 720+ to closest range
     if (creditScore === '640-659') return '640-659';
     if (creditScore === '660-679') return '660-679';
     if (creditScore === '680-699') return '680-699';
@@ -633,13 +636,33 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
                 </div>
               </Button>
               <Button 
-                onClick={() => handleQuestionnaireStepChange('purchase-military', { creditScore: '640+' })}
+                onClick={() => handleQuestionnaireStepChange('purchase-military', { creditScore: '640-679' })}
                 {...getTemplateButtonStyles('secondary')}
                 className="h-10 @sm:h-14 text-sm @sm:text-base"
               >
                 <div className="flex items-center space-x-3">
                   {React.createElement(icons.star, { size: 20, color: colors.background })}
-                  <span>640 or higher</span>
+                  <span>640 to 679</span>
+                </div>
+              </Button>
+              <Button 
+                onClick={() => handleQuestionnaireStepChange('purchase-military', { creditScore: '680-719' })}
+                {...getTemplateButtonStyles('secondary')}
+                className="h-10 @sm:h-14 text-sm @sm:text-base"
+              >
+                <div className="flex items-center space-x-3">
+                  {React.createElement(icons.trendingUp, { size: 20, color: colors.background })}
+                  <span>680 to 719</span>
+                </div>
+              </Button>
+              <Button 
+                onClick={() => handleQuestionnaireStepChange('purchase-military', { creditScore: '720+' })}
+                {...getTemplateButtonStyles('secondary')}
+                className="h-10 @sm:h-14 text-sm @sm:text-base"
+              >
+                <div className="flex items-center space-x-3">
+                  {React.createElement(icons.star, { size: 20, color: colors.background })}
+                  <span>720 or higher</span>
                 </div>
               </Button>
             </div>
