@@ -11,6 +11,7 @@ import { typography, colors, spacing, borderRadius } from '@/theme/theme';
 import { icons } from '@/components/ui/Icon';
 import Loader from '@/components/ui/Loader';
 import SmartDropdown, { SmartDropdownOption } from '@/components/ui/SmartDropdown';
+import { useNotification } from '@/components/ui/Notification';
 // Breadcrumb is now handled automatically by DashboardLayout
 
 interface Lead {
@@ -87,6 +88,7 @@ export default function LeadDetailsPage() {
   const params = useParams();
   const router = useRouter();
   const { user, accessToken } = useAuth();
+  const { showNotification } = useNotification();
   const [lead, setLead] = useState<Lead | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -237,6 +239,16 @@ export default function LeadDetailsPage() {
 
       await response.json();
       setLead(prevLead => prevLead ? { ...prevLead, [field]: value } : null);
+      
+      // Show success notification when leadQualityScore is updated
+      if (field === 'leadQualityScore') {
+        showNotification({
+          type: 'success',
+          title: 'Lead Quality Score Updated',
+          message: `Lead quality score has been successfully updated to ${value}/10.`,
+          duration: 3000,
+        });
+      }
     } catch (err) {
       console.error('Error updating lead:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to update lead. Please try again.';
@@ -503,88 +515,44 @@ export default function LeadDetailsPage() {
         </div>
 
         {/* Conversion Timeline */}
-        <SpotlightCard variant="default" className="mt-6 p-6 dashboard-card detail-card">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            {React.createElement(icons.clock, { size: 20, className: "mr-2" })}
-            Conversion Timeline
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {lead.conversionDate && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Conversion Date</label>
-                <p className="text-gray-900">{formatDate(lead.conversionDate)}</p>
-              </div>
-            )}
-            {lead.applicationDate && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Application Date</label>
-                <p className="text-gray-900">{formatDate(lead.applicationDate)}</p>
-              </div>
-            )}
-            {lead.approvalDate && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Approval Date</label>
-                <p className="text-gray-900">{formatDate(lead.approvalDate)}</p>
-              </div>
-            )}
-            {lead.closingDate && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Closing Date</label>
-                <p className="text-gray-900">{formatDate(lead.closingDate)}</p>
-              </div>
-            )}
-          </div>
-        </SpotlightCard>
-
-        {/* Additional Data */}
-        {(lead.tags || lead.customFields || lead.propertyDetails) && (
-          <SpotlightCard variant="default" className="mt-6 p-6 dashboard-card detail-card">
+        {lead.applicationDate||lead.approvalDate||lead.closingDate||lead.conversionDate &&
+          (
+            <SpotlightCard variant="default" className="mt-6 p-6 dashboard-card detail-card">
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              {React.createElement(icons.fileText, { size: 20, className: "mr-2" })}
-              Additional Data
+              {React.createElement(icons.clock, { size: 20, className: "mr-2" })}
+              Conversion Timeline
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {lead.tags && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {lead.conversionDate && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
-                  <div className="flex flex-wrap gap-1">
-                    {Array.isArray(lead.tags) ? lead.tags.map((tag: string, index: number) => (
-                      <span key={index} className="inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium bg-blue-100 text-blue-800">
-                        {tag}
-                      </span>
-                    )) : (
-                      <span className="text-gray-900">{lead.tags}</span>
-                    )}
-                  </div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Conversion Date</label>
+                  <p className="text-gray-900">{formatDate(lead.conversionDate)}</p>
                 </div>
               )}
-              {lead.customFields && (
+              {lead.applicationDate && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Custom Fields</label>
-                  <div className="text-sm text-gray-900">
-                    {typeof lead.customFields === 'object' ? (
-                      <pre className="whitespace-pre-wrap">{JSON.stringify(lead.customFields, null, 2)}</pre>
-                    ) : (
-                      <p>{lead.customFields}</p>
-                    )}
-                  </div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Application Date</label>
+                  <p className="text-gray-900">{formatDate(lead.applicationDate)}</p>
                 </div>
               )}
-              {lead.propertyDetails && (
+              {lead.approvalDate && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Property Details</label>
-                  <div className="text-sm text-gray-900">
-                    {typeof lead.propertyDetails === 'object' ? (
-                      <pre className="whitespace-pre-wrap">{JSON.stringify(lead.propertyDetails, null, 2)}</pre>
-                    ) : (
-                      <p>{lead.propertyDetails}</p>
-                    )}
-                  </div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Approval Date</label>
+                  <p className="text-gray-900">{formatDate(lead.approvalDate)}</p>
+                </div>
+              )}
+              {lead.closingDate && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Closing Date</label>
+                  <p className="text-gray-900">{formatDate(lead.closingDate)}</p>
                 </div>
               )}
             </div>
           </SpotlightCard>
-        )}
+          )
+        }
+
+
 
         {/* Loan Details - Simplified */}
         {lead.loanDetails && (

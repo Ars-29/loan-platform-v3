@@ -132,6 +132,8 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
   const [questionnaireFormData, setQuestionnaireFormData] = useState<Partial<SearchFormData> | undefined>(undefined);
   const [pendingAutoSearchData, setPendingAutoSearchData] = useState<SearchFormData | null>(null);
+  const [loanAmount, setLoanAmount] = useState<number | undefined>(undefined);
+  const [downPayment, setDownPayment] = useState<number | undefined>(undefined);
 
   // Get template-specific styles and content
   const { getTemplateSync } = useEfficientTemplates();
@@ -378,15 +380,18 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
     setValidationMessage(null);
     
     try {
-      let loanAmount: number;
       let propertyValue: number;
+      
+      let calculatedLoanAmount: number;
+      let calculatedDownPayment: number | undefined;
       
       if (formData.loanPurpose === 'Refinance') {
         // For refinance: loan amount = mortgage balance (no cash out field)
         const mortgageBalance = parseFloat(formData.mortgageBalance || '0');
-        loanAmount = mortgageBalance;
+        calculatedLoanAmount = mortgageBalance;
+        calculatedDownPayment = undefined; // No down payment for refinance
         // Property value = loan amount (used for API, but not shown in form)
-        propertyValue = loanAmount;
+        propertyValue = calculatedLoanAmount;
         
         // Validation for refinance
         if (mortgageBalance <= 0) {
@@ -397,12 +402,12 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
       } else {
         // For purchase: loan amount = sales price - down payment
         const salesPrice = parseFloat(formData.salesPrice || '0');
-        const downPayment = parseFloat(formData.downPayment || '0');
-        loanAmount = salesPrice - downPayment;
+        calculatedDownPayment = parseFloat(formData.downPayment || '0');
+        calculatedLoanAmount = salesPrice - calculatedDownPayment;
         propertyValue = salesPrice;
         
         // Validation for purchase
-        if (salesPrice > 0 && loanAmount > salesPrice) {
+        if (salesPrice > 0 && calculatedLoanAmount > salesPrice) {
           setValidationMessage('⚠️ Loan amount cannot be more than the property value. Please adjust your down payment or purchase price.');
           setLoading(false);
           return;
@@ -412,18 +417,22 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
           setLoading(false);
           return;
         }
-        if (downPayment < 0) {
+        if (calculatedDownPayment < 0) {
           setValidationMessage('⚠️ Down payment cannot be negative.');
           setLoading(false);
           return;
         }
       }
+      
+      // Store loan amount and down payment for lead capture
+      setLoanAmount(calculatedLoanAmount);
+      setDownPayment(calculatedDownPayment);
 
       // Build Mortech API request
       const request: any = {
         propertyZip: formData.zipCode || '75024',
         appraisedvalue: propertyValue,
-        loan_amount: loanAmount,
+        loan_amount: calculatedLoanAmount,
         fico: mapCreditScore(formData.creditScore),
         loanpurpose: formData.loanPurpose as 'Purchase' | 'Refinance',
         proptype: mapPropertyTypeToMortech(formData.propertyType),
@@ -1200,6 +1209,8 @@ const MortgageRateComparison = React.memo(function MortgageRateComparison({
           publicTemplateData={publicTemplateData}
           userId={userId}
           companyId={companyId}
+          loanAmount={loanAmount}
+          downPayment={downPayment}
         />
       </main>
 

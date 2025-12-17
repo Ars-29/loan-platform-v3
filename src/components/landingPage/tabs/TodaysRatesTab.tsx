@@ -105,6 +105,8 @@ export default function TodaysRatesTab({
   const [error, setError] = useState<string | null>(null);
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string>('');
+  const [loanAmount, setLoanAmount] = useState<number | undefined>(undefined);
+  const [downPayment, setDownPayment] = useState<number | undefined>(undefined);
   
   // Map property type from form to Mortech format
   const mapPropertyType = (type: string): string => {
@@ -153,15 +155,18 @@ export default function TodaysRatesTab({
     setValidationMessage(null);
     
     try {
-      let loanAmount: number;
       let propertyValue: number;
+      
+      let calculatedLoanAmount: number;
+      let calculatedDownPayment: number | undefined;
       
       if (formData.loanPurpose === 'Refinance') {
         // For refinance: loan amount = mortgage balance (no cash out field)
         const mortgageBalance = parseFloat(formData.mortgageBalance || '0');
-        loanAmount = mortgageBalance;
+        calculatedLoanAmount = mortgageBalance;
+        calculatedDownPayment = undefined; // No down payment for refinance
         // Property value = loan amount (used for API, but not shown in form)
-        propertyValue = loanAmount;
+        propertyValue = calculatedLoanAmount;
         
         // Validation for refinance
         if (mortgageBalance <= 0) {
@@ -172,12 +177,12 @@ export default function TodaysRatesTab({
       } else {
         // For purchase: loan amount = sales price - down payment
         const salesPrice = parseFloat(formData.salesPrice || '0');
-        const downPayment = parseFloat(formData.downPayment || '0');
-        loanAmount = salesPrice - downPayment;
+        calculatedDownPayment = parseFloat(formData.downPayment || '0');
+        calculatedLoanAmount = salesPrice - calculatedDownPayment;
         propertyValue = salesPrice;
         
         // Validation for purchase
-        if (salesPrice > 0 && loanAmount > salesPrice) {
+        if (salesPrice > 0 && calculatedLoanAmount > salesPrice) {
           setValidationMessage('⚠️ Loan amount cannot be more than the property value. Please adjust your down payment or purchase price.');
           setIsLoading(false);
           return;
@@ -187,18 +192,22 @@ export default function TodaysRatesTab({
           setIsLoading(false);
           return;
         }
-        if (downPayment < 0) {
+        if (calculatedDownPayment < 0) {
           setValidationMessage('⚠️ Down payment cannot be negative.');
           setIsLoading(false);
           return;
         }
       }
+      
+      // Store loan amount and down payment for lead capture
+      setLoanAmount(calculatedLoanAmount);
+      setDownPayment(calculatedDownPayment);
 
       // Build Mortech API request from form data
       const request: any = {
         propertyZip: formData.zipCode || '75024',
         appraisedvalue: propertyValue,
-        loan_amount: loanAmount,
+        loan_amount: calculatedLoanAmount,
         fico: mapCreditScore(formData.creditScore),
         loanpurpose: formData.loanPurpose as 'Purchase' | 'Refinance',
         proptype: mapPropertyType(formData.propertyType),
@@ -391,6 +400,8 @@ export default function TodaysRatesTab({
         userId={userId}
         companyId={companyId}
         showTodaysRatesOnly={true}
+        loanAmount={loanAmount}
+        downPayment={downPayment}
       />
 
       {/* Disclaimer */}

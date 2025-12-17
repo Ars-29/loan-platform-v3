@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
     console.log('🚀 POST /api/leads - Starting request');
     
     const body = await request.json();
-    const { firstName, lastName, email, phone, creditScore, loanDetails, userId, companyId, source } = body;
+    const { firstName, lastName, email, phone, creditScore, loanDetails, userId, companyId, source, loanAmount, downPayment } = body;
 
     console.log('📝 Request body:', { firstName, lastName, email, phone: phone ? '***' : 'missing', creditScore, loanDetails: loanDetails ? 'present' : 'missing', userId, companyId });
 
@@ -147,9 +147,13 @@ export async function POST(request: NextRequest) {
         credits: loanDetails.credits,
         lockPeriod: loanDetails.lockPeriod,
       },
-      // Auto-populate loan amount, down payment, credit score, and notes from API data
-      loanAmount: (loanDetails.monthlyPayment * loanDetails.loanTerm).toString(), // Convert to string for decimal field
-      downPayment: '0', // Default to 0, can be updated later
+      // Use provided loan amount and down payment, or use defaults
+      loanAmount: loanAmount !== undefined && loanAmount !== null 
+        ? loanAmount.toString() 
+        : '0', // Default to 0 if not provided
+      downPayment: downPayment !== undefined && downPayment !== null 
+        ? downPayment.toString() 
+        : '0', // Default to 0 if not provided
       creditScore: creditScore ? parseInt(creditScore.replace(/[^0-9]/g, '')) || 0 : 0, // Parse credit score or default to 0
       notes: `Lead generated from rate table. Product: ${loanDetails.loanProgram} from ${loanDetails.lenderName}`,
       status: 'new',

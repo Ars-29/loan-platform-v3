@@ -59,6 +59,9 @@ interface RateResultsProps {
   companyId?: string;
   // Filter for today's rates only
   showTodaysRatesOnly?: boolean;
+  // Loan amount and down payment from search form
+  loanAmount?: number;
+  downPayment?: number;
 }
 
 function RateResults({ 
@@ -75,7 +78,10 @@ function RateResults({
   userId,
   companyId,
   // Filter for today's rates only
-  showTodaysRatesOnly = false
+  showTodaysRatesOnly = false,
+  // Loan amount and down payment from search form
+  loanAmount,
+  downPayment
 }: RateResultsProps) {
   const { getTemplateSync } = useEfficientTemplates();
   const { showNotification } = useNotification();
@@ -877,6 +883,8 @@ function RateResults({
           onSubmit={handleLeadSubmit}
           isPublic={isPublic}
           publicTemplateData={publicTemplateData}
+          loanAmount={loanAmount}
+          downPayment={downPayment}
         />
       )}
     </div>

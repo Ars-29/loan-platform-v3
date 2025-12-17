@@ -28,6 +28,9 @@ interface LeadCaptureModalProps {
   // NEW: Public mode props
   isPublic?: boolean;
   publicTemplateData?: any;
+  // Loan amount and down payment from search form
+  loanAmount?: number;
+  downPayment?: number;
 }
 
 export interface LeadData {
@@ -36,6 +39,8 @@ export interface LeadData {
   email: string;
   phone: string;
   creditScore: string;
+  loanAmount?: number;
+  downPayment?: number;
   loanDetails: {
     productId: string;
     lenderName: string;
@@ -60,7 +65,10 @@ export default function LeadCaptureModal({
   template = 'template1',
   // NEW: Public mode props
   isPublic = false,
-  publicTemplateData
+  publicTemplateData,
+  // Loan amount and down payment from search form
+  loanAmount,
+  downPayment
 }: LeadCaptureModalProps) {
   const { getTemplateSync } = useEfficientTemplates();
   
@@ -228,6 +236,8 @@ button: {
         email: formData.email.trim(),
         phone: formData.phone.trim(),
         creditScore: formData.creditScore.trim(),
+        ...(loanAmount !== undefined && { loanAmount }),
+        ...(downPayment !== undefined && { downPayment }),
         loanDetails: {
           productId: loanProduct.id,
           lenderName: loanProduct.lenderName,
