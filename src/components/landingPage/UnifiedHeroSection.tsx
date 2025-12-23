@@ -29,6 +29,18 @@ interface UnifiedHeroSectionProps {
       applyNowText?: string;
       applyNowLink?: string;
     };
+    rightSidebarModifications?: {
+      companyName?: string;
+      logo?: string;
+      phone?: string;
+      email?: string;
+      address?: string;
+      website?: string;
+      facebook?: string;
+      twitter?: string;
+      linkedin?: string;
+      instagram?: string;
+    };
   };
   // NEW: Public mode props
   isPublic?: boolean;
@@ -157,6 +169,101 @@ export default function UnifiedHeroSection({
     }
     // Fallback to props or auth data
     return profileImage || user?.user_metadata?.avatar_url || null;
+  };
+
+  // Helper functions to get company data from template customizations (for Template 2)
+  const getCompanyName = () => {
+    // Public mode: check template customizations FIRST
+    if (isPublic && publicTemplateData?.template?.rightSidebarModifications?.companyName) {
+      return publicTemplateData.template.rightSidebarModifications.companyName;
+    }
+    // Template customization: use custom data
+    if (templateCustomization?.rightSidebarModifications?.companyName) {
+      return templateCustomization.rightSidebarModifications.companyName;
+    }
+    // Fallback to companyData prop
+    return companyData?.name || 'Your Company';
+  };
+
+  const getCompanyLogo = () => {
+    // Public mode: check template customizations FIRST
+    if (isPublic && publicTemplateData?.template?.rightSidebarModifications?.logo) {
+      return publicTemplateData.template.rightSidebarModifications.logo;
+    }
+    // Template customization: use custom data
+    if (templateCustomization?.rightSidebarModifications?.logo) {
+      return templateCustomization.rightSidebarModifications.logo;
+    }
+    // Fallback to companyData prop
+    return companyData?.logo || null;
+  };
+
+  const getCompanyPhone = () => {
+    // Public mode: check template customizations FIRST
+    if (isPublic && publicTemplateData?.template?.rightSidebarModifications?.phone) {
+      return publicTemplateData.template.rightSidebarModifications.phone;
+    }
+    // Template customization: use custom data
+    if (templateCustomization?.rightSidebarModifications?.phone) {
+      return templateCustomization.rightSidebarModifications.phone;
+    }
+    // Fallback to companyData prop
+    return companyData?.phone || null;
+  };
+
+  const getCompanyEmail = () => {
+    // Public mode: check template customizations FIRST
+    if (isPublic && publicTemplateData?.template?.rightSidebarModifications?.email) {
+      return publicTemplateData.template.rightSidebarModifications.email;
+    }
+    // Template customization: use custom data
+    if (templateCustomization?.rightSidebarModifications?.email) {
+      return templateCustomization.rightSidebarModifications.email;
+    }
+    // Fallback to companyData prop
+    return companyData?.email || null;
+  };
+
+  const getCompanyWebsite = () => {
+    // Public mode: check template customizations FIRST
+    if (isPublic && publicTemplateData?.template?.rightSidebarModifications?.website) {
+      return publicTemplateData.template.rightSidebarModifications.website;
+    }
+    // Template customization: use custom data
+    if (templateCustomization?.rightSidebarModifications?.website) {
+      return templateCustomization.rightSidebarModifications.website;
+    }
+    // Fallback to companyData prop
+    return companyData?.website || null;
+  };
+
+  const getCompanySocialMedia = () => {
+    // Public mode: check template customizations FIRST
+    if (isPublic && publicTemplateData?.template?.rightSidebarModifications) {
+      const mods = publicTemplateData.template.rightSidebarModifications;
+      if (mods.facebook || mods.twitter || mods.linkedin || mods.instagram) {
+        return {
+          facebook: mods.facebook,
+          twitter: mods.twitter,
+          linkedin: mods.linkedin,
+          instagram: mods.instagram
+        };
+      }
+    }
+    // Template customization: use custom data
+    if (templateCustomization?.rightSidebarModifications) {
+      const mods = templateCustomization.rightSidebarModifications;
+      if (mods.facebook || mods.twitter || mods.linkedin || mods.instagram) {
+        return {
+          facebook: mods.facebook,
+          twitter: mods.twitter,
+          linkedin: mods.linkedin,
+          instagram: mods.instagram
+        };
+      }
+    }
+    // Fallback to companyData prop
+    return companyData?.company_social_media || null;
   };
 
   // Get customization data from template or props
@@ -651,48 +758,55 @@ export default function UnifiedHeroSection({
                       border: `2px solid ${colors.primary}`
                     }}
                   >
-                    {companyData?.logo && companyData.logo.startsWith('http') ? (
-                      <Image
-                        src={companyData.logo}
-                        alt={`${companyData.name} logo`}
-                        width={40}
-                        height={40}
-                        className="w-full h-full object-cover rounded-full"
-                        style={{
-                          objectFit: 'cover',
-                          objectPosition: 'center'
-                        }}
-                      />
-                    ) : (
-                      <span 
-                        className="text-lg font-bold"
-                        style={{ color: colors.primary }}
-                      >
-                        {(companyData?.name || 'Your Company').charAt(0).toUpperCase()}
-                      </span>
-                    )}
+                    {(() => {
+                      const logo = getCompanyLogo();
+                      const name = getCompanyName();
+                      return logo && logo.startsWith('http') ? (
+                        <Image
+                          src={logo}
+                          alt={`${name} logo`}
+                          width={40}
+                          height={40}
+                          className="w-full h-full object-cover rounded-full"
+                          style={{
+                            objectFit: 'cover',
+                            objectPosition: 'center'
+                          }}
+                        />
+                      ) : (
+                        <span 
+                          className="text-lg font-bold"
+                          style={{ color: colors.primary }}
+                        >
+                          {name.charAt(0).toUpperCase()}
+                        </span>
+                      );
+                    })()}
                   </div>
                   
                   {/* Company Details */}
                   <div className="flex flex-col">
                     <h2 className={`text-xl font-semibold mb-3 ${forceMobileView ? '' : ''}`} style={{ color: colors.heroTextColor || '#ffffff' }}>
-                      {companyData?.name || 'Your Company'}
+                      {getCompanyName()}
                     </h2>
                     
                     {/* Company Contact Info */}
                     <div className="space-y-2 text-base opacity-90" style={{ color: colors.heroTextColor || '#ffffff' }}>
                       {/* Company Email */}
-                      {companyData?.email && (
-                        <div className="flex items-center">
-                          <div className="w-4 h-4 flex items-center justify-center">
-                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                            </svg>
+                      {(() => {
+                        const email = getCompanyEmail();
+                        return email && (
+                          <div className="flex items-center">
+                            <div className="w-4 h-4 flex items-center justify-center">
+                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                              </svg>
+                            </div>
+                            <span>{email}</span>
                           </div>
-                          <span>{companyData.email}</span>
-                        </div>
-                      )}
+                        );
+                      })()}
                       
                       {/* Company NMLS# */}
                       {companyData?.company_nmls_number && (
@@ -719,98 +833,107 @@ export default function UnifiedHeroSection({
                       )}
                       
                       {/* Company Phone */}
-                      {companyData?.phone && (
-                        <div className="flex items-center space-x-2">
-                          <div className="w-4 h-4 flex items-center justify-center">
-                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                              <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-                            </svg>
+                      {(() => {
+                        const phone = getCompanyPhone();
+                        return phone && (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-4 h-4 flex items-center justify-center">
+                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                              </svg>
+                            </div>
+                            <span>{phone}</span>
                           </div>
-                          <span>{companyData.phone}</span>
-                        </div>
-                      )}
+                        );
+                      })()}
 
                       {/* Company Website */}
-                      {companyData?.website && (
-                        <div className="flex items-center space-x-2">
-                          <div className="w-4 h-4 flex items-center justify-center">
-                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clipRule="evenodd" />
-                            </svg>
+                      {(() => {
+                        const website = getCompanyWebsite();
+                        return website && (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-4 h-4 flex items-center justify-center">
+                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                            <a 
+                              href={website.startsWith('http') ? website : `https://${website}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="hover:underline"
+                              style={{ color: colors.heroTextColor }}
+                            >
+                              Visit Website
+                            </a>
                           </div>
-                          <a 
-                            href={companyData.website.startsWith('http') ? companyData.website : `https://${companyData.website}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:underline"
-                            style={{ color: colors.heroTextColor }}
-                          >
-                            Visit Website
-                          </a>
-                        </div>
-                      )}
+                        );
+                      })()}
                     </div>
 
                     {/* Social Media Links */}
-                    {companyData?.company_social_media && (
-                      <div className="flex items-center space-x-3 mt-4">
-                        {companyData.company_social_media.facebook && (
-                          <a
-                            href={companyData.company_social_media.facebook}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-all"
-                            style={{ backgroundColor: colors.primary }}
-                          >
-                            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                            </svg>
-                          </a>
-                        )}
-                        
-                        {companyData.company_social_media.linkedin && (
-                          <a
-                            href={companyData.company_social_media.linkedin}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-all"
-                            style={{ backgroundColor: colors.primary }}
-                          >
-                            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                            </svg>
-                          </a>
-                        )}
-                        
-                        {companyData.company_social_media.twitter && (
-                          <a
-                            href={companyData.company_social_media.twitter}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-all"
-                            style={{ backgroundColor: colors.primary }}
-                          >
-                            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
-                            </svg>
-                          </a>
-                        )}
-                        
-                        {companyData.company_social_media.instagram && (
-                          <a
-                            href={companyData.company_social_media.instagram}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-all"
-                            style={{ backgroundColor: colors.primary }}
-                          >
-                            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                            </svg>
-                          </a>
-                        )}
-                      </div>
-                    )}
+                    {(() => {
+                      const socialMedia = getCompanySocialMedia();
+                      return socialMedia && (socialMedia.facebook || socialMedia.twitter || socialMedia.linkedin || socialMedia.instagram) && (
+                        <div className="flex items-center space-x-3 mt-4">
+                          {socialMedia.facebook && (
+                            <a
+                              href={socialMedia.facebook}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-all"
+                              style={{ backgroundColor: colors.primary }}
+                            >
+                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                              </svg>
+                            </a>
+                          )}
+                          
+                          {socialMedia.linkedin && (
+                            <a
+                              href={socialMedia.linkedin}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-all"
+                              style={{ backgroundColor: colors.primary }}
+                            >
+                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                              </svg>
+                            </a>
+                          )}
+                          
+                          {socialMedia.twitter && (
+                            <a
+                              href={socialMedia.twitter}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-all"
+                              style={{ backgroundColor: colors.primary }}
+                            >
+                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                              </svg>
+                            </a>
+                          )}
+                          
+                          {socialMedia.instagram && (
+                            <a
+                              href={socialMedia.instagram}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-all"
+                              style={{ backgroundColor: colors.primary }}
+                            >
+                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                              </svg>
+                            </a>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>

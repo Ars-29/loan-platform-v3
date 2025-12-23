@@ -93,8 +93,9 @@ export default function CustomizerPage() {
     showSectionDetails: false
   });
 
-  // State for active tab in preview
+  // State for active tab in preview - will be initialized from template customization after mergedTemplate is available
   const [previewActiveTab, setPreviewActiveTab] = useState<TabId>('todays-rates');
+  const previewTabInitializedRef = React.useRef(false);
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
@@ -169,6 +170,7 @@ export default function CustomizerPage() {
       selectedTemplate: selectedTemplate
     }));
   }, [selectedTemplate]);
+
 
   // Measure header height for sticky sidebar positioning
   React.useEffect(() => {
@@ -379,6 +381,25 @@ export default function CustomizerPage() {
       console.log('🔍 Customizer: Font Weight:', mergedTemplate.typography.fontWeight);
     }
   }, [mergedTemplate?.typography]);
+
+  // Initialize previewActiveTab from template customization on first load
+  // Update previewActiveTab when template's activeTab changes
+  React.useEffect(() => {
+    const templateActiveTab = mergedTemplate?.bodyModifications?.activeTab;
+    const enabledTabs = mergedTemplate?.bodyModifications?.enabledTabs || ['todays-rates', 'get-custom-rate', 'document-checklist', 'my-home-value', 'find-my-home', 'learning-center', 'neighborhood-reports'];
+    
+    if (templateActiveTab && enabledTabs.includes(templateActiveTab)) {
+      // On initial load, always set it. After that, only update if it changed
+      if (!previewTabInitializedRef.current || templateActiveTab !== previewActiveTab) {
+        setPreviewActiveTab(templateActiveTab as TabId);
+        previewTabInitializedRef.current = true;
+      }
+    } else if (!previewTabInitializedRef.current) {
+      // If no template activeTab, use default on first load only
+      setPreviewActiveTab('todays-rates');
+      previewTabInitializedRef.current = true;
+    }
+  }, [mergedTemplate?.bodyModifications?.activeTab, mergedTemplate?.bodyModifications?.enabledTabs, previewActiveTab]);
 
   // Fetch user NMLS#
   useEffect(() => {
@@ -1862,14 +1883,24 @@ function BodyModifications({ template, onChange }: SettingsProps) {
     { id: 'todays-rates', label: "Today's Rates" },
     { id: 'get-custom-rate', label: 'Get My Custom Rate' },
     { id: 'document-checklist', label: 'Document Checklist' },
-    { id: 'apply-now', label: 'Apply Now' },
     { id: 'my-home-value', label: 'My Home Value' },
     { id: 'find-my-home', label: 'Find My Home' },
-    { id: 'learning-center', label: 'Learning Center' }
+    { id: 'learning-center', label: 'Learning Center' },
+    { id: 'neighborhood-reports', label: 'Neighborhood Reports' }
   ];
 
   const enabledTabs = bodyMods.enabledTabs || availableTabs.map(tab => tab.id);
   const activeTab = bodyMods.activeTab || 'todays-rates';
+  
+  // Filter available tabs to only show enabled tabs in the default active tab dropdown
+  const enabledTabsList = availableTabs.filter(tab => enabledTabs.includes(tab.id));
+
+  // Reset activeTab if it becomes disabled
+  React.useEffect(() => {
+    if (!enabledTabs.includes(activeTab) && enabledTabsList.length > 0) {
+      onChange('activeTab', enabledTabsList[0].id);
+    }
+  }, [enabledTabs, activeTab, enabledTabsList]);
 
   return (
     <div className="space-y-6">
@@ -1883,7 +1914,7 @@ function BodyModifications({ template, onChange }: SettingsProps) {
               onChange={(e) => onChange('activeTab', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             >
-              {availableTabs.map(tab => (
+              {enabledTabsList.map(tab => (
                 <option key={tab.id} value={tab.id}>{tab.label}</option>
               ))}
             </select>
@@ -1958,8 +1989,9 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
             <label className="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
             <input
               type="text"
-              value={sidebarMods.companyName || 'Your Brand™'}
+              value={sidebarMods.companyName ?? ''}
               onChange={(e) => onChange('companyName', e.target.value)}
+              placeholder="Your Brand™"
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             />
           </div>
@@ -1968,7 +2000,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
             <label className="block text-sm font-medium text-gray-700 mb-2">Company Logo URL</label>
             <input
               type="url"
-              value={sidebarMods.logo || ''}
+              value={sidebarMods.logo ?? ''}
               onChange={(e) => onChange('logo', e.target.value)}
               placeholder="https://example.com/logo.png"
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
@@ -1979,8 +2011,9 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
             <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
             <input
               type="tel"
-              value={sidebarMods.phone || '(555) 123-4567'}
+              value={sidebarMods.phone ?? ''}
               onChange={(e) => onChange('phone', e.target.value)}
+              placeholder="(555) 123-4567"
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             />
           </div>
@@ -1989,8 +2022,9 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
             <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
             <input
               type="email"
-              value={sidebarMods.email || 'info@yourbrand.com'}
+              value={sidebarMods.email ?? ''}
               onChange={(e) => onChange('email', e.target.value)}
+              placeholder="info@yourbrand.com"
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             />
           </div>
@@ -1998,8 +2032,9 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
             <textarea
-              value={sidebarMods.address || '123 Main St. City'}
+              value={sidebarMods.address ?? ''}
               onChange={(e) => onChange('address', e.target.value)}
+              placeholder="123 Main St. City"
               rows={2}
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             />
@@ -2014,7 +2049,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
             <label className="block text-sm font-medium text-gray-700 mb-2">Facebook URL</label>
             <input
               type="url"
-              value={sidebarMods.facebook || ''}
+              value={sidebarMods.facebook ?? ''}
               onChange={(e) => onChange('facebook', e.target.value)}
               placeholder="https://facebook.com/yourcompany"
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
@@ -2025,7 +2060,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
             <label className="block text-sm font-medium text-gray-700 mb-2">Twitter URL</label>
             <input
               type="url"
-              value={sidebarMods.twitter || ''}
+              value={sidebarMods.twitter ?? ''}
               onChange={(e) => onChange('twitter', e.target.value)}
               placeholder="https://twitter.com/yourcompany"
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
@@ -2036,7 +2071,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
             <label className="block text-sm font-medium text-gray-700 mb-2">LinkedIn URL</label>
             <input
               type="url"
-              value={sidebarMods.linkedin || ''}
+              value={sidebarMods.linkedin ?? ''}
               onChange={(e) => onChange('linkedin', e.target.value)}
               placeholder="https://linkedin.com/company/yourcompany"
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
@@ -2047,7 +2082,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
             <label className="block text-sm font-medium text-gray-700 mb-2">Instagram URL</label>
             <input
               type="url"
-              value={sidebarMods.instagram || ''}
+              value={sidebarMods.instagram ?? ''}
               onChange={(e) => onChange('instagram', e.target.value)}
               placeholder="https://instagram.com/yourcompany"
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
