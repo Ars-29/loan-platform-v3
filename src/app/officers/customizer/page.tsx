@@ -98,6 +98,8 @@ export default function CustomizerPage() {
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const [headerHeight, setHeaderHeight] = useState(73);
   const [isTemplateSaved, setIsTemplateSaved] = useState(false);
   const [isDeletingAvatar, setIsDeletingAvatar] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('desktop');
@@ -168,6 +170,32 @@ export default function CustomizerPage() {
     }));
   }, [selectedTemplate]);
 
+  // Measure header height for sticky sidebar positioning
+  React.useEffect(() => {
+    const updateHeaderHeight = () => {
+      if (headerRef.current) {
+        setHeaderHeight(headerRef.current.offsetHeight);
+      }
+    };
+
+    updateHeaderHeight();
+    window.addEventListener('resize', updateHeaderHeight);
+    
+    // Use MutationObserver to watch for content changes (like save message appearing)
+    const observer = new MutationObserver(updateHeaderHeight);
+    if (headerRef.current) {
+      observer.observe(headerRef.current, {
+        childList: true,
+        subtree: true,
+        attributes: true
+      });
+    }
+    
+    return () => {
+      window.removeEventListener('resize', updateHeaderHeight);
+      observer.disconnect();
+    };
+  }, [saveMessage]);
 
   // No need for profile fetching - using user data directly
 
@@ -998,7 +1026,7 @@ export default function CustomizerPage() {
         <div className="w-full max-h-[calc(100vh-120px)] overflow-x-auto overflow-y-auto customizer-scroll-wrapper">
           <div className="flex flex-col bg-gray-50 customizer-container min-w-[1200px] min-h-[calc(100vh-120px)]">
           {/* Header Controls */}
-          <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0">
+          <div ref={headerRef} className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0 sticky top-0 z-50">
             <div className="flex flex-row items-center justify-between gap-0">
               <div className="flex flex-row items-center gap-4">
                 <h1 className="text-2xl font-bold text-gray-900">Template Customizer</h1>
@@ -1132,11 +1160,16 @@ export default function CustomizerPage() {
           )}
 
           {/* Main Content - Takes remaining height */}
-          <div className="flex flex-1 min-h-0 overflow-hidden">
+          <div className="flex flex-1 min-h-0 overflow-visible">
             {/* Left Sidebar - Sections or Section Details */}
-            <div className={`block w-80 bg-white border-r border-gray-200 transition-all duration-300 flex-shrink-0 ${
+            <div className={`block w-80 bg-white border-r border-gray-200 transition-all duration-300 flex-shrink-0 sticky self-start ${
               customizerState.isPreviewMode ? '-ml-80' : 'ml-0'
-            }`}>
+            }`}
+            style={{ 
+              top: `${headerHeight}px`,
+              maxHeight: `calc(100vh - ${headerHeight + 64}px)`,
+              overflowY: 'auto'
+            }}>
               {!customizerState.showSectionDetails ? (
                 // Main Sections View
                 <div className="h-full flex flex-col">
