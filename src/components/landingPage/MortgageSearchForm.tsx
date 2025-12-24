@@ -273,8 +273,8 @@ function MortgageSearchForm({
           grid-template-columns: 1fr 2fr 1.5fr;
         }
         
-        /* Row 1 - Mobile (≤375px): 2 columns */
-        @container mortgage-form (max-width: 375px) {
+        /* Row 1 - Mobile (≤550px): 2 columns */
+        @container mortgage-form (max-width: 550px) {
           .row1-purchase {
             grid-template-columns: 1fr 1fr;
             gap: 0.5rem;
@@ -308,8 +308,8 @@ function MortgageSearchForm({
           grid-template-columns: 1fr 1fr 1fr;
         }
         
-        /* Row 2 - Mobile (≤375px): 2 columns */
-        @container mortgage-form (max-width: 375px) {
+        /* Row 2 - Mobile (≤550px): 2 columns */
+        @container mortgage-form (max-width: 550px) {
           .row2 {
             grid-template-columns: 1fr 1fr;
             gap: 0.5rem;
