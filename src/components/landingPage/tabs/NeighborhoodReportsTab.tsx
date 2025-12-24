@@ -346,7 +346,6 @@ export default function NeighborhoodReportsTab({
             className="w-full neighborhood-report-iframe"
             style={{ 
               minHeight: '800px',
-              marginTop: '-100px',
               overflow: 'auto', // Allow scrolling
             }}
           />
