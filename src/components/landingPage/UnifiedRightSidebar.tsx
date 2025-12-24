@@ -98,54 +98,65 @@ export default function UnifiedRightSidebar({
     });
   }, [templateCustomization]);
 
-  // Get company data - prioritize actual company data over template customizations
+  // Helper function to validate if a string is a valid URL
+  const isValidUrl = (url: string | null | undefined): boolean => {
+    if (!url || typeof url !== 'string') return false;
+    
+    const trimmedUrl = url.trim();
+    if (!trimmedUrl) return false;
+    
+    // Check if it's a valid URL
+    try {
+      const urlObj = new URL(trimmedUrl);
+      // Must be http or https
+      return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+    } catch {
+      // If URL constructor fails, check if it's a relative path starting with /
+      if (trimmedUrl.startsWith('/')) {
+        return true;
+      }
+      return false;
+    }
+  };
+
+  // Get company data - only from template customizations (rightSidebarModifications)
   const getCompanyName = () => {
-    // First priority: Actual company data (from database)
-    if (companyData?.name) {
-      console.log('✅ UnifiedRightSidebar: Using company data name:', companyData.name);
-      return companyData.name;
+    // Only source: Template customization (what user set in customizer)
+    if (templateCustomization?.rightSidebarModifications?.companyName) {
+      console.log('✅ UnifiedRightSidebar: Using template customization company name:', templateCustomization.rightSidebarModifications.companyName);
+      return templateCustomization.rightSidebarModifications.companyName;
     }
     
-    // Second priority: Public company data
-    if (isPublic && publicCompanyData?.name) {
-      console.log('✅ UnifiedRightSidebar: Using public company data name:', publicCompanyData.name);
-      return publicCompanyData.name;
-    }
-    
-    // Fallback: Default company name (no more template customization)
+    // Fallback: Default company name
     console.log('⚠️ UnifiedRightSidebar: Using default company name');
     return 'Your Company';
   };
 
   const getCompanyLogo = () => {
-    // First priority: Actual company data
-    if (companyData?.logo) {
-      console.log('✅ UnifiedRightSidebar: Using company data logo:', companyData.logo);
-      return companyData.logo;
+    // Only source: Template customization (what user set in customizer)
+    const logo = templateCustomization?.rightSidebarModifications?.logo;
+    
+    if (logo) {
+      // Validate that it's a valid URL
+      if (isValidUrl(logo)) {
+        console.log('✅ UnifiedRightSidebar: Using template customization logo:', logo);
+        return logo;
+      } else {
+        console.warn('⚠️ UnifiedRightSidebar: Logo is not a valid URL:', logo);
+        return null;
+      }
     }
     
-    // Second priority: Public company data
-    if (isPublic && publicCompanyData?.logo) {
-      console.log('✅ UnifiedRightSidebar: Using public company data logo:', publicCompanyData.logo);
-      return publicCompanyData.logo;
-    }
-    
-    // Fallback: No logo (no more template customization)
+    // Fallback: No logo
     console.log('⚠️ UnifiedRightSidebar: No logo found');
     return null;
   };
 
   const getPhone = () => {
-    // First priority: Actual company data
-    if (companyData?.phone) {
-      console.log('✅ UnifiedRightSidebar: Using company data phone:', companyData.phone);
-      return companyData.phone;
-    }
-    
-    // Second priority: Public company data
-    if (isPublic && publicCompanyData?.phone) {
-      console.log('✅ UnifiedRightSidebar: Using public company data phone:', publicCompanyData.phone);
-      return publicCompanyData.phone;
+    // Only source: Template customization (what user set in customizer)
+    if (templateCustomization?.rightSidebarModifications?.phone) {
+      console.log('✅ UnifiedRightSidebar: Using template customization phone:', templateCustomization.rightSidebarModifications.phone);
+      return templateCustomization.rightSidebarModifications.phone;
     }
     
     // No fallback - return null if no data exists
@@ -154,16 +165,10 @@ export default function UnifiedRightSidebar({
   };
 
   const getEmail = () => {
-    // First priority: Actual company data
-    if (companyData?.email) {
-      console.log('✅ UnifiedRightSidebar: Using company data email:', companyData.email);
-      return companyData.email;
-    }
-    
-    // Second priority: Public company data
-    if (isPublic && publicCompanyData?.email) {
-      console.log('✅ UnifiedRightSidebar: Using public company data email:', publicCompanyData.email);
-      return publicCompanyData.email;
+    // Only source: Template customization (what user set in customizer)
+    if (templateCustomization?.rightSidebarModifications?.email) {
+      console.log('✅ UnifiedRightSidebar: Using template customization email:', templateCustomization.rightSidebarModifications.email);
+      return templateCustomization.rightSidebarModifications.email;
     }
     
     // No fallback - return null if no data exists
@@ -172,16 +177,10 @@ export default function UnifiedRightSidebar({
   };
 
   const getAddress = () => {
-    // First priority: Actual company data
-    if (companyData?.address) {
-      console.log('✅ UnifiedRightSidebar: Using company data address:', companyData.address);
-      return companyData.address;
-    }
-    
-    // Second priority: Public company data
-    if (isPublic && publicCompanyData?.address) {
-      console.log('✅ UnifiedRightSidebar: Using public company data address:', publicCompanyData.address);
-      return publicCompanyData.address;
+    // Only source: Template customization (what user set in customizer)
+    if (templateCustomization?.rightSidebarModifications?.address) {
+      console.log('✅ UnifiedRightSidebar: Using template customization address:', templateCustomization.rightSidebarModifications.address);
+      return templateCustomization.rightSidebarModifications.address;
     }
     
     // No fallback - return null if no data exists
@@ -189,86 +188,50 @@ export default function UnifiedRightSidebar({
     return null;
   };
 
-  const getWebsite = () => {
-    // First priority: Actual company data
-    if (companyData?.website) {
-      console.log('✅ UnifiedRightSidebar: Using company data website:', companyData.website);
-      return companyData.website;
-    }
-    
-    // Second priority: Public company data
-    if (isPublic && publicCompanyData?.website) {
-      console.log('✅ UnifiedRightSidebar: Using public company data website:', publicCompanyData.website);
-      return publicCompanyData.website;
-    }
-    
-    // Fallback: Default website
-    console.log('⚠️ UnifiedRightSidebar: Using default website');
-    return 'https://yourcompany.com';
+  const getWebsite = (): string | null => {
+    // Note: website is not in rightSidebarModifications, so return null
+    // You might want to add website to the customizer if needed
+    console.log('⚠️ UnifiedRightSidebar: Website not available in template customizations');
+    return null;
   };
 
   const getLicenseNumber = () => {
-    // First priority: Actual company data
-    if (companyData?.license_number) {
-      console.log('✅ UnifiedRightSidebar: Using company data license number:', companyData.license_number);
-      return companyData.license_number;
-    }
-    
-    // Second priority: Public company data
-    if (isPublic && publicCompanyData?.license_number) {
-      console.log('✅ UnifiedRightSidebar: Using public company data license number:', publicCompanyData.license_number);
-      return publicCompanyData.license_number;
-    }
-    
-    // No fallback - return null if no data exists
-    console.log('⚠️ UnifiedRightSidebar: No license number found');
+    // Note: license_number is not in rightSidebarModifications, so return null
+    // You might want to add license_number to the customizer if needed
+    console.log('⚠️ UnifiedRightSidebar: License number not available in template customizations');
     return null;
   };
 
   const getNmlsNumber = () => {
-    // First priority: Actual company data
-    if (companyData?.company_nmls_number) {
-      console.log('✅ UnifiedRightSidebar: Using company data NMLS number:', companyData.company_nmls_number);
-      return companyData.company_nmls_number;
-    }
-    
-    // Second priority: Public company data
-    if (isPublic && publicCompanyData?.company_nmls_number) {
-      console.log('✅ UnifiedRightSidebar: Using public company data NMLS number:', publicCompanyData.company_nmls_number);
-      return publicCompanyData.company_nmls_number;
-    }
-    
-    // No fallback - return null if no data exists
-    console.log('⚠️ UnifiedRightSidebar: No NMLS number found');
+    // Note: company_nmls_number is not in rightSidebarModifications, so return null
+    // You might want to add company_nmls_number to the customizer if needed
+    console.log('⚠️ UnifiedRightSidebar: NMLS number not available in template customizations');
     return null;
   };
 
-  // Memoize social links to avoid multiple calls
+  // Memoize social links - only from template customizations
   const socialLinks = React.useMemo(() => {
-    // First priority: Actual company data
-    if (companyData?.company_social_media) {
-      console.log('✅ UnifiedRightSidebar: Using company data social media:', companyData.company_social_media);
-      return {
-        facebook: companyData.company_social_media.facebook || '',
-        twitter: companyData.company_social_media.twitter || '',
-        linkedin: companyData.company_social_media.linkedin || '',
-        instagram: companyData.company_social_media.instagram || ''
-      };
+    // Only source: Template customization (rightSidebarModifications)
+    if (templateCustomization?.rightSidebarModifications) {
+      const sidebarMods = templateCustomization.rightSidebarModifications;
+      const hasAnyValue = sidebarMods.facebook || 
+                         sidebarMods.twitter || 
+                         sidebarMods.linkedin || 
+                         sidebarMods.instagram;
+      
+      if (hasAnyValue) {
+        console.log('✅ UnifiedRightSidebar: Using template customization social media:', sidebarMods);
+        return {
+          facebook: sidebarMods.facebook || '',
+          twitter: sidebarMods.twitter || '',
+          linkedin: sidebarMods.linkedin || '',
+          instagram: sidebarMods.instagram || ''
+        };
+      }
     }
     
-    // Second priority: Public company data
-    if (isPublic && publicCompanyData?.company_social_media) {
-      console.log('✅ UnifiedRightSidebar: Using public company data social media:', publicCompanyData.company_social_media);
-      return {
-        facebook: publicCompanyData.company_social_media.facebook || '',
-        twitter: publicCompanyData.company_social_media.twitter || '',
-        linkedin: publicCompanyData.company_social_media.linkedin || '',
-        instagram: publicCompanyData.company_social_media.instagram || ''
-      };
-    }
-    
-    // Fallback: Empty social links (no more template customization)
-    console.log('⚠️ UnifiedRightSidebar: No social media links found');
+    // Fallback: Empty social links
+    console.log('⚠️ UnifiedRightSidebar: No social media links found in template customizations');
     const links = {
       facebook: '',
       twitter: '',
@@ -282,7 +245,7 @@ export default function UnifiedRightSidebar({
     console.log('✅ UnifiedRightSidebar: Will show LinkedIn?', !!links.linkedin);
     console.log('✅ UnifiedRightSidebar: Will show Instagram?', !!links.instagram);
     return links;
-  }, [isPublic, publicTemplateData, templateCustomization?.rightSidebarModifications]);
+  }, [templateCustomization?.rightSidebarModifications]);
 
   
   // Comprehensive template data usage
@@ -631,76 +594,100 @@ export default function UnifiedRightSidebar({
               </div>
             )}
             
-            {getAddress() && (
-              <div 
-                className="flex items-center gap-3 p-3 rounded-lg"
-                style={{ 
-                  backgroundColor: `${colors.primary}10`,
-                  borderRadius: `${templateData?.template?.layout?.borderRadius || 8}px`
-                }}
-              >
+            {(() => {
+              const address = getAddress();
+              if (!address) return null;
+              
+              const addressText = typeof address === 'string' ? address : JSON.stringify(address);
+              
+              return (
                 <div 
+                  className="flex items-center gap-3 p-3 rounded-lg"
                   style={{ 
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: colors.primary
+                    backgroundColor: `${colors.primary}10`,
+                    borderRadius: `${templateData?.template?.layout?.borderRadius || 8}px`,
+                    overflow: 'hidden'
                   }}
                 >
-                  {React.createElement(icons.location, { size: 18, color: colors.background })}
+                  <div 
+                    style={{ 
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: colors.primary,
+                      flexShrink: 0
+                    }}
+                  >
+                    {React.createElement(icons.location, { size: 18, color: colors.background })}
+                  </div>
+                  <span 
+                    className="truncate max-w-[140px] text-base" 
+                    style={{ 
+                      color: colors.text,
+                      fontSize: getFontSize('base'),
+                      fontWeight: typography.fontWeight.medium,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      minWidth: 0,
+                      flex: 1,
+                      maxWidth: '140px'
+                    }}
+                    title={addressText}
+                  >
+                    {addressText}
+                  </span>
                 </div>
-                <span style={{ 
-                  color: colors.text,
-                  fontSize: getFontSize('base'),
-                  fontWeight: typography.fontWeight.medium
-                }}>
-                  {getAddress()}
-                </span>
-              </div>
-            )}
+              );
+            })()}
 
             {/* Website */}
-            {getWebsite() && (
-              <div 
-                className="flex items-center gap-3 p-3 rounded-lg"
-                style={{ 
-                  backgroundColor: `${colors.primary}10`,
-                  borderRadius: `${templateData?.template?.layout?.borderRadius || 8}px`
-                }}
-              >
+            {(() => {
+              const website = getWebsite();
+              if (!website) return null;
+              
+              return (
                 <div 
+                  className="flex items-center gap-3 p-3 rounded-lg"
                   style={{ 
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: colors.primary
+                    backgroundColor: `${colors.primary}10`,
+                    borderRadius: `${templateData?.template?.layout?.borderRadius || 8}px`
                   }}
                 >
-                  {React.createElement(icons.externalLink, { size: 18, color: colors.background })}
+                  <div 
+                    style={{ 
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: colors.primary
+                    }}
+                  >
+                    {React.createElement(icons.externalLink, { size: 18, color: colors.background })}
+                  </div>
+                  <a 
+                    href={website.startsWith('http') ? website : `https://${website}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ 
+                      color: colors.primary,
+                      fontSize: getFontSize('base'),
+                      fontWeight: typography.fontWeight.medium,
+                      textDecoration: 'none'
+                    }}
+                    onMouseEnter={(e) => (e.target as HTMLElement).style.textDecoration = 'underline'}
+                    onMouseLeave={(e) => (e.target as HTMLElement).style.textDecoration = 'none'}
+                  >
+                    Visit Website
+                  </a>
                 </div>
-                <a 
-                  href={getWebsite().startsWith('http') ? getWebsite() : `https://${getWebsite()}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ 
-                    color: colors.primary,
-                    fontSize: getFontSize('base'),
-                    fontWeight: typography.fontWeight.medium,
-                    textDecoration: 'none'
-                  }}
-                  onMouseEnter={(e) => (e.target as HTMLElement).style.textDecoration = 'underline'}
-                  onMouseLeave={(e) => (e.target as HTMLElement).style.textDecoration = 'none'}
-                >
-                  Visit Website
-                </a>
-              </div>
-            )}
+              );
+            })()}
 
             {/* License Number */}
             {getLicenseNumber() && (
@@ -768,17 +755,6 @@ export default function UnifiedRightSidebar({
           </div>
         </div>
 
-        {/* Spacing Section */}
-        <div style={{ 
-          marginTop: 'auto',
-          height: '250px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-        </div>
 
         {/* Follow Us Section - Enhanced Design */}
         <div className="pt-6 pb-4 bg-white flex-shrink-0 flex flex-col justify-center border-t" style={{ 

@@ -93,11 +93,14 @@ export default function CustomizerPage() {
     showSectionDetails: false
   });
 
-  // State for active tab in preview
+  // State for active tab in preview - will be initialized from template customization after mergedTemplate is available
   const [previewActiveTab, setPreviewActiveTab] = useState<TabId>('todays-rates');
+  const previewTabInitializedRef = React.useRef(false);
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const [headerHeight, setHeaderHeight] = useState(73);
   const [isTemplateSaved, setIsTemplateSaved] = useState(false);
   const [isDeletingAvatar, setIsDeletingAvatar] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('desktop');
@@ -169,6 +172,33 @@ export default function CustomizerPage() {
   }, [selectedTemplate]);
 
 
+  // Measure header height for sticky sidebar positioning
+  React.useEffect(() => {
+    const updateHeaderHeight = () => {
+      if (headerRef.current) {
+        setHeaderHeight(headerRef.current.offsetHeight);
+      }
+    };
+
+    updateHeaderHeight();
+    window.addEventListener('resize', updateHeaderHeight);
+    
+    // Use MutationObserver to watch for content changes (like save message appearing)
+    const observer = new MutationObserver(updateHeaderHeight);
+    if (headerRef.current) {
+      observer.observe(headerRef.current, {
+        childList: true,
+        subtree: true,
+        attributes: true
+      });
+    }
+    
+    return () => {
+      window.removeEventListener('resize', updateHeaderHeight);
+      observer.disconnect();
+    };
+  }, [saveMessage]);
+
   // No need for profile fetching - using user data directly
 
   // Get current template data from global state
@@ -205,7 +235,7 @@ export default function CustomizerPage() {
           primary: '#ec4899',
           secondary: '#01bcc6',
           background: '#ffffff',
-          text: '#111827',
+          text: '#000000', // Always black
           textSecondary: '#6b7280',
           border: '#e5e7eb'
         },
@@ -351,6 +381,25 @@ export default function CustomizerPage() {
       console.log('🔍 Customizer: Font Weight:', mergedTemplate.typography.fontWeight);
     }
   }, [mergedTemplate?.typography]);
+
+  // Initialize previewActiveTab from template customization on first load
+  // Update previewActiveTab when template's activeTab changes
+  React.useEffect(() => {
+    const templateActiveTab = mergedTemplate?.bodyModifications?.activeTab;
+    const enabledTabs = mergedTemplate?.bodyModifications?.enabledTabs || ['todays-rates', 'get-custom-rate', 'document-checklist', 'my-home-value', 'find-my-home', 'learning-center', 'neighborhood-reports'];
+    
+    if (templateActiveTab && enabledTabs.includes(templateActiveTab)) {
+      // On initial load, always set it. After that, only update if it changed
+      if (!previewTabInitializedRef.current || templateActiveTab !== previewActiveTab) {
+        setPreviewActiveTab(templateActiveTab as TabId);
+        previewTabInitializedRef.current = true;
+      }
+    } else if (!previewTabInitializedRef.current) {
+      // If no template activeTab, use default on first load only
+      setPreviewActiveTab('todays-rates');
+      previewTabInitializedRef.current = true;
+    }
+  }, [mergedTemplate?.bodyModifications?.activeTab, mergedTemplate?.bodyModifications?.enabledTabs, previewActiveTab]);
 
   // Fetch user NMLS#
   useEffect(() => {
@@ -998,7 +1047,7 @@ export default function CustomizerPage() {
         <div className="w-full max-h-[calc(100vh-120px)] overflow-x-auto overflow-y-auto customizer-scroll-wrapper">
           <div className="flex flex-col bg-gray-50 customizer-container min-w-[1200px] min-h-[calc(100vh-120px)]">
           {/* Header Controls */}
-          <div className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0">
+          <div ref={headerRef} className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0 sticky top-0 z-50">
             <div className="flex flex-row items-center justify-between gap-0">
               <div className="flex flex-row items-center gap-4">
                 <h1 className="text-2xl font-bold text-gray-900">Template Customizer</h1>
@@ -1132,11 +1181,16 @@ export default function CustomizerPage() {
           )}
 
           {/* Main Content - Takes remaining height */}
-          <div className="flex flex-1 min-h-0 overflow-hidden">
+          <div className="flex flex-1 min-h-0 overflow-visible">
             {/* Left Sidebar - Sections or Section Details */}
-            <div className={`block w-80 bg-white border-r border-gray-200 transition-all duration-300 flex-shrink-0 ${
+            <div className={`block w-80 bg-white border-r border-gray-200 transition-all duration-300 flex-shrink-0 sticky self-start ${
               customizerState.isPreviewMode ? '-ml-80' : 'ml-0'
-            }`}>
+            }`}
+            style={{ 
+              top: `${headerHeight}px`,
+              maxHeight: `calc(100vh - ${headerHeight + 64}px)`,
+              overflowY: 'auto'
+            }}>
               {!customizerState.showSectionDetails ? (
                 // Main Sections View
                 <div className="h-full flex flex-col">
@@ -1251,7 +1305,7 @@ export default function CustomizerPage() {
             {/* Center - Live Preview (Full Width) */}
             <div className="flex-1 bg-gray-100 overflow-auto">
               <div className={`h-full w-full overflow-auto overflow-x-auto`}>
-                <div className={`${isMobileView ? 'flex justify-center items-start min-h-full p-0' : 'p-6'}`}>
+                <div className={`${isMobileView ? 'flex justify-center items-start min-h-full p-0' : 'p-2 2xl:p-6'}`}>
                   <div 
                       className={`transition-all duration-300 ${
                         isMobileView 
@@ -1822,21 +1876,33 @@ function HeaderModifications({ template, officerInfo, onChange, onSave, setIsDel
 
 // Body Modifications Component
 function BodyModifications({ template, onChange }: SettingsProps) {
-  if (!template) return null;
 
-  const bodyMods = template.bodyModifications || {};
+  const bodyMods = template?.bodyModifications || {};
   const availableTabs = [
     { id: 'todays-rates', label: "Today's Rates" },
     { id: 'get-custom-rate', label: 'Get My Custom Rate' },
     { id: 'document-checklist', label: 'Document Checklist' },
-    { id: 'apply-now', label: 'Apply Now' },
     { id: 'my-home-value', label: 'My Home Value' },
     { id: 'find-my-home', label: 'Find My Home' },
-    { id: 'learning-center', label: 'Learning Center' }
+    { id: 'learning-center', label: 'Learning Center' },
+    { id: 'neighborhood-reports', label: 'Neighborhood Reports' }
   ];
 
   const enabledTabs = bodyMods.enabledTabs || availableTabs.map(tab => tab.id);
   const activeTab = bodyMods.activeTab || 'todays-rates';
+  
+  // Filter available tabs to only show enabled tabs in the default active tab dropdown
+  const enabledTabsList = availableTabs.filter(tab => enabledTabs.includes(tab.id));
+
+  // Reset activeTab if it becomes disabled
+  React.useEffect(() => {
+    if (!template) return;
+    if (!enabledTabs.includes(activeTab) && enabledTabsList.length > 0) {
+      onChange('activeTab', enabledTabsList[0].id);
+    }
+  }, [enabledTabs, activeTab, enabledTabsList]);
+
+  if (!template) return null;
 
   return (
     <div className="space-y-6">
@@ -1850,7 +1916,7 @@ function BodyModifications({ template, onChange }: SettingsProps) {
               onChange={(e) => onChange('activeTab', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             >
-              {availableTabs.map(tab => (
+              {enabledTabsList.map(tab => (
                 <option key={tab.id} value={tab.id}>{tab.label}</option>
               ))}
             </select>
@@ -1925,8 +1991,9 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
             <label className="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
             <input
               type="text"
-              value={sidebarMods.companyName || 'Your Brand™'}
+              value={sidebarMods.companyName ?? ''}
               onChange={(e) => onChange('companyName', e.target.value)}
+              placeholder="Your Brand™"
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             />
           </div>
@@ -1935,7 +2002,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
             <label className="block text-sm font-medium text-gray-700 mb-2">Company Logo URL</label>
             <input
               type="url"
-              value={sidebarMods.logo || ''}
+              value={sidebarMods.logo ?? ''}
               onChange={(e) => onChange('logo', e.target.value)}
               placeholder="https://example.com/logo.png"
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
@@ -1946,8 +2013,9 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
             <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
             <input
               type="tel"
-              value={sidebarMods.phone || '(555) 123-4567'}
+              value={sidebarMods.phone ?? ''}
               onChange={(e) => onChange('phone', e.target.value)}
+              placeholder="(555) 123-4567"
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             />
           </div>
@@ -1956,8 +2024,9 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
             <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
             <input
               type="email"
-              value={sidebarMods.email || 'info@yourbrand.com'}
+              value={sidebarMods.email ?? ''}
               onChange={(e) => onChange('email', e.target.value)}
+              placeholder="info@yourbrand.com"
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             />
           </div>
@@ -1965,8 +2034,9 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
             <textarea
-              value={sidebarMods.address || '123 Main St. City'}
+              value={sidebarMods.address ?? ''}
               onChange={(e) => onChange('address', e.target.value)}
+              placeholder="123 Main St. City"
               rows={2}
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
             />
@@ -1981,7 +2051,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
             <label className="block text-sm font-medium text-gray-700 mb-2">Facebook URL</label>
             <input
               type="url"
-              value={sidebarMods.facebook || ''}
+              value={sidebarMods.facebook ?? ''}
               onChange={(e) => onChange('facebook', e.target.value)}
               placeholder="https://facebook.com/yourcompany"
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
@@ -1992,7 +2062,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
             <label className="block text-sm font-medium text-gray-700 mb-2">Twitter URL</label>
             <input
               type="url"
-              value={sidebarMods.twitter || ''}
+              value={sidebarMods.twitter ?? ''}
               onChange={(e) => onChange('twitter', e.target.value)}
               placeholder="https://twitter.com/yourcompany"
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
@@ -2003,7 +2073,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
             <label className="block text-sm font-medium text-gray-700 mb-2">LinkedIn URL</label>
             <input
               type="url"
-              value={sidebarMods.linkedin || ''}
+              value={sidebarMods.linkedin ?? ''}
               onChange={(e) => onChange('linkedin', e.target.value)}
               placeholder="https://linkedin.com/company/yourcompany"
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
@@ -2014,7 +2084,7 @@ function RightSidebarModifications({ template, onChange }: SettingsProps) {
             <label className="block text-sm font-medium text-gray-700 mb-2">Instagram URL</label>
             <input
               type="url"
-              value={sidebarMods.instagram || ''}
+              value={sidebarMods.instagram ?? ''}
               onChange={(e) => onChange('instagram', e.target.value)}
               placeholder="https://instagram.com/yourcompany"
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[#01bcc6] focus:border-[#01bcc6]"
@@ -2034,10 +2104,11 @@ function ColorsSettings({ template, onChange }: SettingsProps) {
     primary: template.colors?.primary || '#01bcc6',
     secondary: template.colors?.secondary || '#01bcc6',
     background: template.colors?.background || '#ffffff',
-    text: template.colors?.text || '#111827',
+    text: '#000000', // Always black - removed customization option
     textSecondary: template.colors?.textSecondary || '#6b7280',
     border: template.colors?.border || '#e5e7eb',
-    backgroundType: template.colors?.backgroundType || 'gradient'
+    backgroundType: template.colors?.backgroundType || 'gradient',
+    heroTextColor: template.colors?.heroTextColor || '#ffffff'
   };
 
   // Define theme presets
@@ -2208,21 +2279,24 @@ function ColorsSettings({ template, onChange }: SettingsProps) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Text Color</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Hero Text Color</label>
         <div className="flex items-center space-x-3">
           <input
             type="color"
-            value={colors.text}
-            onChange={(e) => onChange('text', e.target.value)}
+            value={colors.heroTextColor}
+            onChange={(e) => onChange('heroTextColor', e.target.value)}
             className="w-12 h-8 border border-gray-300 rounded cursor-pointer"
           />
           <input
             type="text"
-            value={colors.text}
-            onChange={(e) => onChange('text', e.target.value)}
+            value={colors.heroTextColor}
+            onChange={(e) => onChange('heroTextColor', e.target.value)}
             className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
+        <p className="text-xs text-gray-500 mt-1">
+          Color for text in the hero section (officer name, contact info, etc.)
+        </p>
       </div>
     </div>
   );

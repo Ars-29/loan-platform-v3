@@ -99,56 +99,55 @@ export const CustomizableLiquidBackground: React.FC<CustomizableLiquidBackground
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
 
-      // Create multiple liquid chrome layers with template colors
-      // Increase opacity for solid backgrounds to make animations more visible
-      const baseOpacity = backgroundType === 'solid' ? 2.5 : 1; // 2.5x more visible for solid
-      const layers = [
-        { color: secondaryColor, opacity: 0.08 * baseOpacity, speed: 0.0003, scale: 0.005 },
-        { color: primaryColor, opacity: 0.06 * baseOpacity, speed: 0.0002, scale: 0.004 },
-        { color: secondaryVariations.darker, opacity: 0.04 * baseOpacity, speed: 0.0001, scale: 0.003 }
-      ];
+      // Blob shapes removed - liquid chrome layers commented out
+      // const baseOpacity = backgroundType === 'solid' ? 2.5 : 1;
+      // const layers = [
+      //   { color: secondaryColor, opacity: 0.08 * baseOpacity, speed: 0.0003, scale: 0.005 },
+      //   { color: primaryColor, opacity: 0.06 * baseOpacity, speed: 0.0002, scale: 0.004 },
+      //   { color: secondaryVariations.darker, opacity: 0.04 * baseOpacity, speed: 0.0001, scale: 0.003 }
+      // ];
 
-      layers.forEach((layer, layerIndex) => {
-        ctx.globalAlpha = layer.opacity;
+      // layers.forEach((layer, layerIndex) => {
+      //   ctx.globalAlpha = layer.opacity;
         
-        // Create flowing liquid shapes
-        for (let i = 0; i < 5; i++) {
-          const centerX = (canvas.width / 5) * i + Math.sin(time * layer.speed + i) * 100;
-          const centerY = canvas.height / 2 + Math.cos(time * layer.speed * 0.7 + i) * 150;
+      //   // Create flowing liquid shapes
+      //   for (let i = 0; i < 5; i++) {
+      //     const centerX = (canvas.width / 5) * i + Math.sin(time * layer.speed + i) * 100;
+      //     const centerY = canvas.height / 2 + Math.cos(time * layer.speed * 0.7 + i) * 150;
           
-          const gradient = ctx.createRadialGradient(
-            centerX, centerY, 0,
-            centerX, centerY, 200 + Math.sin(time * layer.speed + i) * 100
-          );
+      //     const gradient = ctx.createRadialGradient(
+      //       centerX, centerY, 0,
+      //       centerX, centerY, 200 + Math.sin(time * layer.speed + i) * 100
+      //     );
           
-          // Get the color variations for this layer
-          const layerVariations = createColorVariations(layer.color);
+      //     // Get the color variations for this layer
+      //     const layerVariations = createColorVariations(layer.color);
           
-          gradient.addColorStop(0, layer.color);
-          gradient.addColorStop(0.7, layerVariations.withAlpha(0.5));
-          gradient.addColorStop(1, 'transparent');
+      //     gradient.addColorStop(0, layer.color);
+      //     gradient.addColorStop(0.7, layerVariations.withAlpha(0.5));
+      //     gradient.addColorStop(1, 'transparent');
 
-          ctx.fillStyle = gradient;
-          ctx.beginPath();
+      //     ctx.fillStyle = gradient;
+      //     ctx.beginPath();
           
-          // Create organic blob shape
-          const points = 20;
-          for (let j = 0; j < points; j++) {
-            const angle = (j / points) * Math.PI * 2;
-            const radius = 80 + Math.sin(time * layer.speed + angle * 3) * 30;
-            const x = centerX + Math.cos(angle) * radius;
-            const y = centerY + Math.sin(angle) * radius;
+      //     // Create organic blob shape
+      //     const points = 20;
+      //     for (let j = 0; j < points; j++) {
+      //       const angle = (j / points) * Math.PI * 2;
+      //       const radius = 80 + Math.sin(time * layer.speed + angle * 3) * 30;
+      //       const x = centerX + Math.cos(angle) * radius;
+      //       const y = centerY + Math.sin(angle) * radius;
             
-            if (j === 0) {
-              ctx.moveTo(x, y);
-            } else {
-              ctx.lineTo(x, y);
-            }
-          }
-          ctx.closePath();
-          ctx.fill();
-        }
-      });
+      //       if (j === 0) {
+      //         ctx.moveTo(x, y);
+      //       } else {
+      //         ctx.lineTo(x, y);
+      //       }
+      //     }
+      //     ctx.closePath();
+      //     ctx.fill();
+      //   }
+      // });
 
       // Add flowing lines using template colors
       // Increase visibility for solid backgrounds

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, lazy, Suspense } from 'react';
+import { useState, useRef, lazy, Suspense, useEffect } from 'react';
 import Icon, { icons } from '@/components/ui/Icon';
 import type { TabId } from '@/components/landingPage/LandingPageTabs';
 
@@ -112,8 +112,58 @@ export default function PublicProfileContent({
   companyName,
   forceMobileViewport = false
 }: PublicProfileContentProps) {
-  const [activeTab, setActiveTab] = useState<TabId>(initialActiveTab);
+  // Get active tab from template customization if available, otherwise use initialActiveTab
+  const bodyMods = profileData?.template?.bodyModifications || 
+                   profileData?.template?.body_modifications ||
+                   templateData?.template?.bodyModifications ||
+                   templateData?.template?.body_modifications ||
+                   {};
+
+  const templateActiveTab = bodyMods?.activeTab || bodyMods?.active_tab;
+  // Handle both camelCase and snake_case for enabledTabs
+  const enabledTabs = bodyMods?.enabledTabs || bodyMods?.enabled_tabs || ['todays-rates', 'get-custom-rate', 'document-checklist', 'my-home-value', 'find-my-home', 'learning-center', 'neighborhood-reports'];
+  
+  // Use template's activeTab if available and enabled, otherwise use initialActiveTab
+  const initialTab = (templateActiveTab && enabledTabs.includes(templateActiveTab)) 
+    ? templateActiveTab 
+    : initialActiveTab;
+
+  const [activeTab, setActiveTab] = useState<TabId>(initialTab as TabId);
   const tabsSectionRef = useRef<HTMLDivElement | null>(null);
+
+  // Update activeTab when template data loads (for public profile view only, not in preview mode)
+  useEffect(() => {
+    // Skip in preview mode - customizer manages tab state via onTabChange
+    if (isPreview) return;
+    
+    // Only run if templateData is available
+    if (!templateData) return;
+    
+    const bodyMods = profileData?.template?.bodyModifications || 
+                     profileData?.template?.body_modifications ||
+                     templateData?.template?.bodyModifications ||
+                     templateData?.template?.body_modifications ||
+                     {};
+
+    const templateActiveTab = bodyMods?.activeTab || bodyMods?.active_tab;
+    // Handle both camelCase and snake_case for enabledTabs
+    const enabledTabsFromEffect = bodyMods?.enabledTabs || bodyMods?.enabled_tabs || ['todays-rates', 'get-custom-rate', 'document-checklist', 'my-home-value', 'find-my-home', 'learning-center', 'neighborhood-reports'];
+    
+    // Debug logging
+    console.log('🔍 PublicProfileContent: Enabled tabs check:', {
+      bodyMods,
+      enabledTabsFromEffect,
+      enabledTabs,
+      templateActiveTab,
+      profileDataTemplate: profileData?.template,
+      templateDataTemplate: templateData?.template
+    });
+    
+    // Only update if we have a template activeTab and it's enabled, and it's different from current
+    if (templateActiveTab && enabledTabsFromEffect.includes(templateActiveTab) && templateActiveTab !== activeTab) {
+      setActiveTab(templateActiveTab as TabId);
+    }
+  }, [templateData, profileData?.template, isPreview, enabledTabs]);
 
   // Debug: Log force mobile viewport state
   console.log('🔍 PublicProfileContent: forceMobileViewport =', forceMobileViewport);
@@ -323,14 +373,25 @@ export default function PublicProfileContent({
                               Navigation
                             </h3>
                             <nav className="space-y-1">
-                              {[
-                                { id: 'todays-rates', label: "Today's Rates", icon: 'rates' },
-                                { id: 'get-custom-rate', label: 'Get My Custom Rate', icon: 'custom' },
-                                { id: 'document-checklist', label: 'Document Checklist', icon: 'document' },
-                                { id: 'my-home-value', label: 'My Home Value', icon: 'home' },
-                                { id: 'find-my-home', label: 'Find My Home', icon: 'home' },
-                                { id: 'learning-center', label: 'Learning Center', icon: 'about' }
-                              ].map((tab) => (
+                              {(() => {
+                                // Define all available tabs (excluding apply-now from navigation)
+                                const allTabs = [
+                                  { id: 'todays-rates', label: "Today's Rates", icon: 'rates' },
+                                  { id: 'get-custom-rate', label: 'Get My Custom Rate', icon: 'custom' },
+                                  { id: 'document-checklist', label: 'Document Checklist', icon: 'document' },
+                                  { id: 'my-home-value', label: 'My Home Value', icon: 'home' },
+                                  { id: 'find-my-home', label: 'Find My Home', icon: 'home' },
+                                  { id: 'learning-center', label: 'Learning Center', icon: 'about' },
+                                  { id: 'neighborhood-reports', label: 'Neighborhood Reports', icon: 'location' }
+                                ];
+
+                                // Filter to only show enabled tabs
+                                // Use the enabledTabs variable computed at the top of the component
+                                const navigationTabs = allTabs.filter(
+                                  tab => enabledTabs.includes(tab.id)
+                                );
+
+                                return navigationTabs.map((tab) => (
                                 <button
                                   key={tab.id}
                                   onClick={() => handleTabChange(tab.id as TabId)}
@@ -371,7 +432,8 @@ export default function PublicProfileContent({
                                   />
                                   {tab.label}
                                 </button>
-                              ))}
+                                ));
+                              })()}
                             </nav>
                           </div>
                         </div>
@@ -426,6 +488,7 @@ export default function PublicProfileContent({
                           <div className={forceMobileViewport ? '' : '@[80rem]:sticky @[80rem]:top-6 @[96rem]:top-8'}>
                             <UnifiedRightSidebar 
                               isPublic={true}
+                              companyData={profileData.company}
                               publicCompanyData={profileData.company}
                               publicTemplateData={templateData}
                               templateCustomization={profileData.template}

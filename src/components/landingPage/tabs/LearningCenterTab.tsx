@@ -550,12 +550,15 @@ button: {
           
           {/* Sub-Category Filter - Only show when a specific tab is selected (not "All") */}
           {selectedVideoTab !== 'all' && videoLoanCategories[selectedVideoTab as keyof typeof videoLoanCategories] && (
-            <div className="flex flex-wrap gap-2">
+            <div 
+              className="flex flex-nowrap gap-2 overflow-x-auto pb-2"
+              style={{ WebkitOverflowScrolling: 'touch' }}
+            >
               {videoLoanCategories[selectedVideoTab as keyof typeof videoLoanCategories].subCategories.map((subCategory) => (
                 <button
                   key={subCategory.id}
                   onClick={() => setSelectedVideoSubCategory(subCategory.id)}
-                  className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium transition-all duration-200 ${
+                  className={`flex-shrink-0 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium transition-all duration-200 ${
                     selectedVideoSubCategory === subCategory.id
                       ? 'border-2'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -577,12 +580,15 @@ button: {
         </div>
       ) : (
         <div className="mb-6">
-          <div className="flex flex-wrap gap-2">
+          <div 
+            className="flex flex-nowrap gap-2 overflow-x-auto pb-2"
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
             {categories.map((category) => (
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`px-4 py-2 font-medium transition-all duration-200 ${
+                className={`flex-shrink-0 px-4 py-2 font-medium transition-all duration-200 ${
                   selectedCategory === category.id
                     ? 'border'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'

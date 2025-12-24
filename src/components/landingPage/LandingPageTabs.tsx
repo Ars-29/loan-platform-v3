@@ -151,12 +151,29 @@ export default function LandingPageTabs({
     : getTemplateSync(selectedTemplate);
 
   // Get enabled tabs from customization or use all tabs
-  const enabledTabs = templateCustomization?.bodyModifications?.enabledTabs || tabs.map(tab => tab.id);
+  // Check both camelCase and snake_case, and also check templateData
+  const bodyModsForEnabledTabs = templateCustomization?.bodyModifications ||
+                                  templateData?.template?.bodyModifications ||
+                                  templateData?.template?.body_modifications ||
+                                  {};
+  const enabledTabs = bodyModsForEnabledTabs?.enabledTabs || bodyModsForEnabledTabs?.enabled_tabs || tabs.map(tab => tab.id);
   const filteredTabs = tabs.filter(tab => enabledTabs.includes(tab.id));
   const navigationTabs = filteredTabs.filter(tab => tab.id !== 'apply-now');
   
-  // Get active tab from customization or use prop
-  const effectiveActiveTab = templateCustomization?.bodyModifications?.activeTab || activeTab;
+  // Get active tab - use template customization's activeTab on initial load
+  // But allow activeTab prop to override when explicitly set (for customizer preview control)
+  // Check both camelCase and snake_case formats
+  const bodyMods = templateCustomization?.bodyModifications || 
+                   templateData?.template?.bodyModifications ||
+                   templateData?.template?.body_modifications ||
+                   {};
+  
+  const templateActiveTab = bodyMods?.activeTab;
+  
+  // Use template's activeTab if available, otherwise use the prop
+  // The prop will be set by parent components (customizer or PublicProfileContent) 
+  // which already handle initialization from template customization
+  const effectiveActiveTab = activeTab || templateActiveTab;
 
   // Debug template customization
   React.useEffect(() => {

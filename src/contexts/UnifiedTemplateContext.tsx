@@ -803,7 +803,7 @@ export function useTemplate(slug: string) {
         primary: '#ec4899',
         secondary: '#01bcc6',
         background: '#ffffff',
-        text: '#111827',
+        text: '#000000', // Always black
         textSecondary: '#6b7280',
         border: '#e5e7eb'
       },

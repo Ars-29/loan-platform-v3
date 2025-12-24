@@ -153,13 +153,13 @@ export default function SmartDropdown({
           {selectedOption && selectedOption.icon && (
             <Icon name={selectedOption.icon} className="h-4 w-4 text-[#01bcc6]" />
           )}
-          <span className={cn('truncate', !selectedOption && 'text-gray-400')}>
+          <span className={cn('truncate', !selectedOption && 'text-gray-400 dark:text-gray-500')}>
             {renderValue ? renderValue(selectedOption) : selectedOption?.label || placeholder}
           </span>
         </div>
         <Icon
           name={isOpen ? 'chevronUp' : 'chevronDown'}
-          className="h-4 w-4 text-gray-500"
+          className="h-4 w-4 text-gray-500 dark:text-gray-400"
         />
       </button>
 
@@ -185,8 +185,8 @@ export default function SmartDropdown({
                     aria-selected={isSelected}
                     className={cn(
                       'mx-1 flex w-[calc(100%-0.5rem)] items-center gap-2 px-3 py-2 text-left text-sm transition-colors',
-                      isActive && 'bg-[#01bcc6]/10 text-[#005b7c]',
-                      isSelected && 'font-semibold text-[#005b7c]',
+                      isActive && 'bg-[#01bcc6]/10 dark:bg-[#01bcc6]/20 text-[#005b7c] dark:text-[#01bcc6]',
+                      isSelected && 'font-semibold text-[#005b7c] dark:text-[#01bcc6]',
                       optionClassName,
                       isActive && activeOptionClassName
                     )}
@@ -198,14 +198,14 @@ export default function SmartDropdown({
                         name={option.icon}
                         className={cn(
                           'h-4 w-4 flex-shrink-0',
-                          isActive || isSelected ? 'text-[#005b7c]' : 'text-gray-500'
+                          isActive || isSelected ? 'text-[#005b7c] dark:text-[#01bcc6]' : 'text-gray-500 dark:text-gray-400'
                         )}
                       />
                     )}
                     <div className="flex flex-col text-left">
-                      <span>{option.label}</span>
+                      <span className="text-gray-900">{option.label}</span>
                       {option.description && (
-                        <span className="text-xs text-gray-500">{option.description}</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">{option.description}</span>
                       )}
                     </div>
                   </button>
