@@ -1876,9 +1876,8 @@ function HeaderModifications({ template, officerInfo, onChange, onSave, setIsDel
 
 // Body Modifications Component
 function BodyModifications({ template, onChange }: SettingsProps) {
-  if (!template) return null;
 
-  const bodyMods = template.bodyModifications || {};
+  const bodyMods = template?.bodyModifications || {};
   const availableTabs = [
     { id: 'todays-rates', label: "Today's Rates" },
     { id: 'get-custom-rate', label: 'Get My Custom Rate' },
@@ -1897,10 +1896,13 @@ function BodyModifications({ template, onChange }: SettingsProps) {
 
   // Reset activeTab if it becomes disabled
   React.useEffect(() => {
+    if (!template) return;
     if (!enabledTabs.includes(activeTab) && enabledTabsList.length > 0) {
       onChange('activeTab', enabledTabsList[0].id);
     }
   }, [enabledTabs, activeTab, enabledTabsList]);
+
+  if (!template) return null;
 
   return (
     <div className="space-y-6">
