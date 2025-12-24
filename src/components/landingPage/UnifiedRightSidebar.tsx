@@ -119,99 +119,213 @@ export default function UnifiedRightSidebar({
     }
   };
 
-  // Get company data - only from template customizations (rightSidebarModifications)
+  // Get company data - check template customizations first, then fallback to publicCompanyData/companyData
   const getCompanyName = () => {
-    // Only source: Template customization (what user set in customizer)
+    // Priority 1: Public template data (for public mode)
+    if (isPublic && publicTemplateData?.template?.rightSidebarModifications?.companyName) {
+      console.log('✅ UnifiedRightSidebar: Using public template data company name:', publicTemplateData.template.rightSidebarModifications.companyName);
+      return publicTemplateData.template.rightSidebarModifications.companyName;
+    }
+    // Priority 2: Template customization (what user set in customizer)
     if (templateCustomization?.rightSidebarModifications?.companyName) {
       console.log('✅ UnifiedRightSidebar: Using template customization company name:', templateCustomization.rightSidebarModifications.companyName);
       return templateCustomization.rightSidebarModifications.companyName;
     }
-    
-    // Fallback: Default company name
+    // Priority 3: Fallback to companyData/publicCompanyData
+    if (isPublic && publicCompanyData?.name) {
+      console.log('✅ UnifiedRightSidebar: Using public company data name:', publicCompanyData.name);
+      return publicCompanyData.name;
+    }
+    if (companyData?.name) {
+      console.log('✅ UnifiedRightSidebar: Using companyData name:', companyData.name);
+      return companyData.name;
+    }
+    // Final fallback: Default company name
     console.log('⚠️ UnifiedRightSidebar: Using default company name');
     return 'Your Company';
   };
 
   const getCompanyLogo = () => {
-    // Only source: Template customization (what user set in customizer)
-    const logo = templateCustomization?.rightSidebarModifications?.logo;
-    
-    if (logo) {
-      // Validate that it's a valid URL
+    // Priority 1: Public template data (for public mode)
+    if (isPublic && publicTemplateData?.template?.rightSidebarModifications?.logo) {
+      const logo = publicTemplateData.template.rightSidebarModifications.logo;
       if (isValidUrl(logo)) {
-        console.log('✅ UnifiedRightSidebar: Using template customization logo:', logo);
+        console.log('✅ UnifiedRightSidebar: Using public template data logo:', logo);
         return logo;
-      } else {
-        console.warn('⚠️ UnifiedRightSidebar: Logo is not a valid URL:', logo);
-        return null;
       }
     }
-    
+    // Priority 2: Template customization (what user set in customizer)
+    const logo = templateCustomization?.rightSidebarModifications?.logo;
+    if (logo && isValidUrl(logo)) {
+      console.log('✅ UnifiedRightSidebar: Using template customization logo:', logo);
+      return logo;
+    }
+    // Priority 3: Fallback to companyData/publicCompanyData
+    if (isPublic && publicCompanyData?.logo && isValidUrl(publicCompanyData.logo)) {
+      console.log('✅ UnifiedRightSidebar: Using public company data logo:', publicCompanyData.logo);
+      return publicCompanyData.logo;
+    }
+    if (companyData?.logo && isValidUrl(companyData.logo)) {
+      console.log('✅ UnifiedRightSidebar: Using companyData logo:', companyData.logo);
+      return companyData.logo;
+    }
     // Fallback: No logo
     console.log('⚠️ UnifiedRightSidebar: No logo found');
     return null;
   };
 
   const getPhone = () => {
-    // Only source: Template customization (what user set in customizer)
+    // Priority 1: Public template data (for public mode)
+    if (isPublic && publicTemplateData?.template?.rightSidebarModifications?.phone) {
+      console.log('✅ UnifiedRightSidebar: Using public template data phone:', publicTemplateData.template.rightSidebarModifications.phone);
+      return publicTemplateData.template.rightSidebarModifications.phone;
+    }
+    // Priority 2: Template customization (what user set in customizer)
     if (templateCustomization?.rightSidebarModifications?.phone) {
       console.log('✅ UnifiedRightSidebar: Using template customization phone:', templateCustomization.rightSidebarModifications.phone);
       return templateCustomization.rightSidebarModifications.phone;
     }
-    
+    // Priority 3: Fallback to companyData/publicCompanyData
+    if (isPublic && publicCompanyData?.phone) {
+      console.log('✅ UnifiedRightSidebar: Using public company data phone:', publicCompanyData.phone);
+      return publicCompanyData.phone;
+    }
+    if (companyData?.phone) {
+      console.log('✅ UnifiedRightSidebar: Using companyData phone:', companyData.phone);
+      return companyData.phone;
+    }
     // No fallback - return null if no data exists
     console.log('⚠️ UnifiedRightSidebar: No phone data found');
     return null;
   };
 
   const getEmail = () => {
-    // Only source: Template customization (what user set in customizer)
+    // Priority 1: Public template data (for public mode)
+    if (isPublic && publicTemplateData?.template?.rightSidebarModifications?.email) {
+      console.log('✅ UnifiedRightSidebar: Using public template data email:', publicTemplateData.template.rightSidebarModifications.email);
+      return publicTemplateData.template.rightSidebarModifications.email;
+    }
+    // Priority 2: Template customization (what user set in customizer)
     if (templateCustomization?.rightSidebarModifications?.email) {
       console.log('✅ UnifiedRightSidebar: Using template customization email:', templateCustomization.rightSidebarModifications.email);
       return templateCustomization.rightSidebarModifications.email;
     }
-    
+    // Priority 3: Fallback to companyData/publicCompanyData
+    if (isPublic && publicCompanyData?.email) {
+      console.log('✅ UnifiedRightSidebar: Using public company data email:', publicCompanyData.email);
+      return publicCompanyData.email;
+    }
+    if (companyData?.email) {
+      console.log('✅ UnifiedRightSidebar: Using companyData email:', companyData.email);
+      return companyData.email;
+    }
     // No fallback - return null if no data exists
     console.log('⚠️ UnifiedRightSidebar: No email data found');
     return null;
   };
 
   const getAddress = () => {
-    // Only source: Template customization (what user set in customizer)
+    // Priority 1: Public template data (for public mode)
+    if (isPublic && publicTemplateData?.template?.rightSidebarModifications?.address) {
+      console.log('✅ UnifiedRightSidebar: Using public template data address:', publicTemplateData.template.rightSidebarModifications.address);
+      return publicTemplateData.template.rightSidebarModifications.address;
+    }
+    // Priority 2: Template customization (what user set in customizer)
     if (templateCustomization?.rightSidebarModifications?.address) {
       console.log('✅ UnifiedRightSidebar: Using template customization address:', templateCustomization.rightSidebarModifications.address);
       return templateCustomization.rightSidebarModifications.address;
     }
-    
+    // Priority 3: Fallback to companyData/publicCompanyData
+    if (isPublic && publicCompanyData?.address) {
+      console.log('✅ UnifiedRightSidebar: Using public company data address:', publicCompanyData.address);
+      return publicCompanyData.address;
+    }
+    if (companyData?.address) {
+      console.log('✅ UnifiedRightSidebar: Using companyData address:', companyData.address);
+      return companyData.address;
+    }
     // No fallback - return null if no data exists
     console.log('⚠️ UnifiedRightSidebar: No address data found');
     return null;
   };
 
   const getWebsite = (): string | null => {
-    // Note: website is not in rightSidebarModifications, so return null
-    // You might want to add website to the customizer if needed
-    console.log('⚠️ UnifiedRightSidebar: Website not available in template customizations');
+    // Priority 1: Public template data (for public mode) - website may exist in publicTemplateData even if not in type
+    if (isPublic && publicTemplateData?.template?.rightSidebarModifications?.website) {
+      console.log('✅ UnifiedRightSidebar: Using public template data website:', publicTemplateData.template.rightSidebarModifications.website);
+      return publicTemplateData.template.rightSidebarModifications.website;
+    }
+    // Priority 2: Fallback to companyData/publicCompanyData (website not in rightSidebarModifications type)
+    if (isPublic && publicCompanyData?.website) {
+      console.log('✅ UnifiedRightSidebar: Using public company data website:', publicCompanyData.website);
+      return publicCompanyData.website;
+    }
+    if (companyData?.website) {
+      console.log('✅ UnifiedRightSidebar: Using companyData website:', companyData.website);
+      return companyData.website;
+    }
+    // No fallback - return null if no data exists
+    console.log('⚠️ UnifiedRightSidebar: No website data found');
     return null;
   };
 
   const getLicenseNumber = () => {
-    // Note: license_number is not in rightSidebarModifications, so return null
-    // You might want to add license_number to the customizer if needed
-    console.log('⚠️ UnifiedRightSidebar: License number not available in template customizations');
+    // Priority 1: Public template data (for public mode) - license_number may exist in publicTemplateData even if not in type
+    if (isPublic && publicTemplateData?.template?.rightSidebarModifications?.license_number) {
+      console.log('✅ UnifiedRightSidebar: Using public template data license number:', publicTemplateData.template.rightSidebarModifications.license_number);
+      return publicTemplateData.template.rightSidebarModifications.license_number;
+    }
+    // Priority 2: Fallback to companyData/publicCompanyData (license_number not in rightSidebarModifications type)
+    if (isPublic && publicCompanyData?.license_number) {
+      console.log('✅ UnifiedRightSidebar: Using public company data license number:', publicCompanyData.license_number);
+      return publicCompanyData.license_number;
+    }
+    if (companyData?.license_number) {
+      console.log('✅ UnifiedRightSidebar: Using companyData license number:', companyData.license_number);
+      return companyData.license_number;
+    }
+    // No fallback - return null if no data exists
+    console.log('⚠️ UnifiedRightSidebar: No license number data found');
     return null;
   };
 
   const getNmlsNumber = () => {
-    // Note: company_nmls_number is not in rightSidebarModifications, so return null
-    // You might want to add company_nmls_number to the customizer if needed
-    console.log('⚠️ UnifiedRightSidebar: NMLS number not available in template customizations');
+    // Priority 1: Public template data (for public mode) - company_nmls_number may exist in publicTemplateData even if not in type
+    if (isPublic && publicTemplateData?.template?.rightSidebarModifications?.company_nmls_number) {
+      console.log('✅ UnifiedRightSidebar: Using public template data NMLS number:', publicTemplateData.template.rightSidebarModifications.company_nmls_number);
+      return publicTemplateData.template.rightSidebarModifications.company_nmls_number;
+    }
+    // Priority 2: Fallback to companyData/publicCompanyData (company_nmls_number not in rightSidebarModifications type)
+    if (isPublic && publicCompanyData?.company_nmls_number) {
+      console.log('✅ UnifiedRightSidebar: Using public company data NMLS number:', publicCompanyData.company_nmls_number);
+      return publicCompanyData.company_nmls_number;
+    }
+    if (companyData?.company_nmls_number) {
+      console.log('✅ UnifiedRightSidebar: Using companyData NMLS number:', companyData.company_nmls_number);
+      return companyData.company_nmls_number;
+    }
+    // No fallback - return null if no data exists
+    console.log('⚠️ UnifiedRightSidebar: No NMLS number data found');
     return null;
   };
 
-  // Memoize social links - only from template customizations
+  // Memoize social links - check template customizations first, then fallback to companyData
   const socialLinks = React.useMemo(() => {
-    // Only source: Template customization (rightSidebarModifications)
+    // Priority 1: Public template data (for public mode)
+    if (isPublic && publicTemplateData?.template?.rightSidebarModifications) {
+      const mods = publicTemplateData.template.rightSidebarModifications;
+      const hasAnyValue = mods.facebook || mods.twitter || mods.linkedin || mods.instagram;
+      if (hasAnyValue) {
+        console.log('✅ UnifiedRightSidebar: Using public template data social media:', mods);
+        return {
+          facebook: mods.facebook || '',
+          twitter: mods.twitter || '',
+          linkedin: mods.linkedin || '',
+          instagram: mods.instagram || ''
+        };
+      }
+    }
+    // Priority 2: Template customization (rightSidebarModifications)
     if (templateCustomization?.rightSidebarModifications) {
       const sidebarMods = templateCustomization.rightSidebarModifications;
       const hasAnyValue = sidebarMods.facebook || 
@@ -229,9 +343,36 @@ export default function UnifiedRightSidebar({
         };
       }
     }
+    // Priority 3: Fallback to companyData/publicCompanyData
+    if (isPublic && publicCompanyData?.company_social_media) {
+      const social = publicCompanyData.company_social_media;
+      const hasAnyValue = social.facebook || social.twitter || social.linkedin || social.instagram;
+      if (hasAnyValue) {
+        console.log('✅ UnifiedRightSidebar: Using public company data social media:', social);
+        return {
+          facebook: social.facebook || '',
+          twitter: social.twitter || '',
+          linkedin: social.linkedin || '',
+          instagram: social.instagram || ''
+        };
+      }
+    }
+    if (companyData?.company_social_media) {
+      const social = companyData.company_social_media;
+      const hasAnyValue = social.facebook || social.twitter || social.linkedin || social.instagram;
+      if (hasAnyValue) {
+        console.log('✅ UnifiedRightSidebar: Using companyData social media:', social);
+        return {
+          facebook: social.facebook || '',
+          twitter: social.twitter || '',
+          linkedin: social.linkedin || '',
+          instagram: social.instagram || ''
+        };
+      }
+    }
     
     // Fallback: Empty social links
-    console.log('⚠️ UnifiedRightSidebar: No social media links found in template customizations');
+    console.log('⚠️ UnifiedRightSidebar: No social media links found');
     const links = {
       facebook: '',
       twitter: '',
@@ -245,7 +386,7 @@ export default function UnifiedRightSidebar({
     console.log('✅ UnifiedRightSidebar: Will show LinkedIn?', !!links.linkedin);
     console.log('✅ UnifiedRightSidebar: Will show Instagram?', !!links.instagram);
     return links;
-  }, [templateCustomization?.rightSidebarModifications]);
+  }, [isPublic, publicTemplateData?.template?.rightSidebarModifications, templateCustomization?.rightSidebarModifications, publicCompanyData?.company_social_media, companyData?.company_social_media]);
 
   
   // Comprehensive template data usage
