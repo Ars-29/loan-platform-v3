@@ -5,8 +5,7 @@ import { useRouter } from 'next/navigation';
 import { RouteGuard } from '@/components/auth/RouteGuard';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useAuth } from '@/hooks/use-auth';
-import { useTemplateSelection, useEfficientTemplates } from '@/contexts/UnifiedTemplateContext';
-import { DashboardLoadingState } from '@/components/ui/LoadingState';
+import { useTemplateSelection, useEfficientTemplates, useUnifiedTemplates } from '@/contexts/UnifiedTemplateContext';
 import { supabase } from '@/lib/supabase/client';
 import { icons } from '@/components/ui/Icon';
 import { Button } from '@/components/ui/Button';
@@ -15,6 +14,7 @@ import MortgageSearchForm from '@/components/landingPage/MortgageSearchForm';
 import RateResults from '@/components/landingPage/RateResults';
 import { useNotification } from '@/components/ui/Notification';
 import Modal from '@/components/ui/Modal';
+import TodaysRatesSkeleton from './TodaysRatesSkeleton';
 
 interface Rate {
   id: string;
@@ -91,6 +91,7 @@ type TabType = 'search' | 'selected';
 
 export default function TodaysRatesPage() {
   const { user, companyId, loading: authLoading } = useAuth();
+  const { isInitialized: templatesInitialized } = useUnifiedTemplates();
   const { selectedTemplate } = useTemplateSelection();
   const { getTemplateSync } = useEfficientTemplates();
   const router = useRouter();
@@ -132,9 +133,20 @@ export default function TodaysRatesPage() {
   // Confirmation modal states
   const [showSelectConfirm, setShowSelectConfirm] = useState(false);
   const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [rateToSelect, setRateToSelect] = useState<Rate | null>(null);
   const [rateToRemove, setRateToRemove] = useState<SelectedRate | null>(null);
+  const [rateToView, setRateToView] = useState<Rate | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  const formatCurrency = useCallback((amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  }, []);
 
   // Map property type from form to Mortech format
   const mapPropertyType = (type: string): string => {
@@ -418,6 +430,16 @@ export default function TodaysRatesPage() {
     setShowRemoveConfirm(true);
   }, []);
 
+  const handleViewDetailsClick = useCallback((rate: Rate) => {
+    // Attach current search parameters (if any) so Details can display them
+    const rateWithSearchParams: Rate = {
+      ...rate,
+      searchParams: rate.searchParams ?? currentSearchParams ?? undefined,
+    };
+    setRateToView(rateWithSearchParams);
+    setShowDetailsModal(true);
+  }, [currentSearchParams]);
+
   // Handle confirming rate removal
   const handleRemoveRate = useCallback(async () => {
     if (!user?.id || !rateToRemove) return;
@@ -516,12 +538,11 @@ export default function TodaysRatesPage() {
     }));
   };
 
-  if (authLoading) {
+  // Show a page-shaped skeleton on reload until auth + templates are ready.
+  if (authLoading || !templatesInitialized) {
     return (
       <RouteGuard allowedRoles={['employee']}>
-        <DashboardLayout>
-          <DashboardLoadingState />
-        </DashboardLayout>
+        <TodaysRatesSkeleton />
       </RouteGuard>
     );
   }
@@ -626,24 +647,24 @@ export default function TodaysRatesPage() {
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                           <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div>
-                              <div className="h-3 w-20 mb-2 bg-gray-200 rounded animate-pulse" />
-                              <div className="h-5 w-32 bg-gray-200 rounded animate-pulse" />
+                              <div className="h-3 w-20 mb-2 bg-gray-200/70 rounded animate-[pulse_4s_ease-in-out_infinite]" />
+                              <div className="h-5 w-32 bg-gray-200/70 rounded animate-[pulse_4s_ease-in-out_infinite]" />
                             </div>
                             <div>
-                              <div className="h-3 w-20 mb-2 bg-gray-200 rounded animate-pulse" />
-                              <div className="h-5 w-24 bg-gray-200 rounded animate-pulse" />
+                              <div className="h-3 w-20 mb-2 bg-gray-200/70 rounded animate-[pulse_4s_ease-in-out_infinite]" />
+                              <div className="h-5 w-24 bg-gray-200/70 rounded animate-[pulse_4s_ease-in-out_infinite]" />
                             </div>
                             <div>
-                              <div className="h-3 w-16 mb-2 bg-gray-200 rounded animate-pulse" />
-                              <div className="h-5 w-24 bg-gray-200 rounded animate-pulse" />
+                              <div className="h-3 w-16 mb-2 bg-gray-200/70 rounded animate-[pulse_4s_ease-in-out_infinite]" />
+                              <div className="h-5 w-24 bg-gray-200/70 rounded animate-[pulse_4s_ease-in-out_infinite]" />
                             </div>
                             <div>
-                              <div className="h-3 w-24 mb-2 bg-gray-200 rounded animate-pulse" />
-                              <div className="h-5 w-28 bg-gray-200 rounded animate-pulse" />
+                              <div className="h-3 w-24 mb-2 bg-gray-200/70 rounded animate-[pulse_4s_ease-in-out_infinite]" />
+                              <div className="h-5 w-28 bg-gray-200/70 rounded animate-[pulse_4s_ease-in-out_infinite]" />
                             </div>
                           </div>
                           <div className="w-full md:w-auto">
-                            <div className="h-10 w-32 bg-gray-200 rounded animate-pulse" />
+                            <div className="h-10 w-32 bg-gray-200/70 rounded animate-[pulse_4s_ease-in-out_infinite]" />
                           </div>
                         </div>
                       </SpotlightCard>
@@ -678,14 +699,23 @@ export default function TodaysRatesPage() {
                               <p className="text-sm font-medium dark:text-gray-900">${rate.monthlyPayment.toLocaleString()}</p>
                             </div>
                           </div>
-                          <Button
-                            variant={"primary"}
-                            onClick={() => handleSelectRateClick(rate)}
-                            disabled={isRateSelected(rate)}
-                            className="w-full md:w-auto"
-                          >
-                            {isRateSelected(rate) ? 'Already Selected' : 'Select Rate'}
-                          </Button>
+                          <div className="w-full md:w-auto flex flex-col sm:flex-row gap-2">
+                            <Button
+                              variant={"primary"}
+                              onClick={() => handleSelectRateClick(rate)}
+                              disabled={isRateSelected(rate)}
+                              className="w-full sm:w-auto sm:min-w-[160px]"
+                            >
+                              {isRateSelected(rate) ? 'Already Selected' : 'Select Rate'}
+                            </Button>
+                            <Button
+                              variant="secondary"
+                              onClick={() => handleViewDetailsClick(rate)}
+                              className="w-full sm:w-auto sm:min-w-[110px]"
+                            >
+                              Details
+                            </Button>
+                          </div>
                         </div>
                       </SpotlightCard>
                     ))}
@@ -705,24 +735,24 @@ export default function TodaysRatesPage() {
                       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4">
                           <div>
-                            <div className="h-3 w-20 mb-2 bg-gray-200 rounded animate-pulse" />
-                            <div className="h-5 w-32 bg-gray-200 rounded animate-pulse" />
+                            <div className="h-3 w-20 mb-2 bg-gray-200/70 rounded animate-[pulse_4s_ease-in-out_infinite]" />
+                            <div className="h-5 w-32 bg-gray-200/70 rounded animate-[pulse_4s_ease-in-out_infinite]" />
                           </div>
                           <div>
-                            <div className="h-3 w-20 mb-2 bg-gray-200 rounded animate-pulse" />
-                            <div className="h-5 w-24 bg-gray-200 rounded animate-pulse" />
+                            <div className="h-3 w-20 mb-2 bg-gray-200/70 rounded animate-[pulse_4s_ease-in-out_infinite]" />
+                            <div className="h-5 w-24 bg-gray-200/70 rounded animate-[pulse_4s_ease-in-out_infinite]" />
                           </div>
                           <div>
-                            <div className="h-3 w-16 mb-2 bg-gray-200 rounded animate-pulse" />
-                            <div className="h-5 w-24 bg-gray-200 rounded animate-pulse" />
+                            <div className="h-3 w-16 mb-2 bg-gray-200/70 rounded animate-[pulse_4s_ease-in-out_infinite]" />
+                            <div className="h-5 w-24 bg-gray-200/70 rounded animate-[pulse_4s_ease-in-out_infinite]" />
                           </div>
                           <div>
-                            <div className="h-3 w-24 mb-2 bg-gray-200 rounded animate-pulse" />
-                            <div className="h-5 w-28 bg-gray-200 rounded animate-pulse" />
+                            <div className="h-3 w-24 mb-2 bg-gray-200/70 rounded animate-[pulse_4s_ease-in-out_infinite]" />
+                            <div className="h-5 w-28 bg-gray-200/70 rounded animate-[pulse_4s_ease-in-out_infinite]" />
                           </div>
                         </div>
                         <div className="w-full md:w-auto">
-                          <div className="h-10 w-24 bg-gray-200 rounded animate-pulse" />
+                          <div className="h-10 w-24 bg-gray-200/70 rounded animate-[pulse_4s_ease-in-out_infinite]" />
                         </div>
                       </div>
                     </SpotlightCard>
@@ -959,6 +989,134 @@ export default function TodaysRatesPage() {
                 </div>
               </>
             )}
+          </div>
+        )}
+      </Modal>
+
+      {/* Rate Details Modal */}
+      <Modal
+        isOpen={showDetailsModal}
+        onClose={() => {
+          setShowDetailsModal(false);
+          setRateToView(null);
+        }}
+        title="Rate Details"
+        className="max-w-3xl"
+      >
+        {rateToView && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="text-base font-semibold text-gray-900 mb-3">Basic Information</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between gap-4">
+                    <span className="text-gray-600">Lender</span>
+                    <span className="font-medium text-gray-900 text-right">{rateToView.lenderName}</span>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <span className="text-gray-600">Loan Program</span>
+                    <span className="font-medium text-gray-900 text-right">{rateToView.loanProgram}</span>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <span className="text-gray-600">Loan Type</span>
+                    <span className="font-medium text-gray-900 text-right">{rateToView.loanType}</span>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <span className="text-gray-600">Loan Term</span>
+                    <span className="font-medium text-gray-900 text-right">{rateToView.loanTerm} years</span>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <span className="text-gray-600">Lock Period</span>
+                    <span className="font-medium text-gray-900 text-right">{rateToView.lockPeriod} days</span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-base font-semibold text-gray-900 mb-3">Financial Details</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between gap-4">
+                    <span className="text-gray-600">Interest Rate</span>
+                    <span className="font-semibold text-right" style={{ color: templateColors.primary }}>
+                      {rateToView.interestRate.toFixed(3)}%
+                    </span>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <span className="text-gray-600">APR</span>
+                    <span className="font-medium text-gray-900 text-right">{rateToView.apr.toFixed(3)}%</span>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <span className="text-gray-600">Monthly Payment</span>
+                    <span className="font-semibold text-right">{formatCurrency(rateToView.monthlyPayment)}</span>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <span className="text-gray-600">Fees</span>
+                    <span className="font-medium text-gray-900 text-right">{formatCurrency(rateToView.fees)}</span>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <span className="text-gray-600">Points</span>
+                    <span className="font-medium text-gray-900 text-right">{rateToView.points.toFixed(3)}</span>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <span className="text-gray-600">Credits</span>
+                    <span className="font-medium text-gray-900 text-right">{formatCurrency(rateToView.credits)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {rateToView.searchParams && (
+              <div className="pt-4 border-t border-gray-200">
+                <h4 className="text-base font-semibold text-gray-900 mb-3">Search Parameters</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                  <div className="flex justify-between gap-4">
+                    <span className="text-gray-600">Purpose</span>
+                    <span className="font-medium text-gray-900 text-right">{rateToView.searchParams.loanPurpose}</span>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <span className="text-gray-600">Credit Score</span>
+                    <span className="font-medium text-gray-900 text-right">{rateToView.searchParams.creditScore}</span>
+                  </div>
+
+                  {rateToView.searchParams.purchasePrice !== undefined && (
+                    <div className="flex justify-between gap-4">
+                      <span className="text-gray-600">Purchase Price</span>
+                      <span className="font-medium text-gray-900 text-right">
+                        {formatCurrency(rateToView.searchParams.purchasePrice)}
+                      </span>
+                    </div>
+                  )}
+
+                  {rateToView.searchParams.downPayment !== undefined && (
+                    <div className="flex justify-between gap-4">
+                      <span className="text-gray-600">Down Payment</span>
+                      <span className="font-medium text-gray-900 text-right">
+                        {formatCurrency(rateToView.searchParams.downPayment)}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between gap-4">
+                    <span className="text-gray-600">Loan Amount</span>
+                    <span className="font-medium text-gray-900 text-right">
+                      {formatCurrency(rateToView.searchParams.loanAmount)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-end pt-2">
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setShowDetailsModal(false);
+                  setRateToView(null);
+                }}
+              >
+                Close
+              </Button>
+            </div>
           </div>
         )}
       </Modal>
